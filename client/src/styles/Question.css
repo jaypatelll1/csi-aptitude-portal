@@ -1,0 +1,22 @@
+/* Question.css */
+.question-container {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  flex-direction: row;
+  justify-items:start;
+  
+}
+
+.question-text {
+  font-weight: bold;
+  margin-bottom: 15px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.option-label {
+  display: block;
+  margin: 5px 0;
+  font-family: 'Roboto', sans-serif;
+}

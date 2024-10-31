@@ -1,0 +1,14 @@
+/* MCQExamPage.css */
+
+.exam-page {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 20px;
+}
+
+.questions-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
