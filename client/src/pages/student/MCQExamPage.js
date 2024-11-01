@@ -1,31 +1,33 @@
-// MCQExamPage.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { setOption } from '../../redux/optionsSlice';
 import Question from '../../components/mcqexampage/Question';
 import Sidebar from '../../components/mcqexampage/Sidebar';
 import '../../styles/MCQExamPage.css';
 
-const questions = [
-  {
-    question: "What is React.js and which domain is it used in?",
-    options: [
-      "Library, Web Dev",
-      "Software, UI/UX",
-      "Library, AI",
-      "Framework, App Dev"
-    ]
-  },
-  // Add more questions as needed
-];
-
 const MCQExamPage = () => {
-  // Initialize selectedOption as an array of null values with length equal to the number of questions
-  const [selectedOptions, setSelectedOptions] = useState(Array(questions.length).fill(null));
+  const [questions, setQuestions] = useState([]);
+  const selectedOptions = useSelector((state) => state.options.selectedOptions);
+  const dispatch = useDispatch();
 
-  // Function to handle selection of each question's option individually
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/questions');
+        setQuestions(response.data);
+
+        dispatch({ type: 'options/initializeOptions', payload: response.data.length });
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+      }
+    };
+
+    fetchQuestions();
+  }, [dispatch]);
+
   const handleOptionSelect = (option, questionIndex) => {
-    const updatedOptions = [...selectedOptions];
-    updatedOptions[questionIndex] = option;
-    setSelectedOptions(updatedOptions);
+    dispatch(setOption({ questionIndex, option }));
   };
 
   return (
@@ -41,6 +43,7 @@ const MCQExamPage = () => {
         {questions.map((q, index) => (
           <Question
             key={index}
+            questionNumber={index + 1}
             question={q.question}
             options={q.options}
             selectedOption={selectedOptions[index]}

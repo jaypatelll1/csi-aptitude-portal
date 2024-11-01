@@ -1,22 +1,26 @@
-/* Question.css */
 .question-container {
   margin: 20px;
   padding: 20px;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 15px;
   flex-direction: row;
   justify-items:start;
   
 }
-
 .question-text {
-  font-weight: bold;
+  font-weight:500;
   margin-bottom: 15px;
   font-family: 'Roboto', sans-serif;
+  font-size: 20px
 }
 
 .option-label {
+  font-weight:100;
   display: block;
-  margin: 5px 0;
+  margin: 15px 15px;
   font-family: 'Roboto', sans-serif;
+}
+
+.option-label input {
+  margin-right: 10px; 
 }
