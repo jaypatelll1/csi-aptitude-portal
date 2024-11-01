@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setOption } from '../../redux/optionsSlice';
+import { setOption, markVisited, initializeOptions } from '../../redux/optionsSlice';
 import Question from '../../components/mcqexampage/Question';
 import Sidebar from '../../components/mcqexampage/Sidebar';
 import '../../styles/MCQExamPage.css';
 
 const MCQExamPage = () => {
   const [questions, setQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const selectedOptions = useSelector((state) => state.options.selectedOptions);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/questions');
+        const response = await axios.get('/api/questions');
         setQuestions(response.data);
-
-        dispatch({ type: 'options/initializeOptions', payload: response.data.length });
+        dispatch(initializeOptions(response.data.length));
       } catch (error) {
         console.error('Error fetching questions:', error);
       }
@@ -26,30 +26,61 @@ const MCQExamPage = () => {
     fetchQuestions();
   }, [dispatch]);
 
-  const handleOptionSelect = (option, questionIndex) => {
-    dispatch(setOption({ questionIndex, option }));
+  const handleOptionSelect = (option) => {
+    dispatch(setOption({ questionIndex: currentQuestionIndex, option }));
+  };
+
+  const handleQuestionVisit = (index) => {
+    setCurrentQuestionIndex(index);
+    dispatch(markVisited(index));
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      handleQuestionVisit(currentQuestionIndex + 1);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      handleQuestionVisit(currentQuestionIndex - 1);
+    }
   };
 
   return (
     <div className="exam-page">
       <Sidebar
         userName="Akshay Manjrekar"
-        attempted={selectedOptions.filter(opt => opt !== null).length}
-        remaining={questions.length - selectedOptions.filter(opt => opt !== null).length}
         timeLeft="00:19:69"
-        questions={selectedOptions.map(option => (option ? 'answered' : 'unanswered'))}
+        questionsStatus={selectedOptions}
+        onQuestionSelect={handleQuestionVisit}
       />
       <div className="questions-section">
-        {questions.map((q, index) => (
+        {questions.length > 0 && (
           <Question
-            key={index}
-            questionNumber={index + 1}
-            question={q.question}
-            options={q.options}
-            selectedOption={selectedOptions[index]}
-            onSelectOption={(option) => handleOptionSelect(option, index)}
+            questionNumber={currentQuestionIndex + 1}
+            question={questions[currentQuestionIndex].question}
+            options={questions[currentQuestionIndex].options}
+            selectedOption={selectedOptions[currentQuestionIndex]?.option}
+            onSelectOption={handleOptionSelect}
           />
-        ))}
+        )}
+        <div className="navigation-buttons">
+          <button 
+            className="prev-button" 
+            onClick={handlePreviousQuestion} 
+            disabled={currentQuestionIndex === 0}
+          >
+            Previous
+          </button>
+          <button 
+            className="next-button" 
+            onClick={handleNextQuestion} 
+            disabled={currentQuestionIndex === questions.length - 1}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

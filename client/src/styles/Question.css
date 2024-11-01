@@ -4,23 +4,24 @@
   border: 1px solid #ddd;
   border-radius: 15px;
   flex-direction: row;
-  justify-items:start;
-  
+  justify-items: start;
+  background-color: #FFFFFF;
 }
+
 .question-text {
-  font-weight:500;
+  font-weight:medium;
   margin-bottom: 15px;
   font-family: 'Roboto', sans-serif;
-  font-size: 20px
+  font-size: 20px;
 }
 
 .option-label {
-  font-weight:100;
+  font-weight: 100;
   display: block;
   margin: 15px 15px;
   font-family: 'Roboto', sans-serif;
 }
 
 .option-label input {
-  margin-right: 10px; 
+  margin-right: 10px;
 }

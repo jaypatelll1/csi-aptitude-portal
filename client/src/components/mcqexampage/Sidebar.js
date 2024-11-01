@@ -1,20 +1,38 @@
 import React from 'react';
 import '../../styles/Sidebar.css';
-
-const Sidebar = ({ userName, attempted, remaining, timeLeft, questions }) => {
+import clockIcon from '../../assets/sidebar/stopwatch.png';
+const Sidebar = ({ userName, timeLeft, questionsStatus, onQuestionSelect }) => {
   return (
     <div className="sidebar">
-      <div className="user-info">
-        <h3>{userName}</h3>
-        <p>Attempted: {attempted}</p>
-        <p>Remaining: {remaining}</p>
-        <p>Time Left: {timeLeft}</p>
+      <div className="timer-cnt">
+        <div className="timer">
+        <img src={clockIcon} alt="Clock Icon" className="clock-icon" /> {timeLeft}
+        </div>
       </div>
-      <div className="question-status">
-        {questions.map((status, index) => (
+      <h3 className="Questions-txt">Questions</h3>
+      <div className="legend">
+        <div className="legend-item answered">
+          <span className="legend-color-box"></span> Answered
+        </div>
+        <div className="legend-item visited">
+          <span className="legend-color-box"></span> Visited
+        </div>
+        <div className="legend-item unanswered">
+          <span className="legend-color-box"></span> Unanswered
+        </div>
+      </div>
+      <div className="questions-list">
+        {questionsStatus.map((status, index) => (
           <div
             key={index}
-            className={`question-box ${status === 'answered' ? 'answered' : 'unanswered'}`}
+            className={`question-box ${
+              status?.status === 'answered'
+                ? 'answered'
+                : status?.status === 'visited'
+                ? 'visited'
+                : 'unanswered'
+            }`}
+            onClick={() => onQuestionSelect(index)}
           >
             {index + 1}
           </div>

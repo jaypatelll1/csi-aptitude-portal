@@ -8,7 +8,13 @@ const optionsSlice = createSlice({
   reducers: {
     setOption: (state, action) => {
       const { questionIndex, option } = action.payload;
-      state.selectedOptions[questionIndex] = option;
+      state.selectedOptions[questionIndex] = { option, status: 'answered' };
+    },
+    markVisited: (state, action) => {
+      const questionIndex = action.payload;
+      if (!state.selectedOptions[questionIndex]) {
+        state.selectedOptions[questionIndex] = { status: 'visited' };
+      }
     },
     initializeOptions: (state, action) => {
       state.selectedOptions = Array(action.payload).fill(null); 
@@ -16,5 +22,5 @@ const optionsSlice = createSlice({
   },
 });
 
-export const { setOption, initializeOptions } = optionsSlice.actions;
+export const { setOption, markVisited, initializeOptions } = optionsSlice.actions;
 export default optionsSlice.reducer;
