@@ -1,16 +1,29 @@
-const express = require('express');
-require('dotenv').config();
-const {query} = require('./config/db');
-const {registerUser, loginUser} = require('./controllers/userController')
+// const express = require('express');
+// const { query, initializeDB } = require('./db');
 
-const PORT = 3000;
+// const app = express();
+// app.use(express.json()); // Middleware for parsing JSON requests
 
-const app = express();
-app.use(express.json());
+// // Initialize the database when the server starts
+// initializeDB();
 
-app.post('/api/register', registerUser);
-app.post('/api/login', loginUser);
+// // Test route to insert and fetch data
+// app.post('/api/users', async (req, res) => {
+//   const { name, email } = req.body;
 
-app.listen(PORT, 'localhost', ()=>{
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+//   try {
+//     // Insert data
+//     await query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email]);
+    
+//     // Retrieve all users
+//     const result = await query('SELECT * FROM users');
+//     res.status(200).json({ success: true, users: result.rows });
+//   } catch (err) {
+//     console.error('Error:', err);
+//     res.status(500).json({ success: false, message: 'Database error' });
+//   }
+// });
+
+// // Start server
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
