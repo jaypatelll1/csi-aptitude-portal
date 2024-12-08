@@ -1,6 +1,6 @@
 import React from 'react';
-import '../../styles/Sidebar.css';
-import clockIcon from '../../assets/sidebar/stopwatch.png';
+import '../../../styles/Sidebar.css';
+import clockIcon from '../../../assets/sidebar/stopwatch.png';
 const Sidebar = ({ userName, timeLeft, questionsStatus, onQuestionSelect }) => {
   return (
     <div className="sidebar">

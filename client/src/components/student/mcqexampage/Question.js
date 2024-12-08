@@ -1,6 +1,6 @@
 // Question.js
 import React from 'react';
-import '../../styles/Question.css';
+import '../../../styles/Question.css';
 
 const Question = ({ questionNumber, question, options, selectedOption, onSelectOption }) => {
   return (

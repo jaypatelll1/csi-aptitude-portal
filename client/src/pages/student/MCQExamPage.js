@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { setOption, markVisited, initializeOptions } from '../../redux/optionsSlice';
-import Question from '../../components/mcqexampage/Question';
-import Sidebar from '../../components/mcqexampage/Sidebar';
+import Question from '../../components/student/mcqexampage/Question';
+import Sidebar from '../../components/student/mcqexampage/Sidebar';
 import '../../styles/MCQExamPage.css';
 
 const MCQExamPage = () => {
