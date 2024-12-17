@@ -1,4 +1,4 @@
-const examModel = require("../models/examModel");
+const examModel = require('../models/examModel');
 const jwt = require('jsonwebtoken');
 
 const createExam = async (req, res) => {
@@ -13,12 +13,12 @@ const createExam = async (req, res) => {
   });
   if (!newExam) {
     return res.status(500).json({
-      error: "Server Error",
-      message: "Could not create exam",
+      error: 'Server Error',
+      message: 'Could not create exam',
     });
   }
   res.status(201).json({
-    message: "Exam created successfully",
+    message: 'Exam created successfully',
     newExam,
   });
 };
@@ -27,10 +27,24 @@ const getExams = async (req, res) => {
   const exams = await examModel.getExams();
   if (exams.length == 0) {
     return res.json({
-      message: "No Exams found",
+      message: 'No Exams found',
     });
   }
   return res.json(exams);
+};
+
+const getExamById = async (req, res) => {
+  const { exam_id } = req.params;
+
+  try {
+    const exam = await examModel.getExamById(exam_id);
+
+    if (!exam) return res.status(404).json({ message: 'Exam not found.' });
+
+    res.status(200).json({ exam });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const updateExam = async (req, res) => {
@@ -47,11 +61,11 @@ const updateExam = async (req, res) => {
   });
   if (!updatedExam) {
     return res.json({
-      message: "Could not update Exam details",
+      message: 'Could not update Exam details',
     });
   }
   res.status(201).json({
-    message: "Exam details updated successfully",
+    message: 'Exam details updated successfully',
     updatedExam,
   });
 };
@@ -61,13 +75,13 @@ const deleteExam = async (req, res) => {
   const deletedExam = await examModel.deleteExam({ exam_id });
   if (!deletedExam) {
     return res.status(400).json({
-      message: "Exam details Not Found",
+      message: 'Exam details Not Found',
     });
   }
   res.status(200).json({
-    message: "Exam deleted successfully",
+    message: 'Exam deleted successfully',
     deletedExam,
   });
 };
 
-module.exports = { createExam, getExams, updateExam, deleteExam };
+module.exports = { createExam, getExams, getExamById, updateExam, deleteExam };
