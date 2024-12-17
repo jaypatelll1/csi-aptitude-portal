@@ -2,13 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
-require('dotenv').config();
+const {jwtAuthMiddleware} = require('./middlewares/jwtAuthMiddleware')
 
+const userRouter = require("./routes/userRoutes");
+const examRoutes = require('./routes/examRoutes');
 const questionsRoutes = require('./routes/questionRoutes');
 // const validateQuestion = require('./middlewares/question');
-const { createQuestionsTable } = require('./models/questionModel');
-const userRouter = require("./routes/userRoutes");
-
 
 const app = express();
 app.use(express.json());
@@ -17,12 +16,10 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("dev"));
 
-
-
-
-// app.use("/api" , require("./routes/exam"))
-app.use('/api/questions', questionsRoutes);
+//Routes
 app.use('/api/user', userRouter);
+app.use("/api/exam" ,jwtAuthMiddleware, examRoutes )
+app.use('/api/questions', questionsRoutes);
 
 
 const PORT = 3000;
