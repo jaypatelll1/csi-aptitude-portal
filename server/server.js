@@ -1,29 +1,30 @@
-// const express = require('express');
-// const { query, initializeDB } = require('./db');
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const morgan = require("morgan");
 
-// const app = express();
-// app.use(express.json()); // Middleware for parsing JSON requests
+const questionsRoutes = require('./routes/question');
+// const validateQuestion = require('./middlewares/question');
+const { createQuestionsTable } = require('./models/questionModel');
 
-// // Initialize the database when the server starts
-// initializeDB();
 
-// // Test route to insert and fetch data
-// app.post('/api/users', async (req, res) => {
-//   const { name, email } = req.body;
+const app = express();
+app.use(express.json());
+// Middlewares
+app.use(bodyParser.json());
+app.use(cors());
+app.use(morgan("dev"));
 
-//   try {
-//     // Insert data
-//     await query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email]);
-    
-//     // Retrieve all users
-//     const result = await query('SELECT * FROM users');
-//     res.status(200).json({ success: true, users: result.rows });
-//   } catch (err) {
-//     console.error('Error:', err);
-//     res.status(500).json({ success: false, message: 'Database error' });
-//   }
-// });
 
-// // Start server
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+
+// app.use("/api" , require("./routes/exam"))
+app.use('/api/questions', questionsRoutes);
+
+
+
+const PORT = 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running at port ${PORT}`);
+});
