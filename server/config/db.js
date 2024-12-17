@@ -1,18 +1,26 @@
-require('dotenv').config();
 const { Pool } = require('pg');
+const {PGHOST, PGDATABASE, PGUSER, PGPASSWORD} = process.env;
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, 
+  host: PGHOST,
+  database: PGDATABASE,
+  username: PGUSER,
+  password: PGPASSWORD,
+  port: process.env.PGPORT,
+  ssl: { require: true}, 
 });
 
 const query = async (text, params) => {
   const client = await pool.connect();
   try {
-    const res = await client.query(text, params);
+    const res = client.query(text, params);
     return res;
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error("Error running query!", error.stack);
+  } finally{
+    if(client){
+      client.release();
+    }
   }
 };
 

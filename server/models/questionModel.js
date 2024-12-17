@@ -19,13 +19,13 @@ const createQuestionsTable = async () => {
 
 
 // Function to insert a new question
-const insertQuestion = async (question_id,exam_id, question_text, options, correct_option) => {
+const insertQuestion = async (exam_id, question_text, options, correct_option) => {
   const queryText = `
-    INSERT INTO questions (question_id,exam_id, question_text, options, correct_option)
-    VALUES ($1, $2, $3, $4,$5) RETURNING *;
+    INSERT INTO questions (exam_id, question_text, options, correct_option)
+    VALUES ($1, $2, $3, $4) RETURNING *;
   `;
   
-  const values = [question_id,exam_id, question_text, options, correct_option];
+  const values = [exam_id, question_text, options, correct_option];
   
   try {
    

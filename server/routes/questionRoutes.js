@@ -7,12 +7,12 @@ const questionsModel = require('../models/questionModel');
 
 // Route to create a new question
 router.post('/', async (req, res) => {
-  const { question_id,exam_id, question_text, options, correct_option } = req.body;
+  const { exam_id, question_text, options, correct_option } = req.body;
   console.log('req ',req.body);
   
 
   try {
-    const newQuestion = await questionsModel.insertQuestion(question_id,exam_id, question_text, options, correct_option);
+    const newQuestion = await questionsModel.insertQuestion(exam_id, question_text, options, correct_option);
     res.status(201).json(newQuestion); // Return the created question
   } catch (error) {
     res.status(500).json({ message: 'Error creating question', error });
