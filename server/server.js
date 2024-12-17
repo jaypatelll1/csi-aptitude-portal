@@ -7,6 +7,7 @@ const {jwtAuthMiddleware} = require('./middlewares/jwtAuthMiddleware')
 const userRouter = require("./routes/userRoutes");
 const examRoutes = require('./routes/examRoutes');
 const questionsRoutes = require('./routes/questionRoutes');
+const responseRoutes = require('./routes/responseRoutes')
 // const validateQuestion = require('./middlewares/question');
 
 const app = express();
@@ -20,7 +21,7 @@ app.use(morgan("dev"));
 app.use('/api/user', userRouter);
 app.use("/api/exam" ,jwtAuthMiddleware, examRoutes )
 app.use('/api/questions', questionsRoutes);
-
+app.use('/api/exam/:exam_id', jwtAuthMiddleware, responseRoutes)
 
 const PORT = 3000;
 
