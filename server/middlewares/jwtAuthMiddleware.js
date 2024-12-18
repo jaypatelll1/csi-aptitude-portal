@@ -11,9 +11,10 @@ const jwtAuthMiddleware = (req, res, next) => {
         .json({ message: "Access Denied: No Token Provided" });
     }
   
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) return res.status(403).json({ message: "Invalid Token" });
-      req.user = user; // Attach user details from the token to the request object
+      console.log("Decoded token: ", decoded)
+      req.user = decoded; // Attach user details from the token to the request object
       console.log(req.user)
       next();
     });
