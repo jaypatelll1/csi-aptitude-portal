@@ -1,53 +1,90 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const {findUserByEmail, createUser} = require('../models/userModel')
 
-// User registration controller
+const userModel = require('../models/userModel');
 
-const registerUser = async (req, res)=>{
-    const {name, email, password} = req.body;
-    if(!name || !email || !password) return console.log("All fields are required!");
-    try{
-        const existingUser = await findUserByEmail(email);
-        if(existingUser){
-            return console.log("User already exists.");
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await createUser(name,email, hashedPassword);
-        const token = jwt.sign(newUser, process.env.JWT_SECRET);
-        res.json({
-            "user":newUser,
-            "token":token
-        })
-    } catch(err){
-        console.error(err);
+// Function to create a new user/register
+const registerUser = async (req, res) => {
+  const { name, email, password, role } = req.body;
+  if (!name || !email || !password)
+    return console.log('All fields are required!');
+  try {
+    const existingUser = await userModel.findUserByEmail(email);
+    if (existingUser) {
+      return console.log('User already exists.');
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await userModel.createUser(
+      name,
+      email,
+      hashedPassword,
+      role
+    );
+    res.json(newUser);
+  } catch (err) {
+    console.error(err);
+  }
 };
 
-const loginUser = async (req, res)=>{
-    const {email, password} = req.body;
-    try {
-        const result = await findUserByEmail(email);
-        if(!result){
-            return console.error("404 not found");
-        }
-        const decoded = bcrypt.compare(password, result.password_hash);
-        if(!decoded){
-            return console.error("Invalid Email or password");
-        }
-        console.log(result) //
-        const token = jwt.sign({id:result.user_id, email:result.email, name:result.name}, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({
-            "token":token
-        });
-    } catch (error) {
-        // console.error("Unexpected error!", error.stack);
-        console.log(error)
-        res.status(500)
+// Function for logging in
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const result = await userModel.findUserByEmail(email);
+    if (!result) {
+      return res.status(404).json({ message: 'Error' });
     }
-}
+    const decoded = bcrypt.compare(password, result.password_hash);
+    if (!decoded) {
+      return res.status(400).json({ message: 'Invalid Email or password' });
+    }
+    const token = jwt.sign(
+      { id: result.user_id, email: result.email, name: result.name },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    res.json({
+      token: token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+  }
+};
 
+// Function to update details of user
+const updateUser = async (req, res) => {
+  const { name, email, password, role } = req.body;
+  const id = req.user.id;
+  if (!name || !email || !password)
+    return console.log('All fields are required!');
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const updatedUser = await userModel.updateUser(
+      id,
+      name,
+      email,
+      hashedPassword,
+      role
+    );
+    return res.json(updatedUser);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
 
-// exporting the modules 
-module.exports = {registerUser, loginUser}
+// Function to delete a user
+const deleteUser = async (req, res) => {
+  const id = req.user.id;
+  try {
+    const deletedUser = await userModel.deleteUser(id);
+    return res.json({ message: 'User deleted successfully', deletedUser });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+module.exports = { registerUser, loginUser, updateUser, deleteUser };

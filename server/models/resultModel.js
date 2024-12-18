@@ -1,4 +1,4 @@
-const {query} = require('../config/db3');
+const {query} = require('../config/db');
 
 // CREATE: Insert a new result
 async function createResult(studentId, examId, totalScore, maxScore, completedAt) {
