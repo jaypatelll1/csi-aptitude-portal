@@ -2,8 +2,10 @@ const resultModel = require("../models/resultModel")
 const {query} = require('../config/db');
 
 const createResult = async (req, res) => {
-    const { student_id, exam_id, total_score, max_score } = req.body;
+    const {  exam_id, total_score, max_score } = req.body;
   
+const student_id = req.user.id ;
+
     // Generate the current timestamp on the server
     const completed_at = new Date().toISOString();
   
