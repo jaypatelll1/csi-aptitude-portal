@@ -1,8 +1,8 @@
 const examModel = require('../models/examModel');
-const jwt = require('jsonwebtoken');
 
 const createExam = async (req, res) => {
   const { name, duration, start_time, end_time } = req.body;
+  console.log(req.user)
   const created_by = req.user.id; // Get user_id from token
   const newExam = await examModel.createExam({
     name,

@@ -28,7 +28,7 @@ const registerUser = async (req, res)=>{
 const loginUser = async (req, res)=>{
     const {email, password} = req.body;
     try {
-        const result = findUserByEmail(email);
+        const result = await findUserByEmail(email);
         if(!result){
             return console.error("404 not found");
         }
@@ -36,6 +36,7 @@ const loginUser = async (req, res)=>{
         if(!decoded){
             return console.error("Invalid Email or password");
         }
+        console.log(result) //
         const token = jwt.sign({id:result.user_id, email:result.email, name:result.name}, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({
             "token":token
