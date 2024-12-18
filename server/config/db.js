@@ -1,13 +1,15 @@
 const { Pool } = require('pg');
-const {PGHOST, PGDATABASE, PGUSER, PGPASSWORD} = process.env;
 
 const pool = new Pool({
-  host: PGHOST,
-  database: PGDATABASE,
-  username: PGUSER,
-  password: PGPASSWORD,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  username: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-  ssl: { require: true}, 
+  ssl: {
+    rejectUnauthorized: false, // Allow insecure certificates
+    require: true
+},
 });
 
 const query = async (text, params) => {
