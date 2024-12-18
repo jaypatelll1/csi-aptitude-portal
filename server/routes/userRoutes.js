@@ -1,9 +1,12 @@
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/userController');
+const { registerUser, loginUser, updateUser, deleteUser } = require('../controllers/userController');
+const {jwtAuthMiddleware} = require('../middlewares/jwtAuthMiddleware');
 
-const userRouter = express.Router();
+const router = express.Router();
 
-userRouter.post('/register', registerUser);
-userRouter.post('/login', loginUser);
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.put('/',jwtAuthMiddleware, updateUser);
+router.delete('/',jwtAuthMiddleware, deleteUser);
 
-module.exports = userRouter;
+module.exports = router;
