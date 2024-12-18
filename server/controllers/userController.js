@@ -1,28 +1,20 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {query} = require('../config/db');
-
+require('dotenv').config();
 const {findUserByEmail, createUser} = require('../models/userModel')
-
-
-// Salt for bcrypt
-const SALT_ROUNDS = 10;
-
 
 // User registration controller
 
 const registerUser = async (req, res)=>{
-    const {userName, userEmail, password} = req.body;
-    if(!userName || !userEmail || !password) return console.log("All fields are required!");
-    const preparedTestQueryText = 'SELECT * FROM users WHERE email_id = $1::text';
+    const {name, email, password} = req.body;
+    if(!name || !email || !password) return console.log("All fields are required!");
     try{
-        const existingUser = await findUserByEmail(userEmail);
+        const existingUser = await findUserByEmail(email);
         if(existingUser){
             return console.log("User already exists.");
         }
-        const salt =await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const newUser = await createUser(userName, userEmail, hashedPassword);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await createUser(name,email, hashedPassword);
         const token = jwt.sign(newUser, process.env.JWT_SECRET);
         res.json({
             "user":newUser,
@@ -34,13 +26,9 @@ const registerUser = async (req, res)=>{
 };
 
 const loginUser = async (req, res)=>{
-    const token = req.headers['authorization'];
-    if(token){
-        
-    }
-    const {userEmail, password} = req.body;
+    const {email, password} = req.body;
     try {
-        const result = findUserByEmail(userEmail);
+        const result = findUserByEmail(email);
         if(!result){
             return console.error("404 not found");
         }
@@ -48,12 +36,14 @@ const loginUser = async (req, res)=>{
         if(!decoded){
             return console.error("Invalid Email or password");
         }
-        const token = jwt.sign({id:result.email, name:result.name}, process.env.JWT_SECRET);
+        const token = jwt.sign({id:result.user_id, email:result.email, name:result.name}, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({
             "token":token
         });
     } catch (error) {
-        console.error("Unexpected error!", error.stack);
+        // console.error("Unexpected error!", error.stack);
+        console.log(error)
+        res.status(500)
     }
 }
 
