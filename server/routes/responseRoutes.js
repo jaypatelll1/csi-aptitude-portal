@@ -15,7 +15,7 @@ router.get('/', getResponsesByStudent);
 router
   .all('responses')
   .get('/', getResponsesForExam)
-  .put('/:response_id', jwtAuthMiddleware, updateResponse)
+  .put('/:response_id', updateResponse)
   .delete('/:response_id', deleteResponse);
 
 module.exports = router;
