@@ -1,1 +1,0 @@
-# csi-aptitude-portal

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setOption, markVisited, initializeOptions } from '../../redux/optionsSlice';
 import Question from '../../components/student/mcqexampage/Question';
 import Sidebar from '../../components/student/mcqexampage/Sidebar';
-import '../../styles/MCQExamPage.css';
+import styles from '../../styles/Student/MCQExamPage.module.css';
 
 const MCQExamPage = () => {
   const [questions, setQuestions] = useState([]);
@@ -48,14 +48,14 @@ const MCQExamPage = () => {
   };
 
   return (
-    <div className="exam-page">
+    <div className={styles.examPage}>
       <Sidebar
         userName="Akshay Manjrekar"
         timeLeft="00:19:69"
         questionsStatus={selectedOptions}
         onQuestionSelect={handleQuestionVisit}
       />
-      <div className="questions-section">
+      <div className={styles.questionsSection}>
         {questions.length > 0 && (
           <Question
             questionNumber={currentQuestionIndex + 1}
@@ -65,16 +65,16 @@ const MCQExamPage = () => {
             onSelectOption={handleOptionSelect}
           />
         )}
-        <div className="navigation-buttons">
+        <div className={styles.navigationButtons}>
           <button 
-            className="prev-button" 
+            className={styles.prevButton} 
             onClick={handlePreviousQuestion} 
             disabled={currentQuestionIndex === 0}
           >
             Previous
           </button>
           <button 
-            className="next-button" 
+            className={styles.nextButton} 
             onClick={handleNextQuestion} 
             disabled={currentQuestionIndex === questions.length - 1}
           >
