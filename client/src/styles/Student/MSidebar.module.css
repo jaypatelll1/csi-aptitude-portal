@@ -1,53 +1,83 @@
 .msidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
   width: 250px;
   height: 100vh;
   background-color: #f9fafb;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
   font-family: Arial, sans-serif;
+  z-index: 1000;
 }
 
-.msidebar-title {
-  color: #1349c5;
+.msidebarTitle {
+  color: #1349C5;  /* Light blue color */
   font-size: 1.5rem;
   margin-bottom: 50px;
+  font-weight: bold; /* Make the text bold */
 }
 
-.msidebar-menu {
-  list-style-type: none;
+
+.msidebarMenu {
+  list-style: none;
   padding: 0;
+  margin: 0;
 }
 
-.msidebar-item {
-  color: #374151;
+.msidebarItem {
+  display: flex;
+  align-items: center;
   padding: 10px;
-  border-radius: 5px;
+  color: black;
+  transition: color 0.3s ease;
   cursor: pointer;
-  margin-bottom: 5px;
-  transition: background-color 0.2s ease-in-out;
 }
 
-.msidebar-item:hover {
-  color: blue;
+.msidebarItem:hover {
+  color: #007bff; /* Replace with your desired hover color */
 }
 
-.msidebar-item.active {
-  color: blue;
-  font-weight: bold;
+.msidebarItem:hover .msidebarIcon svg path {
+  fill: #007bff; /* Matches the hover color */
 }
 
-.msidebar-submenu {
-  list-style-type: none;
-  padding-left: 20px;
+.msidebarIcon {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transition: fill 0.3s ease;
+}
+
+
+.dropdownArrow {
+  font-size: 0.8rem;
+  margin-left: auto;
+  color: #6b7280;
+  transition: color 0.3s ease;
+}
+
+.msidebarItem:hover .dropdownArrow {
+  color: #007bff;
+}
+
+.msidebarSubmenu {
+  list-style: none;
+  padding: 0;
   margin-top: 5px;
+  padding-left: 30px; /* Align submenu under "All Tests" */
 }
 
-.msidebar-submenu li {
+.msidebarSubmenuItem {
   padding: 5px 0;
   color: #6b7280;
   cursor: pointer;
-  transition: color 0.2s ease-in-out;
+  transition: color 0.3s ease;
 }
 
-.msidebar-submenu li:hover {
-  color: blue;}
+.msidebarSubmenuItem:hover {
+  color: #007bff;
+}
