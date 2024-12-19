@@ -56,7 +56,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid Email or password' });
     }
     const token = jwt.sign(
-      { id: result.user_id, email: result.email, name: result.name },
+      { id: result.user_id, email: result.email, name: result.name, role: result.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -71,7 +71,7 @@ const loginUser = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
   const id = req.user.id;
   if (!name || !email || !password)
     return console.log('All fields are required!');
@@ -81,10 +81,9 @@ const updateUser = async (req, res) => {
       id,
       name,
       email,
-      hashedPassword,
-      role
+      hashedPassword
     );
-    return res.json(updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
     throw err;
