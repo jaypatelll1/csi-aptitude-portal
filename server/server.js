@@ -2,7 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const morgan = require("morgan");
-const {jwtAuthMiddleware} = require('./middlewares/jwtAuthMiddleware')
+const {jwtAuthMiddleware} = require('./middlewares/jwtAuthMiddleware');
+const {limiter} = require('./utils/rateLimitUtils');
 
 const userRouter = require("./routes/userRoutes");
 const examRoutes = require('./routes/examRoutes');
@@ -17,7 +18,13 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("dev"));
 
+//utils
+app.use(limiter);
+
 //Routes
+app.post('/api/', (req, res)=>{
+  res.send("Hello ");
+})
 app.use('/api/user', userRouter);
 app.use("/api/exam" ,jwtAuthMiddleware, examRoutes )
 app.use('/api/questions', jwtAuthMiddleware, questionsRoutes);

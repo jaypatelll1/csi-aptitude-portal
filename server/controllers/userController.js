@@ -1,3 +1,19 @@
+/**
+ * object format for login user : {
+ *  "email":"",
+ *  "password":""
+ * }
+ * 
+ * 
+ * object format for register request
+ * {
+ *  "name":"",
+ *  "email":"",
+ *  "passowrd":"",
+ *  "role":""
+ * }
+ */
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
