@@ -6,7 +6,6 @@ const {
   updateResponse,
   deleteResponse,
 } = require('../controllers/responseController');
-const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 
 const router = express.Router();
 
