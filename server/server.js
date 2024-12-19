@@ -9,7 +9,7 @@ const userRouter = require("./routes/userRoutes");
 const examRoutes = require('./routes/examRoutes');
 const questionsRoutes = require('./routes/questionRoutes');
 const responseRoutes = require('./routes/responseRoutes')
-
+const resultRoutes = require('./routes/resultRoutes');
 
 const app = express();
 app.use(express.json());
@@ -25,11 +25,11 @@ app.use(limiter);
 app.post('/api/', (req, res)=>{
   res.send("Hello ");
 })
-app.use('/api/user', userRouter);
-app.use("/api/exam" ,jwtAuthMiddleware, examRoutes )
-app.use('/api/questions', jwtAuthMiddleware, questionsRoutes);
-app.use('/api/exam/:exam_id', jwtAuthMiddleware, responseRoutes)
-app.use('/api/results', jwtAuthMiddleware, responseRoutes)
+app.use('/api/users', userRouter);
+app.use("/api/exams" ,jwtAuthMiddleware, examRoutes )
+app.use('/api/exams/:exam_id/questions', jwtAuthMiddleware, questionsRoutes);
+app.use('/api/exams/:exam_id/questions/:question_id/responses', jwtAuthMiddleware, responseRoutes)
+app.use('/api/exams/:exam_id/results', jwtAuthMiddleware, resultRoutes)
 
 const PORT = 3000;
 
