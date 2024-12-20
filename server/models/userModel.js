@@ -39,4 +39,5 @@ const createUser = async (name, email, hashPassword)=>{
 
 // const getUserId = async (userEmail)
 
+
 module.exports = {findUserByEmail, createUser};

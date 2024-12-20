@@ -23,12 +23,14 @@ const userModel = require('../models/userModel');
 // Function to create a new user/register
 const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
-  if (!name || !email || !password)
-    return console.log('All fields are required!');
+  if (!name || !email || !password ){
+    console.log('All fields are required!')
+    return res.status(400).json({ error: 'All fields are required' });
+  }
   try {
     const existingUser = await userModel.findUserByEmail(email);
     if (existingUser) {
-      return console.log('User already exists.');
+      return res.status(409).json({ error: 'User already exists' });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await userModel.createUser(
@@ -37,35 +39,40 @@ const registerUser = async (req, res) => {
       hashedPassword,
       role
     );
-    res.json(newUser);
+    return res.status(201).json(newUser);
   } catch (err) {
     console.error(err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 // Function for logging in
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  if(!email || !password){
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
   try {
     const result = await userModel.findUserByEmail(email);
     if (!result) {
-      return res.status(404).json({ message: 'Error' });
+      return res.status(404).json({ error: 'User not found' });
     }
-    const decoded = bcrypt.compare(password, result.password_hash);
-    if (!decoded) {
-      return res.status(400).json({ message: 'Invalid Email or password' });
+    const isPasswordMatch = await bcrypt.compare(password, result.password_hash);
+    if (!isPasswordMatch) {
+      return res.status(400).json({ error: 'Invalid email or password' });
     }
+
+    // JWT token signing
     const token = jwt.sign(
       { id: result.user_id, email: result.email, name: result.name },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-    res.json({
-      token: token,
-    });
+
+    return res.status(200).json({ token });
   } catch (error) {
     console.log(error);
-    res.status(500);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -73,8 +80,9 @@ const loginUser = async (req, res) => {
 const updateUser = async (req, res) => {
   const { name, email, password, role } = req.body;
   const id = req.user.id;
+
   if (!name || !email || !password)
-    return console.log('All fields are required!');
+    return res.status(400).json({ error: 'All fields are required' });
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const updatedUser = await userModel.updateUser(
@@ -84,10 +92,10 @@ const updateUser = async (req, res) => {
       hashedPassword,
       role
     );
-    return res.json(updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
-    throw err;
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -96,10 +104,10 @@ const deleteUser = async (req, res) => {
   const id = req.user.id;
   try {
     const deletedUser = await userModel.deleteUser(id);
-    return res.json({ message: 'User deleted successfully', deletedUser });
+    return res.status(200).json({ message: 'User deleted successfully', deletedUser });
   } catch (err) {
     console.log(err);
-    throw err;
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
