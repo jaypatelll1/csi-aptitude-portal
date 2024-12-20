@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import Adm_DashboardTiles from '../../components/admin/Adm_DashboardTiles';
+import Adm_Sidebar from "../../components/Admin/Adm_Sidebar";
 import { FaUserGraduate, FaBuilding, FaChalkboardTeacher } from 'react-icons/fa';
 
 function Dashboard() {
