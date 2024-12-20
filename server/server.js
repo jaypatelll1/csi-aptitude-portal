@@ -23,11 +23,6 @@ app.use(limiter);
 
 //Routes
 app.use('/api/users', userRoutes);
-app.use('/api/exams', jwtAuthMiddleware, examRoutes);
-app.post('/api/', (req, res)=>{
-  res.send("Hello ");
-})
-app.use('/api/users', userRouter);
 app.use("/api/exams" ,jwtAuthMiddleware, examRoutes )
 app.use('/api/exams/:exam_id/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/:exam_id/questions/:question_id/responses', jwtAuthMiddleware, responseRoutes);
