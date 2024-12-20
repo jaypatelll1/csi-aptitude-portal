@@ -10,15 +10,15 @@ const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const router = express.Router();
 
 // Route to create a new question
-router.post('/', authorizeRoles, createQuestions);
+router.post('/:exam_id', authorizeRoles, createQuestions);
 
 // Route to get all questions for a specific exam
-router.get('/', getQuestion);
+router.get('/:exam_id', getQuestion);
 
 // Route to edit a question using question id
-router.patch('/:question_id', authorizeRoles, UpdateQuestion);
+router.patch('/:exam_id/:question_id', authorizeRoles, UpdateQuestion);
 
 // Route to delete a question using question id
-router.delete('/:question_id', authorizeRoles, DeleteQuestion);
+router.delete('/:exam_id/:question_id', authorizeRoles, DeleteQuestion);
 
 module.exports = router;

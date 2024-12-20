@@ -18,18 +18,15 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan('dev'));
 
-//utils
+// utils
 app.use(limiter);
 
-//Routes
-// app.post('/api/', (req, res)=>{
-//   res.send("Hello ");
-// })
-app.use('/api/users', userRouter);
+// Routes
+app.use('/api/users', userRoutes);
 app.use("/api/exams" ,jwtAuthMiddleware, examRoutes )
-app.use('/api/exams/:exam_id/questions', jwtAuthMiddleware, questionsRoutes);
-app.use('/api/exams/:exam_id/questions/:question_id/responses', jwtAuthMiddleware, responseRoutes);
-app.use('/api/exams/:exam_id/results', jwtAuthMiddleware, resultRoutes);
+app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
+app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
+app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 
 const PORT = 3000;
 

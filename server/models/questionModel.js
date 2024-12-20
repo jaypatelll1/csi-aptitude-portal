@@ -14,10 +14,6 @@ const createQuestionsTable = async () => {
   `;
   
 }
-
-
-
-
 // Function to insert a new question
 const insertQuestion = async (exam_id, question_text, options, correct_option) => {
   const queryText = `
