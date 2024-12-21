@@ -2,9 +2,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const jwtAuthMiddleware = (req, res, next) => {
-    // const token = req.body.token; // Token from the request body
     const token = req.header("Authorization")?.split(" ")[1]; // Bearer token
-  
+   
     if (!token) {
       return res
         .status(401)

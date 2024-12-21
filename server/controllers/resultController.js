@@ -36,7 +36,7 @@ const getResultById = async (req, res) => {
 
   try {
     const result = await resultModel.getResultById(exam_id, student_id);
-    if (result == "No Result Found") {
+    if (result == 'No Result Found') {
       return res.status(404).json({ error: 'Result not found' });
     }
     return res.status(200).json(result.rows[0]);
@@ -67,7 +67,7 @@ const UpdateResult = async (req, res) => {
 
 const deleteResult = async (req, res) => {
   const exam_id = req.params;
-  
+
   try {
     const result = await resultModel.deleteResult(exam_id);
     if (result.rows.length === 0) {
@@ -82,10 +82,29 @@ const deleteResult = async (req, res) => {
   }
 };
 
+// Pagination
+const getPaginatedResultsByExam = async (req, res) => {
+  const { exam_id } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const results = await resultModel.getPaginatedResultsByExam(
+      exam_id,
+      parseInt(page),
+      parseInt(limit)
+    );
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), results });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createResult,
   getAllresult,
   getResultById,
   UpdateResult,
   deleteResult,
+  getPaginatedResultsByExam
 };

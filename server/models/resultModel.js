@@ -1,14 +1,15 @@
 const pool = require('../config/db');
+const { paginate } = require('../utils/pagination');
 
 // CREATE: Insert a new result
 async function createResult(result) {
-  const {  student_id, exam_id, total_score, max_score, completed_at } = result;
+  const { student_id, exam_id, total_score, max_score, completed_at } = result;
   const query = `
       INSERT INTO results (student_id, exam_id, total_score, max_score, completed_at)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
     `;
-  const values = [ student_id, exam_id, total_score, max_score, completed_at];
+  const values = [student_id, exam_id, total_score, max_score, completed_at];
 
   try {
     const res = await pool.query(query, values);
@@ -40,8 +41,8 @@ async function getResultById(exam_id, student_id) {
   try {
     const res = await pool.query(query, values);
     console.log('Result:', res.rows[0]);
-    if(res.rows.length === 0){
-      return "No Result Found"
+    if (res.rows.length === 0) {
+      return 'No Result Found';
     }
     return res.rows[0];
   } catch (err) {
@@ -51,7 +52,7 @@ async function getResultById(exam_id, student_id) {
 
 // UPDATE: Update a result
 async function updateResult(result) {
-  const { total_score, max_score, completed_at, exam_id, student_id } = result
+  const { total_score, max_score, completed_at, exam_id, student_id } = result;
   const query = `
     UPDATE results
     SET total_score = $1, max_score = $2, completed_at = $3
@@ -83,10 +84,20 @@ async function deleteResult(exam_id) {
   }
 }
 
+// Pagination
+// Get all results for a specific exam with pagination
+const getPaginatedResultsByExam = async (exam_id, page, limit) => {
+  const query = `SELECT * FROM results WHERE exam_id=${exam_id}`;
+  const paginatedQuery = paginate(query, page, limit);
+  const result = await pool.query(paginatedQuery);  
+  return result.rows;
+};
+
 module.exports = {
   createResult,
   getAllResults,
   getResultById,
   updateResult,
   deleteResult,
+  getPaginatedResultsByExam
 };

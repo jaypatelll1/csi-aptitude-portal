@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { paginate } = require('../utils/pagination');
 
 const createExam = async (exam) => {
   const { name, duration, start_time, end_time, created_by } = exam;
@@ -36,4 +37,13 @@ const deleteExam = async (exam) => {
   return result.rows[0];
 };
 
-module.exports = { createExam, getExams, getExamById, updateExam, deleteExam };
+// Pagination
+// Get all exams with pagination
+const getAllPaginatedExams = async (page, limit) => {
+  const query = 'SELECT * FROM exams';
+  const paginatedQuery = paginate(query, page, limit);
+  const result = await pool.query(paginatedQuery);
+  return result.rows;
+};
+
+module.exports = { createExam, getExams, getExamById, updateExam, deleteExam, getAllPaginatedExams };
