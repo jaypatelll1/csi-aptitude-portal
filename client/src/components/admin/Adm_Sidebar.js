@@ -11,7 +11,6 @@ const Msidebar = () => {
     <div className="fixed left-0 top-0 w-64 h-full bg-gray-50 shadow-md p-5 font-sans z-50">
       <h2 className="text-blue-700 text-2xl font-bold mb-12">Aptitude</h2>
       <ul className="list-none p-0 m-0">
-        {/* Dashboard Section */}
         <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
           <span className="mr-2 flex items-center justify-center w-6 h-6">
             <svg
@@ -33,7 +32,6 @@ const Msidebar = () => {
           Dashboard
         </li>
 
-        {/* All Tests Section */}
         <li
           className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500"
           onClick={toggleSubmenu}
@@ -63,16 +61,15 @@ const Msidebar = () => {
           </span>
         </li>
 
-        {/* Submenu */}
         {showSubmenu && (
-          <ul className="pl-5 space-y-2">
-            <li className="p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
+          <ul className="pl-5 mt-1">
+            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
               Draft Tests
             </li>
-            <li className="p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
+            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
               Schedule Tests
             </li>
-            <li className="p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
+            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
             Past Test
             </li>
           </ul>
