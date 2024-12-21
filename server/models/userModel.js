@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { paginate } = require('../utils/pagination');
 
 // Function to find a user by email
 const findUserByEmail = async (email) => {
@@ -47,4 +48,14 @@ const deleteUser = async (id) => {
     throw err;
   }
 };
-module.exports = { findUserByEmail, createUser, updateUser, deleteUser };
+
+// Pagination
+// Get all users with pagination
+const getAllPaginatedUsers = async (page, limit) => {
+  const query = 'SELECT user_id, name, email, role FROM users';
+  const paginatedQuery = paginate(query, page, limit);
+  const result = await pool.query(paginatedQuery);
+  return result.rows;
+};
+
+module.exports = { findUserByEmail, createUser, updateUser, deleteUser, getAllPaginatedUsers };

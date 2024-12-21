@@ -3,8 +3,8 @@
  *  "email":"",
  *  "password":""
  * }
- * 
- * 
+ *
+ *
  * object format for register request
  * {
  *  "name":"",
@@ -23,8 +23,8 @@ const userModel = require('../models/userModel');
 // Function to create a new user/register
 const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
-  if (!name || !email || !password ){
-    console.log('All fields are required!')
+  if (!name || !email || !password) {
+    console.log('All fields are required!');
     return res.status(400).json({ error: 'All fields are required' });
   }
   try {
@@ -49,7 +49,7 @@ const registerUser = async (req, res) => {
 // Function for logging in
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  if(!email || !password){
+  if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
   try {
@@ -57,14 +57,22 @@ const loginUser = async (req, res) => {
     if (!result) {
       return res.status(404).json({ error: 'User not found' });
     }
-    const isPasswordMatch = await bcrypt.compare(password, result.password_hash);
+    const isPasswordMatch = await bcrypt.compare(
+      password,
+      result.password_hash
+    );
     if (!isPasswordMatch) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
     // JWT token signing
     const token = jwt.sign(
-      { id: result.user_id, email: result.email, name: result.name, role: result.role },
+      {
+        id: result.user_id,
+        email: result.email,
+        name: result.name,
+        role: result.role,
+      },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -103,11 +111,26 @@ const deleteUser = async (req, res) => {
   const id = req.user.id;
   try {
     const deletedUser = await userModel.deleteUser(id);
-    return res.status(200).json({ message: 'User deleted successfully', deletedUser });
+    return res
+      .status(200)
+      .json({ message: 'User deleted successfully', deletedUser });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-module.exports = { registerUser, loginUser, updateUser, deleteUser };
+// Pagination
+const getAllPaginatedUsers = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const users = await userModel.getAllPaginatedUsers(parseInt(page), parseInt(limit));
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), users });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, updateUser, deleteUser, getAllPaginatedUsers };

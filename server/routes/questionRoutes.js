@@ -4,6 +4,7 @@ const {
   getQuestion,
   UpdateQuestion,
   DeleteQuestion,
+  getPaginatedQuestionsByExam,
 } = require('../controllers/questionController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
@@ -13,7 +14,7 @@ const router = express.Router();
 router.post('/:exam_id', authorizeRoles, createQuestions);
 
 // Route to get all questions for a specific exam
-router.get('/:exam_id', getQuestion);
+router.get('/:exam_id', getPaginatedQuestionsByExam); // pagination
 
 // Route to edit a question using question id
 router.patch('/:exam_id/:question_id', authorizeRoles, UpdateQuestion);

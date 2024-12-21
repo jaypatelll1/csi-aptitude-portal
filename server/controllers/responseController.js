@@ -5,6 +5,7 @@ const {
   updateResponse,
   deleteResponse,
   submitMultipleResponses,
+  getPaginatedResponses
 } = require('../models/responseModel');
 
 // Submit a response
@@ -33,7 +34,7 @@ exports.submitAllResponses = async (req, res) => {
   let { exam_id } = req.params;
   const { responses } = req.body;
   const student_id = req.user.id;
-  exam_id = parseInt(exam_id)
+  exam_id = parseInt(exam_id);
   try {
     if (!responses || responses.length === 0) {
       return res.status(400).json({ message: 'No responses provided.' });
@@ -113,6 +114,26 @@ exports.deleteResponse = async (req, res) => {
     }
 
     res.status(200).json({ message: 'Response deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Pagination
+exports.getPaginatedResponsesForExam = async (req, res) => {
+  const { exam_id } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const student_id = req.user.id; // Retrieved from JWT
+  try {
+    const responses = await getPaginatedResponses(
+      exam_id,
+      student_id,
+      parseInt(page),
+      parseInt(limit)
+    );
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), student_id,  responses });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

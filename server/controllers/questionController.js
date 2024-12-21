@@ -82,9 +82,28 @@ const DeleteQuestion = async (req, res) => {
   }
 };
 
+// Pagination
+const getPaginatedQuestionsByExam = async (req, res) => {
+  const { exam_id } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const questions = await questionModel.getPaginatedQuestionsByExam(
+      parseInt(exam_id),
+      parseInt(page),
+      parseInt(limit)
+    );
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), questions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createQuestions,
   getQuestion,
   UpdateQuestion,
   DeleteQuestion,
+  getPaginatedQuestionsByExam
 };

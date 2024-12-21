@@ -2,7 +2,6 @@ const examModel = require('../models/examModel');
 
 const createExam = async (req, res) => {
   const { name, duration, start_time, end_time } = req.body;
-  console.log(req.user)
   const created_by = req.user.id; // Get user_id from token
   const newExam = await examModel.createExam({
     name,
@@ -84,4 +83,17 @@ const deleteExam = async (req, res) => {
   });
 };
 
-module.exports = { createExam, getExams, getExamById, updateExam, deleteExam };
+// Pagination
+const getAllPaginatedExams = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const exams = await examModel.getAllPaginatedExams(parseInt(page), parseInt(limit));
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), exams });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { createExam, getExams, getExamById, updateExam, deleteExam, getAllPaginatedExams };
