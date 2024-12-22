@@ -11,16 +11,28 @@ const examRoutes = require('./routes/examRoutes');
 const questionsRoutes = require('./routes/questionRoutes');
 const responseRoutes = require('./routes/responseRoutes');
 const resultRoutes = require('./routes/resultRoutes');
+const fileRoutes = require("./routes/fileRoutes");
+const exportRoutes = require("./routes/exportRoutes")
 
 const app = express();
-app.use(express.json());
 // Middlewares
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan('dev'));
+app.use(express.urlencoded({ extended: false }));
+app.use("/uploads", express.static(path.resolve("./uploads")));
+
 
 // utils
 app.use(limiter);
+
+
+// Routes
+app.use("/", fileRoutes);
+
+// Routes
+
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -28,6 +40,8 @@ app.use("/api/exams" ,jwtAuthMiddleware, examRoutes )
 app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
+app.use("/api/export/", exportRoutes);
+app.use("/api/exams/",fileRoutes)
 
 const PORT = 3000;
 

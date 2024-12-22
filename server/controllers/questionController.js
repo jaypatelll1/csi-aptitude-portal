@@ -92,9 +92,7 @@ const getPaginatedQuestionsByExam = async (req, res) => {
       parseInt(page),
       parseInt(limit)
     );
-    res
-      .status(200)
-      .json({ page: parseInt(page), limit: parseInt(limit), questions });
+    res .status(200).json({ page: parseInt(page), limit: parseInt(limit), questions });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

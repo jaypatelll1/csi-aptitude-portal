@@ -1,4 +1,6 @@
 const { Pool } = require('pg');
+require('dotenv').config();
+
 if(!process.env.PGDATABASE || !process.env.PGUSER || !process.env.PGPASSWORD || !process.env.PGPORT || !process.env.PGHOST){
   console.error("Please set the environment variables PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD");
   process.exit(1);
@@ -11,7 +13,7 @@ const pool = new Pool({
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
   ssl: {
-    rejectUnauthorized: false, // Allow insecure certificates
+    rejectUnauthorized: true, // Allow insecure certificates
     require: true
 },
 });
