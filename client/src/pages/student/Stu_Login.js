@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import doodle from '../../assets/sidebar/doodle.svg';
-import blueBox from '../../assets/sidebar/blueBox.svg';
+import gradient from '../../assets/sidebar/gradient.svg'; // New gradient SVG
 
 const StudentLogin = () => {
   const [email, setEmail] = useState('');
@@ -12,73 +12,79 @@ const StudentLogin = () => {
     if (!email || !password) {
       setError('Please fill in all fields');
     } else {
-      // Handle login logic here
       setError('');
+      // Handle login logic here
     }
   };
 
   return (
     <div className="flex h-screen flex-col md:flex-row">
       {/* Left Section */}
-      <div className="w-full md:w-1/2 bg-blue-500 relative flex justify-center items-center max-w-md mx-auto px-4 py-8">
-        {/* Background Image */}
-        <img
-          src={blueBox}
-          alt="Blue Box Background"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {/* Header Text */}
-        <div className="absolute top-8 left-8 text-white text-left">
-          <h1 className="text-5xl font-bold leading-tight">
-            Aptitude
-            <br />
-            <span className="text-5xl font-bold leading-tight">Portal</span>
-          </h1>
-          <p className="mt-2">Turn your exams into success stories</p>
+      <div className="w-full md:w-1/3 relative flex flex-col items-center p-6 bg-blue-500">
+        {/* SVG Background */}
+        <div className="absolute inset-0">
+          <img
+            src={gradient}
+            alt="Gradient Background"
+            className="w-full h-full object-cover"
+          />
         </div>
-        {/* Login Form */}
-        <div className="relative z-10 flex flex-col items-center text-white mt-1 w-full">
-          <h2 className="text-xl font-bold mb-8">Student Login: </h2>
-          {error && <div className="text-red-500 mb-4">{error}</div>}
-          <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-xs">
-            <div>
+
+        <div className="relative z-10 flex flex-col items-center w-full max-w-xs text-center text-white">
+          {/* Header Text - Moved to the top */}
+          <div className="w-full text-center mb-6 mt-8">
+            <h1 className="text-6xl font-extrabold leading-tight tracking-wide">
+              Aptitude <br />
+              <span>Portal</span>
+            </h1>
+            <p className="mt-3 text-lg">Turn your exams into success stories</p>
+          </div>
+
+          {/* Add margin-top to bring down the content */}
+          <div className="mt-20 w-full">
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-6 w-full">
+              <h2 className="text-3xl font-bold mb-5">Student Login: </h2>
+              {error && <div className="text-red-400 mb-2">{error}</div>}
               <input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 rounded border border-gray-300 text-black focus:outline-none"
+                className="w-full px-4 py-3 bg-white text-gray-800 rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-            </div>
-            <div>
               <input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 rounded border border-gray-300 text-black focus:outline-none"
+                className="w-full px-4 py-3 bg-white text-gray-800 rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-            </div>
-            <div className="text-right">
-              <a href="#" className="text-sm text-white hover:underline">
-                Forgot password?
-              </a>
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2 bg-black text-white rounded hover:bg-gray-800"
-            >
-              Login
-            </button>
-          </form>
+              <div className="text-right">
+                <a
+                  href="#"
+                  className="text-sm text-blue-200 hover:text-white transition underline cursor-pointer"
+                >
+                  Forgot password?
+                </a>
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 bg-black text-white rounded-xl shadow-md hover:bg-gray-800 transition transform hover:scale-105"
+              >
+                Login
+              </button>
+            </form>
+          </div>
         </div>
       </div>
+
       {/* Right Section */}
-      <div className="w-full md:w-1/2 bg-white flex justify-center items-center relative">
+      <div className="w-full md:w-2/3 bg-gray-50 flex justify-center items-center relative p-6">
         <img
           src={doodle}
-          alt="Illustration of a student doodle"
-          className="absolute inset-0 w-full h-full object-contain"
+          alt="Student Illustration"
+          className="w-2/3 h-auto object-contain"
         />
       </div>
     </div>
