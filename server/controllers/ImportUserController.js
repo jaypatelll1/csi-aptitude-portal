@@ -2,10 +2,6 @@ const path = require("path");
 const {parseExcelUsers,parseCSVusers,}= require("../models/UserFileModels");
 const fs = require("fs");
 
-const getHomepage = (req, res) => {
-    res.render("homepage");
-};
-
 
 
 
@@ -53,6 +49,6 @@ const uploadFile = (req, res) => {
 
 
 module.exports ={
-  getHomepage,
+
   uploadFile
 }

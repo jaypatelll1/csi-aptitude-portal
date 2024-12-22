@@ -2,9 +2,7 @@ const path = require("path");
 const {parseExcelQuestion, parseCSVquestion}= require("../models/QuestionFileModel");
 const fs = require("fs")
 
-const getHomepage = (req, res) => {
-    res.render("homepage");
-};
+
 
 const uploadQuestionFile = (req, res) => {
   const filePath = path.resolve('uploads', req.file.filename);
@@ -52,6 +50,6 @@ const examId = req.params.exam_id ;
 
 
 module.exports ={
-  getHomepage,
+  
   uploadQuestionFile
 }

@@ -27,13 +27,6 @@ app.use("/uploads", express.static(path.resolve("./uploads")));
 // utils
 app.use(limiter);
 
-
-// Routes
-app.use("/", fileRoutes);
-
-// Routes
-
-
 // Routes
 app.use('/api/users', userRoutes);
 app.use("/api/exams" ,jwtAuthMiddleware, examRoutes )
@@ -41,6 +34,7 @@ app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 app.use("/api/export/", exportRoutes);
+app.use("/", fileRoutes);
 app.use("/api/exams/",fileRoutes)
 
 const PORT = 3000;

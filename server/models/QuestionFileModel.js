@@ -2,12 +2,6 @@ const fs = require("fs")
 const XLSX = require('xlsx');
 const csvParser = require('csv-parser');
 const { query } = require("../config/db2")
-const { hashPassword } = require("../utils/hashUtil")
-
-
-
-
-
 
 
 const parseExcelQuestion = async (filePath,examId) => {
