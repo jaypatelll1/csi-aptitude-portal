@@ -1,13 +1,12 @@
 // routes/exportRoutes.js
 const express = require("express");
-const { getHomepage,uploadFile } = require("../controllers/ImportUserController");
+const { uploadFile } = require("../controllers/ImportUserController");
 const {upload} = require("../middlewares/ImportMiddleware")
-const {uploadQuestionFile} = require("../controllers/Importquestion")
+const {uploadQuestionFile} = require("../controllers/ImportQuestionController")
 
 const router = express.Router();
 
 
-router.get("/",getHomepage);
 
 // Export to Excel
 router.post("/upload",upload.single('Files'),uploadFile);
