@@ -49,6 +49,33 @@ const submitMultipleResponses = async (responses) => {
   return result.rows;
 };
 
+// Insert 'NULL' in unanswered questions
+submittedUnansweredQuestions = async (exam_id, student_id) => {
+  const query = `
+    SELECT question_id
+    FROM questions
+    WHERE exam_id = $1
+    AND question_id NOT IN (
+      SELECT question_id
+      FROM responses
+      WHERE exam_id = $1
+      AND student_id = $2
+    )
+  `;
+  const result = await pool.query(query, [exam_id, student_id]);
+  const unansweredQuestions = result.rows.map((row) => ({
+    exam_id,
+    question_id: row.question_id,
+    student_id,
+    selected_option: null,
+  }));
+
+  if (unansweredQuestions.length > 0) {
+    return submitMultipleResponses(unansweredQuestions);
+  }
+  return result.rows;
+}
+
 // Get responses by student for an exam
 const getResponsesByStudent = async (exam_id, student_id) => {
   const query = `
@@ -128,4 +155,5 @@ module.exports = {
   deleteResponse,
   submitMultipleResponses,
   getPaginatedResponses,
+  submittedUnansweredQuestions,
 };

@@ -5,7 +5,8 @@ const {
   updateResponse,
   deleteResponse,
   submitMultipleResponses,
-  getPaginatedResponses
+  getPaginatedResponses,
+  submittedUnansweredQuestions,
 } = require('../models/responseModel');
 
 // Submit a response
@@ -47,10 +48,11 @@ exports.submitAllResponses = async (req, res) => {
       student_id,
     }));
     const submittedResponses = await submitMultipleResponses(preparedResponses);
+    const submittedUnansweredResponses = await submittedUnansweredQuestions(exam_id, student_id);
 
     res.status(201).json({
       message: 'All responses submitted successfully.',
-      responses: submittedResponses,
+      responses: {submittedResponses,submittedUnansweredResponses}
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
