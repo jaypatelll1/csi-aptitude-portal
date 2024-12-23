@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
-app.use("/uploads", express.static(path.resolve("./uploads")));
+// app.use("/uploads", express.static(path.resolve("./uploads")));
 
 
 // utils
