@@ -1,6 +1,6 @@
 import React from "react";
-import MSidebar from "../components/student/Home/MSidebar";
-import Stu_TestCard from "../components/student/Home/Stu_TestCard";
+import MSidebar from "../components/student/home/MSidebar";
+import Stu_TestCard from "../components/student/home/Stu_TestCard";
 
 function HomePage() {
   const testData = [
