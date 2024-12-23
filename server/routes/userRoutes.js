@@ -11,10 +11,10 @@ const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
 const router = express.Router();
 
-router.post('/register', jwtAuthMiddleware, authorizeRoles, registerUser);
-router.post('/login', loginUser);
+router.post('/register', authorizeRoles, registerUser);
+router.post('/login', loginUser);    
 router.get('/', jwtAuthMiddleware, authorizeRoles, getAllPaginatedUsers); // pagination
-router.put('/update', jwtAuthMiddleware, updateUser);
-router.delete('/delete', jwtAuthMiddleware, deleteUser);
+router.put('/update', jwtAuthMiddleware,authorizeRoles, updateUser);
+router.delete('/delete/:user_id', jwtAuthMiddleware, authorizeRoles,deleteUser);
 
 module.exports = router;

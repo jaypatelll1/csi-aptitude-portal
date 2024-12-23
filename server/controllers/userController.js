@@ -19,6 +19,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const generateToken = require('../utils/token');
 
+
 const userModel = require('../models/userModel');
 
 // Function to create a new user/register
@@ -113,7 +114,7 @@ const updateUser = async (req, res) => {
 
 // Function to delete a user
 const deleteUser = async (req, res) => {
-  const id = req.user.id;
+  const id = req.param.user_id;
   try {
     const deletedUser = await userModel.deleteUser(id);
     return res

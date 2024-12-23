@@ -14,9 +14,11 @@ const responseRoutes = require('./routes/responseRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const fileRoutes = require("./routes/fileRoutes");
 const exportRoutes = require("./routes/exportRoutes")
+const cookieParser = require('cookie-parser');
 
 const app = express();
 // Middlewares
+app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
