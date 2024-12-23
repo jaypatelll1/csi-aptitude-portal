@@ -1,7 +1,30 @@
-import React from 'react';
+import React ,{useState}from 'react';
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
+import Filter from '../../components/admin/Adm_Filter';
 
-const Adm_StudentList = () => {
+const students = [
+    { id: 1, name: 'Shree Shinde', email: 'shreeshinde-inft@atharvacoe.ac.in', mobile: '9501956750', branch: 'INFT' },
+    { id: 2, name: 'Shravani P.', email: 'shravani-pawar-inft@atharvacoe.ac.in', mobile: '7725068610', branch: 'INFT' },
+    { id: 3, name: 'Wade Warren', email: 'WadeWarren-inft@atharvacoe.ac.in', mobile: '0367871221', branch: 'CMPN' },
+    { id: 4, name: 'Guy Hawkins', email: 'GuyHawkins-inft@atharvacoe.ac.in', mobile: '3954212189', branch: 'EXTC' },
+    { id: 5, name: 'Robert Fox', email: 'RobertFox-inft@atharvacoe.ac.in', mobile: '3910793817', branch: 'INFT' },
+];
+
+
+
+const StudentList = () => {
+    const [showFilter, setShowFilter] = useState(false);
+    const [selectedDepartment, setSelectedDepartment] = useState(undefined);
+
+    const toggleFilter = () => {
+        setShowFilter(!showFilter);
+    };
+    const handleFilterChange = (department) => {
+        setSelectedDepartment(department);
+    };
+    const filteredStudents = students.filter(student => 
+        selectedDepartment ? student.department === selectedDepartment : true
+    );
     return (
         <div className='flex h-screen'>
             <Adm_Sidebar />
@@ -17,23 +40,66 @@ const Adm_StudentList = () => {
                         <h1 class="text-black font-poppins text-[18px] font-medium leading-normal">Register students to gain access to aptitude tests</h1>
                     </div>
                     <div className='flex ml-auto mr-9'>
-                        <div class="bg-[#533FCC] w-[160px] h-14 rounded-xl flex items-center justify-center mr-5">
-                            <h1 className='text-white font-poppins text-[18px] font-medium leading-normal'>Import Excel</h1>
+                        <div class="bg-[#533FCC] w-40 h-14 rounded-xl flex items-center justify-center mr-5">
+                            <h1 className='text-white font-poppins text-lg font-medium leading-normal'>Import Excel</h1>
                         </div>
-                        <div class="bg-[#533FCC] w-[160px] h-14 rounded-xl flex items-center justify-center">
-                            <h1 className='text-white font-poppins text-[18px] font-medium leading-normal'>Add Student</h1>
+                        <div class="bg-[#533FCC] w-40 h-14 rounded-xl flex items-center justify-center">
+                            <h1 className='text-white font-poppins text-lg font-medium leading-normal'>Add Student</h1>
                         </div>
                     </div>
                 </div>
-                <div id="listSection" className='flex bg-white my-6 mx-10  rounded-lg border border-gray-300'>
-                    <div id="headerBar" className="pt-5 pb-5 pl-9 flex items-center justify-between">
+                <div id="listSection" className='bg-white my-6 mx-10 pt-5 pb-5 pl-9 pr-9  rounded-lg border border-gray-300'>
+                    <div id="headerBar" className=" flex justify-between items-center w-full mb-5">
                         <h1 className='text-black font-roboto text-[22px] font-semibold leading-normal'>Students List</h1>
-                        <div id="filterButton" className='w-16 h-6 border border-gray-300 rounded-sm '>FIlter</div>
+                        <div className=' flex ml-auto'>
+                            <div id="searchBar" className='w-52 h-7 border border-gray-300 rounded-sm  flex items-center justify-left pl-5 mr-6'>
+                                <svg  className="" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
+                                    <path d="M11.9665 11.9837L14.1482 14.1654M13.459 8.14453C13.459 9.55349 12.8993 10.9047 11.903 11.901C10.9067 12.8973 9.55545 13.457 8.14648 13.457C6.73752 13.457 5.38627 12.8973 4.38998 11.901C3.39369 10.9047 2.83398 9.55349 2.83398 8.14453C2.83398 6.73557 3.39369 5.38431 4.38998 4.38803C5.38627 3.39174 6.73752 2.83203 8.14648 2.83203C9.55545 2.83203 10.9067 3.39174 11.903 4.38803C12.8993 5.38431 13.459 6.73557 13.459 8.14453Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <h1 className='ml-1 text-md'>Search</h1>
+                            </div>
+                            <div className='relative'>
+                            <div id="filterButton" 
+                                onClick={toggleFilter} 
+                                className='cursor-pointer w-20 h-7 border border-gray-300 rounded-sm flex items-center justify-center'>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
+                                    <path d="M14.1673 3.96536C14.1673 3.5687 14.1673 3.37036 14.0894 3.21878C14.0217 3.08561 13.9136 2.97727 2413.7806 2.90924C13.629 2.83203 13.4306 2.83203 13.034 2.83203H3.96732C3.57065 2.83203 3.37232 2.83203 3.22073 2.90924C3.08746 2.97715 2.9791 3.08551 2.91119 3.21878C2.83398 3.37036 2.83398 3.5687 2.83398 3.96536V4.48741C2.83398 4.66095 2.83398 4.74736 2.85382 4.82882C2.87116 4.90134 2.89985 4.97067 2.93882 5.03424C2.98203 5.10507 3.04365 5.1667 3.16548 5.28924L6.75178 8.87482C6.87432 8.99736 6.93594 9.05899 6.97915 9.12982C7.01835 9.19404 7.04668 9.26252 7.06415 9.33524C7.08398 9.41599 7.08398 9.5017 7.08398 9.67099V13.0398C7.08398 13.6469 7.08398 13.9507 7.21148 14.1335C7.2668 14.2125 7.33768 14.2794 7.41978 14.3301C7.50187 14.3808 7.59345 14.4141 7.6889 14.4282C7.90919 14.4607 8.18119 14.3254 8.72378 14.0534L9.29044 13.7701C9.51853 13.6568 9.63186 13.6001 9.71473 13.5151C9.78825 13.44 9.84414 13.3495 9.87836 13.2502C9.91732 13.1383 9.91732 13.0108 9.91732 12.7565V9.67666C9.91732 9.50311 9.91732 9.4167 9.93715 9.33524C9.9545 9.26272 9.98318 9.19339 10.0222 9.12982C10.0647 9.05899 10.1263 8.99807 10.2467 8.87766L10.2495 8.87482L13.8358 5.28924C13.9576 5.1667 14.0186 5.10507 14.0625 5.03424C14.1017 4.97002 14.13 4.90154 14.1475 4.82882C14.1673 4.74878 14.1673 4.66236 14.1673 4.49307V3.96536Z" stroke="#0A0A0A" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <h1 className='ml-1 text-md'>Filter</h1></div>
+                                {showFilter && <Filter toggleFilter={toggleFilter}/>}
+                        </div>
+                        </div>
                     </div>
+                    <table className="min-w-full leading-normal">
+                        <thead>
+                            <tr className="text-left text-gray-600 uppercase text-sm border-t border-gray-300">
+                                <th className="py-3"></th>
+                                <th className="py-3 ">Name</th>
+                                <th className="py-3 ">Email</th>
+                                <th className="py-3 ">Mobile</th>
+                                <th className="py-3 ">Branch</th>
+                                <th className="py-3  text-center">Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredStudents.map((student, index) => (
+                                <tr key={student.id} className="hover:bg-gray-50">
+                                    <td className='py-4 px-5'>{index + 1}</td>
+                                    <td className="py-4 ">{student.name}</td>
+                                    <td className="py-4 ">{student.email}</td>
+                                    <td className="py-4 ">{student.mobile}</td>
+                                    <td className="py-4 ">{student.branch}</td>
+                                    <td className="py-4  text-center">
+                                        <i className="fas fa-user-edit text-gray-500 cursor-pointer hover:text-indigo-600"></i>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     );
 };
 
-export default Adm_StudentList;
+export default StudentList;
