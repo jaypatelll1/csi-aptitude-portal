@@ -8,13 +8,14 @@ const {
   getAllPaginatedExams,
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
+const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 
 const router = express.Router();
 
-router.post('/', authorizeRoles, createExam);
-router.get('/', getAllPaginatedExams); // Pagination
-router.get('/:exam_id', getExamById);
-router.put('/:exam_id', authorizeRoles, updateExam);
-router.delete('/:exam_id', authorizeRoles, deleteExam);
+router.post('/',jwtAuthMiddleware, authorizeRoles, createExam);
+router.get('/',jwtAuthMiddleware, getAllPaginatedExams); // Pagination
+router.get('/:exam_id',jwtAuthMiddleware,authorizeRoles, getExamById);
+router.put('/:exam_id',jwtAuthMiddleware, authorizeRoles, updateExam);
+router.delete('/:exam_id', jwtAuthMiddleware,authorizeRoles, deleteExam);
 
 module.exports = router;
