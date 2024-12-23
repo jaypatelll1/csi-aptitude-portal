@@ -37,6 +37,8 @@ const updateUser = async (id, name, email, hashPassword) => {
   }
 };
 
+
+
 // Function to delete a user
 const deleteUser = async (id) => {
   try {
