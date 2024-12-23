@@ -4,7 +4,7 @@ const csvParser = require('csv-parser');
 const { query } = require("../config/db")
 
 
-const parseExcelQuestion = async (filePath,examId) => {
+const parseExcelQuestion = async (filePath,examId,res) => {
     try {
         // Read the Excel file
         const workbook = XLSX.readFile(filePath);
@@ -37,11 +37,11 @@ const parseExcelQuestion = async (filePath,examId) => {
 
         console.log('All data inserted successfully.');
     } catch (err) {
-        console.error('Error processing Excel:', err);
+        res.json({error :err.detail})
     }
 };
 
-const parseCSVquestion = async (filePath,examId) => {
+const parseCSVquestion = async (filePath,examId,res) => {
     try {
         const jsonData = await new Promise((resolve, reject) => {
             const data = [];
@@ -93,7 +93,7 @@ const parseCSVquestion = async (filePath,examId) => {
 
         console.log('All data inserted successfully.');
     } catch (err) {
-        console.error('Error processing CSV:', err);
+        res.json({error :err.detail})
     }
 };
 

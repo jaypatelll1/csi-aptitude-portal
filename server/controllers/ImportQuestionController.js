@@ -14,14 +14,14 @@ const examId = req.params.exam_id ;
 
     if (fileExtension === ".xlsx" || fileExtension === ".xls") {
         // Parse Excel file
-        const jsonData = parseExcelQuestion(filePath,examId,req);
+        const jsonData = parseExcelQuestion(filePath,examId,req,res);
         res.json({
             message: "Excel file uploaded and parsed successfully",
             content: jsonData,
         });
     } else if (fileExtension === ".csv") {
         // Parse CSV file
-        parseCSVquestion(filePath,examId)
+        parseCSVquestion(filePath,examId,res,req)
             .then((jsonData) => {
                 res.json({
                     message: "CSV file uploaded and parsed successfully",

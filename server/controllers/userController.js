@@ -77,7 +77,12 @@ const loginUser = async (req, res) => {
 
     const token = await generateToken(userData) ;
 
-    return res.status(200).json({ token });
+    res.cookie('jwtToken', token,{
+      httpOnly:true,
+      sameSite:'strict',
+      secure:true,
+    })
+    return res.status(200).send("Login successful");
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: 'Internal server error' });

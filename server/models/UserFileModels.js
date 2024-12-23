@@ -2,13 +2,14 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 const csvParser = require('csv-parser');
 const { query } = require("../config/db")
-const { hashPassword } = require("../utils/hashUtil")
+const { hashPassword } = require("../utils/hashUtil");
+const { error } = require('console');
 
 
 const parseExcelUsers = async (filePath) => {
     try {
         // Read the Excel file
-        const workbook = XLSX.readFile(filePath);
+        const workbook = XLSX.readFile(filePath,res);
         const sheetNames = workbook.SheetNames;
         const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
         console.log("Excel Data to insert:", jsonData);
@@ -28,11 +29,11 @@ const parseExcelUsers = async (filePath) => {
 
         console.log('All data inserted successfully.');
     } catch (err) {
-        console.error('Error processing Excel:', err);
+        res.json({error :err.detail})
     }
 };
 
-const parseCSVusers = async (filePath) => {
+const parseCSVusers = async (filePath,res) => {
     try {
         const jsonData = await new Promise((resolve, reject) => {
             const data = [];
@@ -66,7 +67,7 @@ const parseCSVusers = async (filePath) => {
 
         console.log('All data inserted successfully.');
     } catch (err) {
-        console.error('Error processing CSV:', err);
+        res.json({error :err.detail})
     }
 };
 
