@@ -19,7 +19,7 @@ const Filter = ({ toggleFilter, handleFilter }) => {
     };
 
     return (
-        <div className='absolute z-50 mt-4 w-72 p-5 border border-gray-300 rounded-xl bg-white shadow-lg right-0'>
+        <div className='absolute z-50 mt-4 w-80 p-5 border border-gray-300 rounded-xl bg-white shadow-lg right-0'>
             <h1 className='text-md text-[#877575] mb-2 ml-1'>Department</h1>
             <select
                 className="h-8 w-full rounded-lg border border-gray-300 bg-white pl-4 text-md"
