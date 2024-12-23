@@ -1,4 +1,4 @@
-import Adm_Sidebar from "../../components/Admin/Adm_Sidebar";
+import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import React, { useState } from "react";
 
 const CreateTestPage = () => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; 
-import Adm_Sidebar from "../../components/Admin/Adm_Sidebar";
+import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 
 const InputQuestions = () => {
   const [question, setQuestion] = useState('');

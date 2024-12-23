@@ -1,6 +1,6 @@
 import React from "react";
 import Adm_ViewQuestionCard from "../../components/Admin/Adm_ViewQuestionCard";
-import Adm_Sidebar from "../../components/Admin/Adm_Sidebar";
+import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 
 const Adm_ViewQuestions = () => {
   const questions = [

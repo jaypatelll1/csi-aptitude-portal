@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import Adm_Sidebar from "../../components/Admin/Adm_Sidebar";
-import Adm_DashboardTiles from "../../components/Admin/Adm_DashboardTiles";
-import Adm_DraftedTestCard from "../../components/Admin/Adm_DraftedTestCard";
+import React, { useState } from "react"; 
+import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
+import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
+import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
+import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
+import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
 
 const Dashboard = () => {
   const tileData = [
@@ -81,10 +83,10 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Dashboard Tiles (positioned below the header) */}
+        {/* Dashboard Tiles */}
         <div
           className="p-6 w-full flex justify-center"
-          style={{ position: "absolute", top: "120px" }} // Adjust top positioning for tiles
+          style={{ position: "absolute", top: "120px" }}
         >
           <div className="flex space-x-4 justify-center flex-wrap sm:flex-nowrap">
             {tileData.map((item, index) => (
@@ -94,8 +96,7 @@ const Dashboard = () => {
         </div>
 
         {/* Unified Tabs and Cards Section */}
-        <div className="bg-white shadow-md rounded-lg w-full sm:w-[90%] p-6 mt-[280px]">
-          {/* Added margin-top for space */}
+        <div className="bg-white shadow-md rounded-lg w-full sm:w-[93%] p-6 mt-[280px]">
           {/* Tabs Section */}
           <div className="flex justify-start space-x-8 border-b pb-4 mb-6">
             <button
@@ -132,18 +133,17 @@ const Dashboard = () => {
 
           {/* Cards Section */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-            {/* Added mt-10 for spacing */}
             {activeTab === "drafted" &&
               tests.map((test, index) => (
                 <Adm_DraftedTestCard key={index} test={test} />
               ))}
             {activeTab === "scheduled" &&
               scheduledTests.map((test, index) => (
-                <Adm_DraftedTestCard key={index} test={test} />
+                <Adm_ScheduledTestCard key={index} test={test} />
               ))}
             {activeTab === "past" &&
               pastTests.map((test, index) => (
-                <Adm_DraftedTestCard key={index} test={test} />
+                <Adm_PastTestCard key={index} test={test} />
               ))}
           </div>
         </div>
