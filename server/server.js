@@ -3,13 +3,17 @@ require('dotenv').config();
 
 const userRoutes = require('./routes/userRoutes'); 
 
-const PORT = process.env.PORT;
+const port = process.env.PORT || 4000;
 
 const app = express();
 app.use(express.json());
 
 app.use('/api', userRoutes);
 
-app.listen(PORT, 'localhost', () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.get('/' , ()=> {
+    
+})
+
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
