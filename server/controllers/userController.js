@@ -89,10 +89,10 @@ const loginUser = async (req, res) => {
 
     await logActivity({ user_id: userData.id, activity: 'Login attempt', status: 'success', details: 'User logged in successfully' });
 
-    res.cookie('jwtToken', token,{
+    res.cookie('jwttoken', token,{
       httpOnly:true,
       sameSite:'strict',
-      secure:true,
+      secure:false,
     })
     return res.status(200).send("Login successful");
   } catch (error) {
@@ -141,11 +141,12 @@ const deleteUser = async (req, res) => {
 
 // Pagination
 const getAllPaginatedUsers = async (req, res) => {
+  const user_id = req.user.id;
   const { page = 1, limit = 10 } = req.query;
   try {
     const users = await userModel.getAllPaginatedUsers(parseInt(page), parseInt(limit));
     await logActivity({
-      user_id,
+      user_id : user_id,
       activity: `Viewed paginated exams`,
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,
