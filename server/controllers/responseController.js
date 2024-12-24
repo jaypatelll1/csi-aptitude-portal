@@ -8,6 +8,7 @@ const {
   getPaginatedResponses,
   submittedUnansweredQuestions,
 } = require('../models/responseModel');
+const { logActivity } = require('../utils/logger');
 
 // Submit a response
 exports.submitResponse = async (req, res) => {
@@ -21,6 +22,21 @@ exports.submitResponse = async (req, res) => {
       question_id,
       student_id,
       selected_option,
+    });
+    if (!response) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'Submit Response',
+        status: 'failure',
+        details: 'Response not submitted',
+      });
+      return res.status(400).json({ message: 'Response not submitted.' });
+    }
+    await logActivity({
+      user_id: student_id,
+      activity: 'Submit Response',
+      status: 'success',
+      details: 'Response submitted successfully',
     });
     res
       .status(201)
@@ -38,6 +54,12 @@ exports.submitAllResponses = async (req, res) => {
   exam_id = parseInt(exam_id);
   try {
     if (!responses || responses.length === 0) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'Submit All Responses',
+        status: 'failure',
+        details: 'No responses provided',
+      });
       return res.status(400).json({ message: 'No responses provided.' });
     }
 
@@ -48,11 +70,20 @@ exports.submitAllResponses = async (req, res) => {
       student_id,
     }));
     const submittedResponses = await submitMultipleResponses(preparedResponses);
-    const submittedUnansweredResponses = await submittedUnansweredQuestions(exam_id, student_id);
+    const submittedUnansweredResponses = await submittedUnansweredQuestions(
+      exam_id,
+      student_id
+    );
 
+    await logActivity({
+      user_id: student_id,
+      activity: 'Submit All Responses',
+      status: 'success',
+      details: 'All responses submitted successfully',
+    });
     res.status(201).json({
       message: 'All responses submitted successfully.',
-      responses: {submittedResponses,submittedUnansweredResponses}
+      responses: { submittedResponses, submittedUnansweredResponses },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -66,6 +97,21 @@ exports.getResponsesByStudent = async (req, res) => {
 
   try {
     const responses = await getResponsesByStudent(exam_id, student_id);
+    if (!responses) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View Responses',
+        status: 'failure',
+        details: 'Responses not found',
+      });
+      return res.status(404).json({ message: 'Responses not found.' });
+    }
+    await logActivity({
+      user_id: student_id,
+      activity: 'View Responses',
+      status: 'success',
+      details: 'Responses found',
+    });
     res.status(200).json(responses);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -75,9 +121,25 @@ exports.getResponsesByStudent = async (req, res) => {
 // Get all responses for an exam (for admin or instructor)
 exports.getResponsesForExam = async (req, res) => {
   const { exam_id } = req.params;
+  const student_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
     const responses = await getResponsesForExam(exam_id);
+    if (!responses) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View Responses',
+        status: 'failure',
+        details: 'Responses not found',
+      });
+      return res.status(404).json({ message: 'Responses not found.' });
+    }
+    await logActivity({
+      user_id: student_id,
+      activity: 'View Responses',
+      status: 'success',
+      details: 'Responses found',
+    });
     res.status(200).json(responses);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -88,15 +150,28 @@ exports.getResponsesForExam = async (req, res) => {
 exports.updateResponse = async (req, res) => {
   const { response_id } = req.params; // Get the response ID from the route
   const { selected_option } = req.body; // Get the updated answer from the request body
+  const student_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
     const updatedResponse = await updateResponse(response_id, selected_option);
 
     if (!updatedResponse) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'Update Response',
+        status: 'failure',
+        details: 'Response not found',
+      });
       return res.status(404).json({ message: 'Response not found.' });
     }
-
-    res
+    await logActivity({
+      user_id: student_id,
+      activity: 'Update Response',
+      status: 'success',
+      details: 'Response updated successfully',
+    });
+    await logActivity({user_id: student_id, activity: 'Update Response', status: 'success', details: 'Response updated successfully'});
+    return res
       .status(200)
       .json({ message: 'Response updated successfully.', updatedResponse });
   } catch (error) {
@@ -107,14 +182,26 @@ exports.updateResponse = async (req, res) => {
 // Delete a response
 exports.deleteResponse = async (req, res) => {
   const { response_id } = req.params; // Get the response ID from the route
+  const student_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
     const deleted = await deleteResponse(response_id);
 
     if (!deleted) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'Delete Response',
+        status: 'failure',
+        details: 'Response not found',
+      });
       return res.status(404).json({ message: 'Response not found.' });
     }
-
+    await logActivity({
+      user_id: student_id,
+      activity: 'Delete Response',
+      status: 'success',
+      details: 'Response deleted successfully',
+    });
     res.status(200).json({ message: 'Response deleted successfully.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -133,9 +220,20 @@ exports.getPaginatedResponsesForExam = async (req, res) => {
       parseInt(page),
       parseInt(limit)
     );
-    res
+    await logActivity({
+      user_id,
+      activity: `Viewed paginated responses`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    });
+    return res
       .status(200)
-      .json({ page: parseInt(page), limit: parseInt(limit), student_id,  responses });
+      .json({
+        page: parseInt(page),
+        limit: parseInt(limit),
+        student_id,
+        responses,
+      });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

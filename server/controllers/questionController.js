@@ -1,9 +1,10 @@
 const questionModel = require('../models/questionModel');
+const { logActivity } = require('../utils/logger');
 
 const createQuestions = async (req, res) => {
   const { question_text, options, correct_option } = req.body;
   const { exam_id } = req.params;
-
+  const id = req.user.id; // Get user_id from token
   try {
     const newQuestion = await questionModel.insertQuestion(
       exam_id,
@@ -12,11 +13,23 @@ const createQuestions = async (req, res) => {
       correct_option
     );
     if (!newQuestion) {
+      await logActivity({
+        user_id: id,
+        activity: 'Create Question',
+        status: 'failure',
+        details: 'Could not create new question',
+      });
       return res.status(500).json({
         error: 'Server Error',
         message: 'Could not create question',
       });
     }
+    await logActivity({
+      user_id: id,
+      activity: 'Create Question',
+      status: 'success',
+      details: 'New Question created successfully',
+    });
     res.status(201).json(newQuestion); // Return the created question
   } catch (error) {
     res.status(500).json({ message: 'Error creating question', error });
@@ -25,16 +38,28 @@ const createQuestions = async (req, res) => {
 
 const getQuestion = async (req, res) => {
   const { exam_id } = req.params;
-
+  const id = req.user.id; // Get user_id from token
   try {
     const questions = await questionModel.getQuestionsByExamId(exam_id);
 
     if (!questions) {
+      await logActivity({
+        user_id: id,
+        activity: 'View Question',
+        status: 'failure',
+        details: 'No Questions found',
+      });
       return res.status(404).json({
         error: ' Not Found',
         message: 'Resource not Found',
       });
     }
+    await logActivity({
+      user_id: id,
+      activity: 'View Question',
+      status: 'success',
+      details: 'View Questions successfully',
+    });
     res.status(200).json(questions);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching questions', error });
@@ -44,6 +69,7 @@ const getQuestion = async (req, res) => {
 const UpdateQuestion = async (req, res) => {
   const { question_id } = req.params;
   const { exam_id, question_text, options, correct_option } = req.body;
+  const id = req.user.id; // Get user_id from token
   try {
     const questions = await questionModel.UpdateQuestions(
       question_id,
@@ -54,12 +80,23 @@ const UpdateQuestion = async (req, res) => {
     );
 
     if (!questions) {
+      await logActivity({
+        user_id: id,
+        activity: 'Update Question',
+        status: 'failure',
+        details: 'Could not update question',
+      });
       return res.status(404).json({
         error: ' Not Found',
         message: 'Resource not Found',
       });
     }
-
+    await logActivity({
+      user_id: id,
+      activity: 'Update Question',
+      status: 'success',
+      details: 'Question updated successfully',
+    });
     res.status(200).json(questions);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching questions', error });
@@ -68,15 +105,28 @@ const UpdateQuestion = async (req, res) => {
 
 const DeleteQuestion = async (req, res) => {
   const { question_id } = req.params;
+  const id = req.user.id; // Get user_id from token
   try {
     const questions = await questionModel.DeleteQuestions(question_id);
-    res.status(200).json(questions);
     if (!questions) {
+      await logActivity({
+        user_id: id,
+        activity: 'Delete Question',
+        status: 'failure',
+        details: 'Could not delete question',
+      });
       return res.status(404).json({
-        error: ' Not Found',
+        error: 'Not Found',
         message: 'Resource not Found',
       });
     }
+    await logActivity({
+      user_id: id,
+      activity: 'Delete Question',
+      status: 'success',
+      details: 'Question deleted successfully',
+    });
+    res.status(200).json(questions);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching questions', error });
   }
@@ -92,9 +142,17 @@ const getPaginatedQuestionsByExam = async (req, res) => {
       parseInt(page),
       parseInt(limit)
     );
-    res .status(200).json({ page: parseInt(page), limit: parseInt(limit), questions });
+    await logActivity({
+      user_id,
+      activity: `Viewed paginated questions`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    });
+    return res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), questions });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -103,5 +161,5 @@ module.exports = {
   getQuestion,
   UpdateQuestion,
   DeleteQuestion,
-  getPaginatedQuestionsByExam
+  getPaginatedQuestionsByExam,
 };
