@@ -1,21 +1,48 @@
-const express = require('express');
 require('dotenv').config();
-const userRoutes = require('./routes/userRoutes'); 
+const express = require("express");
+const cors = require("cors");
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
-const port = process.env.PORT || 4000;
+// Import Routes
+const userRoutes = require('./routes/userRoutes');
+const examRoutes = require('./routes/examRoutes');
+const questionsRoutes = require('./routes/questionRoutes');
+const responseRoutes = require('./routes/responseRoutes');
+const resultRoutes = require('./routes/resultRoutes');
+const fileRoutes = require("./routes/fileRoutes");
+const exportRoutes = require("./routes/exportRoutes");
 
+// Initialize the app
 const app = express();
+
+// Set port to Render's PORT environment variable or default to 4000
+const PORT = process.env.PORT || 4000;
+
+// Middlewares
+app.use(cors({
+  origin: 'http://localhost:3000', // Update this to your frontend URL deployed on Render
+  credentials: true, // Allow cookies
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(morgan('dev'));
 
-// Mount user routes
+// Routes
 app.use('/api/users', userRoutes);
+app.use('/api/exams', examRoutes);
+app.use('/api/exams/questions', questionsRoutes);
+app.use('/api/exams/responses', responseRoutes);
+app.use('/api/exams/results', resultRoutes);
+app.use('/api/export', exportRoutes);
+app.use('/', fileRoutes);
 
-// Define a route for the root
+// Ensure a response for the root route
 app.get('/', (req, res) => {
-  res.send('Hello World!'); // Ensure a response is sent
+  res.send('Server is running!'); // Generic message for Render health checks
 });
 
-// Listen on all network interfaces (0.0.0.0)
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${port}`);
+// Start server on all interfaces (0.0.0.0) for Render
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });

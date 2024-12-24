@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
     "format": "prettier --write ."
   },
   "author": "",
@@ -12,12 +12,26 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
     "dotenv": "^16.4.6",
+    "ejs": "^3.1.10",
     "express": "^4.21.1",
+    "express-rate-limit": "^7.5.0",
+    "fast-csv": "^5.0.2",
+    "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "pg": "^8.13.1"
+    "multer": "^1.4.5-lts.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "path": "^0.12.7",
+    "pg": "^8.13.1",
+    "pg-format": "^1.0.4",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.0.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "prettier": "^3.4.1"
