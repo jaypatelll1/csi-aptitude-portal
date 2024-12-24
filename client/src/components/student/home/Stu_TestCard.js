@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Stu_TestCard = ({ testName, questionCount, duration, lastDate, status }) => {
+const Stu_TestCard = ({ testName, questionCount, duration, lastDate}) => {
   return (
     <div className="border rounded-lg shadow-md p-3 max-w-lg">
       <div className="flex justify-between items-center mb-4">

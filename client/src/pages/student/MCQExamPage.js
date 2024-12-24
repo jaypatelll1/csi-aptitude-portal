@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Sidebar from "../../components/student/Mcqexampage/Sidebar";
+import Sidebar from "../../components/student/mcqexampage/Sidebar";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState([]);
