@@ -92,7 +92,7 @@ const loginUser = async (req, res) => {
     res.cookie('jwttoken', token,{
       httpOnly:true,
       sameSite:'strict',
-      secure:false,
+      secure:true,
     })
     return res.status(200).send("Login successful");
   } catch (error) {

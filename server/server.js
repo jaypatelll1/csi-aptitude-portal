@@ -25,7 +25,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
+
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 // app.use("/uploads", express.static(path.resolve("./uploads")));
@@ -41,7 +41,7 @@ app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 app.use("/api/export/", exportRoutes);
-app.use("/", fileRoutes);
+app.use("/", fileRoutes); 
 app.use("/api/exams/",fileRoutes)
 
 const PORT = 3000;
