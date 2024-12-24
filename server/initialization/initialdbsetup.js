@@ -1,4 +1,4 @@
-const pool = require('../config/db2');
+const pool = require('../config/db');
 
 // Initialize connection pool
 
