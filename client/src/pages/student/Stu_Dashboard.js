@@ -107,6 +107,7 @@ function StudentDashboard() {
 
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);
+  
 
   useEffect(() => {
     // Close the Details component when clicking outside
@@ -130,7 +131,7 @@ function StudentDashboard() {
       <div id="main-section" className='ml-64 flex-grow bg-white h-max overflow-hidden'>
         <div className='bg-gray-100 h-14 border-b border-gray-200 flex items-center'>
           <h1 className="text-xl font-medium text-gray-800 ml-5">Dashboard</h1>
-          <div className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer" onCl onClick={openDetails}>AM</div>
+          <div className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer" onClick={openDetails}>AM</div>
           <div ref={detailsRef}>
           {isDetailsOpen && <Details name={student.Name} email={student.Email}  mobile={student.Mobile} branch={student.Branch} />}</div>
         </div>
