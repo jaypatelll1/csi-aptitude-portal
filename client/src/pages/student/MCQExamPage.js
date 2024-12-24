@@ -1,10 +1,20 @@
-import React, { useState, useEffect } from "react";
+// MCQExamPage.jsx
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import Sidebar from "../../components/student/Mcqexampage/Sidebar";
+import {
+  setQuestions,
+  setSelectedOption,
+  visitQuestion,
+} from "../../redux/questionSlice";
 
-const QuestionPage = () => {
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+const MCQExamPage = () => {
+  const dispatch = useDispatch();
+  const { questions, currentQuestionIndex } = useSelector(
+    (state) => state.questions
+  );
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -16,49 +26,49 @@ const QuestionPage = () => {
           ...q,
           answered: false,
         }));
-        setQuestions(formattedQuestions);
+        dispatch(setQuestions(formattedQuestions));
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
     };
 
     fetchQuestions();
-  }, []);
+  }, [dispatch]);
 
   const handleOptionSelect = (option) => {
-    const updatedQuestions = questions.map((q, index) =>
-      index === currentQuestionIndex
-        ? { ...q, answered: true, selectedOption: option }
-        : q
+    dispatch(
+      setSelectedOption({
+        index: currentQuestionIndex,
+        option,
+      })
     );
-    setQuestions(updatedQuestions);
-  };
-
-  const handleVisitQuestion = (index) => {
-    setCurrentQuestionIndex(index);
   };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      handleVisitQuestion(currentQuestionIndex + 1);
+      dispatch(visitQuestion(currentQuestionIndex + 1));
     }
   };
 
-  const attemptedCount = questions.filter((q) => q.answered).length;
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      dispatch(visitQuestion(currentQuestionIndex - 1));
+    }
+  };
 
   return (
-    <div className="flex h-screen">
-      <div className="w-9/12 px-8 py-6 bg-gray-100">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">
-            General Knowledge
-          </h1>
-        <div className=" bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8">
+    <div className="flex h-screen bg-[#F5F6F8]">
+      <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8]">
+        <h1 className="text-xl font-bold text-gray-800 mb-4">
+          General Knowledge
+        </h1>
+        <div className="bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-600">
+            <h2 className="text-2xl font-semibold text-black">
               {currentQuestionIndex + 1}.{" "}
               {questions[currentQuestionIndex]?.question || "Loading..."}
             </h2>
-            <span className=" font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
+            <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
               00:19:69
             </span>
           </div>
@@ -87,7 +97,7 @@ const QuestionPage = () => {
             <button
               className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
               disabled={currentQuestionIndex === 0}
-              onClick={() => handleVisitQuestion(currentQuestionIndex - 1)}
+              onClick={handlePreviousQuestion}
             >
               Previous
             </button>
@@ -102,15 +112,9 @@ const QuestionPage = () => {
         </div>
       </div>
 
-      <Sidebar
-        attempted={attemptedCount}
-        total={questions.length}
-        currentQuestionIndex={currentQuestionIndex}
-        questions={questions}
-        onVisitQuestion={handleVisitQuestion}
-      />
+      <Sidebar />
     </div>
   );
 };
 
-export default QuestionPage; 
+export default MCQExamPage;

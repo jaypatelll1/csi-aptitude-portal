@@ -1,10 +1,10 @@
-import { configureStore } from '@reduxjs/toolkit';
-import optionsReducer from './optionsSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import questionReducer from "./questionSlice";
 
 const store = configureStore({
   reducer: {
-    options: optionsReducer
-  }
+    questions: questionReducer,
+  },
 });
 
 export default store;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import doodle from '../../assets/sidebar/doodle.svg';
 import gradient from '../../assets/sidebar/gradient.svg'; // New gradient SVG
 
-const StudentLogin = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -91,4 +91,4 @@ const StudentLogin = () => {
   );
 };
 
-export default StudentLogin;
+export default Login;
