@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 
-import Sidebar from "../../components/student/Mcqexampage/Sidebar";
+import Sidebar from "../../components/student/mcqexampage/Sidebar";
 import {
   setQuestions,
   setSelectedOption,
