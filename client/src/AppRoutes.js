@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import Stu_login from './pages/student/Stu_Login';
+import Login from './pages/Login';
 import MCQExamPage from './pages/student/MCQExamPage';
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
 import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
@@ -15,7 +15,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Stu_login />} />
+      <Route path="/" element={<Login />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/exam/:examId" element={<MCQExamPage />} />
 

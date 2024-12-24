@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import doodle from '../../assets/sidebar/doodle.svg';
-import gradient from '../../assets/sidebar/gradient.svg'; // New gradient SVG
+import doodle from '../assets/sidebar/doodle.svg';
+import gradient from '../assets/sidebar/gradient.svg'; // New gradient SVG
 
 const Login = () => {
   const [email, setEmail] = useState('');
