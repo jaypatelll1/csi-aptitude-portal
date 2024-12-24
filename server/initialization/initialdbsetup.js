@@ -90,9 +90,18 @@ async function initializeDB() {
             ON UPDATE NO ACTION
             ON DELETE NO ACTION
       );  
+
+      CREATE TABLE logs (
+        logs_id SERIAL PRIMARY KEY,
+        user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+        activity VARCHAR(255) NOT NULL,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status VARCHAR(50), -- e.g., "success" or "failure"
+        details TEXT -- Optional: Additional information about the activity
+      );
     `);
     console.log(`Successfully Completed`);
-  } catch(error){
+  } catch (error) {
     console.log(error);
   } finally {
     client.release();
