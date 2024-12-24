@@ -18,7 +18,7 @@ router.post('/:exam_id', jwtAuthMiddleware,authorizeRoles, createQuestions);
 router.get('/:exam_id', jwtAuthMiddleware, getPaginatedQuestionsByExam); // pagination
 
 // Route to edit a question using question id
-router.patch('/:exam_id/:question_id',jwtAuthMiddleware,authorizeRoles, UpdateQuestion);
+router.put('/:exam_id/:question_id',jwtAuthMiddleware,authorizeRoles, UpdateQuestion);
 
 // Route to delete a question using question id
 router.delete('/:exam_id/:question_id', jwtAuthMiddleware,authorizeRoles, DeleteQuestion);

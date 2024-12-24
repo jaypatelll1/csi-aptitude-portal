@@ -46,6 +46,10 @@ exports.submitResponse = async (req, res) => {
   }
 };
 
+// responses : {
+//   "question_id": number,
+//   "selected_option": character;
+// }
 // Submit all responses together
 exports.submitAllResponses = async (req, res) => {
   let { exam_id } = req.params;
@@ -221,7 +225,7 @@ exports.getPaginatedResponsesForExam = async (req, res) => {
       parseInt(limit)
     );
     await logActivity({
-      user_id,
+      user_id: student_id,
       activity: `Viewed paginated responses`,
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,

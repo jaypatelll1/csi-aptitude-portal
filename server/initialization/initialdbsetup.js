@@ -60,7 +60,7 @@ async function initializeDB() {
   try {
     const result = await pool.query(query);
     console.log(`Successfully Completed`);
-  } catch(error){
+  } catch (error) {
     console.log(error);
   } 
 }

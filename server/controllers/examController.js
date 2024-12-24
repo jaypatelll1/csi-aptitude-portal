@@ -141,6 +141,7 @@ const deleteExam = async (req, res) => {
 
 // Pagination
 const getAllPaginatedExams = async (req, res) => {
+  const user_id = req.user.id;
   const { page = 1, limit = 10 } = req.query;
   try {
     const exams = await examModel.getAllPaginatedExams(
