@@ -75,10 +75,10 @@ const Dashboard = () => {
         {/* Top Heading and Create Test Button */}
         <div className="w-full sm:w-[92%] flex justify-between items-center p-4 absolute top-0 sm:right-[4%] sm:left-[4%]">
           {/* Heading */}
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-700">Admin Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-700 mt-4">Admin Dashboard</h1>
 
           {/* Create Test Button */}
-          <button className="bg-blue-600 text-white py-2 px-8 rounded-lg shadow-md hover:bg-blue-700">
+          <button className="bg-blue-600 text-white py-2 px-8 rounded-lg shadow-md hover:bg-blue-700 mt-4">
             + Create Test
           </button>
         </div>
@@ -86,7 +86,7 @@ const Dashboard = () => {
         {/* Dashboard Tiles */}
         <div
           className="p-6 w-full flex justify-center"
-          style={{ position: "absolute", top: "120px" }}
+          style={{ position: "absolute", top: "100px" }}
         >
           <div className="flex space-x-4 justify-center flex-wrap sm:flex-nowrap">
             {tileData.map((item, index) => (
