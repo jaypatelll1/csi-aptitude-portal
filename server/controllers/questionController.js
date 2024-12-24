@@ -67,8 +67,8 @@ const getQuestion = async (req, res) => {
 };
 
 const UpdateQuestion = async (req, res) => {
-  const { question_id } = req.params;
-  const { exam_id, question_text, options, correct_option } = req.body;
+  const { question_id, exam_id } = req.params;
+  const { question_text, options, correct_option } = req.body;
   const id = req.user.id; // Get user_id from token
   try {
     const questions = await questionModel.UpdateQuestions(
@@ -78,7 +78,7 @@ const UpdateQuestion = async (req, res) => {
       options,
       correct_option
     );
-
+    
     if (!questions) {
       await logActivity({
         user_id: id,
@@ -91,6 +91,7 @@ const UpdateQuestion = async (req, res) => {
         message: 'Resource not Found',
       });
     }
+
     await logActivity({
       user_id: id,
       activity: 'Update Question',
@@ -134,6 +135,7 @@ const DeleteQuestion = async (req, res) => {
 
 // Pagination
 const getPaginatedQuestionsByExam = async (req, res) => {
+  const user_id = req.user.id;
   const { exam_id } = req.params;
   const { page = 1, limit = 10 } = req.query;
   try {

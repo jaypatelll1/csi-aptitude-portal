@@ -60,29 +60,27 @@ const UpdateQuestions = async (
   correct_option
 ) => {
   const queryText =
-    'UPDATE questions SET question_text = $1, correct_option = $2, exam_id = $3, options = $4 WHERE question_id = $5';
+    'UPDATE questions SET question_text = $1, correct_option = $2, exam_id = $3, options = $4 WHERE question_id = $5 RETURNING *';
   const values = [question_text, correct_option, exam_id, options, question_id];
 
   try {
     const res = await query(queryText, values);
-
     return res.rows[0]; // Return the inserted question
   } catch (err) {
-    console.error('Error inserting question: 12345', err.stack);
+    console.error('Error inserting question', err.stack);
     throw err;
   }
 };
 
 const DeleteQuestions = async (question_id) => {
-  const queryText = 'DELETE FROM questions WHERE question_id = $1';
+  const queryText = 'DELETE FROM questions WHERE question_id = $1 RETURNING *';
   const values = [question_id];
 
   try {
     const res = await query(queryText, values);
-
-    return res.rows[0]; // Return the inserted question
+    return res.rows[0]; // Return the deleted question
   } catch (err) {
-    console.error('Error inserting question: 12345', err.stack);
+    console.error('Error deleting question', err.stack);
     throw err;
   }
 };
@@ -102,5 +100,5 @@ module.exports = {
   getQuestionsByExamId,
   UpdateQuestions,
   DeleteQuestions,
-  getPaginatedQuestionsByExam
+  getPaginatedQuestionsByExam,
 };
