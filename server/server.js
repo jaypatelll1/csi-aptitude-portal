@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 4000;
 
 // Middlewares
 app.use(cors({
-  origin: 'http://localhost:3000', // Update this to your frontend URL deployed on Render
+  // origin: 'http://localhost:3000', // Update this to your frontend URL deployed on Render
   credentials: true, // Allow cookies
 }));
 app.use(express.json());
