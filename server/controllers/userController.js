@@ -78,7 +78,7 @@ const loginUser = async (req, res) => {
 
     const token = await generateToken(userData) ;
 
-    res.cookie('jwtToken', token,{
+    res.cookie('jwttoken', token,{
       httpOnly:true,
       sameSite:'strict',
       secure:true,
