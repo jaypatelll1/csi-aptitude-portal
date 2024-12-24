@@ -1,6 +1,7 @@
 import React ,{useState}from 'react';
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from '../../components/admin/Adm_Filter';
+import AddStudent from '../../components/admin/Adm_AddStudent'
 
 const students = [
     { id: 1, name: 'Shree Shinde', email: 'shreeshinde-inft@atharvacoe.ac.in', mobile: '9501956750', branch: 'INFT' },
@@ -8,6 +9,21 @@ const students = [
     { id: 3, name: 'Wade Warren', email: 'WadeWarren-inft@atharvacoe.ac.in', mobile: '0367871221', branch: 'CMPN' },
     { id: 4, name: 'Guy Hawkins', email: 'GuyHawkins-inft@atharvacoe.ac.in', mobile: '3954212189', branch: 'EXTC' },
     { id: 5, name: 'Robert Fox', email: 'RobertFox-inft@atharvacoe.ac.in', mobile: '3910793817', branch: 'INFT' },
+    { id: 6, name: 'Jane Doe', email: 'janedoe-inft@atharvacoe.ac.in', mobile: '1234567890', branch: 'INFT' },
+    { id: 7, name: 'John Smith', email: 'johnsmith-cmpn@atharvacoe.ac.in', mobile: '0987654321', branch: 'CMPN' },
+    { id: 8, name: 'Alice Johnson', email: 'alicejohnson-extc@atharvacoe.ac.in', mobile: '1122334455', branch: 'EXTC' },
+    { id: 9, name: 'Bob Brown', email: 'bobbrown-inft@atharvacoe.ac.in', mobile: '2233445566', branch: 'INFT' },
+    { id: 10, name: 'Charlie Davis', email: 'charliedavis-cmpn@atharvacoe.ac.in', mobile: '3344556677', branch: 'CMPN' },
+    { id: 11, name: 'David Evans', email: 'davidevans-extc@atharvacoe.ac.in', mobile: '4455667788', branch: 'EXTC' },
+    { id: 12, name: 'Eve Foster', email: 'evefoster-inft@atharvacoe.ac.in', mobile: '5566778899', branch: 'INFT' },
+    { id: 13, name: 'Frank Green', email: 'frankgreen-cmpn@atharvacoe.ac.in', mobile: '6677889900', branch: 'CMPN' },
+    { id: 14, name: 'Grace Harris', email: 'graceharris-extc@atharvacoe.ac.in', mobile: '7788990011', branch: 'EXTC' },
+    { id: 15, name: 'Hank Irving', email: 'hankirving-inft@atharvacoe.ac.in', mobile: '8899001122', branch: 'INFT' },
+    { id: 16, name: 'Ivy Johnson', email: 'ivyjohnson-cmpn@atharvacoe.ac.in', mobile: '9900112233', branch: 'CMPN' },
+    { id: 17, name: 'Jack King', email: 'jackking-extc@atharvacoe.ac.in', mobile: '1011121314', branch: 'EXTC' },
+    { id: 18, name: 'Karen Lee', email: 'karenlee-inft@atharvacoe.ac.in', mobile: '1112131415', branch: 'INFT' },
+    { id: 19, name: 'Leo Martin', email: 'leomartin-cmpn@atharvacoe.ac.in', mobile: '1213141516', branch: 'CMPN' },
+    { id: 20, name: 'Mia Nelson', email: 'mianelson-extc@atharvacoe.ac.in', mobile: '1314151617', branch: 'EXTC' }
 ];
 
 
@@ -25,12 +41,14 @@ const StudentList = () => {
     const filteredStudents = students.filter(student => 
         selectedDepartment ? student.branch === selectedDepartment : true 
     );
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    console.log('Selected Dept:',selectedDepartment);
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
     return (
         <div className='flex h-screen'>
             <Adm_Sidebar />
-            <div id="main-section" className='ml-64 flex-grow bg-gray-100'>
+            <div id="main-section" className='ml-64 flex-grow bg-gray-100 h-max'>
                 <div className='bg-white h-14 border-b border-gray-300'></div>
                 <div className='flex items-center bg-white h-24 my-6 mx-10  rounded-lg border border-gray-300'>
                     <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none" className='ml-9'>
@@ -45,7 +63,7 @@ const StudentList = () => {
                         <div class="bg-[#533FCC] w-40 h-14 rounded-xl flex items-center justify-center mr-5">
                             <h1 className='text-white font-poppins text-lg font-medium leading-normal'>Import Excel</h1>
                         </div>
-                        <div class="bg-[#533FCC] w-40 h-14 rounded-xl flex items-center justify-center">
+                        <div onClick={openModal} class="bg-[#533FCC] w-40 h-14 rounded-xl flex items-center justify-center">
                             <h1 className='text-white font-poppins text-lg font-medium leading-normal'>Add Student</h1>
                         </div>
                     </div>
@@ -99,7 +117,11 @@ const StudentList = () => {
                         </tbody>
                     </table>
                 </div>
-            
+                {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                        <AddStudent closeModal={closeModal}/>
+                    </div>
+            )}
             </div>
         </div>
     );
