@@ -130,18 +130,18 @@ function StudentDashboard() {
       <div id="main-section" className='ml-64 flex-grow bg-white h-max overflow-hidden'>
         <div className='bg-gray-100 h-14 border-b border-gray-200 flex items-center'>
           <h1 className="text-xl font-medium text-gray-800 ml-5">Dashboard</h1>
-          <div className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm" onCl onClick={openDetails}>AM</div>
+          <div className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer" onCl onClick={openDetails}>AM</div>
           <div ref={detailsRef}>
           {isDetailsOpen && <Details name={student.Name} email={student.Email}  mobile={student.Mobile} branch={student.Branch} />}</div>
         </div>
         <h1 className="text-blue-700 text-2xl ml-10 mt-10 font-medium">Welcome to Atharva college Aptitude Portal</h1>
         <div className="flex border-b border-gray-200 mx-10 mt-5 pb-3 items-center">
-          <select className="bg-white px-3 py-1 focus:outline-none font-medium text-black">
+          <select className="bg-white px-3 py-1 focus:outline-none font-medium text-black hover:cursor-pointer">
             <option value="all">All tests</option>
             <option value="upcoming">Upcoming</option>
             <option value="past">Past</option>
           </select>
-          <h1 className="font-semibold text-blue-700 text-xs ml-auto mr-3">view all</h1>
+          <h1 className="font-semibold text-blue-700 text-xs ml-auto mr-3 hover:cursor-pointer">view all</h1>
         </div>
         <div className="grid-cols-3 gap-5 grid  mx-10 mt-5 px-5">
           {testData.map((test, index) => (
