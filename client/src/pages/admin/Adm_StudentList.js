@@ -1,4 +1,4 @@
-import React ,{useState}from 'react';
+import React, {useState} from "react";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from '../../components/admin/Adm_Filter';
 import AddStudent from '../../components/admin/Adm_AddStudent'
