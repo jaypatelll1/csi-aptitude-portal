@@ -1,6 +1,5 @@
 const express = require('express');
 require('dotenv').config();
-
 const userRoutes = require('./routes/userRoutes'); 
 
 const port = process.env.PORT || 4000;
@@ -9,7 +8,7 @@ const app = express();
 app.use(express.json());
 
 // Mount user routes
-app.use('/api', userRoutes);
+app.use('/api/users', userRoutes);
 
 // Define a route for the root
 app.get('/', (req, res) => {
