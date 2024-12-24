@@ -2,16 +2,13 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-<<<<<<< HEAD
+
 import Sidebar from "../../components/student/Mcqexampage/Sidebar";
 import {
   setQuestions,
   setSelectedOption,
   visitQuestion,
 } from "../../redux/questionSlice";
-=======
-import Sidebar from "../../components/student/mcqexampage/Sidebar";
->>>>>>> 8405c6858a5b6eb3989947755080cce6f1715c45
 
 
 const MCQExamPage = () => {
