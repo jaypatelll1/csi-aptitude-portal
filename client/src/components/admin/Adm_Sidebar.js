@@ -31,7 +31,7 @@ const Msidebar = () => {
               />
             </svg>
           </span>
-          Dashboard
+          <Link to="/admin">Home</Link>
         </li>
 
         <li

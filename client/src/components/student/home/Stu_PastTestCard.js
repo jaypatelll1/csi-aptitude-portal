@@ -1,0 +1,32 @@
+import React from "react";
+
+const Stu_PastTestCard = ({
+    testName = "General Knowledge",
+    submittedOn = "12/12/12",
+    time = "30 min",
+    marks = 30,
+    status = "failed"
+}) => {
+    let colur;
+    if (status === "Passed") {
+        colur = "bg-green-200 text-green-600";
+    } else {
+        colur = "bg-red-200 text-red-600";
+    }
+
+    return (
+        <div className="w-80 border border-gray-200 rounded-lg bg-white p-4 relative">
+            <h1 className="fo   nt-semibold text-xl">{testName}</h1>
+            <div className="text-sm text-gray-500 mt-3 space-y-1">
+                <p>Submitted on: {submittedOn}</p>
+                <p>Time taken: {time}</p>
+                <p>Marks: {marks}</p>
+            </div>
+            <div className={`h-8 w-24 ${colur} rounded-xl flex items-center justify-center absolute bottom-4 right-4`}>
+                <h1 className={colur}>{status}</h1>
+            </div>
+        </div>
+    )
+}
+
+export default Stu_PastTestCard;
