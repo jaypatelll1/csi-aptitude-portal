@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const pool = require('../config/db');
 
 // Run this job every hour
-const autoUpdate = cron.schedule('* * * * *', async () => {
+const autoUpdate = cron.schedule('0 * * * *', async () => {
   try {
     const now = new Date();
     const result = await pool.query(
