@@ -1,19 +1,37 @@
 import React, { useState } from 'react';
 import doodle from '../assets/sidebar/doodle.svg';
 import gradient from '../assets/sidebar/gradient.svg'; // New gradient SVG
+import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please fill in all fields');
-    } else {
-      setError('');
-      // Handle login logic here
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post('/api/users/login', { email, password }, { withCredentials: true });
+
+      console.log('login Successful', response.data);
+      alert("Login successful");
+
+      // Optionally handle what to do with the response (e.g., store token in cookies, localStorage, etc.)
+
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.response?.data?.message || 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,7 +49,7 @@ const Login = () => {
         </div>
 
         <div className="relative z-10 flex flex-col items-center w-full max-w-xs text-center text-white">
-          {/* Header Text - Moved to the top */}
+          {/* Header Text */}
           <div className="w-full text-center mb-6 mt-8">
             <h1 className="text-6xl font-extrabold leading-tight tracking-wide">
               Aptitude <br />
@@ -40,11 +58,10 @@ const Login = () => {
             <p className="mt-3 text-lg">Turn your exams into success stories</p>
           </div>
 
-          {/* Add margin-top to bring down the content */}
+          {/* Login Form */}
           <div className="mt-20 w-full">
-            {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-6 w-full">
-              <h2 className="text-3xl font-bold mb-5">Student Login: </h2>
+              <h2 className="text-3xl font-bold mb-5">Student Login:</h2>
               {error && <div className="text-red-400 mb-2">{error}</div>}
               <input
                 type="email"
@@ -71,8 +88,9 @@ const Login = () => {
               <button
                 type="submit"
                 className="w-full py-3 bg-black text-white rounded-xl shadow-md hover:bg-gray-800 transition transform hover:scale-105"
+                disabled={loading}
               >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
           </div>
