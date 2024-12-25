@@ -21,7 +21,7 @@ const app = express();
 // Middlewares
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:3000', // Your client URL
+  origin: 'http://localhost:3001', // Your client URL
   credentials: true, // Allow cookies to be sent
 }));
 app.use(express.json());
@@ -42,10 +42,10 @@ app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 app.use("/api/export/", exportRoutes);
-app.use("/", fileRoutes); 
+app.use("/api", fileRoutes); 
 app.use("/api/exams/",fileRoutes)
 
-const PORT = 3000;
+const PORT = 3001;
 
 app.listen(PORT, () => {
   console.log(`Server is running at port ${PORT}`);

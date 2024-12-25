@@ -4,15 +4,27 @@ const pool = require('../config/db');
 
 
 
-const query = `CREATE TYPE role_enum AS ENUM ('TPO', 'Student');
+const query = ` 
+CREATE TYPE role_enum AS ENUM ('TPO','Student');
+CREATE TYPE user_status AS ENUM ('NOTACTIVE', 'ACTIVE');
+CREATE TYPE branch_enum AS ENUM ('CMPM', 'INFT', 'ECS', 'EXTC', 'EEE');
+CREATE TYPE year_enum AS ENUM ('FE', 'SE', 'TE', 'BE');
 
-CREATE TABLE users (
+
+CREATE TABLE IF NOT EXISTS public.users
+(
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(50),
     email VARCHAR(50) UNIQUE,
     password_hash TEXT,
-    role role_enum NOT NULL
+    role role_enum NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status user_status DEFAULT 'NOTACTIVE',
+    department branch_enum,
+    year year_enum,
+    rollno INTEGER
 );
+
 
 CREATE TABLE exams (
     exam_id SERIAL PRIMARY KEY,
