@@ -50,7 +50,7 @@ const getResultById = async (req, res) => {
       return res.status(404).json({ error: 'Result not found' });
     }
     await logActivity({ user_id: student_id, activity: 'View Result', status: 'success', details: 'Result fetched successfully' });
-    return res.status(200).json(result.rows[0]);
+    return res.status(200).json(result);
   } catch (err) {
     console.error('Error fetching result:', err);
     res.status(500).json({ error: 'Internal server error' });

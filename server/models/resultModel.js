@@ -1,10 +1,6 @@
-const pool = require('../config/db');
+const {query} = require('../config/db');
 const { paginate} = require('../utils/pagination');
-const { query } = require('../config/db');
-const { calculateAndStoreTotalScore } = require('../utils/scoreUtils');
-
-// CREATE: Insert a new result
-
+const {calculateAndStoreTotalScore}= require('../utils/scoreUtils');
 
 // CREATE: Insert a new result
 async function createResult() {
@@ -52,7 +48,6 @@ async function getAllResults(student_id) {
 
   try {
     const res = await query(queryText, [student_id]);
-    console.log('All results:', res.rows);
     return res.rows;
   } catch (err) {
     console.error('Error fetching results:', err);
@@ -61,12 +56,12 @@ async function getAllResults(student_id) {
 
 // READ: Fetch a single result by ID
 async function getResultById(exam_id, student_id) {
-  const queryText = 'SELECT * FROM results WHERE exam_id = $1 AND student_id=$2;';
+  const queryText =
+    'SELECT * FROM results WHERE exam_id = $1 AND student_id=$2;';
   const values = [exam_id, student_id];
 
   try {
     const res = await query(queryText, values);
-    console.log('Result:', res.rows[0]);
     if (res.rows.length === 0) {
       return 'No Result Found';
     }
@@ -113,8 +108,8 @@ async function deleteResult(exam_id) {
 // Pagination
 // Get all results for a specific exam with pagination
 const getPaginatedResultsByExam = async (exam_id, page, limit) => {
-  const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
-  const paginatedqueryText = paginate(queryText, page, limit);
+  const query = `SELECT * FROM results WHERE exam_id=${exam_id}`;
+  const paginatedqueryText = paginate(query, page, limit);
   const result = await query(paginatedqueryText);  
   return result.rows;
 };
@@ -125,5 +120,5 @@ module.exports = {
   getResultById,
   updateResult,
   deleteResult,
-  getPaginatedResultsByExam
+  getPaginatedResultsByExam,
 };
