@@ -1,21 +1,52 @@
-// MCQExamPage.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-
 import Sidebar from "../../components/student/mcqexampage/Sidebar";
 import {
   setQuestions,
   setSelectedOption,
   visitQuestion,
 } from "../../redux/questionSlice";
-
+import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponent";
 
 const MCQExamPage = () => {
   const dispatch = useDispatch();
   const { questions, currentQuestionIndex } = useSelector(
     (state) => state.questions
   );
+  const [fullscreenError, setFullscreenError] = useState(false);
+  const [testSubmitted, setTestSubmitted] = useState(false);
+
+  const enableFullscreen = () => {
+    const rootElement = document.documentElement;
+    if (rootElement.requestFullscreen) {
+      rootElement.requestFullscreen().catch((err) => {
+        console.error("Fullscreen request failed:", err);
+      });
+    } else if (rootElement.webkitRequestFullscreen) {
+      rootElement.webkitRequestFullscreen();
+    } else if (rootElement.msRequestFullscreen) {
+      rootElement.msRequestFullscreen();
+    } else {
+      console.warn("Fullscreen API is not supported in this browser.");
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && !testSubmitted) {
+        setFullscreenError(true); // Show overlay when user exits fullscreen mode
+      }
+    };
+
+    if (!testSubmitted) {
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+    }
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, [testSubmitted]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -35,6 +66,10 @@ const MCQExamPage = () => {
 
     fetchQuestions();
   }, [dispatch]);
+
+  const handlePermissionGranted = () => {
+    enableFullscreen();
+  };
 
   const handleOptionSelect = (option) => {
     dispatch(
@@ -57,8 +92,45 @@ const MCQExamPage = () => {
     }
   };
 
+ 
+
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch((err) => {
+        console.error("Error exiting fullscreen:", err);
+      });
+    }
+  };
+  
+  const handleSubmitTest = () => {
+    setTestSubmitted(true);
+  };
+
   return (
     <div className="flex h-screen bg-[#F5F6F8]">
+      <NoCopyComponent onPermissionGranted={handlePermissionGranted} />
+      {fullscreenError && !testSubmitted && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
+            <h2 className="text-lg font-semibold mb-4 text-red-500">
+              Fullscreen Mode Required
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              You have exited fullscreen mode. Please return to fullscreen to
+              continue the exam.
+            </p>
+            <button
+              onClick={() => {
+                setFullscreenError(false);
+                enableFullscreen();
+              }}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Re-enter Fullscreen
+            </button>
+          </div>
+        </div>
+      )}
       <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8]">
         <h1 className="text-xl font-bold text-gray-800 mb-4">
           General Knowledge
@@ -109,12 +181,12 @@ const MCQExamPage = () => {
             >
               Next
             </button>
+         
           </div>
         </div>
       </div>
-
-      <Sidebar />
-    </div>
+      <Sidebar name="Akshay Manjrekar" onSubmitTest={handleSubmitTest} /> 
+         </div>
   );
 };
 

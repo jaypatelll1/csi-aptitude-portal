@@ -10,13 +10,14 @@ import Adm_PastTest from './pages/admin/Adm_PastTest';
 import Adm_InputQuestions from './pages/admin/Adm_InputQuestions'
 import StudentList from './pages/admin/Adm_StudentList';
 import StudentDashboard from './pages/student/Stu_Dashboard';
-
+import TestInstruction from './pages/student/Stu_TestInstruction';
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Stu_login />} />
       <Route path="/home" element={<StudentDashboard />} />
+      <Route path="/test-instruction" element={<TestInstruction />} />
       <Route path="/exam/:examId" element={<MCQExamPage />} />
 
       {/* Admin Routes */}
