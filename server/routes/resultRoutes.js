@@ -16,7 +16,7 @@ const router = express.Router();
 router.post('/:exam_id',jwtAuthMiddleware, authorizeRoles, createResult);
 
 // READ: Get all results for a particular student
-router.get('/',jwtAuthMiddleware, getAllresult);
+router.get('/student-all',jwtAuthMiddleware, getAllresult);
 
 // READ: Get all results
 router.get('/all/:exam_id',jwtAuthMiddleware, authorizeRoles, getPaginatedResultsByExam); // pagination
