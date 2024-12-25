@@ -2,13 +2,14 @@ const resultModel = require('../models/resultModel');
 const { logActivity } = require('../utils/logger');
 
 const createResult = async (req, res) => {
-  const { total_score, max_score } = req.body;
-  const { exam_id } = req.params;
+  
   const student_id = req.user.id;
 
-  const result = { student_id, exam_id, total_score, max_score, completed_at };
+ 
   try {
-    const newResult = await resultModel.createResult(result);
+    const newResult = await resultModel.createResult();
+    console.log('newresult is');
+    
     if(!newResult){
       await logActivity({user_id: student_id, activity: 'Create Result', status: 'failure', details: 'Could not create result'});
       return res.status(400).json({ error: 'Could not create result' });
