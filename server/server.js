@@ -5,6 +5,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const {jwtAuthMiddleware} = require('./middlewares/jwtAuthMiddleware');
 const {limiter} = require('./utils/rateLimitUtils');
+require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
 
 // Routes Import
 const userRoutes = require('./routes/userRoutes');

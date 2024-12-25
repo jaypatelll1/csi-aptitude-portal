@@ -27,10 +27,10 @@ const createExam = async (req, res) => {
     user_id: created_by,
     activity: 'New Exam',
     status: 'success',
-    details: 'New Exam created successfully',
+    details: 'New Exam created successfully and saved as draft',
   });
   res.status(201).json({
-    message: 'Exam created successfully',
+    message: 'Exam created successfully and saved as draft',
     newExam,
   });
 };
@@ -100,16 +100,79 @@ const updateExam = async (req, res) => {
     created_by,
   });
   if (!updatedExam) {
-    await logActivity({user_id: created_by, activity: 'Update Exam', status: 'failure', details: 'Could not update Exam details'});
+    await logActivity({
+      user_id: created_by,
+      activity: 'Update Exam',
+      status: 'failure',
+      details: 'Could not update Exam details',
+    });
     return res.json({
       message: 'Could not update Exam details',
     });
   }
-  await logActivity({user_id: created_by, activity: 'Update Exam', status: 'success', details: 'Updated Exam details'});
+  await logActivity({
+    user_id: created_by,
+    activity: 'Update Exam',
+    status: 'success',
+    details: 'Updated Exam details successfully and saved as draft',
+  });
   res.status(201).json({
-    message: 'Exam details updated successfully',
+    message: 'Exam details updated successfully and saved as draft',
     updatedExam,
   });
+};
+
+const publishExam = async (req, res) => {
+  const { exam_id } = req.params;
+  const created_by = req.user.id;
+  const scheduledExam = await examModel.scheduleExam(exam_id);
+  if (!scheduledExam) {
+    await logActivity({
+      user_id: created_by,
+      activity: 'Schedule/Publish Exam',
+      status: 'failure',
+      details: 'Could not Schedule Exam',
+    });
+    return res.json({
+      message: 'Could not Schedule Exam',
+    });
+  }
+  await logActivity({
+    user_id: created_by,
+    activity: 'Schedule/Publish Exam',
+    status: 'success',
+    details: 'Published Exam successfully and saved as scheduled',
+  });
+  res.status(201).json({
+    message: 'Published Exam successfully and saved as scheduled',
+    scheduledExam,
+  });
+};
+
+const markPastExam = async (req, res) => {
+  const { exam_id } = req.params;
+  const created_by = req.user.id;
+  const pastExam = await examModel.markPastExam(exam_id);
+  if (pastExam.length === 0) {
+    await logActivity({
+      user_id: created_by,
+      activity: 'Mark Exam as Past',
+      status: 'failure',
+      details: 'Could not mark Exam as past',
+    });
+    return res.json({
+      message: 'Could not mark Exam as past',
+    });
+  }
+  await logActivity({
+    user_id: created_by,
+    activity: 'Mark Exam as Past',
+    status: 'success',
+    details: 'Marked Exam as past successfully',
+  });
+  res
+    .status(201)
+    .json({ message: 'Marked Exam as past successfully', pastExam });
 };
 
 const deleteExam = async (req, res) => {
@@ -162,6 +225,72 @@ const getAllPaginatedExams = async (req, res) => {
   }
 };
 
+const getPaginatedPublishedExams = async (req, res) => {
+  const user_id = req.user.id;
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const exams = await examModel.getPaginatedPublishedExams(
+      parseInt(page),
+      parseInt(limit)
+    );
+    await logActivity({
+      user_id,
+      activity: `Viewed paginated published exams`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    });
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), exams });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getPaginatedDraftededExams = async (req, res) => {
+  const user_id = req.user.id;
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const exams = await examModel.getPaginatedDraftededExams(
+      parseInt(page),
+      parseInt(limit)
+    );
+    await logActivity({
+      user_id,
+      activity: `Viewed paginated drafted exams`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    });
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), exams });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getPaginatedPastExams = async (req, res) => {
+  const user_id = req.user.id;
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const exams = await examModel.getPaginatedPastExams(
+      parseInt(page),
+      parseInt(limit)
+    );
+    await logActivity({
+      user_id,
+      activity: `Viewed paginated past exams`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    });
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), exams });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createExam,
   getExams,
@@ -169,4 +298,9 @@ module.exports = {
   updateExam,
   deleteExam,
   getAllPaginatedExams,
+  publishExam,
+  markPastExam,
+  getPaginatedDraftededExams,
+  getPaginatedPublishedExams,
+  getPaginatedPastExams,
 };

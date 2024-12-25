@@ -54,6 +54,12 @@ CREATE TABLE results (
     FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
     FOREIGN KEY (student_id) REFERENCES users (user_id)
 );
+
+CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'past');
+
+ALTER TABLE exams
+  ADD COLUMN status exam_status DEFAULT 'draft';
+
 ` 
 // Function to initialize the database schema
 async function initializeDB() {
