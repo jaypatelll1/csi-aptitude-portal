@@ -58,9 +58,12 @@ const getExams = async (req, res) => {
   return res.json(exams);
 };
 
+// Get Exam by exam_id
 const getExamById = async (req, res) => {
   const id = req.user.id; // Get user
   const { exam_id } = req.params;
+
+  console.log('Socket.IO Server Running');
 
   try {
     const exam = await examModel.getExamById(exam_id);
