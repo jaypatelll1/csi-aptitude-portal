@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { setUser } from '../redux/userSlice'; // Import the setUser action
 import doodle from '../assets/sidebar/doodle.svg';
 import gradient from '../assets/sidebar/gradient.svg'; // New gradient SVG
 
@@ -6,20 +10,51 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // For loading state
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
       setError('Please fill in all fields');
-    } else {
-      setError('');
-      // Handle login logic here
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post('/api/users/login', {
+        email,
+        password,
+      });
+
+      if (response.data.message === 'Login Successful') {
+        const userData = response.data.result;
+        
+        dispatch(setUser(userData)); 
+
+        if (userData.role === 'Student') {
+          navigate('/home'); 
+        } else if (userData.role === 'TPO') {
+          navigate('/admin'); 
+        } else {
+          setError('Unauthorized role');
+        }
+      } else {
+        setError('Invalid login credentials');
+      }
+    } catch (err) {
+      setError('An error occurred during login. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex h-screen flex-col md:flex-row">
-      {/* Left Section */}
       <div className="w-full md:w-1/3 relative flex flex-col items-center p-6 bg-blue-500">
         {/* SVG Background */}
         <div className="absolute inset-0">
@@ -31,7 +66,7 @@ const Login = () => {
         </div>
 
         <div className="relative z-10 flex flex-col items-center w-full max-w-xs text-center text-white">
-          {/* Header Text - Moved to the top */}
+          {/* Header Text */}
           <div className="w-full text-center mb-6 mt-8">
             <h1 className="text-6xl font-extrabold leading-tight tracking-wide">
               Aptitude <br />
@@ -40,11 +75,10 @@ const Login = () => {
             <p className="mt-3 text-lg">Turn your exams into success stories</p>
           </div>
 
-          {/* Add margin-top to bring down the content */}
+          {/* Login Form */}
           <div className="mt-20 w-full">
-            {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-6 w-full">
-              <h2 className="text-3xl font-bold mb-5">Student Login: </h2>
+              <h2 className="text-3xl font-bold mb-5">Login</h2>
               {error && <div className="text-red-400 mb-2">{error}</div>}
               <input
                 type="email"
@@ -70,9 +104,14 @@ const Login = () => {
               </div>
               <button
                 type="submit"
-                className="w-full py-3 bg-black text-white rounded-xl shadow-md hover:bg-gray-800 transition transform hover:scale-105"
+                disabled={loading}
+                className={`w-full py-3 text-white rounded-xl shadow-md transition transform hover:scale-105 ${
+                  loading
+                    ? 'bg-gray-500 cursor-not-allowed'
+                    : 'bg-black hover:bg-gray-800'
+                }`}
               >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
           </div>

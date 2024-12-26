@@ -1,4 +1,5 @@
 import React, { useState } from "react"; 
+import { useNavigate } from 'react-router-dom';
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
@@ -6,6 +7,7 @@ import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const tileData = [
     { label: "Students", value: 1420 },
     { label: "Departments", value: 5 },
@@ -58,8 +60,10 @@ const Dashboard = () => {
     },
   ];
 
-  const [activeTab, setActiveTab] = useState("drafted"); // Default to 'drafted' tab
-
+  const [activeTab, setActiveTab] = useState("drafted"); 
+  const createTesthandler = () => {
+    navigate("/admin/createtest");
+  }
   return (
     <div
       className="dashboard-container overflow-x-hidden" // Prevent horizontal scroll
@@ -78,7 +82,7 @@ const Dashboard = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-700 mt-4">Admin Dashboard</h1>
 
           {/* Create Test Button */}
-          <button className="bg-blue-600 text-white py-2 px-8 rounded-lg shadow-md hover:bg-blue-700 mt-4">
+          <button onClick={createTesthandler} className="bg-blue-600 text-white py-2 px-8 rounded-lg shadow-md hover:bg-blue-700 mt-4">
             + Create Test
           </button>
         </div>
