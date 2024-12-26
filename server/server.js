@@ -32,11 +32,14 @@ const io = new Server(server, {
   },
 });
 
+const PORT = process.env.PORT || 4000;
+
+
 // Middlewares
 app.use(cookieParser());
 app.use(
   cors({
-    origin: 'http://localhost:3000', // Your client URL
+    origin: 'https://csi-aptitude-portal.onrender.com', // Update this to your frontend URL deployed on Render
     credentials: true, // Allow cookies to be sent
   })
 );
@@ -63,8 +66,11 @@ app.use('/api/exams/', fileRoutes);
 // Initialize Socket.IO handlers
 initSocketHandlers(io);
 
-const PORT = 3001;
+// Ensure a response for the root route
+app.get('/', (req, res) => {
+  res.send('Server is running!'); // Generic message for Render health checks
+});
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0' ,() => {
   console.log(`Server is running at port ${PORT}`);
 });
