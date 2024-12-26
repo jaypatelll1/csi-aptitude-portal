@@ -9,7 +9,6 @@ const { jwtAuthMiddleware } = require('./middlewares/jwtAuthMiddleware');
 const { limiter } = require('./utils/rateLimitUtils');
 const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
-const helmet = require('helmet');
 require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
 
 
