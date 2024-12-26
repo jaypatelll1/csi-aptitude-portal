@@ -12,7 +12,7 @@
  *  "passowrd":"",
  *  "role":""
  * }
- */
+ */ 
 
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -20,6 +20,8 @@ const generateToken = require('../utils/token');
 const { logActivity } = require('../utils/logger');
 
 const userModel = require('../models/userModel');
+const transporter = require('../config/email');
+
 
 // Function to create a new user/register
 const registerUser = async (req, res) => {
@@ -33,12 +35,48 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await userModel.createUser(name,email,hashedPassword,role,year,department,rollno  );
+    const hashedPassword = await bcrypt.hash(password, 10); 
+    const newUser = await userModel.createUser(name,email,hashedPassword,role,year,department,rollno);
 
+    // if(newUser){
+    //   await logActivity({ user_id: newUser.user_id, activity: 'Register user', status: 'success', details: 'User registered successfully' });
+    //   return res.status(201).json(newUser);
+    // }
 
-    if(newUser){
-      await logActivity({ user_id: newUser.user_id, activity: 'Register user', status: 'success', details: 'User registered successfully' });
+    if (newUser) {
+      // Log the activity
+      await logActivity({
+        user_id: newUser.user_id,
+        activity: 'Register user',
+        status: 'success',
+        details: 'User registered successfully',
+      });
+
+      // **Send Email Notification**
+      const emailBody = `
+        Hello ${name},
+
+        Welcome to the Aptitude Portal! Your registration was successful.
+
+        Here are your login credentials:
+
+        Email: ${email}
+        Password: ${password}
+
+        Please log in using the credentials above. For security purposes, we recommend changing your password after the first login.
+
+        Regards,
+        Aptitude Portal Team
+      `;
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER, // Your email address (from environment variables)
+        to: email, // Recipient's email
+        subject: 'Welcome to the Aptitude Portal - Registration Successful',
+        text: emailBody, // Email content
+      });
+
+      // Return the created user
       return res.status(201).json(newUser);
     }
   } catch (err) {
