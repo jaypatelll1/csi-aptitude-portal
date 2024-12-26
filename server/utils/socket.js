@@ -81,7 +81,7 @@ module.exports = { initSocketHandlers };
 
 // CLIENT SIDE TO_DO
 
-// When Start Exam button is clicked, io.emit('start_exam', { roomId: exam_id, duration: exam_duration, student_id: user_id });
-// Listen to timer updates and update the timer on the client side io.on('timer_update', (data) => { console.log(data.remainingTime); });
-// listen to even 'exam_ended' and show a message to the student io.on('exam_ended', (data) => { console.log(data.message); }); Now pass the responses as JSON to the server and call responseContoller.submitAllResponses() to save the responses to the database.
-// In the responses[exam_id], save responses by passing student_id, question_id, selected_option and answered_at. So, perform         io.emit('submit_response', { roomId: exam_id, studentId: user_id, questionId: question_id, selectedOption: selecte_option });
+// When Start Exam button is clicked, socket.emit('start_exam', { roomId: exam_id, duration: exam_duration, student_id: user_id });
+// Listen to timer updates and update the timer on the client side socket.on('timer_update', (data) => { console.log(data.remainingTime); });
+// listen to even 'exam_ended' and show a message to the student socket.on('exam_ended', (data) => { console.log(data.message); }); Now pass the responses as JSON to the server and call responseContoller.submitAllResponses() to save the responses to the database.
+// In the responses[exam_id], save responses by passing student_id, question_id, selected_option and answered_at. So, perform     socket.emit('submit_response', { roomId: exam_id, studentId: user_id, questionId: question_id, selectedOption: selecte_option });
