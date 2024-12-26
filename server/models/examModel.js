@@ -2,9 +2,9 @@ const pool = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
 const createExam = async (exam) => {
-  const { name, duration, start_time, end_time, created_by } = exam;
-  const query = `INSERT INTO exams (exam_name, duration, start_time, end_time, created_by, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
-  const values = [name, duration, start_time, end_time, created_by, 'draft'];
+  const { name, duration, created_by } = exam;
+  const query = `INSERT INTO exams (exam_name, duration, created_by, status) VALUES ($1, $2, $3, $4) RETURNING *`;
+  const values = [name, duration, created_by, 'draft'];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
@@ -38,9 +38,9 @@ const updateExam = async (exam) => {
   return result.rows[0];
 };
 
-const scheduleExam = async (exam_id) => {
-  const query = `UPDATE exams SET status='scheduled' WHERE exam_id=$1 RETURNING *`;
-  const values = [exam_id];
+const scheduleExam = async (exam_id, start_time, end_time) => {
+  const query = `UPDATE exams SET start_time=$1, end_time=$2, status=$3 WHERE exam_id=$4 RETURNING *`;
+  const values = [start_time, end_time, 'scheduled', exam_id];
   const result = await pool.query(query, values);
   return result.rows[0];
 };

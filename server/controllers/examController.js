@@ -5,7 +5,7 @@ const createExam = async (req, res) => {
   const { name, duration, start_time, end_time } = req.body;
   const created_by = req.user.id; // Get user_id from token
 
-  if (!name || !duration || !start_time || !end_time || !created_by) {
+  if (!name || !duration || !created_by) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
@@ -137,8 +137,9 @@ const updateExam = async (req, res) => {
 
 const publishExam = async (req, res) => {
   const { exam_id } = req.params;
+  const {start_time, end_time} = req.body;
   const created_by = req.user.id;
-  const scheduledExam = await examModel.scheduleExam(exam_id);
+  const scheduledExam = await examModel.scheduleExam(exam_id, start_time, end_time);
   if (!scheduledExam) {
     await logActivity({
       user_id: created_by,
