@@ -15,17 +15,16 @@
  */
 
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const generateToken = require('../utils/token');
-
+const { logActivity } = require('../utils/logger');
 
 const userModel = require('../models/userModel');
 
 // Function to create a new user/register
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
-  if (!name || !email || !password) {
+  const { name, email, password, role,year,department,rollno } = req.body;
+  if (!name || !email || !password ) {
     console.log('All fields are required!');
     return res.status(400).json({ error: 'All fields are required' });
   }
@@ -35,13 +34,13 @@ const registerUser = async (req, res) => {
       return res.status(409).json({ error: 'User already exists' });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await userModel.createUser(
-      name,
-      email,
-      hashedPassword,
-      role
-    );
-    return res.status(201).json(newUser);
+    const newUser = await userModel.createUser(name,email,hashedPassword,role,year,department,rollno  );
+
+
+    if(newUser){
+      await logActivity({ user_id: newUser.user_id, activity: 'Register user', status: 'success', details: 'User registered successfully' });
+      return res.status(201).json(newUser);
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Internal server error' });
@@ -57,6 +56,7 @@ const loginUser = async (req, res) => {
   try {
     const result = await userModel.findUserByEmail(email);
     if (!result) {
+      await logActivity({ activity: 'Login attempt', status: 'failure', details: 'User not found' });
       return res.status(404).json({ error: 'User not found' });
     }
     const isPasswordMatch = await bcrypt.compare(
@@ -64,6 +64,12 @@ const loginUser = async (req, res) => {
       result.password_hash
     );
     if (!isPasswordMatch) {
+      await logActivity({
+        user_id: user.user_id,
+        activity: 'Login attempt',
+        status: 'failure',
+        details: 'Invalid password',
+      });
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
@@ -78,12 +84,21 @@ const loginUser = async (req, res) => {
 
     const token = await generateToken(userData) ;
 
+    await logActivity({ user_id: userData.id, activity: 'Login attempt', status: 'success', details: 'User logged in successfully' });
+
     res.cookie('jwttoken', token,{
       httpOnly:true,
       sameSite:'strict',
       secure:true,
     })
-    return res.status(200).send("Login successful");
+    return res.status(200).json ({"message" : "Login Successful" , "result" : {
+     "name": result.name,
+     "email": result.email,
+      "status": result.status,
+      "department": result.department,
+      "year": result.year,
+      "rollno": result.rollno
+    }});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -92,19 +107,16 @@ const loginUser = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  const id = req.user.id;
+  const { name, email, password, role,year,department,rollno  } = req.body;
+  const id = req.param.user_id;
 
   if (!name || !email || !password)
     return res.status(400).json({ error: 'All fields are required' });
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const updatedUser = await userModel.updateUser(
-      id,
-      name,
-      email,
-      hashedPassword
-    );
+    const updatedUser = await userModel.updateUser(id,name, email, hashedPassword,year,department,rollno );
+      
+    await logActivity({ user_id: id, activity: 'Update user details', status: 'success', details: 'User details updated successfully' });
     return res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
@@ -117,6 +129,7 @@ const deleteUser = async (req, res) => {
   const id = req.param.user_id;
   try {
     const deletedUser = await userModel.deleteUser(id);
+    await logActivity({ user_id: id, activity: 'Delete user', status: 'success', details: 'User deleted successfully' });
     return res
       .status(200)
       .json({ message: 'User deleted successfully', deletedUser });
@@ -128,10 +141,17 @@ const deleteUser = async (req, res) => {
 
 // Pagination
 const getAllPaginatedUsers = async (req, res) => {
+  const user_id = req.user.id;
   const { page = 1, limit = 10 } = req.query;
   try {
     const users = await userModel.getAllPaginatedUsers(parseInt(page), parseInt(limit));
-    res
+    await logActivity({
+      user_id : user_id,
+      activity: `Viewed paginated exams`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    })
+    return res
       .status(200)
       .json({ page: parseInt(page), limit: parseInt(limit), users });
   } catch (error) {

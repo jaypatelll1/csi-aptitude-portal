@@ -74,15 +74,15 @@ submittedUnansweredQuestions = async (exam_id, student_id) => {
     return submitMultipleResponses(unansweredQuestions);
   }
   return result.rows;
-}
+};
 
 // Get responses by student for an exam
 const getResponsesByStudent = async (exam_id, student_id) => {
   const query = `
-      SELECT response_id, selected_option, answered_at, question_id,
+      SELECT response_id, selected_option, answered_at, responses.question_id
       FROM responses
-      JOIN questions ON questions.question_id = responses.question.id
-      WHERE exam_id = $1 AND student_id = $2
+      JOIN questions ON questions.question_id = responses.question_id
+      WHERE responses.exam_id = $1 AND student_id = $2
     `;
   const result = await pool.query(query, [exam_id, student_id]);
   return result.rows;
@@ -130,12 +130,7 @@ const deleteResponse = async (response_id) => {
 
 // Pagination
 // Get paginated responses for a specific exam and student
-const getPaginatedResponses = async (
-  exam_id,
-  student_id,
-  page,
-  limit
-) => {
+const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
   const query = `
   SELECT response_id, selected_option, answered_at, responses.question_id, question_text
   FROM responses

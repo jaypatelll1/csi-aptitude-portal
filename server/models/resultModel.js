@@ -4,30 +4,43 @@ const {calculateAndStoreTotalScore}= require('../utils/scoreUtils');
 
 // CREATE: Insert a new result
 async function createResult() {
-
   try {
-const result = await calculateAndStoreTotalScore();
+    // Get the calculated results
+    const results = await calculateAndStoreTotalScore();
+  
 
+    for (const resultRow of results) {
+      const { student_id, exam_id, correct_responses, max_score } = resultRow;
+      const completed_at = new Date().toISOString();
 
-for (const rows of result) {
-  const { student_id, exam_id, correct_responses, max_score } = rows ;
-  const completed_at =new Date().toISOString();
+      const values = [student_id, exam_id, correct_responses, max_score, completed_at];
 
-  const queryText = `
-      INSERT INTO results (student_id, exam_id, total_score, max_score, completed_at)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *;
-    `;
+      const queryText = `
+        INSERT INTO results (student_id, exam_id, total_score, max_score, completed_at)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *;
+      `;
 
-    const values = [student_id, exam_id, correct_responses, max_score, completed_at];
-    await query(queryText, values);
+      try {
+        // Insert into the database
+        let res = await query(queryText, values);
+     // Log each inserted row
+         } catch (err) {
+        // Log errors for specific rows and continue
+        console.error('Error inserting row:', err);
+      }
+    }
 
-}
-
+    console.log('All rows processed.');
   } catch (err) {
     console.error('Error creating result:', err);
   }
+  return 1 ;
+
 }
+
+
+
 
 // READ: Fetch all results
 async function getAllResults(student_id) {
@@ -35,7 +48,6 @@ async function getAllResults(student_id) {
 
   try {
     const res = await query(queryText, [student_id]);
-    console.log('All results:', res.rows);
     return res.rows;
   } catch (err) {
     console.error('Error fetching results:', err);
@@ -44,12 +56,12 @@ async function getAllResults(student_id) {
 
 // READ: Fetch a single result by ID
 async function getResultById(exam_id, student_id) {
-  const queryText = 'SELECT * FROM results WHERE exam_id = $1 AND student_id=$2;';
+  const queryText =
+    'SELECT * FROM results WHERE exam_id = $1 AND student_id=$2;';
   const values = [exam_id, student_id];
 
   try {
     const res = await query(queryText, values);
-    console.log('Result:', res.rows[0]);
     if (res.rows.length === 0) {
       return 'No Result Found';
     }
@@ -108,5 +120,5 @@ module.exports = {
   getResultById,
   updateResult,
   deleteResult,
-  getPaginatedResultsByExam
+  getPaginatedResultsByExam,
 };
