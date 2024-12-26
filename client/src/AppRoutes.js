@@ -36,7 +36,7 @@ const AppRoutes = () => {
       <Route
         path="/test-instruction"
         element={
-          <ProtectedRoute allowedRoles={["STUDENT"]}>
+          <ProtectedRoute allowedRoles={["Student"]}>
             <TestInstruction />
           </ProtectedRoute>
         }
