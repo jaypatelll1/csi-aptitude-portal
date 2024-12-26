@@ -12,7 +12,8 @@ const { initSocketHandlers } = require('./utils/socket');
 const helmet = require('helmet');
 require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
 
-// Routes Import
+
+// Import Routes
 const userRoutes = require('./routes/userRoutes');
 const examRoutes = require('./routes/examRoutes');
 const questionsRoutes = require('./routes/questionRoutes');
@@ -21,6 +22,8 @@ const resultRoutes = require('./routes/resultRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const exportRoutes = require('./routes/exportRoutes');
 
+
+// Initialize the app
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -30,7 +33,6 @@ const io = new Server(server, {
 });
 
 // Middlewares
-app.use(helmet()); // For secure http headers
 app.use(cookieParser());
 app.use(
   cors({
