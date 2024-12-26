@@ -12,7 +12,7 @@
  *  "passowrd":"",
  *  "role":""
  * }
- */
+ */ 
 
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -20,6 +20,8 @@ const generateToken = require('../utils/token');
 const { logActivity } = require('../utils/logger');
 
 const userModel = require('../models/userModel');
+const transporter = require('../config/email');
+
 
 // Function to create a new user/register
 const registerUser = async (req, res) => {
