@@ -97,7 +97,8 @@ const loginUser = async (req, res) => {
       "status": result.status,
       "department": result.department,
       "year": result.year,
-      "rollno": result.rollno
+      "rollno": result.rollno,
+      "role": result.role,
     }});
   } catch (error) {
     console.log(error);
