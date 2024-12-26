@@ -5,6 +5,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const {jwtAuthMiddleware} = require('./middlewares/jwtAuthMiddleware');
 const {limiter} = require('./utils/rateLimitUtils');
+const helmet = require('helmet');
 require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
 
 // Routes Import
@@ -19,6 +20,7 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 // Middlewares
+app.use(helmet()); // For secure http headers
 app.use(cookieParser());
 app.use(cors({
   origin: 'http://localhost:3001', // Your client URL
