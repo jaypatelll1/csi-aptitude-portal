@@ -5,8 +5,6 @@ const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
 const router = express.Router();
 
-
-
 router.post('/register', jwtAuthMiddleware, authorizeRoles, registerUser);
 router.post('/login', loginUser);
 router.get('/', jwtAuthMiddleware, authorizeRoles, getAllPaginatedUsers); // pagination

@@ -26,20 +26,26 @@ const exportRoutes = require('./routes/exportRoutes');
 // Initialize the app
 const app = express();
 const server = http.createServer(app);
+const PORT = process.env.PORT || 4000;
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+const FRONTEND_ORIGIN =
+  process.env.NODE_ENV === 'production'
+    ? 'https://csi-aptitude-portal.onrender.com' // Production frontend URL
+    : 'http://localhost:3000'; // Local frontend URL
+
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: FRONTEND_ORIGIN,
   },
 });
-
-const PORT = process.env.PORT || 4000;
 
 
 // Middlewares
 app.use(cookieParser());
 app.use(
   cors({
-    origin: 'https://csi-aptitude-portal.onrender.com', // Update this to your frontend URL deployed on Render
+    origin: FRONTEND_ORIGIN, // Update this to your frontend URL deployed on Render
     credentials: true, // Allow cookies to be sent
   })
 );
@@ -71,6 +77,6 @@ app.get('/', (req, res) => {
   res.send('Server is running!'); // Generic message for Render health checks
 });
 
-server.listen(PORT, '0.0.0.0' ,() => {
-  console.log(`Server is running at port ${PORT}`);
+server.listen(PORT, HOST ,() => {
+  console.log(`Server is running at http://${HOST}:${PORT}`);
 });
