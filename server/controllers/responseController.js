@@ -16,6 +16,10 @@ exports.submitResponse = async (req, res) => {
   const { question_id, selected_option } = req.body;
   const student_id = req.user.id; // Assume the student ID is available via JWT
 
+  if (!student_id || !exam_id || !question_id || !selected_option) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
   try {
     const response = await submitResponse({
       exam_id,
@@ -52,10 +56,14 @@ exports.submitResponse = async (req, res) => {
 // }
 // Submit all responses together
 exports.submitAllResponses = async (req, res) => {
-  let { exam_id } = req.params;
+  const { exam_id } = req.params;
   const { responses } = req.body;
   const student_id = req.user.id;
-  exam_id = parseInt(exam_id);
+
+  if (!student_id || !exam_id || !responses) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
   try {
     if (!responses || responses.length === 0) {
       await logActivity({
@@ -156,6 +164,10 @@ exports.updateResponse = async (req, res) => {
   const { selected_option } = req.body; // Get the updated answer from the request body
   const student_id = req.user.id; // Assume the student ID is available via JWT
 
+  if (!response_id || !selected_option) {
+    return res.status(400).json({ message: 'Selected option is required' });
+  }
+
   try {
     const updatedResponse = await updateResponse(response_id, selected_option);
 
@@ -174,7 +186,12 @@ exports.updateResponse = async (req, res) => {
       status: 'success',
       details: 'Response updated successfully',
     });
-    await logActivity({user_id: student_id, activity: 'Update Response', status: 'success', details: 'Response updated successfully'});
+    await logActivity({
+      user_id: student_id,
+      activity: 'Update Response',
+      status: 'success',
+      details: 'Response updated successfully',
+    });
     return res
       .status(200)
       .json({ message: 'Response updated successfully.', updatedResponse });
@@ -230,14 +247,12 @@ exports.getPaginatedResponsesForExam = async (req, res) => {
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,
     });
-    return res
-      .status(200)
-      .json({
-        page: parseInt(page),
-        limit: parseInt(limit),
-        student_id,
-        responses,
-      });
+    return res.status(200).json({
+      page: parseInt(page),
+      limit: parseInt(limit),
+      student_id,
+      responses,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

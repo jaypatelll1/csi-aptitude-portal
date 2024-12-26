@@ -4,6 +4,11 @@ const { logActivity } = require('../utils/logger');
 const createExam = async (req, res) => {
   const { name, duration, start_time, end_time } = req.body;
   const created_by = req.user.id; // Get user_id from token
+
+  if (!name || !duration || !start_time || !end_time || !created_by) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
   const newExam = await examModel.createExam({
     name,
     duration,
@@ -94,6 +99,11 @@ const updateExam = async (req, res) => {
   const { exam_id } = req.params;
   const { name, duration, start_time, end_time } = req.body;
   const created_by = req.user.id;
+  
+  if (!name || !duration || !start_time || !end_time || !created_by) {
+    return res.status(400).json({ error: 'All fields are required' });
+  };
+
   const updatedExam = await examModel.updateExam({
     exam_id,
     name,

@@ -13,11 +13,27 @@ const findUserByEmail = async (email) => {
   }
 };
 // Function to create a new user
-const createUser = async (name, email, hashPassword, role,year,department,rollno) => {
+const createUser = async (
+  name,
+  email,
+  hashPassword,
+  role,
+  year,
+  department,
+  rollno
+) => {
   try {
     const query =
-      'INSERT INTO users(name, email, password_hash, role,year,department,rollno) VALUES($1, $2, $3, $4,$5,$6,$7) RETURNING user_id, name, email';
-    const newUser = await pool.query(query, [name, email, hashPassword, role,year,department,rollno]);
+      'INSERT INTO users(name, email, password_hash, role, year, department, rollno) VALUES($1, $2, $3, $4,$5,$6,$7) RETURNING user_id, name, email, role, year, department, rollno';
+    const newUser = await pool.query(query, [
+      name,
+      email,
+      hashPassword,
+      role,
+      year,
+      department,
+      rollno,
+    ]);
     return newUser.rows[0];
   } catch (err) {
     console.error(err);
@@ -26,18 +42,32 @@ const createUser = async (name, email, hashPassword, role,year,department,rollno
 };
 
 // Function to update detalis of a user
-const updateUser = async (id,name, email, hashedPassword,year,department,rollno) => {
+const updateUser = async (
+  id,
+  name,
+  email,
+  hashedPassword,
+  year,
+  department,
+  rollno
+) => {
   try {
     const query = `UPDATE users SET name=$1, email=$2, password_hash=$3 , year=$4 , department=$5 , rollno=$6 WHERE user_id=$7 RETURNING *`;
-    const result = await pool.query(query, [name, email, hashedPassword,year,department,rollno, id]);
+    const result = await pool.query(query, [
+      name,
+      email,
+      hashedPassword,
+      year,
+      department,
+      rollno,
+      id,
+    ]);
     return result.rows[0];
   } catch (err) {
     console.log(err);
     throw err;
   }
 };
-
-
 
 // Function to delete a user
 const deleteUser = async (id) => {
@@ -54,10 +84,17 @@ const deleteUser = async (id) => {
 // Pagination
 // Get all users with pagination
 const getAllPaginatedUsers = async (page, limit) => {
-  const query = 'SELECT user_id, name, email, role, year,department,rollno FROM users';
+  const query =
+    'SELECT user_id, name, email, role, year,department,rollno FROM users';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery);
   return result.rows;
 };
 
-module.exports = { findUserByEmail, createUser, updateUser, deleteUser, getAllPaginatedUsers };
+module.exports = {
+  findUserByEmail,
+  createUser,
+  updateUser,
+  deleteUser,
+  getAllPaginatedUsers,
+};

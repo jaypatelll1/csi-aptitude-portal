@@ -5,6 +5,10 @@ const createQuestions = async (req, res) => {
   const { question_text, options, correct_option } = req.body;
   const { exam_id } = req.params;
   const id = req.user.id; // Get user_id from token
+
+  if (!exam_id || !question_text || !options || !correct_option) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
   try {
     const newQuestion = await questionModel.insertQuestion(
       exam_id,
@@ -78,7 +82,7 @@ const UpdateQuestion = async (req, res) => {
       options,
       correct_option
     );
-    
+
     if (!questions) {
       await logActivity({
         user_id: id,
