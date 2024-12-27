@@ -34,11 +34,11 @@ const FRONTEND_ORIGIN =
 
 
 const io = new Server(server, {
+  cookie: true,
   cors: {
     origin: FRONTEND_ORIGIN,
   },
 });
-
 
 // Middlewares
 app.use(cookieParser());
@@ -76,6 +76,12 @@ app.get('/', (req, res) => {
   res.send('Server is running!'); // Generic message for Render health checks
 });
 
-server.listen(PORT, HOST ,() => {
-  console.log(`Server is running at http://${HOST}:${PORT}`);
+// server.listen(PORT, HOST ,() => {
+//   console.log(`Server is running at http://${HOST}:${PORT}`);
+// });
+
+
+// FOR SOCKET.IO TESTING
+server.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
 });

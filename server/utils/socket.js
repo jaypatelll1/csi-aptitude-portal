@@ -1,49 +1,53 @@
 const { submitAllResponses } = require("../controllers/responseController");
+const { sockettAuthMiddleware } = require("../middlewares/jwtAuthMiddleware");
 
-const examTimers = {}; // Store timers per room
+
+const timers = {}; // Store timers per room
 const responses = {}; // Store responses per room
 
 const initSocketHandlers = (io) => {
+  io.use(sockettAuthMiddleware);
   io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
-
+    
     // Start an exam
-    socket.on('start_exam', ({ roomId: exam_id, duration, student_id }) => {
-      console.log(`Exam started in room ${exam_id} with duration ${duration}`);
+    socket.on('start_exam', ({ exam_id, duration }) => {
+      const user_id = socket.user.id;
+      console.log(`Exam started in room ${user_id} with duration ${duration}`);
 
       // If a new exam is starting, initialize its timer
-      if (!examTimers[exam_id]) {
-        examTimers[exam_id] = { remainingTime: duration, interval: null };
+      if (!timers[user_id]) {
+        timers[user_id] = { remainingTime: duration, interval: null };
       }
 
       // Initialize the responses of a new exam
-      if (!responses[exam_id]) {
-        responses[exam_id] = [];
+      if (!responses[user_id]) {
+        responses[user_id] = [];
       }
 
-      socket.join(exam_id, () => {
-        console.log(`Student ${student_id} joined room ${exam_id}`);
+      socket.join(user_id, () => {
+        console.log(`Student joined room ${exam_id}`);
       });
 
-      // Sets examTimer if not already set
-      if (!examTimers[exam_id].interval) {
-        examTimers[exam_id].interval = setInterval(() => {
-          examTimers[exam_id].remainingTime--;
+      // Sets timer if not already set
+      if (!timers[user_id].interval) {
+        timers[user_id].interval = setInterval(() => {
+          timers[user_id].remainingTime--;
 
-          io.to(exam_id).emit('timer_update', {
-            remainingTime: examTimers[exam_id].remainingTime,
+          io.to(user_id).emit('timer_update', {
+            remainingTime: timers[user_id].remainingTime,
           });
 
-          if (examTimers[exam_id].remainingTime <= 0) {
-            clearInterval(examTimers[exam_id].interval);
-            delete examTimers[exam_id];
+          if (timers[user_id].remainingTime <= 0) {
+            clearInterval(timers[user_id].interval);
+            delete timers[user_id];
 
             // Notify room that exam ended
-            io.to(exam_id).emit('exam_ended', { message: "Time's up!" });
+            io.to(user_id).emit('exam_ended', { message: "Time's up!" });
 
             // Save responses to the database
             // submitAllResponses(exam_id, responses[exam_id]);
-            delete responses[exam_id];
+            delete responses[user_id];
           }
         }, 1000);
       }
@@ -52,15 +56,15 @@ const initSocketHandlers = (io) => {
     // Handle individual response submissions
     socket.on(
       'submit_response',
-      ({ roomId: exam_id, studentId, questionId, selectedOption }) => {
-        if (responses[exam_id]) {
-          responses[exam_id].push({
-            studentId,
-            questionId,
-            selectedOption,
-            submittedAt: new Date().toISOString(),
+      ({ roomId: user_id, exam_id, question_id, selected_option }) => {
+        if (responses[user_id]) {
+          responses[user_id].push({
+            exam_id,
+            question_id,
+            selected_option,
+            submitted_at: new Date().toISOString(),
           });
-          console.log(`Response saved for room ${exam_id}`);
+          console.log(`Response saved for room ${user_id}`);
         }
       }
     );
