@@ -1,6 +1,5 @@
-const { submitAllResponses } = require("../controllers/responseController");
-const { sockettAuthMiddleware } = require("../middlewares/jwtAuthMiddleware");
-
+const { submitAllResponses } = require('../controllers/responseController');
+const { sockettAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 
 const timers = {}; // Store timers per room
 const responses = {}; // Store responses per room
@@ -9,7 +8,7 @@ const initSocketHandlers = (io) => {
   io.use(sockettAuthMiddleware);
   io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
-    
+
     // Start an exam
     socket.on('start_exam', ({ exam_id, duration }) => {
       const user_id = socket.user.id;
@@ -56,7 +55,8 @@ const initSocketHandlers = (io) => {
     // Handle individual response submissions
     socket.on(
       'submit_response',
-      ({ roomId: user_id, exam_id, question_id, selected_option }) => {
+      ({ exam_id, question_id, selected_option }) => {
+        const user_id = socket.user.id;
         if (responses[user_id]) {
           responses[user_id].push({
             exam_id,

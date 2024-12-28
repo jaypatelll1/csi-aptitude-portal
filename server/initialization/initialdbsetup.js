@@ -9,6 +9,8 @@ CREATE TYPE role_enum AS ENUM ('TPO','Student');
 CREATE TYPE user_status AS ENUM ('NOTACTIVE', 'ACTIVE');
 CREATE TYPE branch_enum AS ENUM ('CMPM', 'INFT', 'ECS', 'EXTC', 'EEE');
 CREATE TYPE year_enum AS ENUM ('FE', 'SE', 'TE', 'BE');
+CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'past');
+CREATE TYPE response_status AS ENUM ('draft', 'submitted');
 
 
 CREATE TABLE IF NOT EXISTS public.users
@@ -34,6 +36,7 @@ CREATE TABLE exams (
     duration INTEGER,
     start_time TIMESTAMP,
     end_time TIMESTAMP,
+    status exam_status DEFAULT 'draft',
     FOREIGN KEY (created_by) REFERENCES users (user_id)
 );
 
@@ -53,6 +56,7 @@ CREATE TABLE responses (
     question_id INTEGER,
     selected_option CHAR(1),
     answered_at TIMESTAMP,
+    status response_status DEFAULT 'draft',
     FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
     FOREIGN KEY (student_id) REFERENCES users (user_id)
 );
@@ -67,11 +71,6 @@ CREATE TABLE results (
     FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
     FOREIGN KEY (student_id) REFERENCES users (user_id)
 );
-
-CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'past');
-
-ALTER TABLE exams
-  ADD COLUMN status exam_status DEFAULT 'draft';
 
 ` 
 // Function to initialize the database schema

@@ -126,8 +126,7 @@ const loginUser = async (req, res) => {
         department : result.department,
         year : result.year,
         rollno : result.rollno,
-        phone : result.phone 
-        
+        phone : result.phone  
       }
     });
   } catch (error) {
