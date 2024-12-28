@@ -191,11 +191,12 @@ const deleteUser = async (req, res) => {
 // Pagination
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10 ,role} = req.query;
   try {
     const users = await userModel.getAllPaginatedUsers(
       parseInt(page),
-      parseInt(limit)
+      parseInt(limit),
+      role
     );
     await logActivity({
       user_id: user_id,
