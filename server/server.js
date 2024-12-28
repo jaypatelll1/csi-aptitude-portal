@@ -67,9 +67,10 @@ app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 app.use('/api/export/', exportRoutes);
 app.use('/api', fileRoutes);
 app.use('/api/exams/', fileRoutes);
+const start_exam = io.of('/exams/start-exam')
 
 // Initialize Socket.IO handlers
-initSocketHandlers(io);
+initSocketHandlers(start_exam);
 
 // Ensure a response for the root route
 app.get('/', (req, res) => {
