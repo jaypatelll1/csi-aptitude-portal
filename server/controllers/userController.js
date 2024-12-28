@@ -25,8 +25,8 @@ const transporter = require('../config/email');
 
 // Function to create a new user/register
 const registerUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno } = req.body;
-  if (!name || !email || !password || !role || !year || !department || !rollno) {
+  const { name, email, password, role, year, department, rollno , phone} = req.body;
+  if (!name || !email || !password || !role || !year || !department || !rollno  || !phone) {
     console.log('All fields are required!');
     return res.status(400).json({ error: 'All fields are required' });
   }
@@ -43,7 +43,8 @@ const registerUser = async (req, res) => {
       role,
       year,
       department,
-      rollno
+      rollno,
+      phone
     );
 
     if (newUser) {
@@ -115,15 +116,7 @@ const loginUser = async (req, res) => {
     });
     return res.status(200).json({
       message: 'Login Successful',
-      result: {
-        name: result.name,
-        email: result.email,
-        status: result.status,
-        department: result.department,
-        year: result.year,
-        rollno: result.rollno,
-        role: result.role,
-      },
+      result: {result },
     });
   } catch (error) {
     console.log(error);
@@ -133,10 +126,10 @@ const loginUser = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno } = req.body;
+  const { name, email, password, role, year, department, rollno ,phone} = req.body;
   const id = req.param.user_id;
 
-  if (!name || !email || !password || !role || !year || !department || !rollno)
+  if (!name || !email || !password || !role || !year || !department || !rollno || !phone)
     return res.status(400).json({ error: 'All fields are required' });
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -147,7 +140,8 @@ const updateUser = async (req, res) => {
       hashedPassword,
       year,
       department,
-      rollno
+      rollno,
+      phone
     );
 
     await logActivity({

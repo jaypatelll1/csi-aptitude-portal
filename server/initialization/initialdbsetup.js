@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS public.users
     status user_status DEFAULT 'NOTACTIVE',
     department branch_enum,
     year year_enum,
-    rollno INTEGER
+    rollno INTEGER,
+    phone VARCHAR(15) NULL
 );
 
 
