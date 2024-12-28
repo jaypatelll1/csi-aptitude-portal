@@ -116,7 +116,19 @@ const loginUser = async (req, res) => {
     });
     return res.status(200).json({
       message: 'Login Successful',
-      result: {result },
+      result: {
+        id: result.user_id,
+        email: result.email,
+        name: result.name,
+        role: result.role,
+        created_at : result.created_at ,
+        status : result.status ,
+        department : result.department,
+        year : result.year,
+        rollno : result.rollno,
+        phone : result.phone 
+        
+      }
     });
   } catch (error) {
     console.log(error);
