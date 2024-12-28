@@ -11,9 +11,11 @@ import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
 import Adm_ScheduleTest from "./pages/admin/Adm_ScheduleTest";
 import Adm_PastTest from "./pages/admin/Adm_PastTest";
 import Adm_InputQuestions from "./pages/admin/Adm_InputQuestions";
+import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import StudentList from "./pages/admin/Adm_StudentList";
 import StudentDashboard from "./pages/student/Stu_Dashboard";
 import TestInstruction from "./pages/student/Stu_TestInstruction";
+
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -72,6 +74,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_InputQuestions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/viewquestions"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_ViewQuestions />
           </ProtectedRoute>
         }
       />
