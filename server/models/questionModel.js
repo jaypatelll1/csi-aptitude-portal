@@ -45,7 +45,7 @@ const getQuestionsByExamId = async (exam_id) => {
   try {
     const res = await query(queryText, values);
 
-    return res.rows[0]; // Return the inserted question
+    return res.rows; // Return the inserted question
   } catch (err) {
     console.error('Error inserting question: 12345', err.stack);
     throw err;
