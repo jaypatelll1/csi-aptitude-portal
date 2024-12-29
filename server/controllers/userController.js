@@ -192,12 +192,24 @@ const deleteUser = async (req, res) => {
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
   const { page = 1, limit = 10 ,role} = req.query;
+  console.log('role is ', role);
+  let users;
   try {
-    const users = await userModel.getAllPaginatedUsers(
-      parseInt(page),
-      parseInt(limit),
-      role
-    );
+    if( !role){
+
+  users = await userModel.getAllPaginatedUsers(
+    parseInt(page),
+    parseInt(limit),
+  );
+    }
+    else{
+        users = await userModel.getAllPaginatedRoleUsers(
+            parseInt(page),
+            parseInt(limit),
+            role
+          );
+    }
+   
     await logActivity({
       user_id: user_id,
       activity: `Viewed paginated exams`,

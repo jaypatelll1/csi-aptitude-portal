@@ -83,8 +83,16 @@ const deleteUser = async (id) => {
 
 // Pagination
 // Get all users with pagination
-const getAllPaginatedUsers = async (page, limit,role) => {
-  console.log('Role:', role);
+const getAllPaginatedUsers = async (page, limit) => {
+
+  const query =
+    'SELECT user_id, name, email, role,year,department,rollno FROM users ';
+  const paginatedQuery = paginate(query, page, limit);
+  const result = await pool.query(paginatedQuery);
+  return result.rows;
+};
+
+const getAllPaginatedRoleUsers = async (page, limit,role) => {
 
   const query =
     'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ';
@@ -99,4 +107,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
+  getAllPaginatedRoleUsers
 };
