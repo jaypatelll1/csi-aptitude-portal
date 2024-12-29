@@ -47,7 +47,7 @@ const AddStudent = ({ closeModal }) => {
             <hr className="my-4 border-black" />
 
             <div id="NameBoxes" className="mb-4">
-                <h1 className="mb-2">First Name</h1>
+                <h1 className="mb-2">Name</h1>
                 <div className="flex space-x-4">
                     <input
                         className="h-10 w-full border border-gray-300 rounded-lg pl-2"
