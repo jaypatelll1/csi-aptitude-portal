@@ -207,7 +207,6 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// Pagination
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
   const { page, limit, role } = req.query;
@@ -263,4 +262,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
+  
 };
