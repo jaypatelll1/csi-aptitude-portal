@@ -2,6 +2,7 @@ const { sockettAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 const {
   submitResponse,
   submitFinalResponsesAndChangeStatus,
+  deleteExistingResponses,
 } = require('../models/responseModel');
 
 const timers = {}; // Store timers per room
@@ -12,7 +13,7 @@ const initSocketHandlers = (io) => {
     console.log('New client connected:', socket.id);
 
     // Start an exam
-    socket.on('start_exam', ({ exam_id, duration }) => {
+    socket.on('start_exam', async ({ exam_id, duration }) => {
       const user_id = parseInt(socket.user.id);
       console.log(`Exam started in room ${user_id} with duration ${duration}`);
 
@@ -20,6 +21,8 @@ const initSocketHandlers = (io) => {
       if (!timers[user_id]) {
         timers[user_id] = { remainingTime: duration, interval: null };
       }
+
+      await deleteExistingResponses(exam_id, user_id)
 
       socket.join(user_id, () => {
         console.log(`Student joined room ${user_id}`);
@@ -64,7 +67,7 @@ const initSocketHandlers = (io) => {
       }
     );
 
-    socket.on('submit_responses', {message: "Submitted!!"}, async ({ exam_id }) => {
+    socket.on('submit_responses', async ({ exam_id }) => {
       const user_id = parseInt(socket.user.id);
       const res = await submitFinalResponsesAndChangeStatus(user_id, exam_id);
 
@@ -80,7 +83,19 @@ const initSocketHandlers = (io) => {
 
 module.exports = { initSocketHandlers };
 
-// TO DO
+// SERVER_TO-DO
 // 1. Whenever next button is clicked, response is stored in db as 'draft'.
 // 2. Whenever Student clicks on 'Submit', response_status is changed to 'submitted'.
 // 3. Whenever Timer runs out, student's responses' response_status is changed to 'submitted'.
+
+
+// CLIENT TO-DO
+// io.emit('connection') -> To request socket.io connection upgrade
+// io.emit('start_exam') -> To start the exam timer when clicked on 'Start Exam' button
+// io.on('timer_update') -> To update timer every second (updated time will be sent back every second)
+// io.on('exam_ended') -> To submit all responses automatically when time's up
+// io.emit('submit_temp_response') -> To store the student responses as 'draft' in the database
+// io.emit('submit_responses') -> To save the responses as 'submitted' if the student clicks the 'Submit' button before exam ends
+// io.emit('disconnect') -> To disconnect the socket.io connection
+
+// For req body, refer POSTMAN

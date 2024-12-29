@@ -2,6 +2,15 @@ const pool = require('../config/db');
 const format = require('pg-format');
 const { paginate } = require('../utils/pagination');
 
+// Delete Existing Responses
+const deleteExistingResponses = async (exam_id, user_id) => {
+  const query = `DELETE FROM responses WHERE exam_id = $1 AND student_id = $2;`;
+  const values = [exam_id, user_id];
+
+  const result = await pool.query(query, values);
+};
+
+
 // Submit a response
 const submitResponse = async (
   student_id,
@@ -170,4 +179,5 @@ module.exports = {
   getPaginatedResponses,
   submittedUnansweredQuestions,
   submitFinalResponsesAndChangeStatus,
+  deleteExistingResponses
 };
