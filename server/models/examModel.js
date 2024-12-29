@@ -89,6 +89,12 @@ const getPaginatedPastExams = async (page, limit) => {
   return result.rows;
 };
 
+const getLastExam = async () => {
+  const query = 'SELECT * FROM exams ORDER BY created_at DESC LIMIT 1';
+  const result = await pool.query(query);
+  return result.rows[0];
+};
+
 module.exports = {
   createExam,
   getExams,
@@ -101,4 +107,5 @@ module.exports = {
   getPaginatedPastExams,
   scheduleExam,
   markPastExam,
+  getLastExam
 };

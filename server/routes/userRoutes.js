@@ -7,9 +7,8 @@ const router = express.Router();
 
 router.post('/register', jwtAuthMiddleware, authorizeRoles, registerUser);
 router.post('/login', loginUser);
-router.get('/', jwtAuthMiddleware, authorizeRoles, getAllPaginatedUsers); // pagination
+router.get('/', jwtAuthMiddleware, authorizeRoles, getAllPaginatedUsers); 
 router.put('/update/:user_id', jwtAuthMiddleware, authorizeRoles, updateUser);
 router.delete('/delete/:user_id', jwtAuthMiddleware, authorizeRoles, deleteUser);
 
 module.exports = router;
-
