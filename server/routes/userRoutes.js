@@ -12,3 +12,4 @@ router.put('/update/:user_id', jwtAuthMiddleware, authorizeRoles, updateUser);
 router.delete('/delete/:user_id', jwtAuthMiddleware, authorizeRoles, deleteUser);
 
 module.exports = router;
+
