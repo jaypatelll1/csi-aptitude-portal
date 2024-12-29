@@ -1,35 +1,66 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
+import axios from "axios";
+import { useSelector } from 'react-redux';
+import { useNavigate } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 
 const InputQuestions = () => {
   const [question, setQuestion] = useState('');
-  const [answerType, setAnswerType] = useState('single');
-  const [answers, setAnswers] = useState(['', '', '', '']);
+  const [questionType, setQuestionType] = useState('single');
+  const [options, setOptions] = useState(['', '', '', '']);
   const [toggles, setToggles] = useState([false, false, false, false]);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Safely destructure location.state, fallback to empty object if undefined
+  const { questionId, questionText, questionOptions = {}, exam_id } = location.state || {};
+
+  // Pre-fill the form when the component loads (for editing)
+  useEffect(() => {
+    if (questionText && questionOptions) {
+      setQuestion(questionText);
+
+      // Check if the necessary options exist to prevent errors
+      const { a = '', b = '', c = '', d = '' } = questionOptions;
+      setOptions([a, b, c, d]);
+
+      // Ensure the correct_option exists before attempting to use it
+      const correctOptionIndex = ['a', 'b', 'c', 'd'].indexOf(questionOptions.correct_option);
+      setToggles([false, false, false, false].map((_, index) => index === correctOptionIndex));
+    }
+  }, [questionText, questionOptions]);
+
+  const viewquestions = () => {
+    navigate("/admin/viewquestions"); // Navigate to /admin/viewquestions page
+  };
+
+  const examId = useSelector((state) => state.exam.examId);
+
   const handleAddAnswer = () => {
-    if (answers.length < 4) {
-      setAnswers([...answers, '']);
+    if (options.length < 4) {
+      setOptions([...options, '']);
       setToggles([...toggles, false]);
     }
   };
 
   const handleAnswerChange = (index, value) => {
-    const newAnswers = [...answers];
-    newAnswers[index] = value;
-    setAnswers(newAnswers);
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
   };
 
   const handleRemoveAnswer = (index) => {
-    const newAnswers = answers.filter((_, i) => i !== index);
+    const newOptions = options.filter((_, i) => i !== index);
     const newToggles = toggles.filter((_, i) => i !== index);
-    setAnswers(newAnswers);
+    setOptions(newOptions);
     setToggles(newToggles);
   };
 
   const handleToggleChange = (index) => {
     const newToggles = [...toggles];
-    if (answerType === 'single') {
+    if (questionType === 'single') {
       newToggles.fill(false);
       newToggles[index] = true;
     } else {
@@ -38,13 +69,66 @@ const InputQuestions = () => {
     setToggles(newToggles);
   };
 
-  const handleSubmit = () => {
-    if (question && answers.every(answer => answer.trim() !== '')) {
-      console.log({ question, answerType, answers, toggles });
+  const handleSubmit = async () => {
+    if (question && options.every(option => option.trim() !== '')) {
+      console.log({ question, questionType, options, toggles });
+
+      if (!toggles.includes(true)) {
+        alert('Please select at least one correct answer.');
+        return;
+      }
+
+      const findTrueIndex = () => {
+        var a = toggles.findIndex(toggle => toggle === true);
+        return a !== -1 ? a : 'No true value found';
+      };
+
+      let b = findTrueIndex();
+      const correctOption = String.fromCharCode(96 + b);
+
+      const payload = {
+        "question_text": `${question}`,
+        "options": {
+          "a": `${options[0]}`,
+          "b": `${options[1]}`,
+          "c": `${options[2]}`,
+          "d": `${options[3]}`
+        },
+        "correct_option": `${correctOption}`
+      }
+
+      try {
+
+        if(!questionId){
+
+          const response = await axios.post(`/api/exams/questions/${examId}`, payload);
+          console.log("Question created successfully:", response.data);
+          setQuestion("");
+          setOptions(['', '', '', '']);
+          setToggles([false, false, false, false]);
+
+        }else {
+          const response = await axios.put(`/api/exams/questions/${examId}/${questionId}`, payload);
+          console.log("Question created successfully:", response.data);
+          setQuestion("");
+          setOptions(['', '', '', '']);
+          setToggles([false, false, false, false]);
+
+        }
+       
+      } catch (error) {
+        console.error("Error creating test:", error.response?.data || error.message);
+      }
     } else {
       alert('Please fill in all fields before submitting.');
     }
   };
+
+  const handleCancel = () => {
+    setQuestion("");
+    setOptions(['', '', '', '']);
+    setToggles([false, false, false, false]);
+  }
 
   return (
     <div className="flex h-screen m-0 p-0 w-full">
@@ -60,20 +144,9 @@ const InputQuestions = () => {
 
         {/* Navigation Section */}
         <div className="flex justify-between items-center mb-6">
-          <button className=" text-xl text-blue-500 hover:underline flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="w-5 h-5 mr-2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
+          <button className="text-xl text-blue-500 hover:underline flex items-center" onClick={viewquestions}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 mr-2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
             View Questions
           </button>
@@ -97,20 +170,18 @@ const InputQuestions = () => {
             <label htmlFor="answer-type" className="text-xl block text-gray-700 font-medium mb-2">Answer Type:</label>
             <select
               id="answer-type"
-              value={answerType}
-              onChange={(e) => setAnswerType(e.target.value)}
+              value={questionType}
+              onChange={(e) => setQuestionType(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="single">Single Choice</option>
-              <option value="multiple">Multiple Choice</option>
             </select>
           </div>
 
           <div>
-            <label className="text-xl block text-gray-700 font-medium mb-2">Answers:</label>
-            {answers.map((answer, index) => (
+            <label className="text-xl block text-gray-700 font-medium mb-2">Options:</label>
+            {options.map((answer, index) => (
               <div key={index} className="group flex items-center gap-4 mb-4 p-3 border border-gray-300 rounded-lg bg-gray-50 hover:shadow-md">
-                {/* Input Box */}
                 <input
                   type="text"
                   value={answer}
@@ -119,7 +190,6 @@ const InputQuestions = () => {
                   className="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
-                {/* Toggle Button */}
                 <button
                   onClick={() => handleToggleChange(index)}
                   className={`relative w-12 h-6 rounded-full transition-all duration-300 ${toggles[index] ? 'bg-[#449800]' : 'bg-gray-300'}`}
@@ -129,25 +199,15 @@ const InputQuestions = () => {
                   />
                 </button>
 
-                {/* Remove Button */}
                 <button onClick={() => handleRemoveAnswer(index)} className="text-red-500 hover:text-red-700 ml-2">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"
-                      fill="currentColor"
-                    />
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z" fill="currentColor" />
                   </svg>
                 </button>
               </div>
             ))}
 
-            {answers.length < 4 && (
+            {options.length < 4 && (
               <button
                 onClick={handleAddAnswer}
                 className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-grey-100 transition-all duration-300"
@@ -159,13 +219,10 @@ const InputQuestions = () => {
         </div>
 
         <div className="flex gap-4 justify-between">
-          <button
-            onClick={handleSubmit}
-            className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-          >
+          <button onClick={handleSubmit} className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
             Save and Add Next
           </button>
-          <button className="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500">
+          <button className="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500" onClick={handleCancel}>
             Cancel
           </button>
         </div>

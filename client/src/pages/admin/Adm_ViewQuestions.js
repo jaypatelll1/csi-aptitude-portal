@@ -1,31 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Adm_ViewQuestionCard from "../../components/admin/Adm_ViewQuestionCard";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 const Adm_ViewQuestions = () => {
-  const questions = [
-    {
-      id: 1,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-    },
-    {
-      id: 2,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-    },
-    {
-      id: 3,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-    },
-    {
-      id: 4,
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
-    },
-  ];
+  const [questions, setQuestions] = useState([]); // Initialize as an empty array
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const examId = useSelector((state) => state.exam.examId); // Redux state for exam ID
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Fetch questions when component mounts
+    const fetchQuestions = async () => {
+      try {
+        if (!examId) {
+          throw new Error("Exam ID is not defined");
+        }
+        const response = await axios.get(`/api/exams/questions/${examId}`);
+        console.log("response data is ", response.data);
+
+        setQuestions(response.data || []); // Fallback to empty array if undefined
+      } catch (err) {
+        setError(err.message || "Error fetching questions");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, [examId]);
+
+  // Function to update a specific question's text
+  const updateQuestionText = (questionId, newText) => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((question) =>
+        question.question_id === questionId
+          ? { ...question, question_text: newText }
+          : question
+      )
+    );
+  };
+
   const handleGoBack = () => {
-    navigate(-1);
+    navigate(-1); // Navigate back
   };
 
   return (
@@ -74,14 +94,24 @@ const Adm_ViewQuestions = () => {
           </div>
         </div>
 
+        {/* Render loading, error, or questions */}
         <div className="space-y-4">
-          {questions.map((question) => (
-            <Adm_ViewQuestionCard
-              key={question.id}
-              id={question.id}
-              text={question.text}
-            />
-          ))}
+          {loading ? (
+            <p>Loading questions...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            questions.map((question, index,options) => (
+              <Adm_ViewQuestionCard
+                key={question.question_id}
+                id={question.question_id}
+                index={index}
+                text={question.question_text}
+                updateText={updateQuestionText}
+                options = {question.options} // Pass update function to child
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

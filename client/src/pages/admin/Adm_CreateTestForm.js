@@ -1,20 +1,45 @@
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setExamId } from '../../redux/ExamSlice';  // Import the action
 
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
-  const [numQuestions, setNumQuestions] = useState("");
+  const [duration, setduration] = useState("");
   const navigate = useNavigate();
 
-  const handleCreateQuestions = (e) => {
-    e.preventDefault();
-    console.log({ testName, numQuestions });
-  };
+  const dispatch = useDispatch();
 
+  const handleCreateQuestions = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+
+    // Create the payload to send to the server
+    const payload = {
+      "name" : `${testName}`, // The test name
+      "duration":`${duration}`, // Using duration as duration
+    };
+
+    try {
+      // Send a POST request to the server to create the test
+      const response = await axios.post("/api/exams", payload);
+      console.log('exam id is ', response.data.newExam.exam_id);
+      const examId = response.data.newExam.exam_id; 
+      
+      dispatch(setExamId(examId));
+      // Log success response and navigate to the input page
+      console.log("Test created successfully:", response.data);
+      navigate("/admin/input"); // Navigate to the input page after success
+    } catch (error) {
+      // Log error response if something goes wrong
+      console.error("Error creating test:", error.response?.data || error.message);
+    }
+  };
+  
   const handleCancel = () => {
     setTestName("");
-    setNumQuestions("");
+    setduration("");
   };
 
   const handleGoBack = () => {
@@ -58,7 +83,7 @@ const CreateTestPage = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <form onSubmit={handleCreateQuestions}>
+          <form >
             <div className="mb-6">
               <label
                 htmlFor="testName"
@@ -79,18 +104,18 @@ const CreateTestPage = () => {
 
             <div className="mb-6">
               <label
-                htmlFor="numQuestions"
+                htmlFor="duration"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Number of questions
+              Duration
               </label>
               <input
                 type="number"
-                id="numQuestions"
+                id="duration"
                 placeholder="Eg. 30"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={numQuestions}
-                onChange={(e) => setNumQuestions(e.target.value)}
+                value={duration}
+                onChange={(e) => setduration(e.target.value)}
                 required
               />
             </div>
@@ -101,6 +126,7 @@ const CreateTestPage = () => {
           <button
             type="submit"
             className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            onClick={handleCreateQuestions}
           >
             Create questions
           </button>
