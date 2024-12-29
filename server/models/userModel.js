@@ -20,19 +20,21 @@ const createUser = async (
   role,
   year,
   department,
-  rollno
+  rollno,
+  phone
 ) => {
   try {
     const query =
-      'INSERT INTO users(name, email, password_hash, role, year, department, rollno) VALUES($1, $2, $3, $4,$5,$6,$7) RETURNING user_id, name, email, role, year, department, rollno';
+      'INSERT INTO users(name, email, password_hash, role, year, department, rollno, phone) VALUES($1, $2, $3, $4,$5,$6,$7,$8) RETURNING user_id, name, email, role, year, department, rollno, phone';
     const newUser = await pool.query(query, [
       name,
-      email,
+      email,  
       hashPassword,
       role,
       year,
       department,
       rollno,
+      phone,
     ]);
     return newUser.rows[0];
   } catch (err) {

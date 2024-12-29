@@ -53,7 +53,7 @@ const registerUser = async (req, res) => {
       year,
       department,
       rollno,
-      phone
+      phone,
     );
 
     if (newUser) {
