@@ -99,7 +99,7 @@ const InputQuestions = () => {
 
       try {
 
-        if(!questionId){
+        if (!questionId) {
 
           const response = await axios.post(`/api/exams/questions/${examId}`, payload);
           console.log("Question created successfully:", response.data);
@@ -107,15 +107,15 @@ const InputQuestions = () => {
           setOptions(['', '', '', '']);
           setToggles([false, false, false, false]);
 
-        }else {
+        } else {
           const response = await axios.put(`/api/exams/questions/${examId}/${questionId}`, payload);
           console.log("Question created successfully:", response.data);
           setQuestion("");
           setOptions(['', '', '', '']);
           setToggles([false, false, false, false]);
-
+          navigate("/admin/viewquestions")
         }
-       
+
       } catch (error) {
         console.error("Error creating test:", error.response?.data || error.message);
       }
