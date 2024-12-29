@@ -20,6 +20,7 @@ const responseRoutes = require('./routes/responseRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const exportRoutes = require('./routes/exportRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 
 // Initialize the app
@@ -67,6 +68,7 @@ app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 app.use('/api/export/', exportRoutes);
 app.use('/api', fileRoutes);
 app.use('/api/exams/', fileRoutes);
+app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 const start_exam = io.of('/exams/start-exam')
 
 // Initialize Socket.IO handlers
@@ -77,12 +79,12 @@ app.get('/', (req, res) => {
   res.send('Server is running!'); // Generic message for Render health checks
 });
 
-server.listen(PORT, HOST ,() => {
-  console.log(`Server is running at http://${HOST}:${PORT}`);
-});
+// server.listen(PORT, HOST ,() => {
+//   console.log(`Server is running at http://${HOST}:${PORT}`);
+// });
 
 // FOR SOCKET.IO TESTING
-// server.listen(PORT, () => {
-//   console.log(`Server is running at http://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
 
-// });
+});
