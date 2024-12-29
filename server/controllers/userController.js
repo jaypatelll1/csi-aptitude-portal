@@ -210,34 +210,48 @@ const deleteUser = async (req, res) => {
 // Pagination
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
-  const { page = 1, limit = 10, role } = req.query;
+  const { page, limit, role } = req.query;
   let users;
   try {
-    if (!role) {
-      users = await userModel.getAllPaginatedUsers(
-        parseInt(page),
-        parseInt(limit)
-      );
-    } else {
-      users = await userModel.getAllPaginatedRoleUsers(
-        parseInt(page),
-        parseInt(limit),
-        role
-      );
-    }
     const numeberOfUsers = await userModel.getUserCount();
-    await logActivity({
-      user_id: user_id,
-      activity: `Viewed paginated exams`,
-      status: 'success',
-      details: `Page: ${page}, Limit: ${limit}`,
-    });
-    return res.status(200).json({
-      page: parseInt(page),
-      limit: parseInt(limit),
-      User_Count: numeberOfUsers,
-      users,
-    });
+    if (!page && !limit) {
+      users = await userModel.getAllStudents(role);
+      await logActivity({
+        user_id: user_id,
+        activity: `Viewed Particular users`,
+        status: 'success',
+        details: `Viewed All queried users`,
+      });
+      return res.status(200).json({
+        User_Count: numeberOfUsers,
+        users,
+      });
+    } else {
+      if (!role) {
+        users = await userModel.getAllPaginatedUsers(
+          parseInt(page),
+          parseInt(limit)
+        );
+      } else {
+        users = await userModel.getAllPaginatedRoleUsers(
+          parseInt(page),
+          parseInt(limit),
+          role
+        );
+      }
+      await logActivity({
+        user_id: user_id,
+        activity: `Viewed paginated users`,
+        status: 'success',
+        details: `Page: ${page}, Limit: ${limit}`,
+      });
+      return res.status(200).json({
+        page: parseInt(page),
+        limit: parseInt(limit),
+        User_Count: numeberOfUsers,
+        users,
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

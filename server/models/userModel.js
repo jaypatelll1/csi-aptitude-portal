@@ -41,6 +41,13 @@ const createUser = async (
   }
 };
 
+const getAllStudents = async (role) => {
+  const query =
+    'SELECT user_id, name, email, role, year, department, rollno FROM users where role = $1';
+  const result = await pool.query(query, [role]);
+  return result.rows;
+};
+
 // Function to update detalis of a user
 const updateUser = async (
   id,
@@ -114,5 +121,6 @@ module.exports = {
   deleteUser,
   getAllPaginatedUsers,
   getAllPaginatedRoleUsers,
-  getUserCount
+  getUserCount,
+  getAllStudents
 };
