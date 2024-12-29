@@ -13,7 +13,7 @@ const StudentList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [numberofpages, setNumberofpages] = useState(14);
     const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(1);
+    const [limit, setLimit] = useState(30);
 
     // Fetch data from API
     useEffect(() => {
