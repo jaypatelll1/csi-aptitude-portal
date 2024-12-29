@@ -12,7 +12,7 @@
  *  "passowrd":"",
  *  "role":""
  * }
- */ 
+ */
 
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -22,11 +22,20 @@ const { logActivity } = require('../utils/logger');
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
 
-
 // Function to create a new user/register
 const registerUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno , phone} = req.body;
-  if (!name || !email || !password || !role || !year || !department || !rollno  || !phone) {
+  const { name, email, password, role, year, department, rollno, phone } =
+    req.body;
+  if (
+    !name ||
+    !email ||
+    !password ||
+    !role ||
+    !year ||
+    !department ||
+    !rollno ||
+    !phone
+  ) {
     console.log('All fields are required!');
     return res.status(400).json({ error: 'All fields are required' });
   }
@@ -121,13 +130,13 @@ const loginUser = async (req, res) => {
         email: result.email,
         name: result.name,
         role: result.role,
-        created_at : result.created_at ,
-        status : result.status ,
-        department : result.department,
-        year : result.year,
-        rollno : result.rollno,
-        phone : result.phone  
-      }
+        created_at: result.created_at,
+        status: result.status,
+        department: result.department,
+        year: result.year,
+        rollno: result.rollno,
+        phone: result.phone,
+      },
     });
   } catch (error) {
     console.log(error);
@@ -137,10 +146,20 @@ const loginUser = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno ,phone} = req.body;
+  const { name, email, password, role, year, department, rollno, phone } =
+    req.body;
   const id = req.param.user_id;
 
-  if (!name || !email || !password || !role || !year || !department || !rollno || !phone)
+  if (
+    !name ||
+    !email ||
+    !password ||
+    !role ||
+    !year ||
+    !department ||
+    !rollno ||
+    !phone
+  )
     return res.status(400).json({ error: 'All fields are required' });
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -191,34 +210,34 @@ const deleteUser = async (req, res) => {
 // Pagination
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
-  const { page = 1, limit = 10 ,role} = req.query;
-  console.log('role is ', role);
+  const { page = 1, limit = 10, role } = req.query;
   let users;
   try {
-    if( !role){
-
-  users = await userModel.getAllPaginatedUsers(
-    parseInt(page),
-    parseInt(limit),
-  );
+    if (!role) {
+      users = await userModel.getAllPaginatedUsers(
+        parseInt(page),
+        parseInt(limit)
+      );
+    } else {
+      users = await userModel.getAllPaginatedRoleUsers(
+        parseInt(page),
+        parseInt(limit),
+        role
+      );
     }
-    else{
-        users = await userModel.getAllPaginatedRoleUsers(
-            parseInt(page),
-            parseInt(limit),
-            role
-          );
-    }
-   
+    const numeberOfUsers = await userModel.getUserCount();
     await logActivity({
       user_id: user_id,
       activity: `Viewed paginated exams`,
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,
     });
-    return res
-      .status(200)
-      .json({ page: parseInt(page), limit: parseInt(limit), users });
+    return res.status(200).json({
+      page: parseInt(page),
+      limit: parseInt(limit),
+      User_Count: numeberOfUsers,
+      users,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
