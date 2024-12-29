@@ -3,18 +3,25 @@ const format = require('pg-format');
 const { paginate } = require('../utils/pagination');
 
 // Submit a response
-const submitResponse = async ({
+const submitResponse = async (
+  student_id,
   exam_id,
   question_id,
-  student_id,
   selected_option,
-}) => {
+  response_status
+) => {
   const query = `
-      INSERT INTO responses (exam_id, question_id, student_id, selected_option)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO responses (exam_id, question_id, student_id, selected_option, status)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-  const values = [exam_id, question_id, student_id, selected_option];
+  const values = [
+    exam_id,
+    question_id,
+    student_id,
+    selected_option,
+    response_status,
+  ];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
@@ -73,6 +80,17 @@ submittedUnansweredQuestions = async (exam_id, student_id) => {
   if (unansweredQuestions.length > 0) {
     return submitMultipleResponses(unansweredQuestions);
   }
+  return result.rows;
+};
+
+const submitFinalResponsesAndChangeStatus = async (student_id, exam_id) => {
+  const query = `
+      UPDATE responses
+      SET status = $1, answered_at = NOW()
+      WHERE exam_id = $2 AND student_id = $3
+      RETURNING *;
+    `;
+  const result = await pool.query(query, ['submitted', exam_id, student_id]);
   return result.rows;
 };
 
@@ -151,4 +169,5 @@ module.exports = {
   submitMultipleResponses,
   getPaginatedResponses,
   submittedUnansweredQuestions,
+  submitFinalResponsesAndChangeStatus,
 };
