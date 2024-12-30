@@ -1,19 +1,45 @@
-import React, { useState } from "react"; 
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
+import axios from 'axios';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const tileData = [
-    { label: "Students", value: 1420 },
-    { label: "Departments", value: 5 },
-    { label: "Teachers", value: 6 },
-    { label: "Baap", value: 69 },
-  ];
+  const [tileData, setTileData] = useState([]);
+  const [activeTab, setActiveTab] = useState("drafted");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [studentsRes, testsRes, lastTestRes] = await Promise.all([
+          axios.get('/api/stats/all-students'),
+          axios.get('/api/stats/all-tests'),
+          axios.get('/api/stats/last-test')
+        ]);
+
+        const studentsCount = studentsRes.data.totalStudentsCount;
+        const liveTestsCount = testsRes.data.liveTestsCount;
+        const scheduledTestsCount = testsRes.data.scheduledTestsCount;
+        const lastTestStudentCount = lastTestRes.data.studentCount;
+
+        setTileData([
+          { label: "Live Tests", value: liveTestsCount },
+          { label: "Scheduled Tests", value: scheduledTestsCount },
+          { label: "Active Students", value: studentsCount },
+          { label: "Students in Last Exam", value: lastTestStudentCount }
+        ]);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } 
+    };
+
+    fetchData();
+  }, []);
+
 
   const tests = [
     {
@@ -60,7 +86,6 @@ const Dashboard = () => {
     },
   ];
 
-  const [activeTab, setActiveTab] = useState("drafted"); 
   const createTesthandler = () => {
     navigate("/admin/createtest");
   }
@@ -93,9 +118,7 @@ const Dashboard = () => {
           style={{ position: "absolute", top: "100px" }}
         >
           <div className="flex space-x-4 justify-center flex-wrap sm:flex-nowrap">
-            {tileData.map((item, index) => (
-              <Adm_DashboardTiles key={index} item={item} />
-            ))}
+            <Adm_DashboardTiles tileData={tileData} />
           </div>
         </div>
 
