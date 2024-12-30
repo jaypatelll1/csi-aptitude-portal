@@ -7,9 +7,9 @@ const pool = require('../config/db');
 const query = ` 
 CREATE TYPE role_enum AS ENUM ('TPO','Student');
 CREATE TYPE user_status AS ENUM ('NOTACTIVE', 'ACTIVE');
-CREATE TYPE branch_enum AS ENUM ('CMPM', 'INFT', 'ECS', 'EXTC', 'EEE');
+CREATE TYPE branch_enum AS ENUM ('CMPM', 'INFT', 'ECS', 'EXTC', 'ELEC');
 CREATE TYPE year_enum AS ENUM ('FE', 'SE', 'TE', 'BE');
-CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'past');
+CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'live', 'past');
 CREATE TYPE response_status AS ENUM ('draft', 'submitted');
 
 
