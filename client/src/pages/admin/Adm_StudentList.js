@@ -150,7 +150,7 @@ const StudentList = () => {
                                     <td className='py-4 px-5'>{index + 1}</td>
                                     <td className="py-4">{student.name}</td>
                                     <td className="py-4">{student.email}</td>
-                                    <td className="py-4">{student.mobile || "N/A"}</td>
+                                    <td className="py-4">{student.phone || "N/A"}</td>
                                     <td className="py-4">{student.department || "N/A"}</td>
                                     <td className="py-4 text-center items-center justify-center flex">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="20" viewBox="0 0 25 20" fill="none">

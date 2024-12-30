@@ -45,7 +45,7 @@ const createUser = async (
 
 const getAllStudents = async (role) => {
   const query =
-    'SELECT user_id, name, email, role, year, department, rollno FROM users where role = $1';
+    'SELECT user_id, name, email, role, year, department, rollno, phone FROM users where role = $1';
   const result = await pool.query(query, [role]);
   return result.rows;
 };
