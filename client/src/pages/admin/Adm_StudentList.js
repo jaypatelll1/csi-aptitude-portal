@@ -25,36 +25,28 @@ const StudentList = () => {
                 const response = await axios.get(`/api/users?role=Student`);
                 const studentData = response.data.users;
                 setStudents(studentData);
-                setFilteredStudents(studentData);
-                updatePagination(studentData);
             } catch (error) {
                 console.error("Error fetching students:", error);
             }
         };
         fetchStudents();
-
     }, [limit, page]);
 
-    const updatePagination = (data) => {
-        const totalPages = Math.ceil(data.length/limit);
-        setNumberofpages(totalPages);
-    };
-
     useEffect(() => {
-        const filterStudents = () => {
-            const filtered = students.filter(student =>
-                selectedDepartment ? student.department === selectedDepartment : true
-            );
-            if (filtered.length !== filteredStudents.length) {
-                setFilteredStudents(filtered);
-                updatePagination(filtered);
-            }
-        };
+        const filtered = students.filter(student =>
+            selectedDepartment ? student.department === selectedDepartment : true
+        );
+        
+        setFilteredStudents(filtered);
+        const totalPages = Math.ceil(filtered.length / limit);
+        setNumberofpages(totalPages);
+        
+        // Reset to page 1 when filter changes
+        // if (selectedDepartment !== undefined) {
+        //     setPage(1);
+        // }
+    }, [selectedDepartment, students, limit]);
 
-        const debounceFilter = setTimeout(() => filterStudents(), 300);
-
-        return () => clearTimeout(debounceFilter);
-    }, [selectedDepartment, students]);
 
     const toggleFilter = () => {
         setShowFilter(!showFilter);
