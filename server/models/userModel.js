@@ -20,25 +20,34 @@ const createUser = async (
   role,
   year,
   department,
-  rollno
+  rollno,
+  phone
 ) => {
   try {
     const query =
-      'INSERT INTO users(name, email, password_hash, role, year, department, rollno) VALUES($1, $2, $3, $4,$5,$6,$7) RETURNING user_id, name, email, role, year, department, rollno';
+      'INSERT INTO users(name, email, password_hash, role, year, department, rollno, phone) VALUES($1, $2, $3, $4,$5,$6,$7,$8) RETURNING user_id, name, email, role, year, department, rollno, phone';
     const newUser = await pool.query(query, [
       name,
-      email,
+      email,  
       hashPassword,
       role,
       year,
       department,
       rollno,
+      phone,
     ]);
     return newUser.rows[0];
   } catch (err) {
     console.error(err);
     throw err;
   }
+};
+
+const getAllStudents = async (role) => {
+  const query =
+    'SELECT user_id, name, email, role, year, department, rollno FROM users where role = $1';
+  const result = await pool.query(query, [role]);
+  return result.rows;
 };
 
 // Function to update detalis of a user
@@ -99,6 +108,13 @@ const getAllPaginatedRoleUsers = async (page, limit, role) => {
   return result.rows;
 };
 
+const getAllRoleUsers = async (role) => {
+  const query =
+    'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ';
+  const result = await pool.query(query, [role]);
+  return result.rows;
+};
+
 const getUserCount = async () => {
   const query =
     'SELECT user_id, name, email, role,year,department,rollno FROM users WHERE role =$1 ';
@@ -114,5 +130,6 @@ module.exports = {
   deleteUser,
   getAllPaginatedUsers,
   getAllPaginatedRoleUsers,
-  getUserCount
+  getUserCount,
+  getAllStudents
 };

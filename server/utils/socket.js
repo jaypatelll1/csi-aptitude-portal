@@ -1,8 +1,12 @@
-const { submitAllResponses } = require('../controllers/responseController');
 const { sockettAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
+const {
+  submitResponse,
+  submitFinalResponsesAndChangeStatus,
+  deleteExistingResponses,
+  submittedUnansweredQuestions,
+} = require('../models/responseModel');
 
 const timers = {}; // Store timers per room
-const responses = {}; // Store responses per room
 
 const initSocketHandlers = (io) => {
   io.use(sockettAuthMiddleware);
@@ -10,22 +14,20 @@ const initSocketHandlers = (io) => {
     console.log('New client connected:', socket.id);
 
     // Start an exam
-    socket.on('start_exam', ({ exam_id, duration }) => {
-      const user_id = socket.user.id;
+    socket.on('start_exam', async ({ exam_id, duration }) => {
+      const user_id = parseInt(socket.user.id);
       console.log(`Exam started in room ${user_id} with duration ${duration}`);
 
-      // If a new exam is starting, initialize its timer
+      // If a new user's exam is starting, initialize its timer
       if (!timers[user_id]) {
         timers[user_id] = { remainingTime: duration, interval: null };
+        await deleteExistingResponses(exam_id, user_id)
+        await submittedUnansweredQuestions(exam_id, user_id)
       }
 
-      // Initialize the responses of a new exam
-      if (!responses[user_id]) {
-        responses[user_id] = [];
-      }
 
       socket.join(user_id, () => {
-        console.log(`Student joined room ${exam_id}`);
+        console.log(`Student joined room ${user_id}`);
       });
 
       // Sets timer if not already set
@@ -42,11 +44,9 @@ const initSocketHandlers = (io) => {
             delete timers[user_id];
 
             // Notify room that exam ended
-            io.to(user_id).emit('exam_ended', { message: "Time's up!" });
-
-            // Save responses to the database
-            // submitAllResponses(exam_id, responses[exam_id]);
-            delete responses[user_id];
+            io.to(user_id).emit('exam_ended', {message: "Time's up!!"}, async () => {
+              const res = await submitFinalResponsesAndChangeStatus(user_id, exam_id);
+            });
           }
         }, 1000);
       }
@@ -54,20 +54,28 @@ const initSocketHandlers = (io) => {
 
     // Handle individual response submissions
     socket.on(
-      'submit_response',
-      ({ exam_id, question_id, selected_option }) => {
-        const user_id = socket.user.id;
-        if (responses[user_id]) {
-          responses[user_id].push({
-            exam_id,
-            question_id,
-            selected_option,
-            submitted_at: new Date().toISOString(),
-          });
-          console.log(`Response saved for room ${user_id}`);
-        }
+      'submit_temp_response',
+      async ({ exam_id, question_id, selected_option }) => {
+        const user_id = parseInt(socket.user.id);
+
+        const r = await submitResponse(
+          user_id,
+          exam_id,
+          question_id,
+          selected_option,
+          'draft'
+        );
+        console.log(`Response saved for user ${user_id}`);
       }
     );
+
+    socket.on('submit_responses', async ({ exam_id }) => {
+      const user_id = parseInt(socket.user.id);
+      const res = await submitFinalResponsesAndChangeStatus(user_id, exam_id);
+
+      clearInterval(timers[user_id].interval);
+      delete timers[user_id];
+    });
 
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id);
@@ -75,17 +83,21 @@ const initSocketHandlers = (io) => {
   });
 };
 
-// Save responses to the database (mock function)
-// const saveResponsesToDatabase = (exam_id, roomResponses) => {
-//   console.log(`Saving responses for room ${exam_id} to database...`);
-//   console.log(roomResponses);
-// };
-
 module.exports = { initSocketHandlers };
 
-// CLIENT SIDE TO_DO
+// SERVER_TO-DO
+// 1. Whenever next button is clicked, response is stored in db as 'draft'.
+// 2. Whenever Student clicks on 'Submit', response_status is changed to 'submitted'.
+// 3. Whenever Timer runs out, student's responses' response_status is changed to 'submitted'.
 
-// When Start Exam button is clicked, socket.emit('start_exam', { roomId: exam_id, duration: exam_duration, student_id: user_id });
-// Listen to timer updates and update the timer on the client side socket.on('timer_update', (data) => { console.log(data.remainingTime); });
-// listen to even 'exam_ended' and show a message to the student socket.on('exam_ended', (data) => { console.log(data.message); }); Now pass the responses as JSON to the server and call responseContoller.submitAllResponses() to save the responses to the database.
-// In the responses[exam_id], save responses by passing student_id, question_id, selected_option and answered_at. So, perform     socket.emit('submit_response', { roomId: exam_id, studentId: user_id, questionId: question_id, selectedOption: selecte_option });
+
+// CLIENT TO-DO
+// io.emit('connection') -> To request socket.io connection upgrade
+// io.emit('start_exam') -> To start the exam timer when clicked on 'Start Exam' button
+// io.on('timer_update') -> To update timer every second (updated time will be sent back every second)
+// io.on('exam_ended') -> To submit all responses automatically when time's up
+// io.emit('submit_temp_response') -> To store the student responses as 'draft' in the database
+// io.emit('submit_responses') -> To save the responses as 'submitted' if the student clicks the 'Submit' button before exam ends
+// io.emit('disconnect') -> To disconnect the socket.io connection
+
+// For req body, refer POSTMAN
