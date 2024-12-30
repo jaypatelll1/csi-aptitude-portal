@@ -6,28 +6,29 @@ const AddStudent = ({ closeModal }) => {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
-    const [department, setDepartment] = useState("INFT");
+    const [department, setDepartment] = useState('INFT');
+    const [year, setYear] = useState('FE');
+    const [rollno, setRollno] = useState();
+    const [claass, setClaass] = useState("");
 
     // Generate a random password
     const generatePassword = () => {
         return Math.random().toString(36).slice(-8); // Generate an 8-character random string
     };
 
-    // Constant roll number
-    const rollNumber = "123456";
 
     const handleSaveStudent = async () => {
         const password = generatePassword();
 
         const newStudent = {
             name: `${firstName} ${lastName}`,
-            email,
-            //mobile,
-            department,
-            rollno: rollNumber,
+            email: `${email}`,
+            phone: `${mobile}`,
+            department: `${department}`,
+            rollno: Number(rollno),
             role: "Student",
-            password,
-            year: "BE",
+            password: password,
+            year: `${year}`,
         };
 
         try {
@@ -86,18 +87,50 @@ const AddStudent = ({ closeModal }) => {
 
             <div id="Department" className="mb-4">
                 <h1 className="mb-2">Department</h1>
-                <select
-                    className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                >
-                    <option value="INFT">INFT</option>
-                    <option value="CMPN">CMPN</option>
-                    <option value="ECS">ECS</option>
-                    <option value="EXTC">EXTC</option>
-                    <option value="ELEC">ELEC</option>
-                </select>
+                <div className="flex space-x-4">
+                    <select
+                        className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
+                        value={department}
+                        onChange={(e) => setDepartment(e.target.value)}
+                    >
+                        <option value="INFT">INFT</option>
+                        <option value="CMPN">CMPN</option>
+                        <option value="ECS">ECS</option>
+                        <option value="EXTC">EXTC</option>
+                        <option value="ELEC">ELEC</option>
+                    </select>
+                    <select
+                        className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
+                        value={year}
+                        onChange={(e) => setYear(e.target.value)}
+                    >
+                        <option value="FE">FE</option>
+                        <option value="BE">BE</option>
+                        <option value="TE">TE</option>
+                        <option value="BE">BE</option>
+                    </select>
+                </div>
             </div>
+            <div id="ClassBoxes" className="mb-7">
+                <h1 className="mb-2">Class and Roll Number</h1>
+                <div className="flex space-x-4">
+                    <input
+                        className="h-10 w-full border border-gray-300 rounded-lg pl-2"
+                        placeholder="Class"
+                        value={claass}
+                        onChange={(e) => setClaass(e.target.value)}
+                    
+                    />
+                    <input
+                        className="h-10 w-full border border-gray-300 rounded-lg pl-2"
+                        placeholder="Roll Number"
+                        value={rollno}
+                        onChange={(e) => setRollno(e.target.value)}
+                        type="number"
+                    />
+                </div>
+            </div>  
+
 
             <div className="flex justify-between">
                 <button
