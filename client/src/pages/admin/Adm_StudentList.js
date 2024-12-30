@@ -13,21 +13,20 @@ const StudentList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [numberofpages, setNumberofpages] = useState(14);
     const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(30);
+    const [limit, setLimit] = useState(50);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    
 
     // Fetch data from API
     useEffect(() => {
         const fetchStudents = async () => {
             try {
                 const response = await axios.get(`/api/users?role=Student`);
-                // Filter only students
                 const studentData = response.data.users;
-                const totalPages = Math.ceil(response.data.User_Count.Students / limit);
                 setStudents(studentData);
                 setFilteredStudents(studentData);
-                setNumberofpages(totalPages);
-
+                updatePagination(studentData);
             } catch (error) {
                 console.error("Error fetching students:", error);
             }
@@ -36,13 +35,27 @@ const StudentList = () => {
 
     }, [limit, page]);
 
-    // useEffect(() => {
-    //     const startIndex = (page - 1) * limit;
-    //     const endIndex = startIndex + limit;
-    //     const paginatedStudents = students.slice(startIndex, endIndex);
-    //     setFilteredStudents(paginatedStudents);
-    // }, [page, students, limit]);
-     
+    const updatePagination = (data) => {
+        const totalPages = Math.ceil(data.length/limit);
+        setNumberofpages(totalPages);
+    };
+
+    useEffect(() => {
+        const filterStudents = () => {
+            const filtered = students.filter(student =>
+                selectedDepartment ? student.department === selectedDepartment : true
+            );
+            if (filtered.length !== filteredStudents.length) {
+                setFilteredStudents(filtered);
+                updatePagination(filtered);
+            }
+        };
+
+        const debounceFilter = setTimeout(() => filterStudents(), 300);
+
+        return () => clearTimeout(debounceFilter);
+    }, [selectedDepartment, students]);
+
     const toggleFilter = () => {
         setShowFilter(!showFilter);
     };
@@ -70,11 +83,6 @@ const StudentList = () => {
     };
     const handleFilterChange = (department) => {
         setSelectedDepartment(department);
-        const filtered = students.filter(student =>
-            department ? student.department === department : true
-        );
-        setFilteredStudents(filtered);
-        
     };
 
     const openModal = () => setIsModalOpen(true);
@@ -145,7 +153,7 @@ const StudentList = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {students.slice((page - 1) * limit, page * limit).map((student, index) => (
+                            {filteredStudents.slice((page - 1) * limit, page * limit).map((student, index) => (
                                 <tr key={student.user_id} className="hover:bg-gray-50">
                                     <td className='py-4 px-5'>{index + 1}</td>
                                     <td className="py-4">{student.name}</td>
