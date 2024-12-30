@@ -14,26 +14,35 @@ const StudentList = () => {
     const [numberofpages, setNumberofpages] = useState(14);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(30);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Fetch data from API
     useEffect(() => {
         const fetchStudents = async () => {
             try {
-                const response = await axios.get(`/api/users?page=${page}&limit=${limit}&role=Student`);
+                const response = await axios.get(`/api/users?role=Student`);
                 // Filter only students
                 const studentData = response.data.users;
                 const totalPages = Math.ceil(response.data.User_Count.Students / limit);
                 setStudents(studentData);
                 setFilteredStudents(studentData);
                 setNumberofpages(totalPages);
-                
+
             } catch (error) {
                 console.error("Error fetching students:", error);
             }
         };
         fetchStudents();
+
     }, [limit, page]);
 
+    // useEffect(() => {
+    //     const startIndex = (page - 1) * limit;
+    //     const endIndex = startIndex + limit;
+    //     const paginatedStudents = students.slice(startIndex, endIndex);
+    //     setFilteredStudents(paginatedStudents);
+    // }, [page, students, limit]);
+     
     const toggleFilter = () => {
         setShowFilter(!showFilter);
     };
@@ -65,10 +74,14 @@ const StudentList = () => {
             department ? student.department === department : true
         );
         setFilteredStudents(filtered);
+        
     };
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+
+    const openEditModal = () => setIsEditModalOpen(true);
+    const closeEditModal = () => setIsEditModalOpen(false);
 
     return (
         <div className='flex h-screen'>
@@ -132,7 +145,7 @@ const StudentList = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredStudents.map((student, index) => (
+                            {students.slice((page - 1) * limit, page * limit).map((student, index) => (
                                 <tr key={student.user_id} className="hover:bg-gray-50">
                                     <td className='py-4 px-5'>{index + 1}</td>
                                     <td className="py-4">{student.name}</td>
@@ -160,15 +173,15 @@ const StudentList = () => {
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z" fill="black" />
                         </svg>
                         <div className="flex">
-                        {getPageNumbers().map((p) => (
-                <div
-                    key={p}
-                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? 'bg-blue-300 rounded-md' : 'bg-white'}`}
-                    onClick={() => setPage(p)}
-                >
-                    {p}
-                </div>
-            ))}
+                            {getPageNumbers().map((p) => (
+                                <div
+                                    key={p}
+                                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? 'bg-blue-300 rounded-md' : 'bg-white'}`}
+                                    onClick={() => setPage(p)}
+                                >
+                                    {p}
+                                </div>
+                            ))}
                         </div>
                         <svg onClick={handleNextPage} xmlns="http://www.w3.org/2000/svg" width="12" height="24" viewBox="0 0 12 24" fill="none">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z" fill="black" />
