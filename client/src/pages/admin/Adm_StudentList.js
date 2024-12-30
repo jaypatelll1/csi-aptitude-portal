@@ -30,7 +30,7 @@ const StudentList = () => {
             }
         };
         fetchStudents();
-    }, [limit, page]);
+    }, [limit]);
 
     useEffect(() => {
         const filtered = students.filter(student =>
@@ -41,10 +41,6 @@ const StudentList = () => {
         const totalPages = Math.ceil(filtered.length / limit);
         setNumberofpages(totalPages);
         
-        // Reset to page 1 when filter changes
-        // if (selectedDepartment !== undefined) {
-        //     setPage(1);
-        // }
     }, [selectedDepartment, students, limit]);
 
 
@@ -136,18 +132,20 @@ const StudentList = () => {
                     <table className="min-w-full leading-normal">
                         <thead>
                             <tr className="text-left text-gray-600 uppercase text-sm border-t border-gray-300">
-                                <th className="py-3"></th>
-                                <th className="py-3">Name</th>
-                                <th className="py-3">Email</th>
-                                <th className="py-3">Mobile</th>
-                                <th className="py-3">Department</th>
-                                <th className="py-3 text-center">Edit</th>
+                                {/* <th className="py-3"></th> */}
+                                <th className="py-4">User ID</th>
+                                <th className="py-4">Name</th>
+                                <th className="py-4">Email</th>
+                                <th className="py-4">Mobile</th>
+                                <th className="py-4">Department</th>
+                                <th className="py-4 text-center">Edit</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredStudents.slice((page - 1) * limit, page * limit).map((student, index) => (
                                 <tr key={student.user_id} className="hover:bg-gray-50">
-                                    <td className='py-4 px-5'>{index + 1}</td>
+                                    {/* <td className='py-4 px-5 text-blue-700 font-bold'>{index + 1}</td> */}
+                                    <td className="py-4">{student.user_id}</td>
                                     <td className="py-4">{student.name}</td>
                                     <td className="py-4">{student.email}</td>
                                     <td className="py-4">{student.phone || "N/A"}</td>

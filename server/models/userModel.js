@@ -47,6 +47,8 @@ const getAllStudents = async (role) => {
   const query =
     'SELECT user_id, name, email, role, year, department, rollno, phone FROM users where role = $1';
   const result = await pool.query(query, [role]);
+  console.log('Result:', result.rows);
+  result.rows.sort((a, b) => a.user_id - b.user_id);
   return result.rows;
 };
 
@@ -55,20 +57,21 @@ const updateUser = async (
   id,
   name,
   email,
-  hashedPassword,
   year,
   department,
-  rollno
+  rollno,
+  phone
 ) => {
   try {
-    const query = `UPDATE users SET name=$1, email=$2, password_hash=$3 , year=$4 , department=$5 , rollno=$6 WHERE user_id=$7 RETURNING *`;
+    console.log('Update parameters:', { id, name, email, year, department, rollno, phone });
+    const query = `UPDATE users SET name=$1, email=$2 , year=$3 , department=$4 , rollno=$5, phone=$6 WHERE user_id=$7   RETURNING *`;
     const result = await pool.query(query, [
       name,
       email,
-      hashedPassword,
       year,
       department,
       rollno,
+      phone,
       id,
     ]);
     return result.rows[0];

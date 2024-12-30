@@ -146,15 +146,13 @@ const loginUser = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno, phone } =
+  const { name, email, year, department, rollno, phone } =
     req.body;
-  const id = req.param.user_id;
-
+  const id = req.params.user_id;
+  console.log('ID', { id });
   if (
     !name ||
     !email ||
-    !password ||
-    !role ||
     !year ||
     !department ||
     !rollno ||
@@ -162,12 +160,10 @@ const updateUser = async (req, res) => {
   )
     return res.status(400).json({ error: 'All fields are required' });
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
     const updatedUser = await userModel.updateUser(
       id,
       name,
       email,
-      hashedPassword,
       year,
       department,
       rollno,
@@ -180,6 +176,7 @@ const updateUser = async (req, res) => {
       status: 'success',
       details: 'User details updated successfully',
     });
+    console.log(updatedUser);
     return res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
@@ -262,5 +259,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
-  
+
 };
