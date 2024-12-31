@@ -21,6 +21,7 @@ const StudentList = () => {
 
 
     const handleSearch = (e) => {
+        setPage(1);
         const term = e.target.value;
         setSearchTerm(term);
 
