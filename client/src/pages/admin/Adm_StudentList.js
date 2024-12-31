@@ -3,7 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from '../../components/admin/Adm_Filter';
 import AddStudent from '../../components/admin/Adm_AddStudent';
-
+import searchIcon from '../../assets/studentlist/Search.svg';
 
 const StudentList = () => {
     const [showFilter, setShowFilter] = useState(false);
@@ -15,8 +15,30 @@ const StudentList = () => {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(50);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    
+    const handleSearch = (e) => {
+        const term = e.target.value;
+        setSearchTerm(term);
+
+        if (term) {
+            const searchResults = students.filter(student =>
+                student.name.toLowerCase().includes(term.toLowerCase()) ||
+                student.email.toLowerCase().includes(term.toLowerCase()) ||
+                student.department?.toLowerCase().includes(term.toLowerCase()) ||
+                student.phone?.toString().includes(term) ||
+                student.user_id.toString().includes(term)
+            );
+            setFilteredStudents(searchResults);
+        } else {
+            // If search term is empty, show all students (with department filter if active)
+            const filtered = students.filter(student =>
+                selectedDepartment ? student.department === selectedDepartment : true
+            );
+            setFilteredStudents(filtered);
+        }
+    }
+
 
     // Fetch data from API
     useEffect(() => {
@@ -33,15 +55,28 @@ const StudentList = () => {
     }, [limit]);
 
     useEffect(() => {
-        const filtered = students.filter(student =>
-            selectedDepartment ? student.department === selectedDepartment : true
-        );
-        
+        let filtered = students;
+
+        // Apply department filter
+        if (selectedDepartment) {
+            filtered = filtered.filter(student => student.department === selectedDepartment);
+        }
+
+        // Apply search filter
+        if (searchTerm) {
+            filtered = filtered.filter(student =>
+                student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                student.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                student.phone?.toString().includes(searchTerm) ||
+                student.user_id.toString().includes(searchTerm)
+            );
+        }
+
         setFilteredStudents(filtered);
         const totalPages = Math.ceil(filtered.length / limit);
         setNumberofpages(totalPages);
-        
-    }, [selectedDepartment, students, limit]);
+    }, [selectedDepartment, students, limit, searchTerm]);
 
 
     const toggleFilter = () => {
@@ -110,20 +145,37 @@ const StudentList = () => {
                     <div id="headerBar" className="flex justify-between items-center w-full mb-5">
                         <h1 className='text-black font-roboto text-[22px] font-semibold leading-normal'>Students List</h1>
                         <div className='flex ml-auto'>
-                            <div id="searchBar" className='w-52 h-7 border border-gray-300 rounded-sm flex items-center justify-left pl-5 mr-6'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
-                                    <path d="..." stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <h1 className='ml-1 text-md'>Search</h1>
+                            <div className="w-full max-w-md">
+                                <div className="relative flex items-center mr-5 ">
+                                    <input
+                                        type="text"
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                        className="w-full pl-10 h-7 text-sm border border-gray-300  rounded-sm"
+                                    />
+                                    <svg
+                                        className="absolute left-3 text-gray-400"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <circle cx="11" cy="11" r="8" />
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                    </svg>
+                                    
+                                </div>
                             </div>
                             <div className='relative'>
                                 <div id="filterButton"
                                     onClick={toggleFilter}
-                                    className='cursor-pointer w-20 h-7 border border-gray-300 rounded-sm flex items-center justify-center'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
-                                        <path d="..." stroke="#0A0A0A" strokeLinecap="round" strokeLinejoin="round" />
+                                    className='cursor-pointer w-20 h-7 border border-gray-300 rounded-sm flex items-center justify-center text-center hover:bg-gray-100'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 20 24" fill="none" className="mb-1 w-5 h-5">
+                                        <path d="M16.3333 8.33333C16.3333 7.86667 16.3333 7.63333 16.2417 7.455C16.162 7.29833 16.0348 7.17087 15.8783 7.09083C15.7 7 15.4667 7 15 7H4.33333C3.86667 7 3.63333 7 3.455 7.09083C3.29821 7.17073 3.17073 7.29821 3.09083 7.455C3 7.63333 3 7.86667 3 8.33333V8.9475C3 9.15167 3 9.25333 3.02333 9.34917C3.04374 9.43448 3.07749 9.51604 3.12333 9.59083C3.17417 9.67417 3.24667 9.74667 3.39 9.89083L7.60917 14.1092C7.75333 14.2533 7.82583 14.3258 7.87667 14.4092C7.92278 14.4847 7.95611 14.5653 7.97667 14.6508C8 14.7458 8 14.8467 8 15.0458V19.0092C8 19.7233 8 20.0808 8.15 20.2958C8.21508 20.3888 8.29847 20.4675 8.39505 20.5271C8.49163 20.5868 8.59937 20.626 8.71167 20.6425C8.97083 20.6808 9.29083 20.5217 9.92917 20.2017L10.5958 19.8683C10.8642 19.735 10.9975 19.6683 11.095 19.5683C11.1815 19.48 11.2472 19.3735 11.2875 19.2567C11.3333 19.125 11.3333 18.975 11.3333 18.6758V15.0525C11.3333 14.8483 11.3333 14.7467 11.3567 14.6508C11.3771 14.5655 11.4108 14.484 11.4567 14.4092C11.5067 14.3258 11.5792 14.2542 11.7208 14.1125L11.7242 14.1092L15.9433 9.89083C16.0867 9.74667 16.1583 9.67417 16.21 9.59083C16.2561 9.51528 16.2894 9.43472 16.31 9.34917C16.3333 9.255 16.3333 9.15333 16.3333 8.95417V8.33333Z" stroke="#787676" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
-                                    <h1 className='ml-1 text-md'>Filter</h1>
+                                    <h1 className='ml-1 text-sm text-gray-500'>Filter</h1>
                                 </div>
                                 {showFilter && <Filter toggleFilter={toggleFilter} handleFilter={handleFilterChange} />}
                             </div>
