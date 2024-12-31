@@ -185,12 +185,12 @@ const StudentList = () => {
                         <thead>
                             <tr className="text-left text-gray-600 uppercase text-sm border-t border-gray-300">
                                 {/* <th className="py-3"></th> */}
-                                <th className="py-4">User ID</th>
-                                <th className="py-4">Name</th>
-                                <th className="py-4">Email</th>
-                                <th className="py-4">Mobile</th>
-                                <th className="py-4">Department</th>
-                                <th className="py-4 text-center">Edit</th>
+                                <th className="py-4 w-1/8  ">User ID</th>
+                                <th className="py-4 w-1/5">Name</th>
+                                <th className="py-4 w-1/4">Email</th>
+                                <th className="py-4 w-1/5">Mobile</th>
+                                <th className="py-4 w-1/8">Department</th>
+                                <th className="py-4  w-1/8 text-center">Edit</th>
                             </tr>
                         </thead>
                         <tbody>
