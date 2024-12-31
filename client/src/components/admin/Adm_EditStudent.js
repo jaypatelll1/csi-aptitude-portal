@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const EditStudent = ({ closeEditModal, student
+const EditStudent = ({ closeEditModal, student, counter
 }) => {
 
 
@@ -51,6 +51,7 @@ const EditStudent = ({ closeEditModal, student
             const response = await axios.delete(`/api/users/delete/${user_id}`);
             console.log("Student deleted successfully:", response.data);
             alert("Student deleted successfully!");
+            counter();
             closeEditModal(); // Close modal after successful registration
         } catch (error) {
             console.error("Error deleting student:", error);

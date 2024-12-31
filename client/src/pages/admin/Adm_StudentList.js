@@ -18,7 +18,11 @@ const StudentList = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStudent, setSelectedStudent] = useState(null);
+    const [deletedUsers, setDeletedUsers] = useState(1);
 
+    const deletedUsersCounter = () => {
+        setDeletedUsers(deletedUsers + 1);
+    }
 
     const handleSearch = (e) => {
         setPage(1);
@@ -56,7 +60,7 @@ const StudentList = () => {
             }
         };
         fetchStudents();
-    }, [limit]);
+    }, [limit,deletedUsers]);
 
     useEffect(() => {
         let filtered = students;
@@ -258,7 +262,7 @@ const StudentList = () => {
             {isEditModalOpen && (
                                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
 
-                <EditStudent isEditModalOpen={isEditModalOpen} closeEditModal={closeEditModal} student={selectedStudent}/></div>)}
+                <EditStudent isEditModalOpen={isEditModalOpen} closeEditModal={closeEditModal} student={selectedStudent} counter={deletedUsersCounter}/></div>)}
             </div>
         </div>
     );
