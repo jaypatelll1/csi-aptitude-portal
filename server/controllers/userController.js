@@ -186,8 +186,9 @@ const updateUser = async (req, res) => {
 
 // Function to delete a user
 const deleteUser = async (req, res) => {
-  const id = req.param.user_id;
+  const id = req.params.user_id;
   try {
+    console.log('Delete user id:', id);
     const deletedUser = await userModel.deleteUser(id);
     await logActivity({
       user_id: id,

@@ -1,31 +1,29 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const EditStudent = ({ closeEditModal , student
+const EditStudent = ({ closeEditModal, student
 }) => {
-    
-    const getStudent = async () => {
-        try {
-            
-        } catch (error) {
-            console.error("Error fetching student data:", error);
-        }
-    }
-    
-    
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [mobile, setMobile] = useState("");
-    const [department, setDepartment] = useState('INFT');
-    const [year, setYear] = useState('FE');
-    const [rollno, setRollno] = useState();
-    const [claass, setClaass] = useState("");
+
+
+    const firstname = student.name.split(" ")[0];
+    const lastname = student.name.split(" ")[1];
+
+    const user_id = student.user_id;
+    console.log("Student ID:", user_id);
+
+
+    const [firstName, setFirstName] = useState(firstname);
+    const [lastName, setLastName] = useState(lastname);
+    const [email, setEmail] = useState(student.email);
+    const [mobile, setMobile] = useState(student.phone);
+    const [department, setDepartment] = useState(student.department);
+    const [year, setYear] = useState(student.year);
+    const [rollno, setRollno] = useState(student.rollno);
+    const [claass, setClaass] = useState(student.class);
 
 
 
     const handleSaveStudent = async () => {
-        const password = generatePassword();
 
         const newStudent = {
             name: `${firstName} ${lastName}`,
@@ -38,15 +36,27 @@ const EditStudent = ({ closeEditModal , student
         };
 
         try {
-            const response = await axios.post("/api/users/register", newStudent);
+            const response = await axios.put('/api/users/update/${user_id}', newStudent);
             console.log("Student registered successfully:", response.data);
             alert("Student registered successfully!");
-            closeModal(); // Close modal after successful registration
+            closeEditModal(); // Close modal after successful registration
         } catch (error) {
             console.error("Error registering student:", error);
             alert("Failed to register student. Please try again.");
         }
     };
+
+    const handleDelete = async (user_id) => {
+        try {
+            const response = await axios.delete(`/api/users/delete/${user_id}`);
+            console.log("Student deleted successfully:", response.data);
+            alert("Student deleted successfully!");
+            closeEditModal(); // Close modal after successful registration
+        } catch (error) {
+            console.error("Error deleting student:", error);
+            alert("Failed to delete student. Please try again.");
+        }
+    }
     return (
         <div className="bg-white rounded-lg border w-[554px] px-6 py-6 mb-10 ml-10">
             <h1 className="text-xl font-medium">Add Student</h1>
@@ -136,20 +146,31 @@ const EditStudent = ({ closeEditModal , student
                 </div>
             </div>
 
-
-            <div className="flex justify-between">
+            <hr className="my-4 border-black" />
+            <div className="flex justify-between mt-7">
                 <button
-                    onClick={closeEditModal}
-                    className="h-10 px-6 border border-gray-400 rounded-lg"
+                    onClick={() => handleDelete(user_id)}
+                    className="h-10 px-2 bg-red-200 text-[#E94A47] font-bold rounded-lg flex items-center text-center"
                 >
-                    Cancel
+                    <svg xmlns="http://www.w3.org/2000/svg"  width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z" fill="#E94A47" />
+                    </svg>
+                    
                 </button>
-                <button
-                    onClick={handleSaveStudent}
-                    className="h-10 px-6 bg-purple-200 text-purple-700 rounded-lg"
-                >
-                    Save Student
-                </button>
+                <div>
+                    <button
+                        onClick={closeEditModal}
+                        className="h-10 px-6 border border-gray-400 rounded-lg mr-5"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSaveStudent}
+                        className="h-10 px-6 bg-purple-200 text-purple-700 rounded-lg"
+                    >
+                        Save
+                    </button>
+                </div>
             </div>
         </div>
     );
