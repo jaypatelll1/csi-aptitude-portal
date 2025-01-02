@@ -1,6 +1,18 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 
-const Stu_TestCard = ({ testName, questionCount, duration, lastDate, status = "Recent test" }) => {
+const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId,status = "Recent test" }) => {
+
+  const navigate = useNavigate();
+  // console.log('test exam id is ', examId);
+  
+
+ const  handleChange = async () => {
+   navigate("/test-instruction" ,{state :{examId : examId ,Duration :duration}})
+    
+ }
+ 
+
   return (
     <div className="border rounded-lg shadow-md p-3  max-w-lg relative">
       <div className="flex justify-between items-center mb-4">
@@ -36,7 +48,7 @@ const Stu_TestCard = ({ testName, questionCount, duration, lastDate, status = "R
         <h1 className='font-medium text-sm ml-2'>{duration}</h1>
       </div>
 
-      <button className="bg-blue-700 font-semibold text-white text-sm px-4 py-2 rounded-md shadow hover:bg-blue-800 absolute bottom-3 right-3">
+      <button className="bg-blue-700 font-semibold text-white text-sm px-4 py-2 rounded-md shadow hover:bg-blue-800 absolute bottom-3 right-3" onClick={(e)=>{handleChange(e)}}>
         Start Test
       </button>
     </div>

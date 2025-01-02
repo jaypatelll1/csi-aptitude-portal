@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false); // For loading state
+  const [showPassword, setShowPassword] = useState(false); // For showing/hiding password
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -33,13 +34,14 @@ const Login = () => {
 
       if (response.data.message === 'Login Successful') {
         const userData = response.data.result;
-        
-        dispatch(setUser(userData)); 
+        console.log(userData);
+
+        dispatch(setUser(userData));
 
         if (userData.role === 'Student') {
-          navigate('/home'); 
+          navigate('/home', { state: { userData: response.data.result } });
         } else if (userData.role === 'TPO') {
-          navigate('/admin'); 
+          navigate('/admin');
         } else {
           setError('Unauthorized role');
         }
@@ -55,15 +57,9 @@ const Login = () => {
 
   return (
     <div className="flex h-screen flex-col md:flex-row">
-      <div className="w-full md:w-1/3 relative flex flex-col items-center p-6 bg-blue-500">
+      <div className="w-full md:w-1/3 relative flex flex-col items-center p-6 bg-gradient-to-br from-[#0E2A47] to-[#04448D]">
         {/* SVG Background */}
-        <div className="absolute inset-0">
-          <img
-            src={gradient}
-            alt="Gradient Background"
-            className="w-full h-full object-cover"
-          />
-        </div>
+        
 
         <div className="relative z-10 flex flex-col items-center w-full max-w-xs text-center text-white">
           {/* Header Text */}
@@ -87,20 +83,24 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-white text-gray-800 rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white text-gray-800 rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              />
-              <div className="text-right">
-                <a
-                  href="#"
-                  className="text-sm text-blue-200 hover:text-white transition underline cursor-pointer"
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-white text-gray-800 rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-500"
                 >
-                  Forgot password?
-                </a>
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              <div className="text-right">
+               
               </div>
               <button
                 type="submit"
