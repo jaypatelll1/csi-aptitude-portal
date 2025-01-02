@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import axios from 'axios';
 import { setUser } from '../redux/userSlice'; // Import the setUser action
 import doodle from '../assets/sidebar/doodle.svg';
@@ -35,15 +36,21 @@ const Login = () => {
       if (response.data.message === 'Login Successful') {
         const userData = response.data.result;
         console.log(userData);
-
         dispatch(setUser(userData));
 
-        if (userData.role === 'Student') {
-          navigate('/home', { state: { userData: response.data.result } });
-        } else if (userData.role === 'TPO') {
-          navigate('/admin');
+        if (userData.status === 'NOTACTIVE') {
+          // Cookies.set('resetToken', response.data.resetToken); // Store the reset token in cookies
+          navigate('/reset-password'); // Redirect to reset password screen
+        } else if (userData.status === 'ACTIVE') {
+          if (userData.role === 'Student') {
+            navigate('/home', { state: { userData: response.data.result } }); 
+          } else if (userData.role === 'TPO') {
+            navigate('/admin'); 
+          } else {
+            setError('Unauthorized role');
+          }
         } else {
-          setError('Unauthorized role');
+          setError('Unexpected status');
         }
       } else {
         setError('Invalid login credentials');
