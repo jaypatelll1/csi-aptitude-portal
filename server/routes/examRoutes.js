@@ -10,7 +10,8 @@ const {
   getPaginatedPublishedExams,
   getPaginatedPastExams,
   publishExam,
-  markPastExam
+  markPastExam,
+  getPaginatedlive
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
@@ -23,6 +24,7 @@ router.get('/',jwtAuthMiddleware, getAllPaginatedExams); // Pagination
 router.get('/drafts', jwtAuthMiddleware,authorizeRoles, getPaginatedDraftededExams)
 router.get('/published', jwtAuthMiddleware, getPaginatedPublishedExams);
 router.get('/past', jwtAuthMiddleware, getPaginatedPastExams);
+router.get('/live',jwtAuthMiddleware, getPaginatedlive);
 router.get('/find/:exam_id',jwtAuthMiddleware, getExamById);
 
 router.put('/:exam_id',jwtAuthMiddleware, authorizeRoles, updateExam);

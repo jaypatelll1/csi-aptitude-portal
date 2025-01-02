@@ -18,6 +18,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const generateToken = require('../utils/token');
 const { logActivity } = require('../utils/logger');
+const {hashPassword} = require("../utils/hashUtil")
 
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
@@ -146,41 +147,44 @@ const loginUser = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno, phone } =
-    req.body;
-  const id = req.param.user_id;
+  const { name, email, password, role, year, department, rollno, phone } = req.body;
+  const id = req.params.user_id;
 
-  if (
-    !name ||
-    !email ||
-    !password ||
-    !role ||
-    !year ||
-    !department ||
-    !rollno ||
-    !phone
-  )
-    return res.status(400).json({ error: 'All fields are required' });
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const updatedUser = await userModel.updateUser(
-      id,
-      name,
-      email,
-      hashedPassword,
-      year,
-      department,
-      rollno,
-      phone
-    );
+    // Initialize an object to store fields that need updating
+    const updatedFields = {};
 
+    // Only include fields that were provided in the request
+    if (name) updatedFields.name = name;
+    if (email) updatedFields.email = email;
+    if (password) {
+      updatedFields.password_hash = await hashPassword(password);  // Hash password if provided
+    }
+    if (role) updatedFields.role = role;
+    if (year) updatedFields.year = year;
+    if (department) updatedFields.department = department;
+    if (rollno) updatedFields.rollno = rollno;
+    if (phone) updatedFields.phone = phone;  // Only update phone if provided
+
+    // If no fields are provided, return an error
+    if (Object.keys(updatedFields).length === 0) {
+      return res.status(400).json({ error: "No fields provided to update" });
+    }
+
+    // Update the user in the database with the changed fields
+    const updatedUser = await userModel.updateUser(id, updatedFields);
+
+    // Log the activity for user update
     await logActivity({
       user_id: id,
       activity: 'Update user details',
       status: 'success',
       details: 'User details updated successfully',
     });
+
+    // Return the updated user data
     return res.status(200).json(updatedUser);
+
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal server error' });
@@ -189,7 +193,7 @@ const updateUser = async (req, res) => {
 
 // Function to delete a user
 const deleteUser = async (req, res) => {
-  const id = req.param.user_id;
+  const id = req.params.user_id;
   try {
     const deletedUser = await userModel.deleteUser(id);
     await logActivity({

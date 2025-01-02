@@ -49,34 +49,16 @@ const getAllStudents = async (role) => {
   const result = await pool.query(query, [role]);
   return result.rows;
 };
+// Function to update a user
 
-// Function to update detalis of a user
-const updateUser = async (
-  id,
-  name,
-  email,
-  hashedPassword,
-  year,
-  department,
-  rollno
-) => {
-  try {
-    const query = `UPDATE users SET name=$1, email=$2, password_hash=$3 , year=$4 , department=$5 , rollno=$6 WHERE user_id=$7 RETURNING *`;
-    const result = await pool.query(query, [
-      name,
-      email,
-      hashedPassword,
-      year,
-      department,
-      rollno,
-      id,
-    ]);
-    return result.rows[0];
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
+const updateUser = async (id, updatedFields) => {
+  const query = `UPDATE users SET ${Object.keys(updatedFields).map((key, index) => `${key} = $${index + 1}`).join(', ')} WHERE user_id = $${Object.keys(updatedFields).length + 1} RETURNING *`;
+  const values = [...Object.values(updatedFields), id];
+
+  const result = await pool.query(query, values);
+  return result.rows[0]; // Return the updated user
 };
+
 
 // Function to delete a user
 const deleteUser = async (id) => {
