@@ -4,18 +4,15 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar compone
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard"; // Drafted Test Card component
 
 const Adm_DraftTest = () => {
-  const [tests, setTests] = useState([]); // State to store fetched drafted tests
-  const [loading, setLoading] = useState(true); // State to track loading status
-  const [error, setError] = useState(null); // State to track errors
-
-  // Fetch drafted tests from the API
+  const [tests, setTests] = useState([]); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
   useEffect(() => {
     const fetchDraftedTests = async () => {
       try {
         setLoading(true); // Set loading to true before fetching
         setError(null); // Clear any existing errors
 
-        // Fetch data from the API
         const response = await axios.get(
           "/api/exams/drafts",
           {

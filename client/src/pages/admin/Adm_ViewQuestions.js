@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Adm_ViewQuestionCard from "../../components/admin/Adm_ViewQuestionCard";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
+import Adm_DataTime from "../../components/admin/Adm_DataTime";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
 const Adm_ViewQuestions = () => {
-  const [questions, setQuestions] = useState([]); // Initialize as an empty array
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const examId = useSelector((state) => state.exam.examId); // Redux state for exam ID
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isScheduleModalOpen, setScheduleModalOpen] = useState(false); // State for modal
+  const examId = useSelector((state) => state.exam.examId);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +48,14 @@ const Adm_ViewQuestions = () => {
 
   const handleGoBack = () => {
     navigate(-1); // Navigate back
+  };
+
+  const handleSchedulePost = () => {
+    setScheduleModalOpen(true); // Open the modal
+  };
+
+  const closeScheduleModal = () => {
+    setScheduleModalOpen(false); // Close the modal
   };
 
   return (
@@ -85,7 +95,10 @@ const Adm_ViewQuestions = () => {
             <button className="bg-white border border-gray-300 text-gray-700 font-thin py-2 px-4 rounded-lg hover:bg-gray-100">
               Save as Draft
             </button>
-            <button className="bg-white border border-gray-300 text-gray-700 font-thin py-2 px-4 rounded-lg hover:bg-gray-100">
+            <button
+              onClick={handleSchedulePost}
+              className="bg-white border border-gray-300 text-gray-700 font-thin py-2 px-4 rounded-lg hover:bg-gray-100"
+            >
               Schedule Post
             </button>
             <button className="bg-[#533FCC] text-white font-thin py-2 px-6 rounded-lg hover:bg-[#412eb5]">
@@ -101,19 +114,28 @@ const Adm_ViewQuestions = () => {
           ) : error ? (
             <p className="text-red-500">{error}</p>
           ) : (
-            questions.map((question, index,options) => (
+            questions.map((question, index) => (
               <Adm_ViewQuestionCard
                 key={question.question_id}
                 id={question.question_id}
                 index={index}
                 text={question.question_text}
                 updateText={updateQuestionText}
-                options = {question.options} // Pass update function to child
+                options={question.options} // Pass update function to child
               />
             ))
           )}
         </div>
       </div>
+
+      {/* Modal for Schedule Test */}
+      {isScheduleModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <Adm_DataTime
+              onCancel={closeScheduleModal} // Pass the close function as a prop
+            />
+          </div>
+      )}
     </div>
   );
 };
