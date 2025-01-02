@@ -18,7 +18,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logger');
-const {hashPassword} = require("../utils/hashUtil")
+const { hashPassword } = require('../utils/hashUtil');
 
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
@@ -54,7 +54,7 @@ const registerUser = async (req, res) => {
       year,
       department,
       rollno,
-      phone,
+      phone
     );
 
     if (newUser) {
@@ -156,7 +156,7 @@ const loginUser = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  const  newPassword  = req.password.password;
+  const newPassword = req.password.password;
 
   if (!req.id) {
     return res.status(400).json({ error: 'User ID is required' });
@@ -165,9 +165,12 @@ const resetPassword = async (req, res) => {
   try {
     // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
-    
+
     // Update the user password using the `updateUser` model
-    const updatedUser = await userModel.updateUser(req.id, { password_hash: hashedPassword });
+    const updatedUser = await userModel.updateUser(req.id, {
+      password_hash: hashedPassword,
+      status: 'ACTIVE',
+    });
 
     // Log the password reset activity
     await logActivity({
@@ -177,18 +180,17 @@ const resetPassword = async (req, res) => {
       details: 'Password reset successfully',
     });
 
-    res.json({ message: 'Password reset successfully'});
+    res.json({ message: 'Password reset successfully' });
   } catch (err) {
     console.error('Error resetting password:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-
-
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno, phone } = req.body;
+  const { name, email, password, role, year, department, rollno, phone } =
+    req.body;
   const id = req.params.user_id;
 
   try {
@@ -199,17 +201,17 @@ const updateUser = async (req, res) => {
     if (name) updatedFields.name = name;
     if (email) updatedFields.email = email;
     if (password) {
-      updatedFields.password_hash = await hashPassword(password);  // Hash password if provided
+      updatedFields.password_hash = await hashPassword(password); // Hash password if provided
     }
     if (role) updatedFields.role = role;
     if (year) updatedFields.year = year;
     if (department) updatedFields.department = department;
     if (rollno) updatedFields.rollno = rollno;
-    if (phone) updatedFields.phone = phone;  // Only update phone if provided
+    if (phone) updatedFields.phone = phone; // Only update phone if provided
 
     // If no fields are provided, return an error
     if (Object.keys(updatedFields).length === 0) {
-      return res.status(400).json({ error: "No fields provided to update" });
+      return res.status(400).json({ error: 'No fields provided to update' });
     }
 
     // Update the user in the database with the changed fields
@@ -225,7 +227,6 @@ const updateUser = async (req, res) => {
 
     // Return the updated user data
     return res.status(200).json(updatedUser);
-
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Internal server error' });
@@ -307,5 +308,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
-  resetPassword
+  resetPassword,
 };
