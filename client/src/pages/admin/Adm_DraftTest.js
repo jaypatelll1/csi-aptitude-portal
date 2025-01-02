@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard"; // Drafted Test Card component
@@ -8,6 +8,24 @@ const Adm_DraftTest = () => {
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
+  const sidebarRef = useRef(null);
+
+  useEffect(() => {
+    // Close the sidebar if clicked outside
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Attach event listener to the document
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Fetch drafted tests from the API
   useEffect(() => {
@@ -16,12 +34,9 @@ const Adm_DraftTest = () => {
         setLoading(true); // Set loading to true before fetching
         setError(null); // Clear any existing errors
 
-        const response = await axios.get(
-          "/api/exams/drafts",
-          {
-            withCredentials: true, 
-          }
-        );
+        const response = await axios.get("/api/exams/drafts", {
+          withCredentials: true,
+        });
 
         const fetchedTests = response.data.exams.map((exam) => ({
           title: exam.exam_name || "Untitled Exam",
@@ -47,6 +62,7 @@ const Adm_DraftTest = () => {
     <div className="min-h-screen flex">
       {/* Sidebar Section */}
       <div
+        ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
@@ -56,9 +72,7 @@ const Adm_DraftTest = () => {
 
       {/* Main Content Section */}
       <div className="flex-1 p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold">Drafted Tests</h1>
-
+        <div className="flex items-center  mb-4 sm:mb-6">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -83,6 +97,9 @@ const Adm_DraftTest = () => {
               />
             </svg>
           </button>
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+            Drafted Tests
+          </h1>
         </div>
 
         <hr className="mb-4" />
@@ -91,7 +108,7 @@ const Adm_DraftTest = () => {
         ) : error ? (
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
             {/* Map through the test data and pass each test to Adm_DraftedTestCard */}
             {tests.map((test, index) => (
               <Adm_DraftedTestCard key={index} test={test} />

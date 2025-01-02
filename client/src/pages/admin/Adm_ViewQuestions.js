@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Adm_ViewQuestionCard from "../../components/admin/Adm_ViewQuestionCard";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_DataTime from "../../components/admin/Adm_DataTime";
@@ -11,6 +11,8 @@ const Adm_ViewQuestions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isScheduleModalOpen, setScheduleModalOpen] = useState(false); // State for modal
+  const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
+  const sidebarRef = useRef(null);
   const examId = useSelector((state) => state.exam.examId);
   const navigate = useNavigate();
 
@@ -57,15 +59,65 @@ const Adm_ViewQuestions = () => {
   const closeScheduleModal = () => {
     setScheduleModalOpen(false); // Close the modal
   };
+  useEffect(() => {
+    // Close the sidebar if clicked outside
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Attach event listener to the document
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
-      <div className="w-full md:w-1/6">
+    <div className="min-h-screen flex">
+      {/* Sidebar Section */}
+      <div
+        ref={sidebarRef}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+      >
         <Adm_Sidebar />
       </div>
 
-      <div className="flex-1 p-6 bg-gray-100">
-        <h1 className="text-lg font-normal mb-6">Create Aptitude Test</h1>
+      <div className="flex-1 p-4 sm:p-6">
+        <div className="flex items-center  mb-4 sm:mb-6">
+          {/* Burger Icon Button */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="xl:hidden text-gray-800 focus:outline-none"
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={
+                  sidebarOpen
+                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
+                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                }
+              />
+            </svg>
+          </button>
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+            Create Aptitude Test
+          </h1>
+        </div>
 
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
@@ -131,10 +183,10 @@ const Adm_ViewQuestions = () => {
       {/* Modal for Schedule Test */}
       {isScheduleModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <Adm_DataTime
-              onCancel={closeScheduleModal} // Pass the close function as a prop
-            />
-          </div>
+          <Adm_DataTime
+            onCancel={closeScheduleModal} // Pass the close function as a prop
+          />
+        </div>
       )}
     </div>
   );
