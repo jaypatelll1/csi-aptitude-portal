@@ -7,11 +7,12 @@ const {
   deleteExam,
   getAllPaginatedExams,
   getPaginatedDraftededExams,
-  getPaginatedPublishedExams,
+  getPaginatedScheduledExams,
   getPaginatedPastExams,
-  publishExam,
+  scheduleExam,
   markPastExam,
-  getPaginatedlive
+  getPaginatedlive,
+  getScheduledExams
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
@@ -22,13 +23,13 @@ router.post('/',jwtAuthMiddleware, authorizeRoles, createExam);
 
 router.get('/',jwtAuthMiddleware, getAllPaginatedExams); // Pagination
 router.get('/drafts', jwtAuthMiddleware,authorizeRoles, getPaginatedDraftededExams)
-router.get('/published', jwtAuthMiddleware, getPaginatedPublishedExams);
+router.get('/scheduled', jwtAuthMiddleware, getScheduledExams);
 router.get('/past', jwtAuthMiddleware, getPaginatedPastExams);
 router.get('/live',jwtAuthMiddleware, getPaginatedlive);
 router.get('/find/:exam_id',jwtAuthMiddleware, getExamById);
 
 router.put('/:exam_id',jwtAuthMiddleware, authorizeRoles, updateExam);
-router.put('/publish/:exam_id',jwtAuthMiddleware,authorizeRoles, publishExam); // to publish an exam
+router.put('/publish/:exam_id',jwtAuthMiddleware,authorizeRoles, scheduleExam); // to publish an exam
 router.put('/past-exam/:exam_id',jwtAuthMiddleware,authorizeRoles, markPastExam); // to mark an exam as past
 
 router.delete('/:exam_id', jwtAuthMiddleware,authorizeRoles, deleteExam);

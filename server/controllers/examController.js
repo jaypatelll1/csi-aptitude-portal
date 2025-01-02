@@ -100,8 +100,6 @@ const updateExam = async (req, res) => {
   const { name, duration, start_time, end_time, status = 'draft' } = req.body;
   const created_by = req.user.id;
 
-  
-  
   if (!name || !duration || !start_time || !end_time || !created_by) {
     return res.status(400).json({ error: 'All fields are required' });
   };
@@ -138,7 +136,7 @@ const updateExam = async (req, res) => {
   });
 };
 
-const publishExam = async (req, res) => {
+const scheduleExam = async (req, res) => {
   const { exam_id } = req.params;
   const {start_time, end_time} = req.body;
   const created_by = req.user.id;
@@ -242,11 +240,50 @@ const getAllPaginatedExams = async (req, res) => {
   }
 };
 
-const getPaginatedPublishedExams = async (req, res) => {
+const getScheduledExams = async (req, res) => {
+  const user_id = req.user.id;
+  const { page, limit } = req.query;
+
+  try {
+    let exams;
+
+    if (page && limit) {
+      // Fetch paginated exams
+      exams = await examModel.getPaginatedScheduledExams(parseInt(page), parseInt(limit));
+      await logActivity({
+        user_id,
+        activity: `Viewed paginated scheduled exams`,
+        status: 'success',
+        details: `Page: ${page}, Limit: ${limit}`,
+      });
+    } else {
+      // Fetch all exams if no pagination is provided
+      exams = await examModel.getAllScheduledExams();
+      await logActivity({
+        user_id,
+        activity: `Viewed all scheduled exams`,
+        status: 'success',
+        details: `Viewed all exams without pagination`,
+      });
+    }
+
+    res.status(200).json({
+      message: "Exams retrieved successfully",
+      exams,
+      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {}),
+    });
+  } catch (error) {
+    console.error('Error retrieving exams:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+const getPaginatedScheduledExams = async (req, res) => {
   const user_id = req.user.id;
   const { page = 1, limit = 10 } = req.query;
   try {
-    const exams = await examModel.getPaginatedPublishedExams(
+    const exams = await examModel.getPaginatedScheduledExams(
       parseInt(page),
       parseInt(limit)
     );
@@ -338,10 +375,11 @@ module.exports = {
   updateExam,
   deleteExam,
   getAllPaginatedExams,
-  publishExam,
+  getScheduledExams,
+  scheduleExam,
   markPastExam,
   getPaginatedDraftededExams,
-  getPaginatedPublishedExams,
+  getPaginatedScheduledExams,
   getPaginatedPastExams,
   getPaginatedlive
 };

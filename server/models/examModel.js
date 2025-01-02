@@ -68,7 +68,13 @@ const getAllPaginatedExams = async (page, limit) => {
   return result.rows;
 };
 
-const getPaginatedPublishedExams = async (page, limit) => {
+const getAllScheduledExams = async () => {
+  const query = 'SELECT * FROM exams WHERE status = $1';
+  const result = await pool.query(query, ['scheduled']);
+  return result.rows;
+};
+
+const getPaginatedScheduledExams = async (page, limit) => {
   const query = 'SELECT * FROM exams WHERE status=$1';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['scheduled']);
@@ -109,7 +115,8 @@ module.exports = {
   deleteExam,
   getAllPaginatedExams,
   getPaginatedDraftededExams,
-  getPaginatedPublishedExams,
+  getAllScheduledExams,
+  getPaginatedScheduledExams,
   getPaginatedPastExams,
   getPaginatedLiveExams,
   scheduleExam,
