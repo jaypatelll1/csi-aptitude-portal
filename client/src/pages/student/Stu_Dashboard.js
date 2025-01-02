@@ -3,47 +3,10 @@ import MSidebar from "../../components/student/home/MSidebar";
 import Stu_TestCard from "../../components/student/home/Stu_TestCard";
 import Stu_PastTestCard from "../../components/student/home/Stu_PastTestCard";
 import Details from "../../components/student/home/Stu_Details";
+import axios  from "axios";
+import { useLocation } from 'react-router-dom';
 
-const testData = [
-  {
-    testName: "General Knowledge",
-    questionCount: 40,
-    duration: "30 min",
-    lastDate: "20 Dec 2024",
-  },
-  {
-    testName: "Science Quiz",
-    questionCount: 30,
-    duration: "20 min",
-    lastDate: "15 Jan 2025",
-  },
-  {
-    testName: "Mathematics Quiz",
-    questionCount: 25,
-    duration: "15 min",
-    lastDate: "10 Jan 2025",
-  },
-  {
-    testName: "General Knowledge",
-    questionCount: 40,
-    duration: "30 min",
-    lastDate: "20 Dec 2024",
-  },
-  {
-    testName: "Science Quiz",
-    questionCount: 30,
-    duration: "20 min",
-    lastDate: "15 Jan 2025",
-  },
-  {
-    testName: "Mathematics Quiz",
-    questionCount: 25,
-    duration: "15 min",
-    lastDate: "10 Jan 2025",
-  },
-  
 
-];
 
 const pastTests = [
   {
@@ -90,19 +53,52 @@ const pastTests = [
   },
 ];
 
-const student = {
-  Name: "Atharva Modi",
-  Email: "atharvamodi@atharvacoe.ac.in",
-  Mobile: "1234567890",
-  Branch: "Computer Engineering",
-
-}
-
 
 function StudentDashboard() {
 
+  const location = useLocation();
+  const userData = location.state?.userData;
+  // console.log('uers data is',userData );
+
+
+  
+  const [tests, setTests] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const detailsRef = useRef(null);
+
+  
+  
+
+  const fetchTests = async (filterType) => {
+    setLoading(true);
+    setError(null);
+    let url = "/api/exams/live"; // Default for "All"
+
+    if (filterType === "upcoming") {
+      url = "/api/exams/published";
+    } else if (filterType === "past") {
+      url = "/api/exams/past";
+    }
+
+    try {
+      const response = await axios.get(url);
+      
+      setTests(response.data.exams || []);
+      // console.log('test is ', tests);
+      
+    } catch (err) {
+      setError("Failed to fetch tests. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTests(filter)
+  }, [filter]);
 
 
   const openDetails = () => setIsDetailsOpen(true);
@@ -125,6 +121,11 @@ function StudentDashboard() {
     };
   }, []);
 
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value); // Update filter
+  };
+
+
   return (
     <div className="flex h-screen">
       <MSidebar />
@@ -133,11 +134,12 @@ function StudentDashboard() {
           <h1 className="text-xl font-medium text-gray-800 ml-5">Dashboard</h1>
           <div className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer" onClick={openDetails}>AM</div>
           <div ref={detailsRef}>
-          {isDetailsOpen && <Details name={student.Name} email={student.Email}  mobile={student.Mobile} branch={student.Branch} />}</div>
+          {isDetailsOpen && <Details name={userData.name} email={userData.email}  mobile={userData.phone} branch={userData.branch} />}</div>
         </div>
         <h1 className="text-blue-700 text-2xl ml-10 mt-10 font-medium">Welcome to Atharva college Aptitude Portal</h1>
         <div className="flex border-b border-gray-200 mx-10 mt-5 pb-3 items-center">
-          <select className="bg-white px-3 py-1 focus:outline-none font-medium text-black hover:cursor-pointer">
+          <select className="bg-white px-3 py-1 focus:outline-none font-medium text-black hover:cursor-pointer" value={filter}
+            onChange={handleFilterChange} >
             <option value="all">All tests</option>
             <option value="upcoming">Upcoming</option>
             <option value="past">Past</option>
@@ -145,14 +147,19 @@ function StudentDashboard() {
           <h1 className="font-semibold text-blue-700 text-xs ml-auto mr-3 hover:cursor-pointer">view all</h1>
         </div>
         <div className="grid-cols-3 gap-5 grid  mx-10 mt-5 px-5">
-          {testData.map((test, index) => (
-            <Stu_TestCard 
-            key={index}
-              testName={test.testName}
-              questionCount={test.questionCount}
-              duration={test.duration}
-              lastDate={test.lastDate} />
-          ))}
+        {tests.length > 0 ? (
+        tests.map((test, index) => (
+          <Stu_TestCard 
+            key={test.exam_id || index}  // Using exam.id if available, otherwise index
+            examId={test.exam_id }
+            testName={test.exam_name}
+            duration={test.duration}
+            lastDate={null} 
+          />
+        ))
+      ) : (
+        <p>No exams available.</p>
+      )}
         </div>
         <div className="flex border-b border-gray-200 mx-10 mt-5 pb-3 items-center">
           <h1 className="font-semibold text-black text-lg ml-3 mt-5">Analytics</h1>

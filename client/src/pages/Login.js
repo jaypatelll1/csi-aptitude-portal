@@ -6,7 +6,10 @@ import { setUser } from '../redux/userSlice'; // Import the setUser action
 import doodle from '../assets/sidebar/doodle.svg';
 import gradient from '../assets/sidebar/gradient.svg'; // New gradient SVG
 
+
 const Login = () => {
+
+ 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -37,7 +40,8 @@ const Login = () => {
         dispatch(setUser(userData)); 
 
         if (userData.role === 'Student') {
-          navigate('/home'); 
+       
+          navigate('/home',{ state: { userData: response.data.result} }); 
         } else if (userData.role === 'TPO') {
           navigate('/admin'); 
         } else {
