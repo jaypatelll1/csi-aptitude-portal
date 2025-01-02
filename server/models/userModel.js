@@ -12,6 +12,18 @@ const findUserByEmail = async (email) => {
     throw err;
   }
 };
+
+const getUserById = async (id) => {
+  try {
+    const query = 'SELECT * FROM users WHERE user_id = $1::text;';
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
+  } catch (err) {
+    console.error(err);
+    throw err;
+ }
+};
+
 // Function to create a new user
 const createUser = async (
   name,
@@ -113,5 +125,6 @@ module.exports = {
   getAllPaginatedUsers,
   getAllPaginatedRoleUsers,
   getUserCount,
-  getAllStudents
+  getAllStudents,
+  getUserById,
 };
