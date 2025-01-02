@@ -16,7 +16,7 @@
 
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
-const generateToken = require('../utils/token');
+const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logger');
 const {hashPassword} = require("../utils/hashUtil")
 
@@ -111,6 +111,7 @@ const loginUser = async (req, res) => {
     };
 
     const token = await generateToken(userData);
+    const resetToken = await generateResetToken(userData);
 
     await logActivity({
       user_id: userData.id,
@@ -124,6 +125,15 @@ const loginUser = async (req, res) => {
       sameSite: 'strict',
       secure: true,
     });
+
+    if (result.status === 'NOTACTIVE') {
+      res.cookie('resettoken', resetToken, {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: true,
+      });
+    }
+
     return res.status(200).json({
       message: 'Login Successful',
       result: {
@@ -144,6 +154,37 @@ const loginUser = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+const resetPassword = async (req, res) => {
+  const  newPassword  = req.password.password;
+
+  if (!req.id) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    // Hash the new password
+    const hashedPassword = await hashPassword(newPassword);
+    
+    // Update the user password using the `updateUser` model
+    const updatedUser = await userModel.updateUser(req.id, { password_hash: hashedPassword });
+
+    // Log the password reset activity
+    await logActivity({
+      user_id: req.id,
+      activity: 'Password reset',
+      status: 'success',
+      details: 'Password reset successfully',
+    });
+
+    res.json({ message: 'Password reset successfully'});
+  } catch (err) {
+    console.error('Error resetting password:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
 
 // Function to update details of user
 const updateUser = async (req, res) => {
@@ -266,5 +307,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
-  
+  resetPassword
 };
