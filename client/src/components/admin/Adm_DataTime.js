@@ -2,46 +2,59 @@ import React, { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 
-const DataTime = ({ onCancel }) => {
+const DataTime = ({ onCancel, onSchedule, duration }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
 
+  const calculateEndTime = (startDateTime) => {
+    const endDateTime = new Date(startDateTime);
+    endDateTime.setMinutes(endDateTime.getMinutes() + duration);
+    return endDateTime;
+  };
+
   const handleSchedule = () => {
     if (!selectedDate || !selectedTime) {
-      alert("Please select both date and time!");
+      alert("Please select both a date and a time!");
       return;
     }
-    alert(`Test scheduled on ${selectedDate.toLocaleDateString()} at ${selectedTime}`);
+  
+    const startDateTime = new Date(selectedDate);
+    const [hours, minutes] = selectedTime.split(":").map(Number);
+    startDateTime.setHours(hours, minutes);
+  
+    const endDateTime = calculateEndTime(startDateTime);
+  
+    // Trigger the callback with the start and end times
+    if (onSchedule) {
+      onSchedule(startDateTime.toISOString(), endDateTime.toISOString());
+    }
   };
+  
 
   const handleCancel = () => {
     setSelectedDate(null);
     setSelectedTime("");
 
-    // Trigger the onCancel callback if provided
     if (onCancel) {
       onCancel();
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-auto bg-gray-50">
+    <div className="flex flex-col items-center justify-center h-auto">
       <div className="bg-white p-6 rounded-lg shadow-md w-96">
         <h2 className="text-xl font-bold text-gray-800 mb-6">Schedule Test</h2>
         <div className="flex space-x-4 mb-6">
-          {/* Custom Styled Date Picker */}
-          <div className="flex-1 relative">
+          {/* Date Picker */}
+          <div className="flex-1">
             <label className="block text-gray-600 text-sm mb-2">Date</label>
-            <div className="relative">
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                className="w-full px-3 py-2 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                calendarClassName="absolute z-10 mt-1 rounded-lg shadow-lg border bg-white"
-                dateFormat="MMMM d, yyyy"
-                placeholderText="Select date"
-              />
-            </div>
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              className="w-full px-3 py-2 border rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholderText="Select a date"
+              dateFormat="MMMM d, yyyy"
+            />
           </div>
           {/* Time Input */}
           <div className="flex-1">
@@ -65,7 +78,7 @@ const DataTime = ({ onCancel }) => {
             onClick={handleSchedule}
             className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
           >
-            Schedule Test
+            Schedule
           </button>
         </div>
       </div>
