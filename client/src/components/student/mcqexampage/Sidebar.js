@@ -2,8 +2,16 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { visitQuestion } from "../../../redux/questionSlice";
 
-const Sidebar = ({ name = "Akshay Manjrekar", onSubmitTest }) => {
+const Sidebar = ({ name , onSubmitTest , limit }) => {
+
+// console.log('limit is ',limit);
+
+if(limit=== true){
+  onSubmitTest();
+}
+
   const dispatch = useDispatch();
+  
   const { questions, currentQuestionIndex } = useSelector(
     (state) => state.questions
   );
@@ -84,7 +92,8 @@ const Sidebar = ({ name = "Akshay Manjrekar", onSubmitTest }) => {
 
         <button
           className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
-          onClick={onSubmitTest}
+          onClick={(attemptedCount === total) ? onSubmitTest : null}
+          disabled={attemptedCount !== total}
         >
           Submit Test
         </button>

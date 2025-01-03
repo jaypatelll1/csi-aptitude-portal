@@ -189,9 +189,10 @@ const resetPassword = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno, phone } =
+  const { name, email, year, department, rollno, phone } =
     req.body;
   const id = req.params.user_id;
+
 
   try {
     // Initialize an object to store fields that need updating
@@ -225,7 +226,6 @@ const updateUser = async (req, res) => {
       details: 'User details updated successfully',
     });
 
-    // Return the updated user data
     return res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
@@ -237,6 +237,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   const id = req.params.user_id;
   try {
+    console.log('Delete user id:', id);
     const deletedUser = await userModel.deleteUser(id);
     await logActivity({
       user_id: id,

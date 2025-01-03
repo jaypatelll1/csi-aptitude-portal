@@ -1,36 +1,113 @@
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setExamId } from "../../redux/ExamSlice"; // Import the action
 
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
-  const [numQuestions, setNumQuestions] = useState("");
+  const [duration, setduration] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
+  const sidebarRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleCreateQuestions = (e) => {
-    e.preventDefault();
-    console.log({ testName, numQuestions });
+  const dispatch = useDispatch();
+
+  const handleCreateQuestions = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+
+    // Create the payload to send to the server
+    const payload = {
+      name: `${testName}`, // The test name
+      duration: `${duration}`, // Using duration as duration
+    };
+
+    try {
+      // Send a POST request to the server to create the test
+      const response = await axios.post("/api/exams", payload);
+      console.log("exam id is ", response.data.newExam.exam_id);
+      const examId = response.data.newExam.exam_id;
+
+      dispatch(setExamId(examId));
+      // Log success response and navigate to the input page
+      console.log("Test created successfully:", response.data);
+      navigate("/admin/input"); // Navigate to the input page after success
+    } catch (error) {
+      // Log error response if something goes wrong
+      console.error(
+        "Error creating test:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const handleCancel = () => {
     setTestName("");
-    setNumQuestions("");
+    setduration("");
   };
 
   const handleGoBack = () => {
-    navigate(-1); 
+    navigate(-1);
   };
+  useEffect(() => {
+    // Close the sidebar if clicked outside
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Attach event listener to the document
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <div className="w-1/6">
+    <div className="min-h-screen flex">
+      <div
+        ref={sidebarRef}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+      >
         <Adm_Sidebar />
       </div>
 
-      <div className="flex flex-col w-5/6 p-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Create aptitude test
-        </h2>
+      <div className="flex-1 p-4 sm:p-6">
+        <div className="flex items-center  mb-4 sm:mb-6">
+          {/* Burger Icon Button */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="xl:hidden text-gray-800 focus:outline-none"
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={
+                  sidebarOpen
+                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
+                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                }
+              />
+            </svg>
+          </button>
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+            Create Aptitude Test
+          </h1>
+        </div>
 
         <div className="flex items-center mb-6">
           <button
@@ -58,7 +135,7 @@ const CreateTestPage = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <form onSubmit={handleCreateQuestions}>
+          <form>
             <div className="mb-6">
               <label
                 htmlFor="testName"
@@ -79,18 +156,18 @@ const CreateTestPage = () => {
 
             <div className="mb-6">
               <label
-                htmlFor="numQuestions"
+                htmlFor="duration"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Number of questions
+                Duration
               </label>
               <input
                 type="number"
-                id="numQuestions"
+                id="duration"
                 placeholder="Eg. 30"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={numQuestions}
-                onChange={(e) => setNumQuestions(e.target.value)}
+                value={duration}
+                onChange={(e) => setduration(e.target.value)}
                 required
               />
             </div>
@@ -101,6 +178,7 @@ const CreateTestPage = () => {
           <button
             type="submit"
             className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            onClick={handleCreateQuestions}
           >
             Create questions
           </button>

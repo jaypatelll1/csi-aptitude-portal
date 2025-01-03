@@ -15,6 +15,7 @@ import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import StudentList from "./pages/admin/Adm_StudentList";
 import StudentDashboard from "./pages/student/Stu_Dashboard";
 import TestInstruction from "./pages/student/Stu_TestInstruction";
+import ResetPassword from "./pages/student/Stu_ResetPassword";
 
 
 // Protected Route Component
@@ -114,6 +115,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_PastTest />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          <ProtectedRoute allowedRoles={["Student"]}>
+            <ResetPassword />
           </ProtectedRoute>
         }
       />

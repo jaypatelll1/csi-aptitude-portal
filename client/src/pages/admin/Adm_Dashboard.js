@@ -1,19 +1,63 @@
-import React, { useState } from "react"; 
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
+import axios from "axios";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const tileData = [
-    { label: "Students", value: 1420 },
-    { label: "Departments", value: 5 },
-    { label: "Teachers", value: 6 },
-    { label: "Baap", value: 69 },
-  ];
+  const [tileData, setTileData] = useState([]);
+  const [activeTab, setActiveTab] = useState("drafted");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
+
+  useEffect(() => {
+    // Close the sidebar if clicked outside
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Attach event listener to the document
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [studentsRes, testsRes, lastTestRes] = await Promise.all([
+          axios.get("/api/stats/all-students"),
+          axios.get("/api/stats/all-tests"),
+          axios.get("/api/stats/last-test"),
+        ]);
+
+        const studentsCount = studentsRes.data.totalStudentsCount;
+        const liveTestsCount = testsRes.data.liveTestsCount;
+        const scheduledTestsCount = testsRes.data.scheduledTestsCount;
+        const lastTestStudentCount = lastTestRes.data.studentCount;
+
+        setTileData([
+          { label: "Live Tests", value: liveTestsCount },
+          { label: "Scheduled Tests", value: scheduledTestsCount },
+          { label: "Active Students", value: studentsCount },
+          { label: "Students in Last Exam", value: lastTestStudentCount },
+        ]);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const tests = [
     {
@@ -41,7 +85,6 @@ const Dashboard = () => {
       date: "14 Dec 2024",
     },
   ];
-
   const scheduledTests = [
     {
       title: "Data Interpretation",
@@ -50,7 +93,6 @@ const Dashboard = () => {
       date: "10 Jan 2025",
     },
   ];
-
   const pastTests = [
     {
       title: "Verbal Ability",
@@ -59,84 +101,85 @@ const Dashboard = () => {
       date: "15 Dec 2024",
     },
   ];
-
-  const [activeTab, setActiveTab] = useState("drafted"); 
-  const createTesthandler = () => {
+  const createTestHandler = () => {
     navigate("/admin/createtest");
-  }
+  };
+
   return (
-    <div
-      className="dashboard-container overflow-x-hidden" // Prevent horizontal scroll
-      style={{ display: "flex", height: "100vh" }}
-    >
+    <div className="min-h-screen flex">
       {/* Sidebar */}
-      <div className="w-full sm:w-1/6 bg-gray-100">
+      <div
+        ref={sidebarRef}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+      >
         <Adm_Sidebar />
       </div>
 
-      {/* Main content area */}
-      <div className="w-full sm:w-5/6 bg-gray-100 flex flex-col items-center relative">
-        {/* Top Heading and Create Test Button */}
-        <div className="w-full sm:w-[92%] flex justify-between items-center p-4 absolute top-0 sm:right-[4%] sm:left-[4%]">
-          {/* Heading */}
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-700 mt-4">Admin Dashboard</h1>
+      {/* Main Content */}
+      <div className="flex-1 p-4 sm:p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <button
+            className="xl:hidden text-gray-800"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={
+                  sidebarOpen
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
+                }
+              />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold text-gray-700">Admin Dashboard</h1>
 
-          {/* Create Test Button */}
-          <button onClick={createTesthandler} className="bg-blue-600 text-white py-2 px-8 rounded-lg shadow-md hover:bg-blue-700 mt-4">
+          <button
+            onClick={createTestHandler}
+            className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700"
+          >
             + Create Test
           </button>
         </div>
 
         {/* Dashboard Tiles */}
-        <div
-          className="p-6 w-full flex justify-center"
-          style={{ position: "absolute", top: "100px" }}
-        >
-          <div className="flex space-x-4 justify-center flex-wrap sm:flex-nowrap">
-            {tileData.map((item, index) => (
-              <Adm_DashboardTiles key={index} item={item} />
-            ))}
-          </div>
+        <div className="p-0 w-full flex justify-center">
+          <Adm_DashboardTiles tileData={tileData} />
         </div>
 
-        {/* Unified Tabs and Cards Section */}
-        <div className="bg-white shadow-md rounded-lg w-full sm:w-[93%] p-6 mt-[280px]">
-          {/* Tabs Section */}
-          <div className="flex justify-start space-x-8 border-b pb-4 mb-6">
-            <button
-              className={`text-lg font-semibold ${
-                activeTab === "drafted"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600"
-              }`}
-              onClick={() => setActiveTab("drafted")}
-            >
-              Drafted Tests
-            </button>
-            <button
-              className={`text-lg font-semibold ${
-                activeTab === "scheduled"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600"
-              }`}
-              onClick={() => setActiveTab("scheduled")}
-            >
-              Scheduled Tests
-            </button>
-            <button
-              className={`text-lg font-semibold ${
-                activeTab === "past"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600"
-              }`}
-              onClick={() => setActiveTab("past")}
-            >
-              Past Tests
-            </button>
+        {/* Tabs and Cards */}
+        <div className="p-4">
+          {/* Tabs */}
+          <div className="flex space-x-4 border-b pb-2">
+            {["drafted", "scheduled", "past"].map((tab) => (
+              <button
+                key={tab}
+                className={`text-lg font-semibold ${
+                  activeTab === tab
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-600"
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {`${tab.charAt(0).toUpperCase()}${tab.slice(1)} Tests`}
+              </button>
+            ))}
           </div>
 
-          {/* Cards Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+          {/* Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {activeTab === "drafted" &&
               tests.map((test, index) => (
                 <Adm_DraftedTestCard key={index} test={test} />

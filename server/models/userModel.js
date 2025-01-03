@@ -57,12 +57,12 @@ const createUser = async (
 
 const getAllStudents = async (role) => {
   const query =
-    'SELECT user_id, name, email, role, year, department, rollno FROM users where role = $1';
+    'SELECT user_id, name, email, role, year, department, rollno, phone FROM users where role = $1 ORDER BY user_id ASC';
   const result = await pool.query(query, [role]);
   return result.rows;
 };
-// Function to update a user
 
+// Function to update a user
 const updateUser = async (id, updatedFields) => {
   const query = `UPDATE users SET ${Object.keys(updatedFields).map((key, index) => `${key} = $${index + 1}`).join(', ')} WHERE user_id = $${Object.keys(updatedFields).length + 1} RETURNING *`;
   const values = [...Object.values(updatedFields), id];
@@ -74,6 +74,7 @@ const updateUser = async (id, updatedFields) => {
 
 // Function to delete a user
 const deleteUser = async (id) => {
+  console.log ('Delete user id:', id);
   try {
     const query = `DELETE FROM users WHERE user_id=$1 RETURNING *`;
     const result = await pool.query(query, [id]);

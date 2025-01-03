@@ -1,13 +1,21 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Msidebar from "../../components/student/home/MSidebar";
+import { useLocation } from 'react-router-dom';
+
 
 const TestInstruction = () => {
   const navigate = useNavigate();
 
+  const location = useLocation();
+    const examId = location.state?.examId;
+    const Duration = location.state?.Duration;
+    console.log('examId', examId)
+    console.log('duration', Duration)
+
 
   const handleStartTest = () => {
-    navigate("/exam/1");
+    navigate(`/exam/${examId}`,{state:{Duration:Duration }});
   };
 
 
@@ -31,7 +39,7 @@ const TestInstruction = () => {
                 40 MCQ’s.
               </li>
               <li>
-                <span className="font-semibold">Time allotted:</span> 30 minutes.
+                <span className="font-semibold">Time allotted:</span> {Duration} minutes
               </li>
               <li>Each question carries 1 mark; there are no negative marks.</li>
               <li>Do not refresh the page.</li>
