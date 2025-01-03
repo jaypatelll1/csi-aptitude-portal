@@ -4,6 +4,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import UploadModal from "../../upload/UploadModal";
 
 const InputQuestions = () => {
   const [question, setQuestion] = useState("");
@@ -12,9 +13,63 @@ const InputQuestions = () => {
   const [toggles, setToggles] = useState([false, false, false, false]);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
+
+
+
+  const examId = useSelector((state) => state.exam.examId);
+  console.log('examID is ',examId);
+  
+
+  // Handle file change and validate file type
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    
+    // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
+    const allowedTypes = ["application/vnd.ms-excel", "text/csv"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload a .csv or .xls file.");
+      return;
+    }
+
+    setSelectedFile(file);  // If valid, set the file
+  };
+
+  // Handle form submission (upload file)
+  const handleQuestionSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!selectedFile) {
+      alert("Please select a file to upload.");
+      return;
+    }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("questions", selectedFile); // Appending the file to formData
+
+    try {
+      const response = await axios.post(`/api/exams/${examId}/questions`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log('Response:', response.data);  // You can inspect the response
+      alert('File uploaded successfully!');  // Notify the user of success
+      setModalOpen(false); // Close modal after successful upload
+
+    } catch (error) {
+      console.error("Error uploading file:", error.response ? error.response.data : error.message);
+      alert("An error occurred while uploading the file.");
+    } finally {
+      setIsUploading(false); // Unlock the upload button after the process finishes
+    }
+  };
 
   // Safely destructure location.state, fallback to empty object if undefined
   const {
@@ -49,7 +104,7 @@ const InputQuestions = () => {
     navigate("/admin/viewquestions"); // Navigate to /admin/viewquestions page
   };
 
-  const examId = useSelector((state) => state.exam.examId);
+ 
 
   const handleAddAnswer = () => {
     if (options.length < 4) {
@@ -234,6 +289,20 @@ const InputQuestions = () => {
           <span className="text-xl text-gray-500 font-medium">
             Question 1/30
           </span>
+          <button
+        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        onClick={() => setModalOpen(true)} // Open modal
+      >
+        Upload File
+      </button>
+
+      <UploadModal
+        isOpen={isModalOpen}
+        closeModal={() => setModalOpen(false)} // Close modal
+        onFileChange={handleFileChange}
+        onSubmit={handleQuestionSubmit}
+        isUploading={isUploading} // Pass isUploading state to the modal
+      />
         </div>
 
         {/* Main Form Section */}

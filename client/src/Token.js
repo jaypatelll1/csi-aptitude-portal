@@ -10,7 +10,7 @@ const Token = () => {
 
 
     const user = useSelector(state => state.user);
-    console.log('user is ', user);
+    // console.log('user is ', user);
 
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const Token = () => {
                     "name": user.user.name,
                     "role": user.user.role
                 });
-                console.log('response is ', response.data);
+                // console.log('response is ', response.data);
 
             } catch (error) {
                 console.error('Failed to refresh token', error);
@@ -35,7 +35,7 @@ const Token = () => {
 
         // Refresh token immediately and then every 30 minutes (30 * 60 * 1000 ms)
         handleTokenRefresh();
-        const intervalId = setInterval(handleTokenRefresh, 1 * 60 * 1000); // 30 minutes
+        const intervalId = setInterval(handleTokenRefresh, 30 * 60 * 1000); // 30 minutes
 
         // Cleanup interval on component unmount
         return () => clearInterval(intervalId);

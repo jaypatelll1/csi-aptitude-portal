@@ -5,6 +5,7 @@ import Filter from "../../components/admin/Adm_Filter";
 import AddStudent from "../../components/admin/Adm_AddStudent";
 import searchIcon from "../../assets/studentlist/Search.svg";
 import EditStudent from "../../components/admin/Adm_EditStudent";
+import UploadModal from "../../upload/UploadModal";
 
 const StudentList = () => {
   const [showFilter, setShowFilter] = useState(false);
@@ -21,6 +22,59 @@ const StudentList = () => {
   const [deletedUsers, setDeletedUsers] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
+    const [ModalOpen, setModalOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+
+    //    Handle file change and validate file type
+    const handleFileChange = (event) => {
+      const file = event.target.files[0];
+
+      // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
+      const allowedTypes = [
+          "application/vnd.ms-excel", // .xls
+          "text/csv",                 // .csv
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+        ];
+      if (!allowedTypes.includes(file.type)) {
+          alert("Invalid file type. Please upload a .csv or .xls file.");
+          return;
+      }
+
+      setSelectedFile(file);  // If valid, set the file
+  };
+
+  // Handle form submission (upload file)
+  const handleUserSubmit = async (event) => {
+      event.preventDefault();
+
+      if (!selectedFile) {
+          alert("Please select a file to upload.");
+          return;
+      }
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append("Files", selectedFile); // Appending the file to formData
+
+      try {
+          const response = await axios.post(`/api/users/upload`, formData, {
+              headers: {
+                  "Content-Type": "multipart/form-data",
+              },
+          });
+
+          console.log('Response:', response.data);  // You can inspect the response
+          alert('File uploaded successfully!');  // Notify the user of success
+          setModalOpen(false); // Close modal after successful upload
+
+      } catch (error) {
+          console.error("Error uploading file:", error.response ? error.response.data : error.message);
+          alert("An error occurred while uploading the file.");
+      } finally {
+          setIsUploading(false); // Unlock the upload button after the process finishes
+      }
+  };
 
   const deletedUsersCounter = () => {
     setDeletedUsers(deletedUsers + 1);
@@ -214,9 +268,23 @@ const StudentList = () => {
           </div>
           <div className="flex ml-auto mr-9">
             <div className="bg-[#533FCC] w-32 xl:w-40 h-14 rounded-xl flex items-center justify-center mr-5 hover:bg-[#2d2170] transition-all duration-200 cursor-pointer">
-              <h1 className="text-white font-poppins text-lg font-medium leading-normal ">
-                Import Excel
-              </h1>
+              
+
+              <button
+        className="text-white font-poppins text-lg font-medium leading-normal "
+        onClick={() => setModalOpen(true)} // Open modal
+      >
+      Import Excel
+      </button>
+
+      <UploadModal
+        isOpen={ModalOpen}
+        closeModal={() => setModalOpen(false)} // Close modal
+        onFileChange={handleFileChange}
+        onSubmit={handleUserSubmit}
+        isUploading={isUploading} // Pass isUploading state to the modal
+      />
+              
             </div>
             <div
               onClick={openModal}
