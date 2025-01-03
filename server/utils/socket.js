@@ -3,6 +3,7 @@ const {
   submitResponse,
   submitFinalResponsesAndChangeStatus,
   deleteExistingResponses,
+  submittedUnansweredQuestions,
 } = require('../models/responseModel');
 
 const timers = {}; // Store timers per room
@@ -17,12 +18,13 @@ const initSocketHandlers = (io) => {
       const user_id = parseInt(socket.user.id);
       console.log(`Exam started in room ${user_id} with duration ${duration}`);
 
-      // If a new exam is starting, initialize its timer
+      // If a new user's exam is starting, initialize its timer
       if (!timers[user_id]) {
         timers[user_id] = { remainingTime: duration, interval: null };
+        await deleteExistingResponses(exam_id, user_id)
+        await submittedUnansweredQuestions(exam_id, user_id)
       }
 
-      await deleteExistingResponses(exam_id, user_id)
 
       socket.join(user_id, () => {
         console.log(`Student joined room ${user_id}`);

@@ -10,7 +10,6 @@ const deleteExistingResponses = async (exam_id, user_id) => {
   const result = await pool.query(query, values);
 };
 
-
 // Submit a response
 const submitResponse = async (
   student_id,
@@ -66,6 +65,7 @@ const submitMultipleResponses = async (responses) => {
 };
 
 // Insert 'NULL' in unanswered questions
+// Initialize all responses for an exam when a user starts an exam
 submittedUnansweredQuestions = async (exam_id, student_id) => {
   const query = `
     SELECT question_id
