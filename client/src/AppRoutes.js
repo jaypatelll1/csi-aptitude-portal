@@ -17,7 +17,7 @@ import StudentList from "./pages/admin/Adm_StudentList";
 import StudentDashboard from "./pages/student/Stu_Dashboard";
 import TestInstruction from "./pages/student/Stu_TestInstruction";
 import ResetPassword from "./pages/student/Stu_ResetPassword";
-
+import TestStudentList from "./pages/admin/Adm_TestStudentList";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -95,6 +95,13 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/teststudentlist"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <TestStudentList />
+          </ProtectedRoute>
+        } />
       <Route
         path="/drafted-tests"
         element={
