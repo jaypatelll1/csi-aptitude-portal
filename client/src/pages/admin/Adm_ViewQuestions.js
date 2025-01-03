@@ -67,6 +67,10 @@ const Adm_ViewQuestions = () => {
     setScheduleModalOpen(false);
   };
 
+  const handleSaveDraft = () => {
+    navigate("/admin");
+  };
+
   const handleScheduleTest = (startTime, endTime) => {
     if (!examId) {
       alert("Exam ID is not available.");
@@ -78,9 +82,11 @@ const Adm_ViewQuestions = () => {
         start_time: startTime,
         end_time: endTime,
       })
+
       .then(() => {
         closeScheduleModal();
-        navigate("/admin");
+        console.log(startTime, endTime);
+        
       })
       .catch((err) =>
         alert(
@@ -165,7 +171,9 @@ const Adm_ViewQuestions = () => {
           </button>
           <h2 className="text-lg font-semibold">Question Summary</h2>
           <div className="flex space-x-2">
-            <button className="bg-white border border-gray-300 text-gray-700 font-thin py-2 px-4 rounded-lg hover:bg-gray-100">
+            <button 
+            onClick={handleSaveDraft}
+            className="bg-white border border-gray-300 text-gray-700 font-thin py-2 px-4 rounded-lg hover:bg-gray-100">
               Save as Draft
             </button>
             <button

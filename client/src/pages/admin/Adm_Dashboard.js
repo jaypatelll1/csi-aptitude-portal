@@ -12,7 +12,38 @@ const Dashboard = () => {
   const [tileData, setTileData] = useState([]);
   const [activeTab, setActiveTab] = useState("drafted");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [testsData, setTestsData] = useState({
+    drafted: [],
+    scheduled: [],
+    past: [],
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
+
+  // Fetch tests data function
+  const fetchTestsData = async (endpoint, key) => {
+    try {
+      const response = await axios.get(endpoint);
+      setTestsData((prevData) => ({
+        ...prevData,
+        [key]: response.data.exams.map((exam) => ({
+          exam_id: exam.exam_id,
+          title: exam.exam_name,
+          questions: exam.questions_count || 0,
+          duration: `${exam.duration}`,
+          date: exam.created_at
+            ? new Date(exam.created_at).toLocaleDateString()
+            : "N/A",
+        })),
+      }));
+    } catch (err) {
+      console.error(`Error fetching ${key} tests:`, err);
+      setError(`Failed to fetch ${key} tests. Please try again later.`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -32,7 +63,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboardData = async () => {
       try {
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
           axios.get("/api/stats/all-students"),
@@ -56,51 +87,22 @@ const Dashboard = () => {
       }
     };
 
-    fetchData();
+    const fetchAllTestsData = async () => {
+      setLoading(true);
+      try {
+        await fetchTestsData("/api/exams/drafts", "drafted");
+        await fetchTestsData("/api/exams/scheduled", "scheduled");
+        await fetchTestsData("/api/exams/past", "past");
+      } catch (err) {
+        console.error("Error fetching test data:", err);
+        setError("Failed to load tests. Please try again.");
+      }
+    };
+
+    fetchDashboardData();
+    fetchAllTestsData();
   }, []);
 
-  const tests = [
-    {
-      title: "Logical reasoning",
-      questions: 40,
-      duration: "30 min",
-      date: "20 Dec 2024",
-    },
-    {
-      title: "Quantitative Aptitude",
-      questions: 50,
-      duration: "45 min",
-      date: "18 Dec 2024",
-    },
-    {
-      title: "Verbal Ability",
-      questions: 30,
-      duration: "25 min",
-      date: "15 Dec 2024",
-    },
-    {
-      title: "Data Interpretation",
-      questions: 35,
-      duration: "40 min",
-      date: "14 Dec 2024",
-    },
-  ];
-  const scheduledTests = [
-    {
-      title: "Data Interpretation",
-      questions: 35,
-      duration: "40 min",
-      date: "10 Jan 2025",
-    },
-  ];
-  const pastTests = [
-    {
-      title: "Verbal Ability",
-      questions: 30,
-      duration: "25 min",
-      date: "15 Dec 2024",
-    },
-  ];
   const createTestHandler = () => {
     navigate("/admin/createtest");
   };
@@ -180,18 +182,22 @@ const Dashboard = () => {
 
           {/* Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
-            {activeTab === "drafted" &&
-              tests.map((test, index) => (
-                <Adm_DraftedTestCard key={index} test={test} />
-              ))}
-            {activeTab === "scheduled" &&
-              scheduledTests.map((test, index) => (
-                <Adm_ScheduledTestCard key={index} test={test} />
-              ))}
-            {activeTab === "past" &&
-              pastTests.map((test, index) => (
-                <Adm_PastTestCard key={index} test={test} />
-              ))}
+            {loading ? (
+              <p>Loading...</p>
+            ) : error ? (
+              <p>{error}</p>
+            ) : (
+              testsData[activeTab]?.map((test, index) => {
+                if (activeTab === "drafted") {
+                  return <Adm_DraftedTestCard key={index} test={test} />;
+                } else if (activeTab === "scheduled") {
+                  return <Adm_ScheduledTestCard key={index} test={test} />;
+                } else if (activeTab === "past") {
+                  return <Adm_PastTestCard key={index} test={test} />;
+                }
+                return null;
+              })
+            )}
           </div>
         </div>
       </div>

@@ -1,9 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import DataTime from "./Adm_DataTime"; 
+import axios from "axios";
 
 const Adm_DraftedTestCard = ({ test }) => {
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
+  
+  const examId = test.exam_id;
+  const handleSchedule = (start, end) => {
+    setScheduledTime({ start, end });
+    axios
+    .put(`/api/exams/publish/${examId}`, {
+      start_time: start,
+      end_time: end,
+    })
+    .then(() => {
+      setIsScheduling(false);
+    })
+    .catch((err) =>
+      alert(
+        `Error scheduling test: ${err.response?.data?.message || err.message}`
+      )
+    );
+    
+  };
+
+  
+
+  const handleCancel = () => {
+    setIsScheduling(false);
+  };
+
   return (
-    <div className="bg-white  rounded-lg p-4 border border-gray-400 flex flex-col">
-      {/* Card Header */}
+    <div className="bg-white rounded-lg p-4 border border-gray-400 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <span className="flex items-center bg-gray-100 text-gray-900 border border-gray-700 opacity-90 text-sm px-2 py-1 rounded space-x-2">
           {/* SVG Icon */}
@@ -54,30 +83,6 @@ const Adm_DraftedTestCard = ({ test }) => {
               d="M10.3125 7.89355H7.78711C7.40761 7.89355 7.09961 7.58555 7.09961 7.20605C7.09961 6.82655 7.40761 6.51855 7.78711 6.51855H10.3125C10.692 6.51855 11 6.82655 11 7.20605C11 7.58555 10.692 7.89355 10.3125 7.89355"
               fill="black"
             />
-            <mask
-              id="mask0_343_4870"
-              style={{ maskType: "luminance" }}
-              maskUnits="userSpaceOnUse"
-              x="2"
-              y="1"
-              width="18"
-              height="20"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M2.75 1.83398H19.401V20.0846H2.75V1.83398Z"
-                fill="white"
-              />
-            </mask>
-            <g mask="url(#mask0_343_4870)">
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M14.5832 3.20898L7.535 3.21265C5.401 3.22548 4.125 4.54548 4.125 6.74457V15.1742C4.125 17.388 5.41292 18.7098 7.568 18.7098L14.6162 18.7071C16.7502 18.6942 18.0262 17.3724 18.0262 15.1742V6.74457C18.0262 4.53082 16.7392 3.20898 14.5832 3.20898ZM7.56892 20.0848C4.68692 20.0848 2.75 18.1112 2.75 15.1742V6.74457C2.75 3.78098 4.62642 1.85507 7.53042 1.83765L14.5823 1.83398H14.5833C17.4653 1.83398 19.4013 3.80757 19.4013 6.74457V15.1742C19.4013 18.1369 17.5248 20.0637 14.6208 20.0821L7.56892 20.0848Z"
-                fill="black"
-              />
-            </g>
           </svg>
           {test.questions} Questions
         </p>
@@ -113,10 +118,28 @@ const Adm_DraftedTestCard = ({ test }) => {
         <button className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100">
           Publish
         </button>
-        <button className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">
+        <button
+          onClick={() => setIsScheduling(true)}
+          className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
+        >
           Schedule
         </button>
       </div>
+
+      {/* Conditionally render the DataTime component for scheduling */}
+      {isScheduling && (
+        <DataTime onSchedule={handleSchedule} onCancel={handleCancel} duration={test.duration} />
+      )}
+
+      {/* Display scheduled time */}
+      {scheduledTime.start && scheduledTime.end && (
+        <div className="mt-4 text-sm text-gray-600">
+          <p>
+            Scheduled from: {new Date(scheduledTime.start).toLocaleString()} to{" "}
+            {new Date(scheduledTime.end).toLocaleString()}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
