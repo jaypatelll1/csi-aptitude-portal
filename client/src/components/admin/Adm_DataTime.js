@@ -62,7 +62,7 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-auto">
+    <div className="absolute z-50 items-center justify-center ">
       <div className="bg-white p-6 rounded-lg shadow-md w-96">
         <h2 className="text-xl font-bold text-gray-800 mb-6">Schedule Test</h2>
         <div className="flex space-x-4 mb-6">
