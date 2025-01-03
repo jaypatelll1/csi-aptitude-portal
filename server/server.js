@@ -21,6 +21,7 @@ const resultRoutes = require('./routes/resultRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const exportRoutes = require('./routes/exportRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const tokenRoutes = require("./routes/tokenRoutes")
 
 
 // Initialize the app
@@ -61,12 +62,13 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/api/users', userRoutes);
+app.use("/api/token", tokenRoutes)
 app.use('/api/exams', jwtAuthMiddleware, examRoutes);
 app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 app.use('/api/export/', exportRoutes);
-app.use('/api', fileRoutes);
+app.use('/api/users', fileRoutes);
 app.use('/api/exams/', fileRoutes);
 app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 const start_exam = io.of('/exams/start-exam')

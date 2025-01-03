@@ -9,31 +9,70 @@ const { error } = require('console');
 const parseExcelUsers = async (filePath) => {
     try {
         // Read the Excel file
-        const workbook = XLSX.readFile(filePath,res);
+        const workbook = XLSX.readFile(filePath);
         const sheetNames = workbook.SheetNames;
         const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
         console.log("Excel Data to insert:", jsonData);
 
-        // Inserting each row into the database
+        // Process each row
         for (const row of jsonData) {
-            const { user_id, name, email, password, role } = row;
-            const created_at = new Date().toISOString();
-            const password_hash = await hashPassword(password); // assuming hashPassword is async
+            try {
+                // Destructure and validate row data
+                const {
+                    user_id,
+                    name = '',
+                    email = '',
+                    password = '',
+                    role = '',
+                    status = '',
+                    department = '',
+                    year = '',
+                    rollno = '',
+                    phone = ''
+                } = row;
 
-            const queryText = 'INSERT INTO users(name,email,password_hash,role,created_at) VALUES ($1, $2, $3, $4, $5)';
-            const values = [name, email, password_hash, role, created_at];
+                // Ensure password is a string
+                const passwordHash = await hashPassword(password.toString());
 
-            // Run the query and wait for it to complete
-            await query(queryText, values);
+                const createdAt = new Date().toISOString();
+
+                // Query to insert data
+                const queryText = `
+                    INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                `;
+                const values = [
+                    name,
+                    email,
+                    passwordHash,
+                    role,
+                    createdAt,
+                    status,
+                    department,
+                    year,
+                    rollno,
+                    phone.toString()
+                ];
+
+                // console.log('Inserting row:', values);
+
+                // Execute query
+                await query(queryText, values);
+            } catch (rowError) {
+                console.error(`Error inserting row: ${JSON.stringify(row)}`, rowError);
+                // Optionally continue to the next row without throwing
+            }
         }
 
-        console.log('All data inserted successfully.');
+        console.log('All data processed successfully.');
     } catch (err) {
-        res.json({error :err.detail})
+        console.error("Error processing Excel file:", err);
+        throw new Error("Failed to parse and insert Excel data");
     }
 };
 
-const parseCSVusers = async (filePath,res) => {
+
+const parseCSVusers = async (filePath) => {
     try {
         const jsonData = await new Promise((resolve, reject) => {
             const data = [];
@@ -50,16 +89,22 @@ const parseCSVusers = async (filePath,res) => {
                 });
         });
 
-        console.log("CSV Data to insert:", jsonData);
+        // console.log("CSV Data to insert:", jsonData);
 
         // Inserting each row into the database
         for (const row of jsonData) {
-            const { user_id, name, email, password, role } = row;
+            const { user_id, name, email, password, role , status,department , year, rollno ,phone}  = row;
             const created_at = new Date().toISOString();
             const password_hash = await hashPassword(password); // assuming hashPassword is async
 
-            const queryText = 'INSERT INTO users(name,email,password_hash,role,created_at) VALUES ($1, $2, $3, $4, $5)';
-            const values = [name, email, password_hash, role, created_at];
+            const queryText =   `
+            INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          `;
+            const values = [name, email, password_hash, role, created_at , status,department , year, rollno ,phone];
+            // console.log('values is department',department,year,rollno,phone);
+            
+
 
             // Run the query and wait for it to complete
             await query(queryText, values);
@@ -67,7 +112,8 @@ const parseCSVusers = async (filePath,res) => {
 
         console.log('All data inserted successfully.');
     } catch (err) {
-        res.json({error :err.detail})
+        console.error("Error inserting data:", err);
+        throw new Error(err.detail || "Error inserting data into the database");
     }
 };
 

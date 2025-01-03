@@ -13,8 +13,8 @@ CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'live', 'past');
 CREATE TYPE response_status AS ENUM ('draft', 'submitted');
 
 
-CREATE TABLE IF NOT EXISTS public.users
-(
+CREATE TABLE users(
+
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(50),
     email VARCHAR(50) UNIQUE,
