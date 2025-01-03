@@ -1,31 +1,28 @@
 import React, { useEffect, useState } from "react";
-import DataTime from "./Adm_DataTime"; 
+import DataTime from "./Adm_DataTime";
 import axios from "axios";
 
 const Adm_DraftedTestCard = ({ test }) => {
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
-  
+
   const examId = test.exam_id;
   const handleSchedule = (start, end) => {
     setScheduledTime({ start, end });
     axios
-    .put(`/api/exams/publish/${examId}`, {
-      start_time: start,
-      end_time: end,
-    })
-    .then(() => {
-      setIsScheduling(false);
-    })
-    .catch((err) =>
-      alert(
-        `Error scheduling test: ${err.response?.data?.message || err.message}`
-      )
-    );
-    
+      .put(`/api/exams/publish/${examId}`, {
+        start_time: start,
+        end_time: end,
+      })
+      .then(() => {
+        setIsScheduling(false);
+      })
+      .catch((err) =>
+        alert(
+          `Error scheduling test: ${err.response?.data?.message || err.message}`
+        )
+      );
   };
-
-  
 
   const handleCancel = () => {
     setIsScheduling(false);
@@ -125,21 +122,26 @@ const Adm_DraftedTestCard = ({ test }) => {
           Schedule
         </button>
       </div>
+      <div className="relative">
+        {/* Conditionally render the DataTime component for scheduling */}
+        {isScheduling && (
+          <DataTime
+            onSchedule={handleSchedule}
+            onCancel={handleCancel}
+            duration={test.duration}
+          />
+        )}
 
-      {/* Conditionally render the DataTime component for scheduling */}
-      {isScheduling && (
-        <DataTime onSchedule={handleSchedule} onCancel={handleCancel} duration={test.duration} />
-      )}
-
-      {/* Display scheduled time */}
-      {scheduledTime.start && scheduledTime.end && (
-        <div className="mt-4 text-sm text-gray-600">
-          <p>
-            Scheduled from: {new Date(scheduledTime.start).toLocaleString()} to{" "}
-            {new Date(scheduledTime.end).toLocaleString()}
-          </p>
-        </div>
-      )}
+        {/* Display scheduled time */}
+        {scheduledTime.start && scheduledTime.end && (
+          <div className="mt-4 text-sm text-gray-600">
+            <p>
+              Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
+              to {new Date(scheduledTime.end).toLocaleString()}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
