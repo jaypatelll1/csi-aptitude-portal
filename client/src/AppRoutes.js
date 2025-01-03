@@ -10,6 +10,7 @@ import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
 import Adm_ScheduleTest from "./pages/admin/Adm_ScheduleTest";
 import Adm_PastTest from "./pages/admin/Adm_PastTest";
+import Adm_LiveTest from "./pages/admin/Adm_LiveTest";
 import Adm_InputQuestions from "./pages/admin/Adm_InputQuestions";
 import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import StudentList from "./pages/admin/Adm_StudentList";
@@ -115,6 +116,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_PastTest />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/live-tests"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_LiveTest />
           </ProtectedRoute>
         }
       />
