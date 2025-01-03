@@ -16,8 +16,9 @@
 
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
-const generateToken = require('../utils/token');
+const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logger');
+const { hashPassword } = require('../utils/hashUtil');
 
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
@@ -53,7 +54,7 @@ const registerUser = async (req, res) => {
       year,
       department,
       rollno,
-      phone,
+      phone
     );
 
     if (newUser) {
@@ -110,6 +111,7 @@ const loginUser = async (req, res) => {
     };
 
     const token = await generateToken(userData);
+    const resetToken = await generateResetToken(userData);
 
     await logActivity({
       user_id: userData.id,
@@ -123,6 +125,15 @@ const loginUser = async (req, res) => {
       sameSite: 'strict',
       secure: true,
     });
+
+    if (result.status === 'NOTACTIVE') {
+      res.cookie('resettoken', resetToken, {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: true,
+      });
+    }
+
     return res.status(200).json({
       message: 'Login Successful',
       result: {
@@ -144,39 +155,77 @@ const loginUser = async (req, res) => {
   }
 };
 
+const resetPassword = async (req, res) => {
+  const newPassword = req.password.password;
+
+  if (!req.id) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    // Hash the new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update the user password using the `updateUser` model
+    const updatedUser = await userModel.updateUser(req.id, {
+      password_hash: hashedPassword,
+      status: 'ACTIVE',
+    });
+
+    // Log the password reset activity
+    await logActivity({
+      user_id: req.id,
+      activity: 'Password reset',
+      status: 'success',
+      details: 'Password reset successfully',
+    });
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    console.error('Error resetting password:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Function to update details of user
 const updateUser = async (req, res) => {
   const { name, email, year, department, rollno, phone } =
     req.body;
   const id = req.params.user_id;
-  console.log('ID', { id });
-  if (
-    !name ||
-    !email ||
-    !year ||
-    !department ||
-    !rollno ||
-    !phone
-  )
-    return res.status(400).json({ error: 'All fields are required' });
-  try {
-    const updatedUser = await userModel.updateUser(
-      id,
-      name,
-      email,
-      year,
-      department,
-      rollno,
-      phone
-    );
 
+
+  try {
+    // Initialize an object to store fields that need updating
+    const updatedFields = {};
+
+    // Only include fields that were provided in the request
+    if (name) updatedFields.name = name;
+    if (email) updatedFields.email = email;
+    if (password) {
+      updatedFields.password_hash = await hashPassword(password); // Hash password if provided
+    }
+    if (role) updatedFields.role = role;
+    if (year) updatedFields.year = year;
+    if (department) updatedFields.department = department;
+    if (rollno) updatedFields.rollno = rollno;
+    if (phone) updatedFields.phone = phone; // Only update phone if provided
+
+    // If no fields are provided, return an error
+    if (Object.keys(updatedFields).length === 0) {
+      return res.status(400).json({ error: 'No fields provided to update' });
+    }
+
+    // Update the user in the database with the changed fields
+    const updatedUser = await userModel.updateUser(id, updatedFields);
+
+    // Log the activity for user update
     await logActivity({
       user_id: id,
       activity: 'Update user details',
       status: 'success',
       details: 'User details updated successfully',
     });
-    console.log(updatedUser);
+
     return res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
@@ -260,5 +309,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
-
+  resetPassword,
 };

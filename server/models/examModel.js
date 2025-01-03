@@ -23,16 +23,16 @@ const getExamById = async (exam_id) => {
 };
 
 const updateExam = async (exam) => {
-  const { exam_id, name, duration, start_time, end_time, created_by } = exam;
-  const query = `UPDATE exams SET exam_name=$1, duration=$2, start_time=$3, end_time=$4, created_by=$5, status=$6 WHERE exam_id=$6 RETURNING *`;
+  const { exam_id, name, duration, start_time, end_time, created_by ,status } = exam;
+  const query = `UPDATE exams SET exam_name=$1, duration=$2, start_time=$3, end_time=$4, created_by=$5, status=$6 WHERE exam_id=$7 RETURNING *`;
   const values = [
     name,
     duration,
     start_time,
     end_time,
     created_by,
-    exam_id,
-    'draft',
+    status,
+    exam_id
   ];
   const result = await pool.query(query, values);
   return result.rows[0];
@@ -62,13 +62,19 @@ const deleteExam = async (exam) => {
 // Pagination
 // Get all exams with pagination
 const getAllPaginatedExams = async (page, limit) => {
-  const query = 'SELECT * FROM exams';
+  const query = 'SELECT * FROM exams ORDER BY exam_id ASC';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery);
   return result.rows;
 };
 
-const getPaginatedPublishedExams = async (page, limit) => {
+const getAllScheduledExams = async () => {
+  const query = 'SELECT * FROM exams WHERE status = $1';
+  const result = await pool.query(query, ['scheduled']);
+  return result.rows;
+};
+
+const getPaginatedScheduledExams = async (page, limit) => {
   const query = 'SELECT * FROM exams WHERE status=$1';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['scheduled']);
@@ -88,6 +94,12 @@ const getPaginatedPastExams = async (page, limit) => {
   const result = await pool.query(paginatedQuery, ['past']);
   return result.rows;
 };
+const getPaginatedLiveExams = async (page, limit) => {
+  const query = 'SELECT * FROM exams WHERE status=$1';
+  const paginatedQuery = paginate(query, page, limit);
+  const result = await pool.query(paginatedQuery, ['live']);
+  return result.rows;
+}
 
 const getLastExam = async () => {
   const query = 'SELECT * FROM exams ORDER BY created_at DESC LIMIT 1';
@@ -103,8 +115,10 @@ module.exports = {
   deleteExam,
   getAllPaginatedExams,
   getPaginatedDraftededExams,
-  getPaginatedPublishedExams,
+  getAllScheduledExams,
+  getPaginatedScheduledExams,
   getPaginatedPastExams,
+  getPaginatedLiveExams,
   scheduleExam,
   markPastExam,
   getLastExam

@@ -12,6 +12,18 @@ const findUserByEmail = async (email) => {
     throw err;
   }
 };
+
+const getUserById = async (id) => {
+  try {
+    const query = 'SELECT * FROM users WHERE user_id = $1::text;';
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
+  } catch (err) {
+    console.error(err);
+    throw err;
+ }
+};
+
 // Function to create a new user
 const createUser = async (
   name,
@@ -50,34 +62,15 @@ const getAllStudents = async (role) => {
   return result.rows;
 };
 
-// Function to update detalis of a user
-const updateUser = async (
-  id,
-  name,
-  email,
-  year,
-  department,
-  rollno,
-  phone
-) => {
-  try {
-    console.log('Update parameters:', { id, name, email, year, department, rollno, phone });
-    const query = `UPDATE users SET name=$1, email=$2 , year=$3 , department=$4 , rollno=$5, phone=$6 WHERE user_id=$7   RETURNING *`;
-    const result = await pool.query(query, [
-      name,
-      email,
-      year,
-      department,
-      rollno,
-      phone,
-      id,
-    ]);
-    return result.rows[0];
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
+// Function to update a user
+const updateUser = async (id, updatedFields) => {
+  const query = `UPDATE users SET ${Object.keys(updatedFields).map((key, index) => `${key} = $${index + 1}`).join(', ')} WHERE user_id = $${Object.keys(updatedFields).length + 1} RETURNING *`;
+  const values = [...Object.values(updatedFields), id];
+
+  const result = await pool.query(query, values);
+  return result.rows[0]; // Return the updated user
 };
+
 
 // Function to delete a user
 const deleteUser = async (id) => {
@@ -133,5 +126,6 @@ module.exports = {
   getAllPaginatedUsers,
   getAllPaginatedRoleUsers,
   getUserCount,
-  getAllStudents
+  getAllStudents,
+  getUserById,
 };
