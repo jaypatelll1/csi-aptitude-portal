@@ -94,7 +94,7 @@ const loginUser = async (req, res) => {
     );
     if (!isPasswordMatch) {
       await logActivity({
-        user_id: user.user_id,
+        user_id: result.user_id,
         activity: 'Login attempt',
         status: 'failure',
         details: 'Invalid password',
@@ -189,7 +189,7 @@ const resetPassword = async (req, res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, year, department, rollno, phone } =
+  const { name, email, year,password, department, role, rollno, phone } =
     req.body;
   const id = req.params.user_id;
 

@@ -189,6 +189,34 @@ const markPastExam = async (req, res) => {
     .status(201)
     .json({ message: 'Marked Exam as past successfully', pastExam });
 };
+const markLiveExam = async (req, res) => {
+  const { exam_id } = req.params;
+  const created_by = req.user.id;
+  const LiveExam = await examModel.markLiveExam(exam_id);
+  if (LiveExam.length === 0) {
+    await logActivity({
+      user_id: created_by,
+      activity: 'Mark Exam as Live',
+      status: 'failure',
+      details: 'Could not mark Exam as live',
+    });
+    return res.json({
+      message: 'Could not mark Exam as live',
+    });
+  }
+  await logActivity({
+    user_id: created_by,
+    activity: 'Mark Exam as live',
+    status: 'success',
+    details: 'Marked Exam as live successfully',
+  });
+  res
+    .status(201)
+    .json({ message: 'Marked Exam as live successfully', LiveExam });
+};
+
+
+
 
 const deleteExam = async (req, res) => {
   const id = req.user.id;
@@ -377,6 +405,7 @@ module.exports = {
   getAllPaginatedExams,
   getScheduledExams,
   scheduleExam,
+  markLiveExam,
   markPastExam,
   getPaginatedDraftededExams,
   getPaginatedScheduledExams,

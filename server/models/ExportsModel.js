@@ -5,7 +5,7 @@ const { query } = require("../config/db"); // Assuming you have a separate DB mo
 // Users
 const getUserTable = async () => {
     try {
-        const result = await query("SELECT user_id, name, email, role from users"); // Replace with your table
+        const result = await query("SELECT * from users"); // Replace with your table
         return result.rows;
     } catch (err) {
         throw new Error("Error fetching data from database: " + err.message);

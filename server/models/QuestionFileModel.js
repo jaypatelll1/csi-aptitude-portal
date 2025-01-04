@@ -1,106 +1,98 @@
-const fs = require("fs")
-const XLSX = require('xlsx');
-const csvParser = require('csv-parser');
-const { query } = require("../config/db")
+const fs = require("fs");
+const XLSX = require("xlsx");
+const csvParser = require("csv-parser");
+const { query } = require("../config/db");
+
+const parseExcelQuestion = async (filePath, examId) => {
+  try {
+    const workbook = XLSX.readFile(filePath);
+    const sheetNames = workbook.SheetNames;
+    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+    // console.log("Excel Data to insert:", jsonData);
+
+    for (const row of jsonData) {
+      const { question_text, correct_option, options_a, options_b, options_c, options_d } = row;
+
+      if (!question_text || (!options_a && !options_b && !options_c && !options_d) || !correct_option) {
+        console.warn(`Skipping invalid row: ${JSON.stringify(row)}`);
+        continue;
+      }
+
+      // Construct the options object dynamically
+      const optionsObject = {
+        a: options_a || "",
+        b: options_b || "",
+        c: options_c || "",
+        d: options_d || "",
+      };
 
 
-const parseExcelQuestion = async (filePath,examId,res) => {
-    try {
-        // Read the Excel file
-        const workbook = XLSX.readFile(filePath);
-        const sheetNames = workbook.SheetNames;
-        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-        console.log("Excel Data to insert:", jsonData);
-
-        // Inserting each row into the database
-        for (const row of jsonData) {
-
-            const { question_id, question_text, options, correct_option } = row;
-            const queryText = 'INSERT INTO questions (question_id,exam_id,question_text,options,correct_option) VALUES ($1, $2, $3,$4,$5)';
-
-        //  eg  options is   A:New York,B:Washington,C:Chicago
-
-            const optionsObject = options
-            .split(',')
-            .reduce((acc, pair) => {
-                const [key, value] = pair.split(':');
-                acc[key.trim()] = value.trim(); // Trim spaces for clean keys/values
-                return acc;
-            }, {});
-
-            const exam_id = examId ;
-            const values = [question_id, exam_id, question_text, optionsObject, correct_option];
-
-            // Run the query and wait for it to complete
-            await query(queryText, values);
-        }
-
-        console.log('All data inserted successfully.');
-    } catch (err) {
-        res.json({error :err.detail})
+      const queryText = `
+        INSERT INTO questions (exam_id, question_text, options, correct_option)
+        VALUES ($1, $2, $3, $4)
+      `;
+      const values = [examId, question_text, JSON.stringify(optionsObject), correct_option];
+      await query(queryText, values);
     }
+
+    console.log("All Excel data inserted successfully.");
+  } catch (err) {
+    console.error("Error inserting Excel data:", err);
+    throw new Error(err.detail || "Error inserting data into the database");
+  }
 };
 
-const parseCSVquestion = async (filePath,examId,res) => {
-    try {
-        const jsonData = await new Promise((resolve, reject) => {
-            const data = [];
-            fs.createReadStream(filePath)
-                .pipe(csvParser())
-                .on('data', (row) => {
-                    data.push(row);
-                })
-                .on('end', () => {
-                    resolve(data);
-                })
-                .on('error', (err) => {
-                    reject(err);
-                });
-        });
+const parseCSVquestion = async (filePath, examId) => {
+  try {
+    const jsonData = await new Promise((resolve, reject) => {
+      const data = [];
+      fs.createReadStream(filePath)
+        .pipe(csvParser())
+        .on("data", (row) => data.push(row))
+        .on("end", () => resolve(data))
+        .on("error", (err) => reject(err));
+    });
 
-        console.log("CSV Data to insert:", jsonData);
+    // console.log("CSV Data to insert:", jsonData);
 
-        // Inserting each row into the database
-        for (const row of jsonData) {
-            const { question_id,  question_text, options, correct_option } = row;
+    for (const row of jsonData) {
+      const {  question_text, options, correct_option } = row;
 
-          const exam_id = examId ;
+      if (!question_text || !options || !correct_option) {
+        console.warn(`Skipping invalid row: ${JSON.stringify(row)}`);
+        continue;
+      }
 
-          console.log('exam_id',exam_id);
-          
-          // Clean the options field before parsing it into JSON
-          const cleanedOptions = options
-          .replace(/"\s*'/g, '"')    // Remove extraneous quotes and spaces
-          .replace(/'\s*"/g, '"')    // Remove extraneous quotes and spaces
-          .replace(/\s*'/g, '"')     // Replace remaining single quotes with double quotes
-          .replace(/(\w+)\s*:/g, '"$1":');  // Ensure the keys are quoted
+      const cleanedOptions = options
+        .replace(/"\s*'/g, '"')
+        .replace(/'\s*"/g, '"')
+        .replace(/\s*'/g, '"')
+        .replace(/(\w+)\s*:/g, '"$1":');
 
       let parsedOptions;
       try {
-          parsedOptions = JSON.parse(cleanedOptions);  // Parse stringified JSON
+        parsedOptions = JSON.parse(cleanedOptions);
       } catch (err) {
-          console.error('Invalid options format:', err);
-          continue;  // Skip this row if options is invalid
+        console.error("Invalid options format, skipping row:", err);
+        continue;
       }
 
-            const queryText = 'INSERT INTO questions (question_id,exam_id,question_text,options,correct_option) VALUES ($1, $2, $3,$4,$5)';
-            
-            const values = [question_id, exam_id, question_text, parsedOptions, correct_option];
-
-            // Run the query and wait for it to complete
-            await query(queryText, values);
-        }
-
-        console.log('All data inserted successfully.');
-    } catch (err) {
-        res.json({error :err.detail})
+      const queryText = `
+        INSERT INTO questions ( exam_id, question_text, options, correct_option)
+        VALUES ($1, $2, $3, $4)
+      `;
+      const values = [ examId, question_text, parsedOptions, correct_option];
+      await query(queryText, values);
     }
+
+    console.log("All CSV data inserted successfully.");
+  } catch (err) {
+    console.error("Error inserting CSV data:", err);
+    throw new Error(err.detail || "Error inserting data into the database");
+  }
 };
 
-
-
 module.exports = {
-    
-    parseExcelQuestion,
-    parseCSVquestion
+  parseExcelQuestion,
+  parseCSVquestion,
 };

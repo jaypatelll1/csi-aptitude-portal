@@ -13,14 +13,14 @@ const uploadFile = (req, res) => {
 
     if (fileExtension === ".xlsx" || fileExtension === ".xls") {
         // Parse Excel file
-        const jsonData = parseExcelUsers(filePath,res);
+        const jsonData = parseExcelUsers(filePath);
         res.json({
             message: "Excel file uploaded and parsed successfully",
             content: jsonData,
         });
     } else if (fileExtension === ".csv") {
         // Parse CSV file
-      parseCSVusers(filePath,res)
+      parseCSVusers(filePath)
             .then((jsonData) => {
                 res.json({
                     message: "CSV file uploaded and parsed successfully",

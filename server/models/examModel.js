@@ -51,6 +51,12 @@ const markPastExam = async (exam_id) => {
   const result = await pool.query(query, values);
   return result.rows[0];
 };
+const markLiveExam = async (exam_id) => {
+  const query = `UPDATE exams SET status='live' WHERE exam_id=$1 RETURNING *`;
+  const values = [exam_id];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
 
 const deleteExam = async (exam) => {
   const { exam_id } = exam;
@@ -120,6 +126,7 @@ module.exports = {
   getPaginatedPastExams,
   getPaginatedLiveExams,
   scheduleExam,
+  markLiveExam,
   markPastExam,
   getLastExam
 };
