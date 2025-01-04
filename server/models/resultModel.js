@@ -108,10 +108,12 @@ async function deleteResult(exam_id) {
 // Pagination
 // Get all results for a specific exam with pagination
 const getPaginatedResultsByExam = async (exam_id, page, limit) => {
-  const query = `SELECT * FROM results WHERE exam_id=${exam_id}`;
-  const paginatedqueryText = paginate(query, page, limit);
+  const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
+  const paginatedqueryText = paginate(queryText, page, limit);
   const result = await query(paginatedqueryText);  
   return result.rows;
+  console.log('rresult is ',result.rows);
+  
 };
 
 module.exports = {

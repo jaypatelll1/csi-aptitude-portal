@@ -10,6 +10,7 @@ const { limiter } = require('./utils/rateLimitUtils');
 const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
 require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
+require('./utils/autoliveExamStatus'); // For auto-updating live exam status
 
 
 // Import Routes

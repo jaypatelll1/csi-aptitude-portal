@@ -1,5 +1,6 @@
 const resultModel = require('../models/resultModel');
 const { logActivity } = require('../utils/logger');
+const {viewResult} = require("../utils/viewResult")
 
 const createResult = async (req, res) => {
   const student_id = req.user.id;
@@ -148,8 +149,9 @@ const deleteResult = async (req, res) => {
 
 // Pagination
 const getPaginatedResultsByExam = async (req, res) => {
-  const { exam_id } = req.params;
+  const  {exam_id}  = req.params;
   const { page = 1, limit = 10 } = req.query;
+  const id = req.user.id;
   try {
     const results = await resultModel.getPaginatedResultsByExam(
       exam_id,
@@ -158,7 +160,7 @@ const getPaginatedResultsByExam = async (req, res) => {
     );
     if (!results) {
       await logActivity({
-        user_id: student_id,
+        user_id: id,
         activity: 'View Results',
         status: 'failure',
         details: 'Results not found',
@@ -166,7 +168,7 @@ const getPaginatedResultsByExam = async (req, res) => {
       return res.status(404).json({ message: 'Results not found.' });
     }
     await logActivity({
-      user_id: student_id,
+      user_id: id,
       activity: 'View Results',
       status: 'success',
       details: 'Results found',
@@ -178,6 +180,22 @@ const getPaginatedResultsByExam = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const pastResult = async (req, res) => {
+  try {
+      const { exam_id } = req.params;  // Extract the exam_id from the request parameters
+      // console.log('examId is ', exam_id);
+      
+      // Assuming viewResult is a function that takes exam_id and returns the result
+      const response = await viewResult(exam_id);
+      // console.log('response is ', response);
+      
+      // Send the response back to the client
+      res.json({ response: response });
+  } catch (error) {
+      console.error('Error fetching past results:', error);
+      res.status(500).json({ error: 'An error occurred while fetching results' });
+  }
+};
 
 module.exports = {
   createResult,
@@ -186,4 +204,5 @@ module.exports = {
   UpdateResult,
   deleteResult,
   getPaginatedResultsByExam,
+  pastResult
 };
