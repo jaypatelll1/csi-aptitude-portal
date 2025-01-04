@@ -11,6 +11,7 @@ const {
   getPaginatedPastExams,
   scheduleExam,
   markPastExam,
+  markLiveExam,
   getPaginatedlive,
   getScheduledExams
 } = require('../controllers/examController');
@@ -31,6 +32,7 @@ router.get('/find/:exam_id',jwtAuthMiddleware, getExamById);
 router.put('/:exam_id',jwtAuthMiddleware, authorizeRoles, updateExam);
 router.put('/publish/:exam_id',jwtAuthMiddleware,authorizeRoles, scheduleExam); // to publish an exam
 router.put('/past-exam/:exam_id',jwtAuthMiddleware,authorizeRoles, markPastExam); // to mark an exam as past
+router.put('/live-exam/:exam_id',jwtAuthMiddleware,authorizeRoles, markLiveExam); // to mark an exam as past
 
 router.delete('/:exam_id', jwtAuthMiddleware,authorizeRoles, deleteExam);
 
