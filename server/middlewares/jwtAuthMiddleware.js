@@ -76,4 +76,4 @@ const tokenMiddleware = async (req, res, next) => {
 
  
 
-module.exports = { jwtAuthMiddleware, sockettAuthMiddleware ,resetPasswordAuthMiddleware, tokenMiddleware };
+module.exports = { jwtAuthMiddleware, sockettAuthMiddleware , tokenMiddleware };

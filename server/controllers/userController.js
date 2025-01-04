@@ -341,7 +341,7 @@ const sendResetEmail = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: student.email,
       subject: 'CSI Aptitude Portal Password Reset',
-      text: `Click on the link to reset your password: ${resetLink}`,
+      text: `Click on the link to reset your password. This link will only be valid of 10 minutes: ${resetLink}`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

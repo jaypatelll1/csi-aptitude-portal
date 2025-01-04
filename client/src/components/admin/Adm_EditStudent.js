@@ -59,7 +59,7 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
     try {
       const response = await axios.post('/api/users/send-reset-mail' , {student});
       console.log("Student reset successfully:", response.data);
-      alert("Student reset successfully!");
+      alert("Student reset mail sent successfully!");
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
       console.error("Error resetting student:", error);
