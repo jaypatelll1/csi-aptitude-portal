@@ -19,6 +19,7 @@ require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logger');
 const { hashPassword } = require('../utils/hashUtil');
+const jwt = require('jsonwebtoken');
 
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
@@ -75,6 +76,7 @@ const registerUser = async (req, res) => {
 // Function for logging in
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
@@ -92,6 +94,7 @@ const loginUser = async (req, res) => {
       password,
       result.password_hash
     );
+    console.log(result);
     if (!isPasswordMatch) {
       await logActivity({
         user_id: result.user_id,
@@ -111,7 +114,7 @@ const loginUser = async (req, res) => {
     };
 
     const token = await generateToken(userData);
-    const resetToken = await generateResetToken(userData);
+    const resettoken = await generateResetToken(userData);
 
     await logActivity({
       user_id: userData.id,
@@ -127,11 +130,7 @@ const loginUser = async (req, res) => {
     });
 
     if (result.status === 'NOTACTIVE') {
-      res.cookie('resettoken', resetToken, {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
-      });
+      res.set('resettoken', resettoken);
     }
 
     return res.status(200).json({
@@ -155,19 +154,33 @@ const loginUser = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
-  const newPassword = req.password.password;
-
-  if (!req.id) {
-    return res.status(400).json({ error: 'User ID is required' });
+const verifyResetToken = async (req, res) => {
+  const resettoken = req.headers['resettoken'];
+  console.log(req.headers);
+  if (!resettoken) {
+    return res.status(400).json({ error: 'Reset token is required' });
   }
 
+  try {
+    const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
+    res.json({ message: 'Token is valid', userId: decoded.user_id });
+  } catch (err) {
+    console.error('Error verifying reset token:', err); // Log the error for debugging
+    res.status(400).json({ error: 'Invalid or expired reset token' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const newPassword = req.body.password;
+  const resettoken = req.body.resettoken;
+
+  const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
   try {
     // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
 
     // Update the user password using the `updateUser` model
-    const updatedUser = await userModel.updateUser(req.id, {
+    const updatedUser = await userModel.updateUser(decoded.id, {
       password_hash: hashedPassword,
       status: 'ACTIVE',
     });
@@ -303,11 +316,55 @@ const getAllPaginatedUsers = async (req, res) => {
   }
 };
 
+const sendResetEmail = async (req, res) => {
+  const  student  = req.body.student;
+  console.log(student);
+
+  if (!student.user_id) {
+    return res.status(400).json({ error: 'ID is required' });
+  }
+
+  try {
+    const resettoken = await generateResetToken({
+      id: student.user_id,
+      email: student.email,
+      name: student.name,
+      role: student.role,
+    });
+
+    const resetLink =
+    process.env.NODE_ENV === 'development'
+      ? `http://localhost:3000/reset-password/${resettoken}`
+      : `${process.env.FRONTEND_ORIGIN}/reset-password/${resettoken}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: student.email,
+      subject: 'CSI Aptitude Portal Password Reset',
+      text: `Click on the link to reset your password: ${resetLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ error: 'Error sending email' });
+      }
+      console.log('Email sent:', info.response);
+      return res.status(200).json({ message: 'Email sent successfully' });
+    });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
+  verifyResetToken,
   resetPassword,
+  sendResetEmail,
 };

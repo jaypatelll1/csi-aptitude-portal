@@ -135,11 +135,9 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/reset-password"
+        path="/reset-password/:resettoken"
         element={
-          <ProtectedRoute allowedRoles={["Student"]}>
             <ResetPassword />
-          </ProtectedRoute>
         }
       />
     </Routes>
