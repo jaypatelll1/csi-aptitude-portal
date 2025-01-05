@@ -2,7 +2,7 @@ const { query } = require("../config/db");
 require("dotenv").config();
 const { paginate } = require('../utils/pagination');
 
-const viewResult = async (exam_id, page = 1, limit = 10) => {
+const ResultALL = async (exam_id, page = 1, limit = 10) => {
   try {
     // Base SQL query
     let queryText = `
@@ -27,7 +27,7 @@ const viewResult = async (exam_id, page = 1, limit = 10) => {
     `;
 
     // Apply pagination
-    queryText = paginate(queryText, page, limit);
+   
 
     // Execute query
     const result = await query(queryText, [exam_id]);
@@ -64,4 +64,4 @@ const viewResult = async (exam_id, page = 1, limit = 10) => {
   }
 };
 
-module.exports = { viewResult };
+module.exports = { ResultALL };
