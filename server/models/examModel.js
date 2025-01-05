@@ -58,10 +58,18 @@ const markLiveExam = async (exam_id) => {
   return result.rows[0];
 };
 
-const deleteExam = async (exam) => {
-  const { exam_id } = exam;
+const deleteExam = async (exam_id) => {
+
+  
+  // Step 1: Delete all related questions
+  const deleteQuestionsQuery = `DELETE FROM questions WHERE exam_id=$1`;
+  await pool.query(deleteQuestionsQuery, [exam_id]);
+
+  // Step 2: Now delete the exam
   const query = `DELETE FROM exams WHERE exam_id=$1 RETURNING *`;
   const result = await pool.query(query, [exam_id]);
+  
+  // Return the deleted exam data
   return result.rows[0];
 };
 
@@ -81,27 +89,99 @@ const getAllScheduledExams = async () => {
 };
 
 const getPaginatedScheduledExams = async (page, limit) => {
-  const query = 'SELECT * FROM exams WHERE status=$1';
+  const query = `SELECT 
+    e.exam_id, 
+    e.exam_name, 
+e.duration,
+e.start_time,
+e.end_time,
+e.created_at,
+e.status,
+    COUNT(q.question_id) AS question_count
+FROM 
+    exams e
+LEFT JOIN 
+    questions q
+ON 
+    e.exam_id = q.exam_id
+WHERE 
+    e.status = $1
+GROUP BY 
+    e.exam_id, e.exam_name`;
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['scheduled']);
   return result.rows;
 };
 
 const getPaginatedDraftededExams = async (page, limit) => {
-  const query = 'SELECT * FROM exams WHERE status=$1';
+  const query = `SELECT 
+    e.exam_id, 
+    e.exam_name, 
+e.duration,
+e.start_time,
+e.end_time,
+e.created_at,
+e.status,
+    COUNT(q.question_id) AS question_count
+FROM 
+    exams e
+LEFT JOIN 
+    questions q
+ON 
+    e.exam_id = q.exam_id
+WHERE 
+    e.status = 'draft'
+GROUP BY 
+    e.exam_id, e.exam_name
+`;
   const paginatedQuery = paginate(query, page, limit);
-  const result = await pool.query(paginatedQuery, ['draft']);
+  const result = await pool.query(paginatedQuery);
   return result.rows;
 };
 
 const getPaginatedPastExams = async (page, limit) => {
-  const query = 'SELECT * FROM exams WHERE status=$1';
+  const query = `SELECT 
+    e.exam_id, 
+    e.exam_name, 
+e.duration,
+e.start_time,
+e.end_time,
+e.created_at,
+e.status,
+    COUNT(q.question_id) AS question_count
+FROM 
+    exams e
+LEFT JOIN 
+    questions q
+ON 
+    e.exam_id = q.exam_id
+WHERE 
+    e.status = $1
+GROUP BY 
+    e.exam_id, e.exam_name`;
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['past']);
   return result.rows;
 };
 const getPaginatedLiveExams = async (page, limit) => {
-  const query = 'SELECT * FROM exams WHERE status=$1';
+  const query = `SELECT 
+    e.exam_id, 
+    e.exam_name, 
+e.duration,
+e.start_time,
+e.end_time,
+e.created_at,
+    COUNT(q.question_id) AS question_count
+FROM 
+    exams e
+LEFT JOIN 
+    questions q
+ON 
+    e.exam_id = q.exam_id
+WHERE 
+    e.status = $1
+GROUP BY 
+    e.exam_id, e.exam_name`;
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['live']);
   return result.rows;

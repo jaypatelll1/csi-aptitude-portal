@@ -187,6 +187,13 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// logout 
+const logout = async (req,res) => {
+  res.clearCookie('jwttoken', { path: '/' }); // Ensure path matches the one used for setting the cookie
+  res.status(200).send('Logged out');
+
+}
+
 // Function to update details of user
 const updateUser = async (req, res) => {
   const { name, email, year,password, department, role, rollno, phone } =
@@ -310,4 +317,5 @@ module.exports = {
   deleteUser,
   getAllPaginatedUsers,
   resetPassword,
+  logout
 };

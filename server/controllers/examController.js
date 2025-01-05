@@ -221,7 +221,7 @@ const markLiveExam = async (req, res) => {
 const deleteExam = async (req, res) => {
   const id = req.user.id;
   const { exam_id } = req.params;
-  const deletedExam = await examModel.deleteExam({ exam_id });
+  const deletedExam = await examModel.deleteExam( exam_id );
   if (!deletedExam) {
     await logActivity({
       user_id: id,
@@ -332,24 +332,41 @@ const getPaginatedScheduledExams = async (req, res) => {
 const getPaginatedDraftededExams = async (req, res) => {
   const user_id = req.user.id;
   const { page = 1, limit = 10 } = req.query;
+
+  // Validate page and limit
+  if (isNaN(page) || page <= 0 || isNaN(limit) || limit <= 0) {
+    return res.status(400).json({ error: 'Invalid page or limit value' });
+  }
+
   try {
     const exams = await examModel.getPaginatedDraftededExams(
       parseInt(page),
       parseInt(limit)
     );
+
+    // Log user activity
     await logActivity({
       user_id,
       activity: `Viewed paginated drafted exams`,
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,
     });
-    res
-      .status(200)
-      .json({ page: parseInt(page), limit: parseInt(limit), exams });
+
+    // Send response
+    res.status(200).json({
+      page: parseInt(page),
+      limit: parseInt(limit),
+      exams,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Log the error
+    console.error(`Error fetching drafted exams: ${error.message}`);
+
+    // Respond with a 500 error
+    res.status(500).json({ error: 'Failed to fetch drafted exams' });
   }
 };
+
 
 const getPaginatedPastExams = async (req, res) => {
   const user_id = req.user.id;
