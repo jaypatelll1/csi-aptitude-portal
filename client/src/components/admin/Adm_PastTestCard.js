@@ -1,6 +1,51 @@
-import React from "react";
+import React , {useState}from "react";
+import axios  from "axios";
+import { useNavigate } from "react-router-dom";
 
-const Adm_PastTestCard = ({ test }) => {
+
+const Adm_PastTestCard = ({ test, onClick }) => {
+
+// console.log('test is ',test);
+
+  const[result,setResult]= useState([])
+      const navigate = useNavigate();
+
+      
+
+  const handleSubmit = async () => {
+
+
+   
+      
+
+    try {
+   
+      if (onClick) {
+        onClick(test.exam_id);
+      }
+
+
+      // Log the ID
+      console.log('Clicked test ID:', test.exam_id);
+      console.log('Clicked test duration:',);
+  
+      
+      const response = await axios.get(`/api/exams/results/all/${test.exam_id}?page=1&limit=3`);
+      const  fetchedResult = response.data.results ;
+      setResult(fetchedResult);
+
+      console.log("Response from server:", fetchedResult);
+
+      // Navigate to the new route and pass the fetched result
+      navigate("/admin/teststudentlist", { state: { name : test.title , duration : test.duration, examId: test.exam_id} });
+  
+      
+    } catch (error) {
+      console.error('Error during POST request:', error);
+    }
+  };
+  
+  
   return (
     <div className="bg-white rounded-lg p-4 border border-gray-400 flex flex-col">
       {/* Card Header */}
@@ -100,7 +145,7 @@ const Adm_PastTestCard = ({ test }) => {
       <br />
       {/* Buttons */}
       <div className="flex justify-end -mt-5 space-x-4">
-        <button className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100">
+        <button className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"  onClick={(testId) => handleSubmit(test, (id) => console.log('Test clicked:', id))}>
           View Results
         </button>
         <button className="bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">

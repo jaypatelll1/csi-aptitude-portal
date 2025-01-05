@@ -74,7 +74,7 @@ function StudentDashboard() {
     }
 
     try {
-      const response = await axios.get(url);
+      const response = await axios.get(`${url}?page=1&limit=20`);
 
       setTests(response.data.exams || []);
     } catch (err) {

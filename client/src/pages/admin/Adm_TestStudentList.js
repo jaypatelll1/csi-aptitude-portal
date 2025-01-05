@@ -1,61 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-
+import { useLocation } from "react-router-dom";
 
 const TestStudentList = () => {
-    const sampleStudents = [
-        { user_id: 1, name: "John Doe", date: "20/DEC/2024", email: "johndoe-cmpn@atharvacoe.ac.in", results: "Passed", marks: "18/20", time: "25min" },
-        { user_id: 2, name: "Jane Smith", date: "20/DEC/2024", email: "janesmith-inft@atharvacoe.ac.in", results: "Failed", marks: "10/20", time: "30min" },
-        { user_id: 3, name: "Alice Johnson", date: "20/DEC/2024", email: "alicejohnson-ecs@atharvacoe.ac.in", results: "Passed", marks: "15/20", time: "20min" },
-        { user_id: 4, name: "Bob Brown", date: "20/DEC/2024", email: "bobbrown-elec@atharvacoe.ac.in", results: "Passed", marks: "20/20", time: "22min" },
-        { user_id: 5, name: "Charlie Davis", date: "20/DEC/2024", email: "charliedavis-extc@atharvacoe.ac.in", results: "Failed", marks: "12/20", time: "28min" },
-        { user_id: 6, name: "David Evans", date: "20/DEC/2024", email: "davidevans-cmpn@atharvacoe.ac.in", results: "Passed", marks: "17/20", time: "24min" },
-        { user_id: 7, name: "Eve Foster", date: "21/DEC/2024", email: "evefoster-inft@atharvacoe.ac.in", results: "Failed", marks: "9/20", time: "30min" },
-        { user_id: 8, name: "Frank Green", date: "22/DEC/2024", email: "frankgreen-ecs@atharvacoe.ac.in", results: "Passed", marks: "16/20", time: "26min" },
-        { user_id: 9, name: "Grace Harris", date: "23/DEC/2024", email: "graceharris-elec@atharvacoe.ac.in", results: "Passed", marks: "19/20", time: "23min" },
-        { user_id: 10, name: "Hank Irving", date: "24/DEC/2024", email: "hankirving-extc@atharvacoe.ac.in", results: "Failed", marks: "11/20", time: "29min" },
-        { user_id: 11, name: "Ivy Johnson", date: "25/DEC/2024", email: "ivyjohnson-cmpn@atharvacoe.ac.in", results: "Passed", marks: "14/20", time: "21min" },
-        { user_id: 12, name: "Jack King", date: "26/DEC/2024", email: "jackking-inft@atharvacoe.ac.in", results: "Passed", marks: "20/20", time: "20min" },
-        { user_id: 13, name: "Karen Lee", date: "27/DEC/2024", email: "karenlee-ecs@atharvacoe.ac.in", results: "Failed", marks: "13/20", time: "27min" },
-        { user_id: 14, name: "Leo Martin", date: "28/DEC/2024", email: "leomartin-elec@atharvacoe.ac.in", results: "Passed", marks: "18/20", time: "25min" },
-        { user_id: 15, name: "Mia Nelson", date: "29/DEC/2024", email: "mianelson-extc@atharvacoe.ac.in", results: "Failed", marks: "10/20", time: "30min" },
-        { user_id: 16, name: "Nina Owens", date: "30/DEC/2024", email: "ninaowens-cmpn@atharvacoe.ac.in", results: "Passed", marks: "15/20", time: "20min" },
-        { user_id: 17, name: "Oscar Perez", date: "31/DEC/2024", email: "oscarperez-inft@atharvacoe.ac.in", results: "Passed", marks: "20/20", time: "22min" },
-        { user_id: 18, name: "Paul Quinn", date: "01/JAN/2025", email: "paulquinn-ecs@atharvacoe.ac.in", results: "Failed", marks: "12/20", time: "28min" },
-        { user_id: 19, name: "Quincy Roberts", date: "02/JAN/2025", email: "quincyroberts-elec@atharvacoe.ac.in", results: "Passed", marks: "17/20", time: "24min" },
-        { user_id: 20, name: "Rachel Scott", date: "03/JAN/2025", email: "rachelscott-extc@atharvacoe.ac.in", results: "Failed", marks: "9/20", time: "30min" },
-        { user_id: 21, name: "Sam Taylor", date: "04/JAN/2025", email: "samtaylor-cmpn@atharvacoe.ac.in", results: "Passed", marks: "16/20", time: "26min" },
-        { user_id: 22, name: "Tina Underwood", date: "05/JAN/2025", email: "tinaunderwood-inft@atharvacoe.ac.in", results: "Passed", marks: "19/20", time: "23min" },
-        { user_id: 23, name: "Uma Vance", date: "06/JAN/2025", email: "umavance-ecs@atharvacoe.ac.in", results: "Failed", marks: "11/20", time: "29min" },
-        { user_id: 24, name: "Victor White", date: "07/JAN/2025", email: "victorwhite-elec@atharvacoe.ac.in", results: "Passed", marks: "14/20", time: "21min" },
-        { user_id: 25, name: "Wendy Xander", date: "08/JAN/2025", email: "wendyxander-extc@atharvacoe.ac.in", results: "Passed", marks: "20/20", time: "20min" },
-        { user_id: 26, name: "Xander Young", date: "09/JAN/2025", email: "xanderyoung-cmpn@atharvacoe.ac.in", results: "Failed", marks: "13/20", time: "27min" },
-        { user_id: 27, name: "Yara Zane", date: "10/JAN/2025", email: "yarazane-inft@atharvacoe.ac.in", results: "Passed", marks: "18/20", time: "25min" },
-        { user_id: 28, name: "Zane Adams", date: "11/JAN/2025", email: "zaneadams-ecs@atharvacoe.ac.in", results: "Failed", marks: "10/20", time: "30min" },
-        { user_id: 29, name: "Amy Baker", date: "12/JAN/2025", email: "amybaker-elec@atharvacoe.ac.in", results: "Passed", marks: "15/20", time: "20min" },
-        { user_id: 30, name: "Brian Clark", date: "13/JAN/2025", email: "brianclark-extc@atharvacoe.ac.in", results: "Passed", marks: "20/20", time: "22min" },
-        { user_id: 31, name: "Cathy Davis", date: "14/JAN/2025", email: "cathydavis-cmpn@atharvacoe.ac.in", results: "Failed", marks: "12/20", time: "28min" },
-        { user_id: 32, name: "Derek Evans", date: "15/JAN/2025", email: "derekevans-inft@atharvacoe.ac.in", results: "Passed", marks: "17/20", time: "24min" },
-        { user_id: 33, name: "Ella Foster", date: "16/JAN/2025", email: "ellafoster-ecs@atharvacoe.ac.in", results: "Failed", marks: "9/20", time: "30min" },
-        { user_id: 34, name: "Fred Green", date: "17/JAN/2025", email: "fredgreen-elec@atharvacoe.ac.in", results: "Passed", marks: "16/20", time: "26min" },
-        { user_id: 35, name: "Gina Harris", date: "18/JAN/2025", email: "ginaharris-extc@atharvacoe.ac.in", results: "Passed", marks: "19/20", time: "23min" },
-        { user_id: 36, name: "Holly Irving", date: "19/JAN/2025", email: "hollyirving-cmpn@atharvacoe.ac.in", results: "Failed", marks: "11/20", time: "29min" },
-        { user_id: 37, name: "Ian Johnson", date: "20/JAN/2025", email: "ianjohnson-inft@atharvacoe.ac.in", results: "Passed", marks: "14/20", time: "21min" },
-        { user_id: 38, name: "Jill King", date: "21/JAN/2025", email: "jillking-ecs@atharvacoe.ac.in", results: "Passed", marks: "20/20", time: "20min" },
-        { user_id: 39, name: "Kyle Lee", date: "22/JAN/2025", email: "kylelee-elec@atharvacoe.ac.in", results: "Failed", marks: "13/20", time: "27min" },
-        { user_id: 40, name: "Liam Martin", date: "23/JAN/2025", email: "liammartin-extc@atharvacoe.ac.in", results: "Passed", marks: "18/20", time: "25min" },
-        { user_id: 41, name: "Mona Nelson", date: "24/JAN/2025", email: "monanelson-cmpn@atharvacoe.ac.in", results: "Failed", marks: "10/20", time: "30min" },
-        { user_id: 42, name: "Nate Owens", date: "25/JAN/2025", email: "nateowens-inft@atharvacoe.ac.in", results: "Passed", marks: "15/20", time: "20min" },
-        { user_id: 43, name: "Olivia Perez", date: "26/JAN/2025", email: "oliviaperez-ecs@atharvacoe.ac.in", results: "Passed", marks: "20/20", time: "22min" },
-        { user_id: 44, name: "Pete Quinn", date: "27/JAN/2025", email: "petequinn-elec@atharvacoe.ac.in", results: "Failed", marks: "12/20", time: "28min" },
-        { user_id: 45, name: "Quinn Roberts", date: "28/JAN/2025", email: "quinnroberts-extc@atharvacoe.ac.in", results: "Passed", marks: "17/20", time: "24min" },
-        { user_id: 46, name: "Rita Scott", date: "29/JAN/2025", email: "ritascott-cmpn@atharvacoe.ac.in", results: "Failed", marks: "9/20", time: "30min" },
-        { user_id: 47, name: "Steve Taylor", date: "30/JAN/2025", email: "stevetaylor-inft@atharvacoe.ac.in", results: "Passed", marks: "16/20", time: "26min" },
-        { user_id: 48, name: "Tara Underwood", date: "31/JAN/2025", email: "taraunderwood-ecs@atharvacoe.ac.in", results: "Passed", marks: "19/20", time: "23min" },
-        { user_id: 49, name: "Uma Vance", date: "01/FEB/2025", email: "umavance-elec@atharvacoe.ac.in", results: "Failed", marks: "11/20", time: "29min" },
-        { user_id: 50, name: "Vince White", date: "02/FEB/2025", email: "vincewhite-extc@atharvacoe.ac.in", results: "Passed", marks: "14/20", time: "21min" },
-    ];
+
     const [students, setStudents] = useState([]);
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [page, setPage] = useState(1);
@@ -63,36 +12,87 @@ const TestStudentList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const sidebarRef = useRef(null);
+    const [userDetails, setUserDetails] = useState([]); // Store fetched user details
+    const [examName, setExamName] = useState(""); // Store the exam name
+    const location = useLocation();
+    const [status, setStatus] = useState("")
+
+    const name = location.state?.name;
+    const duration = location.state?.duration;
+    const examId = location.state?.examId;
+
+    console.log("Initial userData:", name);
+    //   console.log("Exam Duration:", duration);
+
+
+    // Function to handle CSV download
+    const handleExportCSV = async () => {
+        try {
+            const response = await axios.get(`/api/export/result/csv/${examId}`, {
+                responseType: 'blob', // Important for downloading files
+            });
+
+            // Create a URL for the file blob and trigger download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'result.csv'); // Specify file name
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up the URL object after download
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading CSV:", error);
+        }
+    };
+
+    // Function to handle Excel download
+    const handleExportExcel = async () => {
+        try {
+            const response = await axios.get(`/api/export/result/excel/${examId}`, {
+                responseType: 'blob', // Important for downloading files
+            });
+
+            // Create a URL for the file blob and trigger download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'result.xlsx'); // Specify file name
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up the URL object after download
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading Excel:", error);
+        }
+    };
+
+
+
+
 
     const handleSearch = (e) => {
         setPage(1);
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
+        console.log('search is ', searchTerm);
 
         const searchResults = term
             ? students.filter(student =>
-                student.name.toLowerCase().includes(term) ||
-                student.email.toLowerCase().includes(term) ||
-                student.date.toLowerCase().includes(term) ||
-                student.results?.toLowerCase().includes(term) ||
-                student.marks?.toString().includes(term) ||
-                student.time.toString().includes(term)
+                student.student_name.toLowerCase().includes(term) ||
+                student.student_email.toLowerCase().includes(term) ||
+                student.Date.toLowerCase().includes(term) ||
+                student.status.toLowerCase().includes(term)
+                // student.total_score.toLowerCase().includes(term) 
+
             )
             : students;
 
         setFilteredStudents(searchResults);
     };
 
-    const formatEmail = (email) => {
-        const [firstPart, domain] = email.split('@');
-        return (
-            <div className="font-medium">
-                {firstPart}
-                <br />
-                @{domain}
-            </div>
-        );
-    };
 
     const getResultStyle = (result) => {
         return result === "Passed"
@@ -100,10 +100,44 @@ const TestStudentList = () => {
             : "bg-red-100 text-red-800 rounded-full px-2 py-1 text-sm font-medium";
     };
 
+
+
     useEffect(() => {
-        setStudents(sampleStudents);
-        setFilteredStudents(sampleStudents);
-    }, []);
+
+        const fetchUserDetails = async () => {
+            try {
+                const response = await axios.get(`/api/exams/results/allpast/${examId}`);
+                const data = response.data.response;
+                console.log('data ', data);
+
+
+                // Ensure data is an array
+                const normalizedData = Array.isArray(data) ? data : data ? [data] : [];
+
+                setUserDetails(normalizedData);
+                setStudents(normalizedData);
+                setFilteredStudents(normalizedData);
+
+                console.log("Normalized Data:", normalizedData);
+
+                console.log('student is ', students);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+
+                // Set empty arrays in case of an error
+                setUserDetails([]);
+                setStudents([]);
+                setFilteredStudents([]);
+
+
+            }
+        };
+        fetchUserDetails();
+
+    }, [examId]);
+
+
+
     // useEffect(() => {
     //     const fetchStudents = async () => {
     //         try {
@@ -162,9 +196,18 @@ const TestStudentList = () => {
                         </svg>
                     </button>
                 </div>
-                <h1 className="ml-10 mt-6">
-                    <span className="font-bold text-lg">Test - Logical reasoning </span>
-                    <span>(20 Dec 2024)</span>
+                <h1 className="ml-10 mt-6 flex flex-row justify-between">
+
+                  <div className="font-bold text-lg">{name} </div> 
+                    <div className="flex flex-row justify-between"> 
+
+                    <button onClick={handleExportCSV} className=" px-3 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                        Export to CSV
+                    </button>
+                    <button onClick={handleExportExcel} className=" px-3 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                        Export to Excel
+                    </button>
+                    </div>
                 </h1>
                 <div className="bg-white my-6 mx-10 pt-5 pb-5 pl-9 pr-9 rounded-lg border border-gray-300">
                     <div className="flex justify-between items-center w-full mb-5">
@@ -199,32 +242,39 @@ const TestStudentList = () => {
                                 <th className="py-4 w-1/6">Results</th>
                                 <th className="py-4 w-1/6">Marks</th>
                                 <th className="py-4 w-1/6">Time</th>
-                                <th className="py-3 w-1/6"></th>
+                                {/* <th className="py-3 w-1/6"></th> */}
                             </tr>
                         </thead>
+
                         <tbody>
                             {filteredStudents
                                 .slice((page - 1) * limit, page * limit)
                                 .map((student) => (
-                                    <tr key={student.user_id} className="hover:bg-gray-50">
-                                        <td className="py-4 w-1/5">{student.name}</td>
+                                    <tr key={student.result_id} className="hover:bg-gray-50">
+                                        {/* Loop through the user details of the student if users is an array */}
+                                        <td className="py-4 w-1/5">{student.student_name}</td>
                                         <td className="py-4 w-1/5">
-                                            {formatEmail(student.email)}
+                                            {student.student_email}
                                         </td>
-                                        <td className="py-4 w-1/6">{student.date}</td>
+
+                                        {/* Other student properties like date, results, etc. */}
+                                        <td className="py-4 w-1/6">{student.Date}</td>
                                         <td className="py-4 w-1/6">
-                                            <span className={getResultStyle(student.results)}>
-                                                {student.results}
+                                            <span className={getResultStyle(student.status)}>
+                                                {student.status === "Passed" ? "Passed" : "Failed"}
                                             </span>
+
                                         </td>
-                                        <td className="py-4 w-1/6">{student.marks}</td>
-                                        <td className="py-4 w-1/6">{student.time}</td>
-                                        <td className="py-4 w-1/6  text-blue-600 whitespace-nowrap text-sm cursor-pointer">
+                                        <td className="py-4 w-1/6">{student.total_score}/{student.max_score}</td>
+                                        <td className="py-4 w-1/6">{duration}</td>
+                                        {/* <td className="py-4 w-1/6 text-blue-600 whitespace-nowrap text-sm cursor-pointer">
                                             view more
-                                        </td>
+                                        </td> */}
                                     </tr>
                                 ))}
                         </tbody>
+
+
                     </table>
                     <div className="flex justify-center items-center mt-5">
                         <svg

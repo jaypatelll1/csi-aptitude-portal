@@ -16,6 +16,7 @@ const InputQuestions = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [questionCount, setQuestionCount] = useState(1);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,15 +24,19 @@ const InputQuestions = () => {
 
 
   const examId = useSelector((state) => state.exam.examId);
-  console.log('examID is ',examId);
-  
+  console.log('examID is ', examId);
+
 
   // Handle file change and validate file type
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    
+
     // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
-    const allowedTypes = ["application/vnd.ms-excel", "text/csv"];
+    const allowedTypes = [
+      "application/vnd.ms-excel",
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
     if (!allowedTypes.includes(file.type)) {
       alert("Invalid file type. Please upload a .csv or .xls file.");
       return;
@@ -68,6 +73,7 @@ const InputQuestions = () => {
       alert("An error occurred while uploading the file.");
     } finally {
       setIsUploading(false); // Unlock the upload button after the process finishes
+
     }
   };
 
@@ -104,7 +110,7 @@ const InputQuestions = () => {
     navigate("/admin/viewquestions"); // Navigate to /admin/viewquestions page
   };
 
- 
+
 
   const handleAddAnswer = () => {
     if (options.length < 4) {
@@ -171,10 +177,11 @@ const InputQuestions = () => {
             `/api/exams/questions/${examId}`,
             payload
           );
-          console.log("Question created successfully:", response.data);
+          // console.log("Question created successfully:", response.data);
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
+          setQuestionCount((prevCount) => prevCount + 1);
         } else {
           const response = await axios.put(
             `/api/exams/questions/${examId}/${questionId}`,
@@ -224,16 +231,15 @@ const InputQuestions = () => {
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Adm_Sidebar />
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-grow w-5/6 p-9 bg-gray-100 overflow-y-auto m-0">
-        <div className="flex items-center  mb-4 sm:mb-6">
+      <div className="flex-grow w-5/6 p-9 bg-gray-100 overflow-y-auto m-0 ">
+        <div className="flex items-center justify-between  mb-4 sm:mb-6">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -259,11 +265,28 @@ const InputQuestions = () => {
             </svg>
           </button>
           {/* Title Section */}
-          <h1 className="text-2xl font-semibold text-center text-gray-800 ml-52 xl:ml-0">
-            Create Aptitude Test
-          </h1>
-        </div>
+      
+            <div className="text-2xl font-semibold text-center text-gray-800 ml-52 xl:ml-0">
+                Create Aptitude Test
+            </div>
+            <div >
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                onClick={() => setModalOpen(true)} // Open modal
+              >
+                Upload File
+              </button>
 
+              <UploadModal
+                isOpen={isModalOpen}
+                closeModal={() => setModalOpen(false)} // Close modal
+                onFileChange={handleFileChange}
+                onSubmit={handleQuestionSubmit}
+                isUploading={isUploading} // Pass isUploading state to the modal
+              />
+            </div>
+          </div>
+       
         {/* Navigation Section */}
         <div className="flex justify-between items-center mb-6">
           <button
@@ -287,22 +310,9 @@ const InputQuestions = () => {
             View Questions
           </button>
           <span className="text-xl text-gray-500 font-medium">
-            Question 1/30
+            Question {questionCount}
           </span>
-          <button
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        onClick={() => setModalOpen(true)} // Open modal
-      >
-        Upload File
-      </button>
 
-      <UploadModal
-        isOpen={isModalOpen}
-        closeModal={() => setModalOpen(false)} // Close modal
-        onFileChange={handleFileChange}
-        onSubmit={handleQuestionSubmit}
-        isUploading={isUploading} // Pass isUploading state to the modal
-      />
         </div>
 
         {/* Main Form Section */}
@@ -359,14 +369,12 @@ const InputQuestions = () => {
 
                 <button
                   onClick={() => handleToggleChange(index)}
-                  className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                    toggles[index] ? "bg-[#449800]" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-all duration-300 ${toggles[index] ? "bg-[#449800]" : "bg-gray-300"
+                    }`}
                 >
                   <div
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
-                      toggles[index] ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${toggles[index] ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
 

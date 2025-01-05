@@ -1,6 +1,62 @@
-import React from "react";
+import React, {  useState } from "react";
+import axios  from "axios";
+import DataTime from "./Adm_DataTime";
 
-const Adm_ScheduledTestCard = ({ test }) => {
+const Adm_ScheduledTestCard = ({ test ,onClick  }) => {
+
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
+
+  const examId = test.exam_id;
+  // console.log('examid is ',examId);
+  
+
+  
+  
+
+  
+  const handlePublishClick = async (test, onClick ) => {
+    try {
+   
+      if (onClick) {
+        onClick(test.exam_id);
+      }
+  
+      // Log the ID
+      console.log('Clicked test ID:', test.exam_id);
+  
+      
+      const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
+  
+      console.log('Response from server:', response.data);
+     
+  
+      
+    } catch (error) {
+      console.error('Error during POST request:', error);
+    }
+  };
+
+  const handleSchedule = (start, end) => {
+    setScheduledTime({ start, end });
+    axios.put(`/api/exams/publish/${examId}`, {
+        start_time: start,
+        end_time: end,
+      })
+      .then(() => {
+        setIsScheduling(false);
+      })
+      .catch((err) =>
+        alert(
+          `Error scheduling test: ${err.response?.data?.message || err.message}`
+        )
+      );
+  };
+
+  const handleCancel = () => {
+    setIsScheduling(false);
+  };
+
   return (
     <div className="bg-white rounded-lg p-4 border border-gray-400 flex flex-col">
       {/* Card Header */}
@@ -111,10 +167,32 @@ const Adm_ScheduledTestCard = ({ test }) => {
       <br />
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">
+        <button 
+         onClick={() => setIsScheduling(true)}
+        className="bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">
           Edit Schedule
         </button>
-        <button className="bg-green-200 text-green-900 px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100">
+        <div className="relative">
+        {/* Conditionally render the DataTime component for scheduling */}
+        {isScheduling && (
+          <DataTime
+            onSchedule={handleSchedule}
+            onCancel={handleCancel}
+            duration={test.duration}
+          />
+        )}
+
+        {/* Display scheduled time */}
+        {scheduledTime.start && scheduledTime.end && (
+          <div className="mt-4 text-sm text-gray-600">
+            <p>
+              Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
+              to {new Date(scheduledTime.end).toLocaleString()}
+            </p>
+          </div>
+        )}
+      </div>
+        <button className="bg-green-200 text-green-900 px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}>
           Publish
         </button>
       </div>

@@ -20,6 +20,15 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
+  
+  const [selectedTestId, setSelectedTestId] = useState(null);
+
+
+  const handleTestClick = (exam_id) => {
+    setSelectedTestId(exam_id);
+    console.log('Clicked test ID:', exam_id); // Log the ID of the clicked test
+  };
+
 
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
@@ -92,7 +101,7 @@ const Dashboard = () => {
       try {
         await fetchTestsData("/api/exams/drafts", "drafted");
         await fetchTestsData("/api/exams/scheduled", "scheduled");
-        await fetchTestsData("/api/exams/past", "past");
+        await fetchTestsData("/api/exams/past?page=1&limit=30", "past");
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");
@@ -189,11 +198,11 @@ const Dashboard = () => {
             ) : (
               testsData[activeTab]?.map((test, index) => {
                 if (activeTab === "drafted") {
-                  return <Adm_DraftedTestCard key={index} test={test} />;
+                  return <Adm_DraftedTestCard key={index} test={test}     onClick={handleTestClick} />;
                 } else if (activeTab === "scheduled") {
-                  return <Adm_ScheduledTestCard key={index} test={test} />;
+                  return <Adm_ScheduledTestCard key={index} test={test}  onClick={handleTestClick} />;
                 } else if (activeTab === "past") {
-                  return <Adm_PastTestCard key={index} test={test} />;
+                  return <Adm_PastTestCard key={index} test={test} onClick={handleTestClick}/>;
                 }
                 return null;
               })

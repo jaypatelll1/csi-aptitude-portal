@@ -1,16 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import DataTime from "./Adm_DataTime";
 import axios from "axios";
 
-const Adm_DraftedTestCard = ({ test }) => {
+const Adm_DraftedTestCard = ({ test ,onClick  }) => {
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
 
   const examId = test.exam_id;
+  // console.log('examid is ',examId);
+  
+
+  
+  
+
+  
+  const handlePublishClick = async (test, onClick ) => {
+    try {
+   
+      if (onClick) {
+        onClick(test.exam_id);
+      }
+  
+      // Log the ID
+      console.log('Clicked test ID:', test.exam_id);
+  
+      
+      const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
+  
+      console.log('Response from server:', response.data);
+     
+  
+      
+    } catch (error) {
+      console.error('Error during POST request:', error);
+    }
+  };
+
   const handleSchedule = (start, end) => {
     setScheduledTime({ start, end });
-    axios
-      .put(`/api/exams/publish/${examId}`, {
+    axios.put(`/api/exams/publish/${examId}`, {
         start_time: start,
         end_time: end,
       })
@@ -112,7 +140,10 @@ const Adm_DraftedTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100">
+        <button className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+         >
+       
+        
           Publish
         </button>
         <button
