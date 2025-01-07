@@ -266,7 +266,7 @@ useEffect(() => {
           </button>
           {/* Title Section */}
       
-            <div className="text-2xl font-semibold text-center text-gray-800 ml-52 xl:ml-0">
+            <div className="text-2xl font-semibold text-center text-gray-800 ml-0 xl:ml-0">
                 Create Aptitude Test
             </div>
             <div >

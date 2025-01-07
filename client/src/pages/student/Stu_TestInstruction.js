@@ -41,7 +41,7 @@ const TestInstruction = () => {
         ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 lg:static lg:translate-x-0`}
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Msidebar />
       </div>
@@ -50,7 +50,7 @@ const TestInstruction = () => {
           <div className="flex items-center  mb-4 sm:mb-6">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden text-gray-800 focus:outline-none"
+              className="xl:hidden text-gray-800 focus:outline-none"
             >
               <svg
                 className="w-8 h-8"
@@ -71,7 +71,7 @@ const TestInstruction = () => {
                 />
               </svg>
             </button>
-            <h2 className="text-xl font-bold text-gray-800 sm:ml-40 ml-52 lg:ml-0">
+            <h2 className="text-xl font-bold text-gray-800 ml-24 sm:ml-52  xl:ml-0">
               Online Aptitude Test:{" "}
               <span className="text-blue-600">General Knowledge</span>
             </h2>
