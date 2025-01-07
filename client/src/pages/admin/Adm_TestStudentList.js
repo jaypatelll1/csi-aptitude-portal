@@ -201,10 +201,10 @@ const TestStudentList = () => {
                   <div className="font-bold text-lg">{name} </div> 
                     <div className="flex flex-row justify-between"> 
 
-                    <button onClick={handleExportCSV} className=" px-3 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    {/* <button onClick={handleExportCSV} className=" px-3 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                         Export to CSV
-                    </button>
-                    <button onClick={handleExportExcel} className=" px-3 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    </button> */}
+                    <button onClick={handleExportExcel} className=" px-3 mx-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                         Export to Excel
                     </button>
                     </div>

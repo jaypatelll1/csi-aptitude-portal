@@ -14,7 +14,9 @@ const Adm_ViewQuestions = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [testDuration, setTestDuration] = useState(); 
   const sidebarRef = useRef(null);
-  const examId = useSelector((state) => state.exam.examId);
+  const examId  = useSelector((state) => state.exam.examId);
+  // console.log('exam_id is ',examId);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,7 +58,7 @@ const Adm_ViewQuestions = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1);
+    navigate("/admin/input");
   };
 
   const handleSchedulePost = () => {
@@ -94,6 +96,16 @@ const Adm_ViewQuestions = () => {
         )
       );
   };
+
+  const handleDelete = async () => {
+    console.log('exam id is ',examId );
+    
+    const response = await axios.delete(`/api/exams/${examId}`);
+    console.log('response is ',response);
+    navigate("/admin/createtest")
+    
+  }
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -182,6 +194,12 @@ const Adm_ViewQuestions = () => {
             >
               Schedule Post
             </button>
+            <button
+              onClick={handleDelete}
+              className="bg-red-600 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg"
+            >
+             Delete Exam
+            </button>
           </div>
         </div>
 
@@ -199,6 +217,7 @@ const Adm_ViewQuestions = () => {
                 text={question.question_text}
                 updateText={updateQuestionText}
                 options={question.options}
+                correct_option = {question.correct_option}
               />
             ))
           )}

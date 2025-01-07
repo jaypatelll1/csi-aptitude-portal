@@ -27,6 +27,13 @@ const Adm_DraftTest = () => {
     };
   }, []);
 
+  const formatToReadableDate = (isoString) => {
+    const date = new Date(isoString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-IN", options);
+  };
+
+
   // Fetch drafted tests from the API
   useEffect(() => {
     const fetchDraftedTests = async () => {
@@ -37,14 +44,16 @@ const Adm_DraftTest = () => {
         const response = await axios.get("/api/exams/drafts", {
           withCredentials: true,
         });
+        console.log('response is ', response.data);
 
         const fetchedTests = response.data.exams.map((exam) => ({
+          exam_id : exam.exam_id,
+          end_time : exam.end_time,
+          Start_time : exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          questions: exam.questions_count || "N/A", // Assuming `questions_count` exists
+          questions: exam.question_count || "N/A", // Assuming `questions_count` exists
           duration: exam.duration ? `${exam.duration} min` : "N/A",
-          date: exam.start_time
-            ? new Date(exam.start_time).toLocaleDateString()
-            : "N/A",
+          date: formatToReadableDate(exam.created_at),
         }));
 
         setTests(fetchedTests);
@@ -63,9 +72,8 @@ const Adm_DraftTest = () => {
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Adm_Sidebar />
       </div>

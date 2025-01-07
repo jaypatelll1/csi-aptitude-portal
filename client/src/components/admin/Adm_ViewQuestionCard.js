@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 
-const Adm_ViewQuestionCard = ({ id, text, options, index }) => {
+const Adm_ViewQuestionCard = ({ id, text, options, index, correct_option }) => {
   const navigate = useNavigate();
  
   const exam_id = useSelector((state) => state.exam.examId);
@@ -18,6 +18,7 @@ const Adm_ViewQuestionCard = ({ id, text, options, index }) => {
         questionText: text,
         questionOptions: options,
         exam_id: exam_id,
+        correct_option : correct_option,
       },
     });
   };

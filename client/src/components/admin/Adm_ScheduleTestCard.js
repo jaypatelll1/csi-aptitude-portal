@@ -2,33 +2,30 @@ import React, {  useState } from "react";
 import axios  from "axios";
 import DataTime from "./Adm_DataTime";
 
-const Adm_ScheduledTestCard = ({ test ,onClick  }) => {
+const Adm_ScheduledTestCard = ({ test   }) => {
 
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
 
   const examId = test.exam_id;
   // console.log('examid is ',examId);
+  // console.log('test is', test);
   
 
   
   
 
   
-  const handlePublishClick = async (test, onClick ) => {
+  const handlePublishClick = async (test ) => {
     try {
-   
-      if (onClick) {
-        onClick(test.exam_id);
-      }
-  
       // Log the ID
       console.log('Clicked test ID:', test.exam_id);
   
       
       const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
   
-      console.log('Response from server:', response.data);
+      // console.log('Response from server:', response.data);
+      window.location.reload();
      
   
       
@@ -137,7 +134,7 @@ const Adm_ScheduledTestCard = ({ test ,onClick  }) => {
               />
             </g>
           </svg>
-          {test.questions} Questions
+          <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
         </p>
         <p className="font-bold flex items-center">
           <svg

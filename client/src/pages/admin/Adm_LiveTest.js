@@ -27,6 +27,12 @@ const Adm_DraftTest = () => {
     };
   }, []);
 
+  const formatToReadableDate = (isoString) => {
+    const date = new Date(isoString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-IN", options);
+  };
+
   // Fetch drafted tests from the API
   useEffect(() => {
     const fetchLiveTests = async () => {
@@ -39,12 +45,13 @@ const Adm_DraftTest = () => {
         });
 
         const fetchedTests = response.data.exams.map((exam) => ({
+          exam_id : exam.exam_id,
+          end_time : exam.end_time,
+          Start_time : exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          questions: exam.questions_count || "N/A", // Assuming `questions_count` exists
+          questions: exam.question_count || "N/A", // Assuming `questions_count` exists
           duration: exam.duration ? `${exam.duration} min` : "N/A",
-          date: exam.start_time
-            ? new Date(exam.start_time).toLocaleDateString()
-            : "N/A",
+          date: formatToReadableDate(exam.created_at),
         }));
 
         setTests(fetchedTests);

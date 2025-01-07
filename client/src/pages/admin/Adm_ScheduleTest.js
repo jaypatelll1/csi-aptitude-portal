@@ -27,6 +27,14 @@ const Adm_ScheduledTest = () => {
     };
   }, []);
 
+  
+  const formatToReadableDate = (isoString) => {
+    const date = new Date(isoString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-IN", options);
+  };
+
+
   useEffect(() => {
     const fetchScheduledTests = async () => {
       try {
@@ -34,19 +42,20 @@ const Adm_ScheduledTest = () => {
         setError(null); // Clear any existing errors
 
         const response = await axios.get(
-          "/api/exams/draftes", // Replace with your API endpoint
+          "/api/exams/scheduled", // Replace with your API endpoint
           {
             withCredentials: true,
           }
         );
 
         const fetchedTests = response.data.exams.map((exam) => ({
+          exam_id : exam.exam_id,
+          end_time : exam.end_time,
+          Start_time : exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          date: exam.start_time
-            ? new Date(exam.start_time).toLocaleDateString()
-            : "N/A",
-          questions: exam.questions_count || "N/A", // Assuming `questions_count` exists
+          questions: exam.question_count || "N/A", // Assuming `questions_count` exists
           duration: exam.duration ? `${exam.duration} min` : "N/A",
+          date: formatToReadableDate(exam.created_at),
         }));
 
         setScheduledTests(fetchedTests);

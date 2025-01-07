@@ -28,6 +28,13 @@ const Adm_PastTest = () => {
     };
   }, []);
 
+  const formatToReadableDate = (isoString) => {
+    const date = new Date(isoString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-IN", options);
+  };
+
+
   useEffect(() => {
     const fetchPastTests = async () => {
       try {
@@ -35,10 +42,13 @@ const Adm_PastTest = () => {
         const response = await axios.get("/api/exams/past"); // Replace with your actual API endpoint
         const { exams } = response.data;
         const formattedTests = exams.map((exam) => ({
-          title: exam.exam_name,
-          date: new Date(exam.created_at).toLocaleDateString(),
-          questions: exam.duration, // Update if you have questions count in your API
-          duration: `${exam.duration} minutes`,
+          exam_id : exam.exam_id,
+          end_time : exam.end_time,
+          Start_time : exam.start_time,
+          title: exam.exam_name || "Untitled Exam",
+          questions: exam.question_count || "N/A", // Assuming `questions_count` exists
+          duration: exam.duration ? `${exam.duration} min` : "N/A",
+          date: formatToReadableDate(exam.created_at),
         }));
         setPastTests(formattedTests);
       } catch (err) {

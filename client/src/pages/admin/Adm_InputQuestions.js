@@ -16,7 +16,7 @@ const InputQuestions = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [questionCount, setQuestionCount] = useState(1);
+  const [questionCount, setQuestionCount] = useState(0);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,7 +24,7 @@ const InputQuestions = () => {
 
 
   const examId = useSelector((state) => state.exam.examId);
-  console.log('examID is ', examId);
+  // console.log('examID is ', examId);
 
 
   // Handle file change and validate file type
@@ -78,33 +78,33 @@ const InputQuestions = () => {
   };
 
   // Safely destructure location.state, fallback to empty object if undefined
-  const {
-    questionId,
-    questionText,
-    questionOptions = {},
-    exam_id,
-  } = location.state || {};
+const {
+  questionId,
+  questionText,
+  questionOptions = {},
+  exam_id,
+  correct_option
+} = location.state || {};
 
-  // Pre-fill the form when the component loads (for editing)
-  useEffect(() => {
-    if (questionText && questionOptions) {
-      setQuestion(questionText);
+// Pre-fill the form when the component loads (for editing)
+useEffect(() => {
+  if (questionText && questionOptions) {
+    setQuestion(questionText);
 
-      // Check if the necessary options exist to prevent errors
-      const { a = "", b = "", c = "", d = "" } = questionOptions;
-      setOptions([a, b, c, d]);
+    // Check if the necessary options exist to prevent errors
+    const { a = "", b = "", c = "", d = "" } = questionOptions;
+    setOptions([a, b, c, d]);
 
-      // Ensure the correct_option exists before attempting to use it
-      const correctOptionIndex = ["a", "b", "c", "d"].indexOf(
-        questionOptions.correct_option
-      );
-      setToggles(
-        [false, false, false, false].map(
-          (_, index) => index === correctOptionIndex
-        )
-      );
-    }
-  }, [questionText, questionOptions]);
+    // Ensure the correct_option exists before attempting to use it
+    const validOptions = ["a", "b", "c", "d"];
+    const correctOptionIndex = validOptions.indexOf(questionOptions.correct_option);
+
+    // Check if the correct_option is valid; fallback to first option if invalid
+    setToggles(
+      validOptions.map((option, index) => index === (correctOptionIndex >= 0 ? correctOptionIndex : 0))
+    );
+  }
+}, [questionText, questionOptions]);
 
   const viewquestions = () => {
     navigate("/admin/viewquestions"); // Navigate to /admin/viewquestions page

@@ -1,47 +1,62 @@
-import React, {  useState } from "react";
+import React, { useState, useEffect } from "react";
 import DataTime from "./Adm_DataTime";
 import axios from "axios";
 
-const Adm_DraftedTestCard = ({ test ,onClick  }) => {
+
+const Adm_DraftedTestCard = ({ test }) => {
+  // console.log('test is ',test);
+
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
+  const [questions, setQuestions] = useState([])
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
+  const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
+  const [loading, setLoading] = useState(false);
+
 
   const examId = test.exam_id;
-  // console.log('examid is ',examId);
-  
+  // console.log('examid is ',test);
 
-  
-  
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
-  
-  const handlePublishClick = async (test, onClick ) => {
+  // Handle limit change (optional)
+  const handleLimitChange = (newLimit) => {
+    setLimit(newLimit);
+    setPage(1); // Reset to first page whenever the limit changes
+  };
+
+
+
+
+
+  const handlePublishClick = async (test) => {
     try {
-   
-      if (onClick) {
-        onClick(test.exam_id);
-      }
-  
+
       // Log the ID
-      console.log('Clicked test ID:', test.exam_id);
-  
-      
+      // console.log('Clicked test ID:', test.exam_id);
+
+
       const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
-  
-      console.log('Response from server:', response.data);
-     
-  
-      
+
+      // console.log('Response from server:', response.data);
+      window.location.reload();
+
+
     } catch (error) {
-      console.error('Error during POST request:', error);
+      console.error('Error during Put request:', error);
     }
   };
 
   const handleSchedule = (start, end) => {
     setScheduledTime({ start, end });
     axios.put(`/api/exams/publish/${examId}`, {
-        start_time: start,
-        end_time: end,
-      })
+      start_time: start,
+      end_time: end,
+    })
       .then(() => {
         setIsScheduling(false);
       })
@@ -109,7 +124,9 @@ const Adm_DraftedTestCard = ({ test ,onClick  }) => {
               fill="black"
             />
           </svg>
-          {test.questions} Questions
+          {/* Display the question count */}
+
+          <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
         </p>
         <p className="font-bold flex items-center">
           <svg
@@ -141,9 +158,9 @@ const Adm_DraftedTestCard = ({ test ,onClick  }) => {
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
         <button className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
-         >
-       
-        
+        >
+
+
           Publish
         </button>
         <button
@@ -174,6 +191,7 @@ const Adm_DraftedTestCard = ({ test ,onClick  }) => {
         )}
       </div>
     </div>
+    
   );
 };
 
