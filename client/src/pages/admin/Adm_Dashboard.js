@@ -195,7 +195,7 @@ console.log('totalRecords',totalRecords);
 
           <button
             onClick={createTestHandler}
-            className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700"
+            className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
           >
             + Create Test
           </button>

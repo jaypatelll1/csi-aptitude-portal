@@ -271,7 +271,7 @@ useEffect(() => {
             </div>
             <div >
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
                 onClick={() => setModalOpen(true)} // Open modal
               >
                 Upload File
@@ -333,7 +333,7 @@ useEffect(() => {
             />
           </div>
 
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label
               htmlFor="answer-type"
               className="text-xl block text-gray-700 font-medium mb-2"
@@ -348,7 +348,7 @@ useEffect(() => {
             >
               <option value="single">Single Choice</option>
             </select>
-          </div>
+          </div> */}
 
           <div>
             <label className="text-xl block text-gray-700 font-medium mb-2">
@@ -357,14 +357,14 @@ useEffect(() => {
             {options.map((answer, index) => (
               <div
                 key={index}
-                className="group flex items-center gap-4 mb-4 p-3 border border-gray-300 rounded-lg bg-gray-50 hover:shadow-md"
+                className="group flex items-center gap-4 mb-2 p-3 rounded-lg "
               >
                 <input
                   type="text"
                   value={answer}
                   onChange={(e) => handleAnswerChange(index, e.target.value)}
                   placeholder={`Enter option ${index + 1}`}
-                  className="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <button
@@ -401,7 +401,7 @@ useEffect(() => {
             {options.length < 4 && (
               <button
                 onClick={handleAddAnswer}
-                className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-grey-100 transition-all duration-300"
+                className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
               >
                 + Add Answer
               </button>
@@ -412,12 +412,12 @@ useEffect(() => {
         <div className="flex gap-4 justify-between">
           <button
             onClick={handleSubmit}
-            className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+            className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100"
           >
             Save and Add Next
           </button>
           <button
-            className="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500"
+            className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
             onClick={handleCancel}
           >
             Cancel
