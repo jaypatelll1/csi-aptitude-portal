@@ -2,8 +2,13 @@ const examModel = require('../models/examModel');
 const { logActivity } = require('../utils/logger');
 
 const createExam = async (req, res) => {
-  const { name, duration, start_time, end_time } = req.body;
+  const { name, duration, start_time, end_time, target_years,target_branches} = req.body;
   const created_by = req.user.id; // Get user_id from token
+
+  const formattedTargetYears = target_years && target_years.length > 0 ? `{${target_years.join(",")}}` : null;
+  const formattedTargetBranches = target_branches && target_branches.length > 0 ? `{${target_branches.join(",")}}` : null;
+  
+
 
   if (!name || !duration || !created_by) {
     return res.status(400).json({ error: 'All fields are required' });
@@ -12,9 +17,9 @@ const createExam = async (req, res) => {
   const newExam = await examModel.createExam({
     name,
     duration,
-    start_time,
-    end_time,
     created_by,
+    formattedTargetYears,
+    formattedTargetBranches
   });
   if (!newExam) {
     await logActivity({
@@ -36,7 +41,7 @@ const createExam = async (req, res) => {
   });
   res.status(201).json({
     message: 'Exam created successfully and saved as draft',
-    newExam,
+    newExam ,
   });
 };
 
@@ -268,52 +273,34 @@ const getAllPaginatedExams = async (req, res) => {
   }
 };
 
-const getScheduledExams = async (req, res) => {
-  const user_id = req.user.id;
-  const { page, limit } = req.query;
 
-  try {
-    let exams;
-
-    if (page && limit) {
-      // Fetch paginated exams
-      exams = await examModel.getPaginatedScheduledExams(parseInt(page), parseInt(limit));
-      await logActivity({
-        user_id,
-        activity: `Viewed paginated scheduled exams`,
-        status: 'success',
-        details: `Page: ${page}, Limit: ${limit}`,
-      });
-    } else {
-      // Fetch all exams if no pagination is provided
-      exams = await examModel.getAllScheduledExams();
-      await logActivity({
-        user_id,
-        activity: `Viewed all scheduled exams`,
-        status: 'success',
-        details: `Viewed all exams without pagination`,
-      });
-    }
-
-    res.status(200).json({
-      message: "Exams retrieved successfully",
-      exams,
-      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {}),
-    });
-  } catch (error) {
-    console.error('Error retrieving exams:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
 
 
 const getPaginatedScheduledExams = async (req, res) => {
   const user_id = req.user.id;
-  const { page = 1, limit = 10 } = req.query;
+  let status = 'scheduled' , Count,exams
+  const { page , limit } = req.query;
+  console.log('page is ',page , limit);
+  
   try {
-    const exams = await examModel.getPaginatedScheduledExams(
+
+    if(!page && ! limit){
+
+      Count = await examModel.ExamCount(status)
+   exams= await examModel.getExamsByStatus(status)
+   await logActivity({
+     user_id,
+     activity: `Viewed paginated scheduled exams`,
+     status: 'success',
+     details: `Page: ${page}, Limit: ${limit}`,
+   });
+   }else {
+    Count = await examModel.ExamCount(status)
+     exams = await examModel.getPaginatedExams(
       parseInt(page),
-      parseInt(limit)
+      parseInt(limit),
+      status
+
     );
     await logActivity({
       user_id,
@@ -321,96 +308,147 @@ const getPaginatedScheduledExams = async (req, res) => {
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,
     });
-    res
-      .status(200)
-      .json({ page: parseInt(page), limit: parseInt(limit), exams });
+  }
+    res.status(200).json({
+      message: "Exams retrieved successfully",
+      exams : exams || [],
+      "Count" : Count || 0,
+      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {}),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-const getPaginatedDraftededExams = async (req, res) => {
+const getPaginatedDraftedExams = async (req, res) => {
   const user_id = req.user.id;
-  const { page = 1, limit = 10 } = req.query;
-
-  // Validate page and limit
-  if (isNaN(page) || page <= 0 || isNaN(limit) || limit <= 0) {
-    return res.status(400).json({ error: 'Invalid page or limit value' });
-  }
-
+  let status = 'draft' , Count,exams
+  const { page , limit } = req.query;
+  console.log('page is ',page , limit);
+  
   try {
-    const exams = await examModel.getPaginatedDraftededExams(
-      parseInt(page),
-      parseInt(limit)
-    );
 
-    // Log user activity
+    if(!page && ! limit){
+
+      Count = await examModel.ExamCount(status)
+   exams= await examModel.getExamsByStatus(status)
+   await logActivity({
+     user_id,
+     activity: `Viewed paginated scheduled exams`,
+     status: 'success',
+     details: `Page: ${page}, Limit: ${limit}`,
+   });
+   }else {
+    Count = await examModel.ExamCount(status)
+     exams = await examModel.getPaginatedExams(
+      parseInt(page),
+      parseInt(limit),
+      status
+
+    );
     await logActivity({
       user_id,
-      activity: `Viewed paginated drafted exams`,
+      activity: `Viewed paginated published exams`,
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,
     });
-
-    // Send response
+  }
     res.status(200).json({
-      page: parseInt(page),
-      limit: parseInt(limit),
-      exams,
+      message: "Exams retrieved successfully",
+      exams : exams || [],
+      "Count" : Count || 0,
+      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {}),
     });
   } catch (error) {
-    // Log the error
-    console.error(`Error fetching drafted exams: ${error.message}`);
-
-    // Respond with a 500 error
-    res.status(500).json({ error: 'Failed to fetch drafted exams' });
+    res.status(500).json({ error: error.message });
   }
 };
+const getPaginatedLiveExams = async (req, res) => {
+  const user_id = req.user.id;
+  let status = 'live' , Count,exams
+  const { page , limit } = req.query;
+  console.log('page is ',page , limit);
+  
+  try {
 
+    if(!page && ! limit){
 
+      Count = await examModel.ExamCount(status)
+   exams= await examModel.getExamsByStatus(status)
+   await logActivity({
+     user_id,
+     activity: `Viewed paginated scheduled exams`,
+     status: 'success',
+     details: `Page: ${page}, Limit: ${limit}`,
+   });
+   }else {
+    Count = await examModel.ExamCount(status)
+     exams = await examModel.getPaginatedExams(
+      parseInt(page),
+      parseInt(limit),
+      status
+
+    );
+    await logActivity({
+      user_id,
+      activity: `Viewed paginated published exams`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    });
+  }
+    res.status(200).json({
+      message: "Exams retrieved successfully",
+      exams : exams || [],
+      "Count" : Count || 0,
+      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {}),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 const getPaginatedPastExams = async (req, res) => {
   const user_id = req.user.id;
-  const { page = 1, limit = 10 } = req.query;
+  let status = 'past' , Count,exams
+  const { page , limit } = req.query;
+  console.log('page is ',page , limit);
+  
   try {
-    const exams = await examModel.getPaginatedPastExams(
+
+    if(!page && ! limit){
+
+      Count = await examModel.ExamCount(status)
+   exams= await examModel.getExamsByStatus(status)
+   await logActivity({
+     user_id,
+     activity: `Viewed paginated scheduled exams`,
+     status: 'success',
+     details: `Page: ${page}, Limit: ${limit}`,
+   });
+   }else {
+    Count = await examModel.ExamCount(status)
+     exams = await examModel.getPaginatedExams(
       parseInt(page),
-      parseInt(limit)
+      parseInt(limit),
+      status
+
     );
     await logActivity({
       user_id,
-      activity: `Viewed paginated past exams`,
+      activity: `Viewed paginated published exams`,
       status: 'success',
       details: `Page: ${page}, Limit: ${limit}`,
     });
-    res
-      .status(200)
-      .json({ page: parseInt(page), limit: parseInt(limit), exams });
+  }
+    res.status(200).json({
+      message: "Exams retrieved successfully",
+      exams : exams || [],
+      "Count" : Count || 0,
+      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {}),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-const getPaginatedlive = async (req,res) => {
-  const user_id = req.user.id;
-  const { page = 1, limit = 10 } = req.query;
-  try {
-    const exams = await examModel.getPaginatedLiveExams(
-      parseInt(page),
-      parseInt(limit)
-    );
-    await logActivity({
-      user_id,
-      activity: `Viewed paginated live exams`,
-      status: 'success',
-      details: `Page: ${page}, Limit: ${limit}`,
-    });
-    res
-      .status(200)
-      .json({ page: parseInt(page), limit: parseInt(limit), exams });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-}
 
 
 module.exports = {
@@ -420,12 +458,12 @@ module.exports = {
   updateExam,
   deleteExam,
   getAllPaginatedExams,
-  getScheduledExams,
-  scheduleExam,
-  markLiveExam,
-  markPastExam,
-  getPaginatedDraftededExams,
+  getPaginatedDraftedExams,
   getPaginatedScheduledExams,
   getPaginatedPastExams,
-  getPaginatedlive
+  getPaginatedLiveExams,
+  scheduleExam,
+  markLiveExam,
+  markPastExam
+
 };

@@ -37,7 +37,10 @@ CREATE TABLE exams (
     start_time TIMESTAMP,
     end_time TIMESTAMP,
     status exam_status DEFAULT 'draft',
-    FOREIGN KEY (created_by) REFERENCES users (user_id)
+    FOREIGN KEY (created_by) REFERENCES users (user_id),
+   target_years year_enum,
+    target_branches branch_enum,
+
 );
 
 CREATE TABLE questions (
