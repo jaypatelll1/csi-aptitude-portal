@@ -112,9 +112,33 @@ const getPaginatedResultsByExam = async (exam_id, page, limit) => {
   const paginatedqueryText = paginate(queryText, page, limit);
   const result = await query(paginatedqueryText);  
   return result.rows;
-  console.log('rresult is ',result.rows);
+  // console.log('rresult is ',result.rows);
   
 };
+
+const getResultsByUsers = async (user_id) => {
+  const queryText = `
+SELECT DISTINCT 
+    e.exam_name,
+	e.exam_id,
+    e.duration,
+    resp.answered_at,
+    r.total_score,
+	r.max_score,
+	r.student_id,
+	 e.status
+FROM results r
+JOIN exams e ON r.exam_id = e.exam_id
+ JOIN responses resp ON  r.student_id = resp.student_id
+WHERE r.student_id = $1 AND e.status ='past' ;
+
+`;
+
+const result = await query(queryText, [user_id]);
+//  console.log('result is ', result);
+ 
+ return result
+}
 
 module.exports = {
   createResult,
@@ -123,4 +147,5 @@ module.exports = {
   updateResult,
   deleteResult,
   getPaginatedResultsByExam,
+  getResultsByUsers
 };

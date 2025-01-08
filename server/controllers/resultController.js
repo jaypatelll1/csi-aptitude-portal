@@ -181,6 +181,38 @@ const getPaginatedResultsByExam = async (req, res) => {
   }
 };
 
+const getResultsByUsers = async (req, res) => {
+  const { user_id } = req.params;
+
+  const id = req.user.id;
+  try {
+    const results = await resultModel.getResultsByUsers( user_id   );
+    if (!results) {
+      await logActivity({
+        user_id: id,
+        activity: 'View Results',
+        status: 'failure',
+        details: 'Results not found',
+      });
+      return res.status(404).json({ message: 'Results not found.' });
+    }
+    await logActivity({
+      user_id: id,
+      activity: 'View Results',
+      status: 'success',
+      details: 'Results found',
+    });
+    res
+      .status(200)
+      .json({ "results" :results.rows,
+        "count" :results.rowCount
+      });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 const pastResult = async (req, res) => {
   try {
     const { exam_id } = req.params;  // Extract the exam_id from the request parameters
@@ -225,5 +257,6 @@ module.exports = {
   UpdateResult,
   deleteResult,
   getPaginatedResultsByExam,
-  pastResult
+  pastResult,
+  getResultsByUsers
 };
