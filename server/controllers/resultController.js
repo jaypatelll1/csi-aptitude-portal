@@ -204,8 +204,7 @@ const getResultsByUsers = async (req, res) => {
     });
     res
       .status(200)
-      .json({ "results" :results.rows,
-        "count" :results.rowCount
+      .json({ results
       });
   } catch (error) {
     res.status(500).json({ error: error.message });

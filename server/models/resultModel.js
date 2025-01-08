@@ -134,10 +134,40 @@ WHERE r.student_id = $1 AND e.status ='past' ;
 
 `;
 
+
+
 const result = await query(queryText, [user_id]);
 //  console.log('result is ', result);
+
+// Helper function to format date to readable format
+const formatToReadableDate = (isoString) => {
+  const date = new Date(isoString);
+  const options = { day: "2-digit", month: "short", year: "numeric" };
+  return date.toLocaleDateString("en-IN", options);
+};
+
+// Calculate status for each result
+const resultsWithStatus = result.rows.map((row) => {
+  const percentage = ((row.total_score / row.max_score) * 100); // Up to 3 decimal places
+  const status = percentage >= 35 ? "Passed" : "Failed"; // Pass/Fail based on 35%
+  return {
+   
+    exam_name: row.exam_name,
+   
+    total_score : row.total_score,
+    max_score : row.max_score,
+    duration : row.duration,
+    exam_name : row.exam_name,
+   Date: formatToReadableDate(row.answered_at), // Format date
+    percentage: Number(percentage), // Include calculated percentage
+    status :status, // Pass or Fail
+    
+  };
+});
+
+return resultsWithStatus;
  
- return result
+
 }
 
 module.exports = {
