@@ -2,9 +2,9 @@ const pool = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
 const createExam = async (exam) => {
-  const { name, duration, created_by ,   formattedTargetYears,formattedTargetBranches } = exam;
+  const { name, duration, created_by, formattedTargetYears, formattedTargetBranches } = exam;
   const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches) VALUES ($1, $2, $3, $4,$5,$6) RETURNING  *`;
-  const values = [name, duration, created_by, 'draft',formattedTargetYears,formattedTargetBranches  ];
+  const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
@@ -23,7 +23,7 @@ const getExamById = async (exam_id) => {
 };
 
 const updateExam = async (exam) => {
-  const { exam_id, name, duration, start_time, end_time, created_by ,status } = exam;
+  const { exam_id, name, duration, start_time, end_time, created_by, status } = exam;
   const query = `UPDATE exams SET exam_name=$1, duration=$2, start_time=$3, end_time=$4, created_by=$5, status=$6 WHERE exam_id=$7 RETURNING *`;
   const values = [
     name,
@@ -60,7 +60,7 @@ const markLiveExam = async (exam_id) => {
 
 const deleteExam = async (exam_id) => {
 
-  
+
   // Step 1: Delete all related questions
   const deleteQuestionsQuery = `DELETE FROM questions WHERE exam_id=$1`;
   await pool.query(deleteQuestionsQuery, [exam_id]);
@@ -68,7 +68,7 @@ const deleteExam = async (exam_id) => {
   // Step 2: Now delete the exam
   const query = `DELETE FROM exams WHERE exam_id=$1 RETURNING *`;
   const result = await pool.query(query, [exam_id]);
-  
+
   // Return the deleted exam data
   return result.rows[0];
 };
@@ -133,11 +133,35 @@ const getExamsByStatus = async (status) => {
   return result.rows;
 }
 
+const getExamsForUser = async (status, target_branches, target_years) => {
+  try {
+    const queryTEXT = `
+        SELECT *  
+         FROM exams
+        WHERE 
+        status = $1 
+         AND target_branches @> $2::branch_enum[]
+         AND target_years @> $3::year_enum[]
+         ORDER BY exam_id DESC;
+
+    `;
+
+   
+    const result = await pool.query(queryTEXT, [status, target_branches, target_years]);
+
+    
+    return result;
+  } catch (error) {
+    console.error('Error fetching exams:', error.message);
+    throw error; // Re-throw the error for higher-level handling
+  }
+};
 
 
 
 
-const getPaginatedExams = async (page, limit , status) => {
+
+const getPaginatedExams = async (page, limit, status) => {
   const query = `SELECT 
     e.exam_id, 
     e.exam_name, 
@@ -200,11 +224,8 @@ module.exports = {
   deleteExam,
   getAllPaginatedExams,
   getPaginatedExams,
-  // getPaginatedDraftededExams,
+  getExamsForUser,
   getAllScheduledExams,
-  // getPaginatedScheduledExams,
-  // getPaginatedPastExams,
-  // getPaginatedLiveExams,
   scheduleExam,
   markLiveExam,
   markPastExam,

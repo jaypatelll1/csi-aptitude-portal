@@ -449,6 +449,36 @@ const getPaginatedPastExams = async (req, res) => {
   }
 };
 
+const getExamsForUser = async (req, res) => {
+  const user_id = req.user.id;
+ 
+
+const {status, target_branches, target_years} = req.body
+// console.log('status, target_branches, target_year', status, target_branches, target_years, page , limit);
+
+  try {
+    const exams = await examModel.getExamsForUser(status, target_branches, target_years);
+
+    await logActivity({
+      user_id,
+      activity: `Viewed exams for user`,
+      status: 'success',
+      details: `Filters applied: Status = ${status}`,
+    });
+
+    res.status(200).json({
+      message: "Exams for user retrieved successfully",
+      exams: exams.rows || [],
+      count : exams.rowCount || 0,
+    });
+  } catch (error) {
+    console.error('Error fetching exams for user:', error.message);
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 
 
 module.exports = {
@@ -464,6 +494,7 @@ module.exports = {
   getPaginatedLiveExams,
   scheduleExam,
   markLiveExam,
-  markPastExam
+  markPastExam,
+  getExamsForUser
 
 };

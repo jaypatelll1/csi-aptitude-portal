@@ -13,6 +13,7 @@ const {
   scheduleExam,
   markPastExam,
   markLiveExam,
+  getExamsForUser
  
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
@@ -28,6 +29,7 @@ router.get('/scheduled', getPaginatedScheduledExams);
 router.get('/past', getPaginatedPastExams);
 router.get('/live', getPaginatedLiveExams);
 router.get('/find/:exam_id', getExamById);
+router.get("/student",getExamsForUser)
 
 router.post('/', authorizeRoles, createExam);
 
