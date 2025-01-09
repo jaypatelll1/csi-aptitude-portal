@@ -68,10 +68,18 @@ const deleteExam = async (exam) => {
 // Pagination
 // Get all exams with pagination
 const getAllPaginatedExams = async (page, limit) => {
+  const countQuery = 'SELECT COUNT(*) FROM exams';
+  const countResult = await pool.query(countQuery);
+  const totalExams = parseInt(countResult.rows[0].count, 10);
+
   const query = 'SELECT * FROM exams ORDER BY exam_id ASC';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery);
-  return result.rows;
+
+  return {
+    totalExams,
+    exams: result.rows
+  };
 };
 
 const getAllScheduledExams = async () => {
@@ -81,32 +89,64 @@ const getAllScheduledExams = async () => {
 };
 
 const getPaginatedScheduledExams = async (page, limit) => {
+  const countQuery = 'SELECT COUNT(*) FROM exams WHERE status=$1';
+  const countResult = await pool.query(countQuery, ['scheduled']);
+  const totalExams = parseInt(countResult.rows[0].count, 10);
+
   const query = 'SELECT * FROM exams WHERE status=$1';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['scheduled']);
-  return result.rows;
+
+  return {
+    totalExams,
+    exams: result.rows
+  };
 };
 
 const getPaginatedDraftededExams = async (page, limit) => {
+  const countQuery = 'SELECT COUNT(*) FROM exams WHERE status=$1';
+  const countResult = await pool.query(countQuery, ['draft']);
+  const totalExams = parseInt(countResult.rows[0].count, 10);
+
   const query = 'SELECT * FROM exams WHERE status=$1';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['draft']);
-  return result.rows;
+
+  return {
+    totalExams,
+    exams: result.rows
+  };
 };
 
 const getPaginatedPastExams = async (page, limit) => {
+  const countQuery = 'SELECT COUNT(*) FROM exams WHERE status=$1';
+  const countResult = await pool.query(countQuery, ['past']);
+  const totalExams = parseInt(countResult.rows[0].count, 10);
+
   const query = 'SELECT * FROM exams WHERE status=$1';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['past']);
-  return result.rows;
+
+  return {
+    totalExams,
+    exams: result.rows
+  };
 };
+
 const getPaginatedLiveExams = async (page, limit) => {
+  const countQuery = 'SELECT COUNT(*) FROM exams WHERE status=$1';
+  const countResult = await pool.query(countQuery, ['live']);
+  const totalExams = parseInt(countResult.rows[0].count, 10);
+
   const query = 'SELECT * FROM exams WHERE status=$1';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, ['live']);
-  return result.rows;
-}
 
+  return {
+    totalExams,
+    exams: result.rows
+  };
+};
 const getLastExam = async () => {
   const query = 'SELECT * FROM exams ORDER BY created_at DESC LIMIT 1';
   const result = await pool.query(query);

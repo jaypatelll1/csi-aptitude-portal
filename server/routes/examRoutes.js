@@ -24,7 +24,7 @@ router.post('/',jwtAuthMiddleware, authorizeRoles, createExam);
 
 router.get('/',jwtAuthMiddleware, getAllPaginatedExams); // Pagination
 router.get('/drafts', jwtAuthMiddleware,authorizeRoles, getPaginatedDraftededExams)
-router.get('/scheduled', jwtAuthMiddleware, getScheduledExams);
+router.get('/scheduled', jwtAuthMiddleware, getPaginatedScheduledExams);
 router.get('/past', jwtAuthMiddleware, getPaginatedPastExams);
 router.get('/live',jwtAuthMiddleware, getPaginatedlive);
 router.get('/find/:exam_id',jwtAuthMiddleware, getExamById);

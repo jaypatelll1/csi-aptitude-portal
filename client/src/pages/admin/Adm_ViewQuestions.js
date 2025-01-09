@@ -156,7 +156,7 @@ const Adm_ViewQuestions = () => {
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+          <h1 className="text-xl sm:text-2xl font-bold ml-20 sm:ml-52 xl:m-0">
             Create Aptitude Test
           </h1>
         </div>
@@ -182,21 +182,21 @@ const Adm_ViewQuestions = () => {
             </svg>
           </button>
           <h2 className="text-lg font-semibold">Question Summary</h2>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 items-end">
             <button 
             onClick={handleSaveDraft}
-            className="bg-white border border-gray-300 text-gray-700 font-thin py-2 px-4 rounded-lg hover:bg-gray-100">
+            className="bg-white border border-gray-300 text-gray-700 font-thin sm:py-2 px-1 sm:px-4 rounded-lg hover:bg-gray-100">
               Save as Draft
             </button>
             <button
               onClick={handleSchedulePost}
-              className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg"
+              className="bg-white border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg"
             >
               Schedule Post
             </button>
             <button
               onClick={handleDelete}
-              className="bg-red-600 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg"
+              className="bg-red-600 border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg"
             >
              Delete Exam
             </button>

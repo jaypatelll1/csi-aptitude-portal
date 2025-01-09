@@ -1,7 +1,7 @@
-import React, { useEffect, useState ,useRef  } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-import  io  from "socket.io-client"
+import io from "socket.io-client";
 import Sidebar from "../../components/student/mcqexampage/Sidebar";
 import {
   setQuestions,
@@ -9,11 +9,9 @@ import {
   visitQuestion,
 } from "../../redux/questionSlice";
 import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponent";
-import { useParams } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
-
 
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
@@ -21,14 +19,12 @@ const MCQExamPage = () => {
 
   const dispatch = useDispatch();
   const { examId } = useParams();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   // console.log('examid is ',examId);
 
   const location = useLocation();
   const Duration = location.state?.Duration;
   // console.log('duration is',Duration);
- 
-
 
   const userId = useSelector((state) => state.user.user.id);
   const userName = useSelector((state) => state.user.user.name);
@@ -43,21 +39,16 @@ const MCQExamPage = () => {
   const [remainingTime, setRemainingTime] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
 
-  
-
-
   const formatTimeFromSeconds = (seconds) => {
     const hours = Math.floor(seconds / 3600); // Get total hours
     const minutes = Math.floor((seconds % 3600) / 60); // Get remaining minutes
     const remainingSeconds = seconds % 60; // Get remaining seconds
 
     // Format and return as HH:MM:SS
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-
-
-
-
 
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
@@ -74,40 +65,38 @@ const MCQExamPage = () => {
     }
   };
 
-
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io('/exams/start-exam');
+      socketRef.current = io("/exams/start-exam");
     }
 
     const socket = socketRef.current;
 
-    socket.on('connect', () => {
-      console.log('Connected to the exam namespace:', socket.id);
+    socket.on("connect", () => {
+      console.log("Connected to the exam namespace:", socket.id);
     });
 
-    socket.emit('start_exam', {
+    socket.emit("start_exam", {
       exam_id: examId,
       duration: Duration * 60,
     });
 
-    socket.on('timer_update', (data) => {
+    socket.on("timer_update", (data) => {
       setRemainingTime(data.remainingTime);
     });
 
-    socket.on('exam_ended', (data) => {
-      console.log('Exam ended:', data.message);
+    socket.on("exam_ended", (data) => {
+      console.log("Exam ended:", data.message);
       setTimeUp(true);
     });
 
     return () => {
-      socket.off('connect');
-      socket.off('timer_update');
-      socket.off('exam_ended');
+      socket.off("connect");
+      socket.off("timer_update");
+      socket.off("exam_ended");
       socket.disconnect();
     };
   }, [examId, Duration]);
-
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -125,18 +114,16 @@ const MCQExamPage = () => {
     };
   }, [testSubmitted]);
 
-
-
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-      const response = await axios.get(`/api/exams/questions/${examId}`);
+        const response = await axios.get(`/api/exams/questions/${examId}`);
 
         const formattedQuestions = response.data.map((q) => ({
           ...q,
           answered: false,
         }));
-        console.log('formattedQuestions', formattedQuestions);
+        console.log("formattedQuestions", formattedQuestions);
 
         dispatch(setQuestions(formattedQuestions));
       } catch (error) {
@@ -153,7 +140,7 @@ const MCQExamPage = () => {
 
   const handleOptionSelect = (option, id) => {
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
-    socketRef.current.emit('submit_temp_response', {
+    socketRef.current.emit("submit_temp_response", {
       exam_id: examId,
       question_id: id,
       selected_option: option,
@@ -162,13 +149,12 @@ const MCQExamPage = () => {
     // console.log('value  is ',id );
 
     // const socket = io('/exams/start-exam');
-  
-  //   socket.emit('submit_temp_response', { 
-  //     "exam_id" : examId, 
-  //     "question_id" : id,
-  //   "selected_option": option
-  // });
-    
+
+    //   socket.emit('submit_temp_response', {
+    //     "exam_id" : examId,
+    //     "question_id" : id,
+    //   "selected_option": option
+    // });
   };
 
   const handleNextQuestion = () => {
@@ -184,8 +170,6 @@ const MCQExamPage = () => {
     }
   };
 
-
-
   const exitFullscreen = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch((err) => {
@@ -197,17 +181,12 @@ const MCQExamPage = () => {
   const handleSubmitTest = () => {
     setTestSubmitted(true);
 
-  
+    socketRef.current.emit("submit_responses", {
+      exam_id: examId,
+    });
 
-    socketRef.current.emit('submit_response', { 
-      "exam_id" : examId   
-  });
- 
-  navigate("/home")
-  
+    navigate("/home");
   };
-
-
 
   return (
     <div className="flex h-screen bg-[#F5F6F8]">
@@ -253,7 +232,6 @@ const MCQExamPage = () => {
             {Object.entries(questions[currentQuestionIndex]?.options || {}).map(
               ([key, value]) => (
                 <label
-                
                   key={key}
                   className="block p-2 rounded-lg hover:bg-gray-100 transition"
                 >
@@ -264,7 +242,12 @@ const MCQExamPage = () => {
                     checked={
                       questions[currentQuestionIndex]?.selectedOption === key
                     }
-                    onChange={() => handleOptionSelect(key,   questions[currentQuestionIndex]?.question_id)}
+                    onChange={() =>
+                      handleOptionSelect(
+                        key,
+                        questions[currentQuestionIndex]?.question_id
+                      )
+                    }
                   />
                   {value}
                 </label>
@@ -287,11 +270,10 @@ const MCQExamPage = () => {
             >
               Next
             </button>
-
           </div>
         </div>
       </div>
-      <Sidebar name={userName} onSubmitTest={handleSubmitTest} limit= {timeUp}/>
+      <Sidebar name={userName} onSubmitTest={handleSubmitTest} limit={timeUp} />
     </div>
   );
 };

@@ -23,10 +23,33 @@ const Dashboard = () => {
   // const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
   const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
   const [page, setPage] = useState(1);
-  let limit = 15;
+  let limit = 9;
 
   const [selectedTestId, setSelectedTestId] = useState(null);
 
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1);
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const startPage = Math.max(1, page - 3);
+    const endPage = Math.min(totalPages, page + 3);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
   const handleTestClick = (exam_id) => {
     setSelectedTestId(exam_id);
@@ -42,29 +65,28 @@ const Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-      const response = await axios.get(endpoint,{params: { page, limit }});
-      console.log('respnse ',response);
-      
-// console.log('response.data.totalCount ',response.data.totalCount);
-const totalRecords = response.data.totalRecords;
-console.log('totalRecords',totalRecords);
+      const response = await axios.get(endpoint, { params: { page, limit } });
+      console.log('respnse ', response);
 
-      setTotalPages(Math.ceil(totalRecords/ limit)); 
-      console.log('total is ',totalPages);
-      
+      // console.log('response.data.totalCount ',response.data.totalCount);
+      const totalRecords = response.data.totalRecords;
+      console.log('totalRecords', totalRecords);
+      setTotalPages(Math.ceil(totalRecords / limit));
+      console.log('total is ', totalPages);
+
 
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams.map((exam) => ({
-          exam_id : exam.exam_id,
-          end_time : exam.end_time,
-          Start_time : exam.start_time,
+          exam_id: exam.exam_id,
+          end_time: exam.end_time,
+          Start_time: exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          questions: exam.question_count || "N/A", 
+          questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
         })),
-              
+
       }));
     } catch (err) {
       console.error(`Error fetching ${key} tests:`, err);
@@ -158,8 +180,8 @@ console.log('totalRecords',totalRecords);
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-       
-          <Adm_Sidebar testsData={testsData}/>
+
+        <Adm_Sidebar testsData={testsData} />
 
 
       </div>
@@ -195,7 +217,7 @@ console.log('totalRecords',totalRecords);
 
           <button
             onClick={createTestHandler}
-            className="bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700"
+            className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
           >
             + Create Test
           </button>
@@ -214,8 +236,8 @@ console.log('totalRecords',totalRecords);
               <button
                 key={tab}
                 className={`text-lg font-semibold ${activeTab === tab
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-600"
                   }`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -241,7 +263,7 @@ console.log('totalRecords',totalRecords);
                     <Adm_DraftedTestCard
                       key={key}
                       test={test}
-                     
+
                     />
                   );
                 } else if (activeTab === "scheduled") {
@@ -249,7 +271,7 @@ console.log('totalRecords',totalRecords);
                     <Adm_ScheduledTestCard
                       key={key}
                       test={test}
-                
+
                     />
                   );
                 } else if (activeTab === "past") {
@@ -257,7 +279,7 @@ console.log('totalRecords',totalRecords);
                     <Adm_PastTestCard
                       key={key}
                       test={test}
-                     
+
                     />
                   );
                 }
@@ -265,10 +287,10 @@ console.log('totalRecords',totalRecords);
               })
             )}
 
-           </div> 
-           <div className="flex justify-center items-center mt-5">
+          </div>
+          <div className="flex justify-center items-center mt-5">
             <svg
-              onClick={ handlePrev}
+              onClick={handlePrevPage}
               className="cursor-pointer mr-2"
               xmlns="http://www.w3.org/2000/svg"
               width="12"
@@ -283,9 +305,20 @@ console.log('totalRecords',totalRecords);
                 fill="black"
               />
             </svg>
-            <span>Page {page}</span>
+            <div className="flex">
+              {getPageNumbers().map((p) => (
+                <div
+                  key={p}
+                  className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                    }`}
+                  onClick={() => setPage(p)}
+                >
+                  {p}
+                </div>
+              ))}
+            </div>
             <svg
-              onClick={  handleNext  }
+              onClick={handleNextPage}
               className="cursor-pointer ml-2"
               xmlns="http://www.w3.org/2000/svg"
               width="12"
@@ -302,12 +335,12 @@ console.log('totalRecords',totalRecords);
             </svg>
           </div>
 
-          </div>
         </div>
-   
-   
-  
-      
+      </div>
+
+
+
+
     </div>
   );
 };

@@ -174,17 +174,17 @@ const CreateTestPage = () => {
           </form>
         </div>
 
-        <div className="flex items-center space-x-4 mt-28">
+        <div className="flex items-center space-x-4 mt-20">
           <button
             type="submit"
-            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100"
             onClick={handleCreateQuestions}
           >
             Create questions
           </button>
           <button
             type="button"
-            className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
             onClick={handleCancel}
           >
             Cancel

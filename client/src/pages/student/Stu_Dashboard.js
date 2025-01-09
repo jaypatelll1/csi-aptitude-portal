@@ -134,7 +134,7 @@ function StudentDashboard() {
     ref={sidebarRef}
     className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
       sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-    } transition-transform duration-300 ease-in-out w-64 xl:block`}
+    } transition-transform duration-300 w-64 xl:block`}
   >
     <MSidebar />
   </div>
@@ -142,9 +142,7 @@ function StudentDashboard() {
   {/* Main Section */}
   <div
     id="main-section"
-    className={`flex-grow bg-white h-max overflow-hidden transition-all duration-300 ${
-      sidebarOpen ? "ml-64" : "ml-0 xl:ml-64"
-    }`}
+    className={` bg-white h-max w-full overflow-hidden transition-all duration-300 xl:ml-64`}
   >
     {/* Top Bar */}
     <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
@@ -172,7 +170,7 @@ function StudentDashboard() {
           />
         </svg>
       </button>
-      <h1 className="text-xl font-medium text-gray-800 ml-5">Dashboard</h1>
+      <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
       <div
         className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
         onClick={openDetails}
@@ -214,7 +212,7 @@ function StudentDashboard() {
       </div>
 
       {/* Test Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-5">
         {tests.length > 0 ? (
           tests.map((test, index) => (
             <StuTestCard
@@ -238,7 +236,7 @@ function StudentDashboard() {
           style={{ scrollbarWidth: "none" }}
         >
           {pastTests.map((test, index) => (
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 ">
               <StuPastTestCard
                 key={index}
                 testName={test.testName}

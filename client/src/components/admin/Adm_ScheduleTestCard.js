@@ -163,7 +163,7 @@ const Adm_ScheduledTestCard = ({ test   }) => {
       </div>
       <br />
       {/* Buttons */}
-      <div className="flex justify-end space-x-4 -mt-5">
+      <div className="flex justify-end space-x-2 -mt-5">
         <button 
          onClick={() => setIsScheduling(true)}
         className="bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">
