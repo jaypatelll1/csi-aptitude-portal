@@ -29,7 +29,7 @@ router.get('/scheduled', getPaginatedScheduledExams);
 router.get('/past', getPaginatedPastExams);
 router.get('/live', getPaginatedLiveExams);
 router.get('/find/:exam_id', getExamById);
-router.get("/student",getExamsForUser)
+router.post("/student",getExamsForUser)
 
 router.post('/', authorizeRoles, createExam);
 
