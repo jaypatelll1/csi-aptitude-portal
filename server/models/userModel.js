@@ -118,6 +118,27 @@ const getUserCount = async () => {
   return {TPO : user_TPO.rows[0].count, Students: user_Student.rows[0].count};
 };
 
+
+
+const getUsers = async () => {
+  try {
+    const result = await pool.query('SELECT user_id, name, email FROM users'); // Selecting relevant fields
+    return result.rows;
+  } catch (err) {
+    throw new Error('Error fetching users: ' + err.message);
+  }
+};
+
+
+const getUserByEmail = async (email) => {
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    return result.rows[0];  // Return the first user, or null if not found
+  } catch (err) {
+    throw new Error('Error fetching user by email: ' + err.message);
+  }
+};
+
 module.exports = {
   findUserByEmail,
   createUser,
@@ -128,4 +149,8 @@ module.exports = {
   getUserCount,
   getAllStudents,
   getUserById,
+  getUsers,
+  getUserByEmail,
 };
+
+

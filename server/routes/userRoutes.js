@@ -3,7 +3,6 @@ const { registerUser, loginUser, updateUser, deleteUser, getAllPaginatedUsers, v
 const { jwtAuthMiddleware, } = require('../middlewares/jwtAuthMiddleware');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const userController = require('../controllers/userController'); 
-const userController = require('../controllers/userController'); 
 
 const router = express.Router();
 
