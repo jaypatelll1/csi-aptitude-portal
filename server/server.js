@@ -11,7 +11,6 @@ const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
 require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
 
-
 // Import Routes
 const userRoutes = require('./routes/userRoutes');
 const examRoutes = require('./routes/examRoutes');
@@ -20,6 +19,8 @@ const responseRoutes = require('./routes/responseRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const exportRoutes = require('./routes/exportRoutes');
+const logger = require('./utils/logger');
+const errorHandler = require('./middlewares/errorHandler');
 const statsRoutes = require('./routes/statsRoutes');
 const tokenRoutes = require("./routes/tokenRoutes")
 
@@ -33,7 +34,6 @@ const FRONTEND_ORIGIN =
   process.env.NODE_ENV === 'production'
     ? 'https://csi-aptitude-portal.onrender.com' // Production frontend URL
     : 'http://localhost:3000'; // Local frontend URL
-
 
 const io = new Server(server, {
   cookie: true,
@@ -80,6 +80,16 @@ initSocketHandlers(start_exam);
 app.get('/', (req, res) => {
   res.send('Server is running!'); // Generic message for Render health checks
 });
+
+// 404 Handler for undefined routes
+app.use((req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  error.status = 404;
+  next(error);
+});
+
+// Centralized error handling middleware
+app.use(errorHandler);
 
 // server.listen(PORT, HOST ,() => {
 //   console.log(`Server is running at http://${HOST}:${PORT}`);
