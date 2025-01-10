@@ -1,0 +1,23 @@
+[2025-01-10 12:28:10] error: Error occurred: Not Found - /users 
+Stack Trace: Error: Not Found - /users
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\server.js:79:17
+    at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express-rate-limit\dist\index.cjs:822:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express-rate-limit\dist\index.cjs:704:5
+[2025-01-10 15:04:51] error: Error occurred: Not Found - /users 
+Stack Trace: Error: Not Found - /users
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\server.js:86:17
+    at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at urlencodedParser (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\body-parser\lib\types\urlencoded.js:94:7)
+    at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
