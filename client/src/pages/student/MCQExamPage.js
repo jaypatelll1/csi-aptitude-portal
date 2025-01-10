@@ -145,16 +145,6 @@ const MCQExamPage = () => {
       question_id: id,
       selected_option: option,
     });
-    // console.log('option is ', option);
-    // console.log('value  is ',id );
-
-    // const socket = io('/exams/start-exam');
-
-    //   socket.emit('submit_temp_response', {
-    //     "exam_id" : examId,
-    //     "question_id" : id,
-    //   "selected_option": option
-    // });
   };
 
   const handleNextQuestion = () => {
