@@ -8,9 +8,12 @@ import { setExamId } from "../../redux/ExamSlice"; // Import the action
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setduration] = useState("");
+  const [branch, setBranch] = useState("");
+  const [year, setYear] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
+
 
   const dispatch = useDispatch();
 
@@ -171,6 +174,43 @@ const CreateTestPage = () => {
                 required
               />
             </div>
+
+            <div className="mb-6">
+              <label
+                htmlFor="Branch"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Branch
+              </label>
+              <input
+                type="text"
+                id="testName"
+                placeholder="Eg. CMPN, IT, EXTC, ECS"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={branch}
+                onChange={(e) => setBranch(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-6">
+              <label
+                htmlFor="Year"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Year
+              </label>
+              <input
+                type="text"
+                id="testName"
+                placeholder="Eg. FE, SE, TE, BE"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                required
+              />
+            </div>
+
           </form>
         </div>
 
