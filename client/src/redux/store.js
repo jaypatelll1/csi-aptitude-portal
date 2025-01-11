@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage";
 import questionReducer from "./questionSlice";
 import userReducer from "./userSlice";
 import examReducer from './ExamSlice';
+import submitReducer from './SubmitSlice'
 
 const userPersistConfig = {
   key: "user",
@@ -23,6 +24,7 @@ const store = configureStore({
     questions: questionReducer, // Existing reducer for questions
     user: persistedUserReducer, // Persisted user reducer
     exam: persistedExamReducer, 
+    Submit : submitReducer, 
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

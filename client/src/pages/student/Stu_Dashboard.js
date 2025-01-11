@@ -4,16 +4,16 @@ import StuTestCard from "../../components/student/home/Stu_TestCard";
 import StuPastTestCard from "../../components/student/home/Stu_PastTestCard";
 import Details from "../../components/student/home/Stu_Details";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useSelector , useDispatch } from 'react-redux';
+import { setExam } from "../../redux/ExamSlice";
 
 
 
 function StudentDashboard() {
-  const location = useLocation();
-  const userData = location.state?.userData;
-  console.log('userdata is', userData);
+ 
 
-  // console.log('uers data is',userData );
+  const userData = useSelector((state) => state.user.user);
+  console.log('uers data is',userData );
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -22,7 +22,13 @@ function StudentDashboard() {
   const detailsRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
-
+const dispatch = useDispatch();
+  // Helper function to format date to readable format
+  const formatToReadableDate = (isoString) => {
+    const date = new Date(isoString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-IN", options);
+  };
   const fetchTests = async (filterType) => {
     let payload;
     let url = "api/exams/student"; // Default for "All"
@@ -52,17 +58,16 @@ function StudentDashboard() {
       const response = await axios.post(url, payload);
       console.log('response is ', response);
 const pastPaper = await axios.get(`/api/exams/results/student/${userData.id}`)
+// using redux
+ dispatch(setExam(response.data.exams ));
 console.log('past tests is ', pastPaper);
 setResult(pastPaper.data.results)
 
       setTests(response.data.exams || []);
     } catch (err) {
-    } finally {
-    }
+      console.error("erro getting response ", err)
+    } 
   };
-
-
-console.log('result is ', result);
 
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -164,7 +169,8 @@ console.log('result is ', result);
                 name={userData.name}
                 email={userData.email}
                 mobile={userData.phone}
-                branch={userData.branch}
+                branch={userData.department}
+                year={userData.year}
               />
             )}
           </div>
@@ -201,7 +207,8 @@ console.log('result is ', result);
                   examId={test.exam_id}
                   testName={test.exam_name}
                   duration={test.duration}
-                  lastDate={null}
+                  status = {test.status}
+                  lastDate={formatToReadableDate(test.created_at)}
                 />
               ))
             ) : (

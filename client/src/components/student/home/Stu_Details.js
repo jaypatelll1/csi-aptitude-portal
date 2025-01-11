@@ -23,6 +23,7 @@ const navigate = useNavigate()
                 <p>Email: {props.email}</p>
                 <p>Mobile: {props.mobile}</p>
                 <p>Branch: {props.branch}</p>
+                <p>Year: {props.year}</p>
             </div>
             <div>
                 <button className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500" onClick={handleLogout}>Logout</button>

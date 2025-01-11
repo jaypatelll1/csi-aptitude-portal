@@ -157,6 +157,7 @@ const Dashboard = () => {
         await fetchTestsData(`/api/exams/drafts`, "drafted");
         await fetchTestsData(`/api/exams/scheduled`, "scheduled");
         await fetchTestsData(`/api/exams/past`, "past");
+        await fetchTestsData(`/api/exams/live`, "past");
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");

@@ -8,8 +8,9 @@ import { setExamId } from "../../redux/ExamSlice"; // Import the action
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setduration] = useState("");
-  const [branch, setBranch] = useState("");
-  const [year, setYear] = useState("");
+  
+  const [branch, setBranch] = useState([""]);
+  const [year, setYear] = useState([""]);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -20,11 +21,19 @@ const CreateTestPage = () => {
   const handleCreateQuestions = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
+
     // Create the payload to send to the server
     const payload = {
       name: `${testName}`, // The test name
       duration: `${duration}`, // Using duration as duration
+target_years:`${year}`,
+        target_branches: `${branch}`,
     };
+
+    console.log('year is ',year);
+    console.log("branch is ",branch)
+    console.log("branch is ",payload)
+    
 
     try {
       // Send a POST request to the server to create the test
@@ -185,7 +194,7 @@ const CreateTestPage = () => {
               <input
                 type="text"
                 id="testName"
-                placeholder="Eg. CMPN, IT, EXTC, ECS"
+                placeholder="Eg. CMPN, INFT, EXTC,ELEC, ECS"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}

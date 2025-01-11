@@ -39,7 +39,7 @@ const Login = () => {
           navigate(`/reset-password/${response.headers.resettoken}`);
         } else if (userData.status === "ACTIVE") {
           if (userData.role === "Student") {
-            navigate("/home", { state: { userData } });
+            navigate("/home");
           } else if (userData.role === "TPO") {
             navigate("/admin");
           } else {

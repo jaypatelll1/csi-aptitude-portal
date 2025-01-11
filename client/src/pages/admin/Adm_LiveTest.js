@@ -40,9 +40,10 @@ const Adm_DraftTest = () => {
         setLoading(true); // Set loading to true before fetching
         setError(null); // Clear any existing errors
 
-        const response = await axios.get("/api/exams/drafts", {
+        const response = await axios.get("/api/exams/live", {
           withCredentials: true,
         });
+console.log('response live ', response);
 
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id : exam.exam_id,

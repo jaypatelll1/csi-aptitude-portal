@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Msidebar from "../../components/student/home/MSidebar";
 import { useLocation } from "react-router-dom";
+// import { useSelector } from "react-redux";
 
 const TestInstruction = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
@@ -11,6 +12,9 @@ const TestInstruction = () => {
   const location = useLocation();
   const examId = location.state?.examId;
   const Duration = location.state?.Duration;
+
+  // const examId = useSelector((state)=>state.examId)
+  // const Duration = useSelector((state)=>state.time)
   console.log("examId", examId);
   console.log("duration", Duration);
 

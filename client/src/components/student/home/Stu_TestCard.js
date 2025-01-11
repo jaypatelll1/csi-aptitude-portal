@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
-const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId,status = "Recent test" }) => {
+const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId,status  }) => {
 
   const navigate = useNavigate();
   // console.log('test exam id is ', examId);
