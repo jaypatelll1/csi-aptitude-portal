@@ -136,13 +136,27 @@ const getExamsByStatus = async (status) => {
 const getExamsForUser = async (status, target_branches, target_years) => {
   try {
     const queryTEXT = `
-        SELECT *  
-         FROM exams
-        WHERE 
-        status = $1 
-         AND target_branches @> $2::branch_enum[]
-         AND target_years @> $3::year_enum[]
-         ORDER BY exam_id DESC;
+       SELECT 
+  e.exam_id,
+  e.exam_name,
+  e.status,
+  e.target_branches,
+  e.target_years,
+  e.duration,
+  e.created_at,
+  e.start_time,
+  e.end_time,
+  e.status,
+  COUNT(q.exam_id) AS total_questions  
+FROM exams AS e
+JOIN questions AS q ON q.exam_id = e.exam_id
+WHERE 
+  e.status = $1                         
+  AND e.target_branches @> $2::branch_enum[]  
+  AND e.target_years @> $3::year_enum[]      
+GROUP BY e.exam_id, e.status, e.target_branches, e.target_years  
+ORDER BY e.exam_id DESC;                  
+
 
     `;
 
