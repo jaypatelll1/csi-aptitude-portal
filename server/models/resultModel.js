@@ -122,15 +122,17 @@ SELECT DISTINCT
     e.exam_name,
 	e.exam_id,
     e.duration,
-    resp.answered_at,
+   e.end_time,
     r.total_score,
 	r.max_score,
 	r.student_id,
-	 e.status
+	 e.status,
+   e.exam_id,
+    r.result_id
 FROM results r
 JOIN exams e ON r.exam_id = e.exam_id
- JOIN responses resp ON  r.student_id = resp.student_id
-WHERE r.student_id = $1 AND e.status ='past' ;
+WHERE r.student_id = $1 AND e.status ='past' 
+order by e.end_time desc
 
 `;
 
@@ -158,7 +160,7 @@ const resultsWithStatus = result.rows.map((row) => {
     max_score : row.max_score,
     duration : row.duration,
     exam_name : row.exam_name,
-   Date: formatToReadableDate(row.answered_at), // Format date
+   Date: formatToReadableDate(row.end_time), // Format date
     percentage: Number(percentage), // Include calculated percentage
     status :status, // Pass or Fail
     

@@ -2,17 +2,29 @@ const examModel = require('../models/examModel');
 const { logActivity } = require('../utils/logger');
 
 const createExam = async (req, res) => {
-  const { name, duration, start_time, end_time, target_years,target_branches} = req.body;
+  let { name, duration, start_time, end_time, target_years,target_branches} = req.body;
   const created_by = req.user.id; // Get user_id from token
 
-  const formattedTargetYears = target_years && target_years.length > 0 ? `{${target_years.join(",")}}` : null;
-  const formattedTargetBranches = target_branches && target_branches.length > 0 ? `{${target_branches.join(",")}}` : null;
-  
-
-
-  if (!name || !duration || !created_by) {
-    return res.status(400).json({ error: 'All fields are required' });
+  if (!name || !duration || !created_by || !target_years || !target_branches) {
+    return res.status(400).json({ error: 'All fields are required'  });
   }
+ 
+  if(typeof target_branches==='string' && typeof target_years==='string'){
+    console.log('target_branches target_years',target_years,target_branches);
+    
+    const year = target_years.split(",")
+   const branches = target_branches.split(",")
+   console.log('brannches year is ',branches,year );
+    formattedTargetBranches = `{${branches.join(",")}}`
+   formattedTargetYears = `{${year.join(",")}}`
+// console.log('year and branches',formattedTargetBranches, formattedTargetYears);
+
+  }else{
+    return res.json({message : "input field error "})
+  }
+
+
+  
 
   const newExam = await examModel.createExam({
     name,
