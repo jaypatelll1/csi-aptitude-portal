@@ -143,6 +143,8 @@ e.start_time,
 e.end_time,
 e.created_at,
 e.status,
+e.target_branches,
+e.target_years,
     COUNT(q.question_id) AS question_count
 FROM 
     exams e
@@ -199,7 +201,8 @@ ORDER BY e.exam_id DESC;
 
 
 const getPaginatedExams = async (page, limit, status) => {
-  const query = `SELECT DISTINCT
+
+    const query = `SELECT DISTINCT
     e.exam_id, 
     e.exam_name, 
 e.duration,
@@ -207,6 +210,8 @@ e.start_time,
 e.end_time,
 e.created_at,
 e.status,
+e.target_branches,
+e.target_years,
     COUNT(q.question_id) AS question_count
 FROM 
     exams e
@@ -222,7 +227,9 @@ GROUP BY
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, [status]);
   return result.rows;
-};
+
+}
+  
 // const getPaginatedLiveExams = async (page, limit) => {
 //   const query = `SELECT 
 //     e.exam_id, 
