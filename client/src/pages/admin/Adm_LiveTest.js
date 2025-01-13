@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
-import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"// Drafted Test Card component
+import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"; // Drafted Test Card component
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -9,6 +9,12 @@ const Adm_DraftTest = () => {
   const [error, setError] = useState(null); // State to track errors
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1); // Tracks the current page
+  const itemsPerPage = 9; // Number of items to display per page
+
+  const totalPages = Math.ceil(tests.length / itemsPerPage); // Total number of pages
 
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -42,15 +48,14 @@ const Adm_DraftTest = () => {
 
         const response = await axios.get("/api/exams/live", {
           withCredentials: true,
-        });
-console.log('response live ', response);
-
+        },{params:{page:currentPage,limit:itemsPerPage}});
+console.log("resdfghj,",response)
         const fetchedTests = response.data.exams.map((exam) => ({
-          exam_id : exam.exam_id,
-          end_time : exam.end_time,
-          Start_time : exam.start_time,
+          exam_id: exam.exam_id,
+          end_time: exam.end_time,
+          Start_time: exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          questions: exam.question_count || "N/A", // Assuming `questions_count` exists
+          questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
         }));
@@ -66,6 +71,18 @@ console.log('response live ', response);
     fetchLiveTests();
   }, []);
 
+  const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // Items to display for the current page
+  const currentItems = tests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="min-h-screen flex">
       {/* Sidebar Section */}
@@ -80,7 +97,7 @@ console.log('response live ', response);
 
       {/* Main Content Section */}
       <div className="flex-1 p-4 sm:p-6">
-        <div className="flex items-center  mb-4 sm:mb-6">
+        <div className="flex items-center mb-4 sm:mb-6">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -116,12 +133,83 @@ console.log('response live ', response);
         ) : error ? (
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
-            {/* Map through the test data and pass each test to Adm_DraftedTestCard */}
-            {tests.map((test, index) => (
-              <Adm_LiveTestCard key={index} test={test} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+              {/* Display only current items */}
+              {currentItems.map((test, index) => (
+                <Adm_LiveTestCard key={index} test={test} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center mt-6">
+  {/* Left Arrow Button */}
+  <button
+    onClick={() => handlePageChange(currentPage - 1)}
+    className={`p-2 mx-1 border rounded ${
+      currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
+    }`}
+    disabled={currentPage === 1}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 19l-7-7 7-7"
+      />
+    </svg>
+  </button>
+
+  {/* Page Number Buttons */}
+  {Array.from({ length: totalPages }, (_, i) => (
+    <button
+      key={i + 1}
+      onClick={() => handlePageChange(i + 1)}
+      className={`px-3 py-1 mx-1 text-sm border rounded ${
+        currentPage === i + 1
+          ? "bg-blue-500 text-white"
+          : "hover:bg-gray-200"
+      }`}
+    >
+      {i + 1}
+    </button>
+  ))}
+
+  {/* Right Arrow Button */}
+  <button
+    onClick={() => handlePageChange(currentPage + 1)}
+    className={`p-2 mx-1 border rounded ${
+      currentPage === totalPages
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:bg-gray-200"
+    }`}
+    disabled={currentPage === totalPages}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 5l7 7-7 7"
+      />
+    </svg>
+  </button>
+</div>
+
+          </>
         )}
       </div>
     </div>

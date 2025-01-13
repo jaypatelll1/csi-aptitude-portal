@@ -55,7 +55,7 @@ window.location.reload();
       {/* {handle delete } */}
       <button
         onClick={handleDeleteQuestion}
-        className="text-[#0044AB] hover:text-blue-700 font-medium"
+        className="text-[#0044AB] hover:text-blue-700 font-medium ml-5"
       >
         Delete Question 
       </button>

@@ -10,6 +10,10 @@ const Adm_DraftTest = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9; // Number of items per page
+
   useEffect(() => {
     // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {
@@ -18,10 +22,7 @@ const Adm_DraftTest = () => {
       }
     };
 
-    // Attach event listener to the document
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -33,25 +34,22 @@ const Adm_DraftTest = () => {
     return date.toLocaleDateString("en-IN", options);
   };
 
-
   // Fetch drafted tests from the API
   useEffect(() => {
     const fetchDraftedTests = async () => {
       try {
-        setLoading(true); // Set loading to true before fetching
-        setError(null); // Clear any existing errors
+        setLoading(true);
+        setError(null);
 
         const response = await axios.get("/api/exams/drafts", {
           withCredentials: true,
         });
-        console.log('response is ', response.data);
-
         const fetchedTests = response.data.exams.map((exam) => ({
-          exam_id : exam.exam_id,
-          end_time : exam.end_time,
-          Start_time : exam.start_time,
+          exam_id: exam.exam_id,
+          end_time: exam.end_time,
+          Start_time: exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          questions: exam.question_count || "N/A", // Assuming `questions_count` exists
+          questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
         }));
@@ -67,13 +65,27 @@ const Adm_DraftTest = () => {
     fetchDraftedTests();
   }, []);
 
+  // Pagination logic
+  const totalPages = Math.ceil(tests.length / itemsPerPage);
+  const paginatedTests = tests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Adm_Sidebar />
       </div>
@@ -99,8 +111,8 @@ const Adm_DraftTest = () => {
                 strokeLinejoin="round"
                 d={
                   sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
-                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
                 }
               />
             </svg>
@@ -116,12 +128,52 @@ const Adm_DraftTest = () => {
         ) : error ? (
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
-            {/* Map through the test data and pass each test to Adm_DraftedTestCard */}
-            {tests.map((test, index) => (
-              <Adm_DraftedTestCard key={index} test={test} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+              {paginatedTests.map((test, index) => (
+                <Adm_DraftedTestCard key={index} test={test} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center mt-6">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === 1}
+              >
+                &lt; {/* Left Arrow */}
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 mx-1 border rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                &gt; {/* Right Arrow */}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>

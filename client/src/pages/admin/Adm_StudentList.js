@@ -26,7 +26,6 @@ const StudentList = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
-
     //    Handle file change and validate file type
     const handleFileChange = (event) => {
       const file = event.target.files[0];
@@ -279,6 +278,7 @@ const StudentList = () => {
 
       <UploadModal
         isOpen={ModalOpen}
+        check="Upload Students"
         closeModal={() => setModalOpen(false)} // Close modal
         onFileChange={handleFileChange}
         onSubmit={handleUserSubmit}

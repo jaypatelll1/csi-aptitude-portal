@@ -22,7 +22,6 @@ const InputQuestions = () => {
   const location = useLocation();
 
 
-
   const examId = useSelector((state) => state.exam.examId);
   // console.log('examID is ', examId);
 
@@ -279,6 +278,8 @@ useEffect(() => {
 
               <UploadModal
                 isOpen={isModalOpen}
+                check="Upload Questions"
+                
                 closeModal={() => setModalOpen(false)} // Close modal
                 onFileChange={handleFileChange}
                 onSubmit={handleQuestionSubmit}

@@ -3,13 +3,13 @@ import UploadForm from "./UploadForm";
 
 
 
-const UploadModal = ({ isOpen, closeModal, onFileChange, onSubmit, isUploading }) => {
+const UploadModal = ({ isOpen, closeModal, onFileChange, onSubmit, isUploading,check }) => {
   if (!isOpen) return null;
-
+console.log("checkis",check)
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-md shadow-lg w-96">
-        <h2 className="text-xl font-semibold mb-4">Upload Questions</h2>
+        <h2 className="text-xl font-semibold mb-4">{check}</h2>
         <UploadForm 
           onFileChange={onFileChange} 
           onSubmit={onSubmit} 

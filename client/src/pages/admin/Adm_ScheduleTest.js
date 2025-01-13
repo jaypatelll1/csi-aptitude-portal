@@ -10,50 +10,44 @@ const Adm_ScheduledTest = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9; // Number of items per page
+
   useEffect(() => {
-    // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setSidebarOpen(false);
       }
     };
-
-    // Attach event listener to the document
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
     const options = { day: "2-digit", month: "short", year: "numeric" };
     return date.toLocaleDateString("en-IN", options);
   };
 
-
   useEffect(() => {
     const fetchScheduledTests = async () => {
       try {
-        setLoading(true); // Set loading to true before fetching
-        setError(null); // Clear any existing errors
+        setLoading(true);
+        setError(null);
 
-        const response = await axios.get(
-          "/api/exams/scheduled", // Replace with your API endpoint
-          {
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get("/api/exams/scheduled", {
+          withCredentials: true,
+        });
 
         const fetchedTests = response.data.exams.map((exam) => ({
-          exam_id : exam.exam_id,
-          end_time : exam.end_time,
-          Start_time : exam.start_time,
+          exam_id: exam.exam_id,
+          end_time: exam.end_time,
+          Start_time: exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          questions: exam.question_count || "N/A", // Assuming `questions_count` exists
+          questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
         }));
@@ -62,12 +56,25 @@ const Adm_ScheduledTest = () => {
       } catch (err) {
         setError("Failed to load scheduled tests. Please try again later.");
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
     fetchScheduledTests();
   }, []);
+
+  // Pagination logic
+  const totalPages = Math.ceil(scheduledTests.length / itemsPerPage);
+  const paginatedTests = scheduledTests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -81,9 +88,8 @@ const Adm_ScheduledTest = () => {
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-1 p-6 ">
-        <div className="flex items-center  mb-4 sm:mb-6">
-          {/* Burger Icon Button */}
+      <div className="flex-1 p-6">
+        <div className="flex items-center mb-4 sm:mb-6">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"
@@ -101,8 +107,8 @@ const Adm_ScheduledTest = () => {
                 strokeLinejoin="round"
                 d={
                   sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
-                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
                 }
               />
             </svg>
@@ -117,11 +123,52 @@ const Adm_ScheduledTest = () => {
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {scheduledTests.map((test, index) => (
-              <Adm_ScheduledTestCard key={index} test={test} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+              {paginatedTests.map((test, index) => (
+                <Adm_ScheduledTestCard key={index} test={test} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center mt-6">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === 1}
+              >
+                &lt;
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 mx-1 border rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                &gt;
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
