@@ -5,10 +5,15 @@ import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
+import Details from "../../components/student/home/Stu_Details";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const userData = useSelector((state) => state.user.user);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const detailsRef = useRef(null);
   const [tileData, setTileData] = useState([]);
   const [activeTab, setActiveTab] = useState("drafted");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,7 +31,6 @@ const Dashboard = () => {
   let limit = 9;
 
   const [selectedTestId, setSelectedTestId] = useState(null);
-
 
   const handlePrevPage = () => {
     if (page > 1) {
@@ -61,19 +65,17 @@ const Dashboard = () => {
     return date.toLocaleDateString("en-IN", options);
   };
 
-
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
       const response = await axios.get(endpoint, { params: { page, limit } });
-      console.log('respnse ', response);
+      console.log("respnse ", response);
 
       // console.log('response.data.totalCount ',response.data.totalCount);
       const totalRecords = response.data.totalRecords;
-      console.log('totalRecords', totalRecords);
+      console.log("totalRecords", totalRecords);
       setTotalPages(Math.ceil(totalRecords / limit));
-      console.log('total is ', totalPages);
-
+      console.log("total is ", totalPages);
 
       setTestsData((prevData) => ({
         ...prevData,
@@ -86,7 +88,6 @@ const Dashboard = () => {
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
         })),
-
       }));
     } catch (err) {
       console.error(`Error fetching ${key} tests:`, err);
@@ -171,32 +172,66 @@ const Dashboard = () => {
   const createTestHandler = () => {
     navigate("/admin/createtest");
   };
+  const openDetails = () => setIsDetailsOpen(true);
+  const closeDetails = () => setIsDetailsOpen(false);
 
+  useEffect(() => {
+    // Close the Details component when clicking outside
+    function handleClickOutside(event) {
+      if (detailsRef.current && !detailsRef.current.contains(event.target)) {
+        closeDetails();
+      }
+    }
+
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Cleanup the listener
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-
         <Adm_Sidebar testsData={testsData} />
-
-
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-4 sm:p-6">
+      <div className="flex-1">
+        <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
+          <div
+            className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
+            onClick={openDetails}
+          >
+            AM
+          </div>
+          <div ref={detailsRef}>
+            {isDetailsOpen && (
+              <Details
+                name={userData.name}
+                email={userData.email}
+                mobile={userData.phone}
+                branch={userData.department}
+                year={userData.year}
+              />
+            )}
+          </div>
+        </div>
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex items-center justify-between mt-5">
           <button
             className="xl:hidden text-gray-800"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             <svg
-              className="w-8 h-8"
+              className="w-7 h-8"
               fill="none"
               stroke="currentColor"
               strokeWidth={2}
@@ -218,7 +253,7 @@ const Dashboard = () => {
 
           <button
             onClick={createTestHandler}
-            className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
+            className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100 mr-4"
           >
             + Create Test
           </button>
@@ -236,17 +271,17 @@ const Dashboard = () => {
             {["drafted", "scheduled", "past"].map((tab) => (
               <button
                 key={tab}
-                className={`text-lg font-semibold ${activeTab === tab
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600"
-                  }`}
+                className={`text-lg font-semibold ${
+                  activeTab === tab
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-600"
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {`${tab.charAt(0).toUpperCase()}${tab.slice(1)} Tests`}
               </button>
             ))}
           </div>
-
 
           {/* Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
@@ -257,37 +292,18 @@ const Dashboard = () => {
             ) : (
               testsData[activeTab]?.map((test) => {
                 // Ensure the key is unique (using test.test_id if available)
-                const key = test.test_id || test.id || test.name;  // Adjust depending on your test object structure
+                const key = test.test_id || test.id || test.name; // Adjust depending on your test object structure
 
                 if (activeTab === "drafted") {
-                  return (
-                    <Adm_DraftedTestCard
-                      key={key}
-                      test={test}
-
-                    />
-                  );
+                  return <Adm_DraftedTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
-                  return (
-                    <Adm_ScheduledTestCard
-                      key={key}
-                      test={test}
-
-                    />
-                  );
+                  return <Adm_ScheduledTestCard key={key} test={test} />;
                 } else if (activeTab === "past") {
-                  return (
-                    <Adm_PastTestCard
-                      key={key}
-                      test={test}
-
-                    />
-                  );
+                  return <Adm_PastTestCard key={key} test={test} />;
                 }
                 return null;
               })
             )}
-
           </div>
           <div className="flex justify-center items-center mt-5">
             <svg
@@ -310,8 +326,9 @@ const Dashboard = () => {
               {getPageNumbers().map((p) => (
                 <div
                   key={p}
-                  className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                    }`}
+                  className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
+                    page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                  }`}
                   onClick={() => setPage(p)}
                 >
                   {p}
@@ -335,13 +352,8 @@ const Dashboard = () => {
               />
             </svg>
           </div>
-
         </div>
       </div>
-
-
-
-
     </div>
   );
 };
