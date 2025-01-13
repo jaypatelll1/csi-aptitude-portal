@@ -17,9 +17,8 @@ const createExam = async (req, res) => {
    console.log('brannches year is ',branches,year );
     formattedTargetBranches = `{${branches.join(",")}}`
    formattedTargetYears = `{${year.join(",")}}`
-console.log('year and branches',formattedTargetBranches, formattedTargetYears);
+// console.log('year and branches',formattedTargetBranches, formattedTargetYears);
 
-   
   }else{
     return res.json({message : "input field error "})
   }

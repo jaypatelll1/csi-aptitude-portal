@@ -2,11 +2,18 @@ const pool = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
 const createExam = async (exam) => {
-  const { name, duration, created_by, formattedTargetYears, formattedTargetBranches } = exam;
-  const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches) VALUES ($1, $2, $3, $4,$5,$6) RETURNING  *`;
-  const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches];
-  const result = await pool.query(query, values);
-  return result.rows[0];
+
+  try {
+    const { name, duration, created_by, formattedTargetYears, formattedTargetBranches } = exam;
+    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches) VALUES ($1, $2, $3, $4,$5,$6) RETURNING  *`;
+    const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  } catch (err) {
+    console.error(err.name); // Output: RangeError
+  console.error(err.message); // Output: Value must be a non-negative number.
+  }
+ 
 };
 
 const getExams = async () => {
@@ -128,7 +135,26 @@ const getAllScheduledExams = async () => {
 };
 
 const getExamsByStatus = async (status) => {
-  const query = 'SELECT * FROM exams WHERE status = $1 ORDER BY exam_id DESC';
+  const query = `SELECT DISTINCT 
+    e.exam_id, 
+    e.exam_name, 
+e.duration,
+e.start_time,
+e.end_time,
+e.created_at,
+e.status,
+    COUNT(q.question_id) AS question_count
+FROM 
+    exams e
+LEFT JOIN 
+    questions q
+ON 
+    e.exam_id = q.exam_id
+WHERE 
+    e.status = $1
+GROUP BY 
+    e.exam_id, e.exam_name 
+   ORDER BY created_at DESC`;
   const result = await pool.query(query, [status]);
   return result.rows;
 }
@@ -136,7 +162,7 @@ const getExamsByStatus = async (status) => {
 const getExamsForUser = async (status, target_branches, target_years) => {
   try {
     const queryTEXT = `
-       SELECT 
+       SELECT DISTINCT
   e.exam_id,
   e.exam_name,
   e.status,
@@ -146,7 +172,6 @@ const getExamsForUser = async (status, target_branches, target_years) => {
   e.created_at,
   e.start_time,
   e.end_time,
-  e.status,
   COUNT(q.exam_id) AS total_questions  
 FROM exams AS e
 JOIN questions AS q ON q.exam_id = e.exam_id
@@ -156,8 +181,6 @@ WHERE
   AND e.target_years @> $3::year_enum[]      
 GROUP BY e.exam_id, e.status, e.target_branches, e.target_years  
 ORDER BY e.exam_id DESC;                  
-
-
     `;
 
    
@@ -176,7 +199,7 @@ ORDER BY e.exam_id DESC;
 
 
 const getPaginatedExams = async (page, limit, status) => {
-  const query = `SELECT 
+  const query = `SELECT DISTINCT
     e.exam_id, 
     e.exam_name, 
 e.duration,
