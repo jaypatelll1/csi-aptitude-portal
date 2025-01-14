@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Msidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
@@ -29,7 +30,7 @@ const Msidebar = () => {
               />
             </svg>
           </span>
-          Dashboard
+          <Link to="/home">Dashboard</Link>
         </li>
 
         <li
@@ -64,10 +65,10 @@ const Msidebar = () => {
         {showSubmenu && (
           <ul className="pl-9 ">
             <li className="p-1 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              Upcoming Tests
+              <Link to="/upcoming-tests">Upcoming Tests</Link>
             </li>
             <li className="p-1 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              Past Test
+            <Link to="/past-tests">Past Tests</Link>
             </li>
       
           </ul>

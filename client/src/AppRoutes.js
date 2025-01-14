@@ -18,6 +18,8 @@ import StudentDashboard from "./pages/student/Stu_Dashboard";
 import TestInstruction from "./pages/student/Stu_TestInstruction";
 import ResetPassword from "./pages/student/Stu_ResetPassword";
 import TestStudentList from "./pages/admin/Adm_TestStudentList";
+import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
+import Stu_PastTest from "./pages/student/Stu_PastTest";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -50,6 +52,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <MCQExamPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upcoming-tests"
+        element={
+          <ProtectedRoute allowedRoles={["Student"]}>
+            <Stu_UpcomingTest />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/past-tests"
+        element={
+          <ProtectedRoute allowedRoles={["Student"]}>
+            <Stu_PastTest />
           </ProtectedRoute>
         }
       />
