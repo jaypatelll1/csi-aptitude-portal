@@ -7,8 +7,31 @@ const {
   submitMultipleResponses,
   getPaginatedResponses,
   submittedUnansweredQuestions,
+  deleteExistingResponses,
+  submitFinalResponsesAndChangeStatus,
 } = require('../models/responseModel');
 const { logActivity } = require('../utils/logger');
+
+// Delete Exististing responses and initialize responses
+exports.deleteExistingResponses = async (req, res) => {
+  const { exam_id } = req.params;
+  const student_id = req.user.id; // Assume the student ID is available via JWT
+
+  if (!student_id || !exam_id) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    await deleteExistingResponses(exam_id, student_id);
+    const response = await submittedUnansweredQuestions(exam_id, student_id);
+    console.log(response);
+    res
+    .status(201)
+    .json({ message: 'Responses initialized successfully', response });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Submit a response
 exports.submitResponse = async (req, res) => {
@@ -21,12 +44,14 @@ exports.submitResponse = async (req, res) => {
   }
 
   try {
-    const response = await submitResponse({
+    const response = await submitResponse(
+      student_id,
       exam_id,
       question_id,
-      student_id,
       selected_option,
-    });
+      'draft'
+    );
+    console.log(response);
     if (!response) {
       await logActivity({
         user_id: student_id,

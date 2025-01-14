@@ -19,7 +19,7 @@ const submitResponse = async (
   response_status
 ) => {
   const query = `
-      UPDATE responses SET selected_option=$1, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5;
+      UPDATE responses SET selected_option=$1, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 RETURNING *;
     `;
   const values = [
     selected_option,

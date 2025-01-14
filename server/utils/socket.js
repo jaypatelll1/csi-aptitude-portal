@@ -1,10 +1,10 @@
 const { sockettAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
-const {
-  submitResponse,
-  submitFinalResponsesAndChangeStatus,
-  deleteExistingResponses,
-  submittedUnansweredQuestions,
-} = require('../models/responseModel');
+// const {
+//   submitResponse,
+//   submitFinalResponsesAndChangeStatus,
+//   deleteExistingResponses,
+//   submittedUnansweredQuestions,
+// } = require('../models/responseModel');
 
 const timers = {}; // Store timers per room
 
@@ -15,7 +15,7 @@ const initSocketHandlers = (io) => {
     const user_id = parseInt(socket.user.id);
 
     // Start an exam
-    socket.on('start_exam', async ({ exam_id, duration }) => {
+    socket.on('start_exam', async ({ duration }) => {
       if (timers[user_id]) {
         if (timers[user_id].paused && !timers[user_id].submitted) {
           timers[user_id].remainingTime = timers[user_id].pauseTime;
@@ -32,8 +32,8 @@ const initSocketHandlers = (io) => {
           pauseTime: null,
           submitted: false,
         };
-        await deleteExistingResponses(exam_id, user_id);
-        await submittedUnansweredQuestions(exam_id, user_id);
+        // await deleteExistingResponses(exam_id, user_id);
+        // await submittedUnansweredQuestions(exam_id, user_id);
       }
       
       console.log(`Exam started in room ${user_id} with duration ${timers[user_id].remainingTime}`);
@@ -53,17 +53,15 @@ const initSocketHandlers = (io) => {
 
           if (timers[user_id].remainingTime <= 0) {
             clearInterval(timers[user_id].interval);
-            delete timers[user_id];
 
             // Notify room that exam ended
             io.to(user_id).emit(
               'exam_ended',
-              { message: "Time's up!!" },
-              async () => {
-                const res = await submitFinalResponsesAndChangeStatus(
-                  user_id,
-                  exam_id
-                );
+              { message: "Time's up!!" },  () => {
+                // const res = await submitFinalResponsesAndChangeStatus(
+                //   user_id,
+                //   exam_id
+                // );
                 timers[user_id].submitted = true;
               }
             );
@@ -73,25 +71,25 @@ const initSocketHandlers = (io) => {
     });
 
     // Handle individual response submissions
-    socket.on(
-      'submit_temp_response',
-      async ({ exam_id, question_id, selected_option }) => {
-        const user_id = parseInt(socket.user.id);
+    // socket.on(
+    //   'submit_temp_response',
+    //   async ({ exam_id, question_id, selected_option }) => {
+    //     const user_id = parseInt(socket.user.id);
 
-        const r = await submitResponse(
-          user_id,
-          exam_id,
-          question_id,
-          selected_option,
-          'draft'
-        );
-        console.log(`Response saved for user ${user_id}`);
-      }
-    );
+    //     // const r = await submitResponse(
+    //     //   user_id,
+    //     //   exam_id,
+    //     //   question_id,
+    //     //   selected_option,
+    //     //   'draft'
+    //     // );
+    //     console.log(`Response saved for user ${user_id}`);
+    //   }
+    // );
 
-    socket.on('submit_responses', async ({ exam_id }) => {
+    socket.on('submit_responses', () => {
       const user_id = parseInt(socket.user.id);
-      const res = await submitFinalResponsesAndChangeStatus(user_id, exam_id);
+      // const res = await submitFinalResponsesAndChangeStatus(user_id, exam_id);
 
       clearInterval(timers[user_id].interval);
       timers[user_id].submitted = true;
