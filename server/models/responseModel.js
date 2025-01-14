@@ -4,6 +4,8 @@ const { paginate } = require('../utils/pagination');
 
 // Delete Existing Responses
 const deleteExistingResponses = async (exam_id, user_id) => {
+  // console.log('exam_id, user_id',exam_id, user_id);
+  
   const query = `DELETE FROM responses WHERE exam_id = $1 AND student_id = $2;`;
   const values = [exam_id, user_id];
 

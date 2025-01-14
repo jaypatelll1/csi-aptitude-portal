@@ -10,13 +10,14 @@ const deleteExistingResponses = async (req, res) => {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
+
   try {
     await responseModel.deleteExistingResponses(exam_id, student_id);
     const response = await responseModel.submittedUnansweredQuestions(
       exam_id,
       student_id
     );
-    console.log(response);
+    // console.log(response);
     res
       .status(201)
       .json({ message: 'Responses initialized successfully', response });
@@ -43,7 +44,7 @@ const submitResponse = async (req, res) => {
       selected_option,
       'draft'
     );
-    console.log(response);
+    // console.log(response);
     if (!response) {
       await logActivity({
         user_id: student_id,
