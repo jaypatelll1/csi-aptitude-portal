@@ -39,9 +39,9 @@ const Login = () => {
           navigate(`/reset-password/${response.headers.resettoken}`);
         } else if (userData.status === "ACTIVE") {
           if (userData.role === "Student") {
-            navigate("/home");
+            navigate("/home",{replace:true});
           } else if (userData.role === "TPO") {
-            navigate("/admin");
+            navigate("/admin",{replace:true});
           } else {
             setError("Unauthorized role");
           }

@@ -65,7 +65,7 @@ setResult(pastPaper.data.results)
 
       setTests(response.data.exams || []);
     } catch (err) {
-      console.error("erro getting response ", err)
+      console.error("error getting response ", err)
     } 
   };
 
@@ -165,13 +165,7 @@ setResult(pastPaper.data.results)
           </div>
           <div ref={detailsRef}>
             {isDetailsOpen && (
-              <Details
-                name={userData.name}
-                email={userData.email}
-                mobile={userData.phone}
-                branch={userData.department}
-                year={userData.year}
-              />
+              <Details/>
             )}
           </div>
         </div>
@@ -208,6 +202,7 @@ setResult(pastPaper.data.results)
                   testName={test.exam_name}
                   duration={test.duration}
                   status = {test.status}
+                  questionCount={test.total_questions}
                   lastDate={formatToReadableDate(test.created_at)}
                 />
               ))

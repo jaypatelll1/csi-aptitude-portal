@@ -6,6 +6,7 @@ const examSlice = createSlice({
   initialState: {
     examId: null,  // Initial state for examId
     exam : null,
+    submittedExamIds: [],
   
 
   },
@@ -19,12 +20,18 @@ state.exam = action.payload ;  // Set exam in the Redux state
     setDuration :(state,action)=>{
 state.time = action.payload ;  // Set exam in the Redux state
     },
+    markSubmit(state, action) {
+      if (!state.submittedExamIds.includes(action.payload)) {
+        state.submittedExamIds.push(action.payload);
+      }
+      // state.submittedExamIds = []; 
+    },
     clearExamId: (state) => {
       state.examId = null;  // Clear examId from Redux state
     },
   },
 });
 
-export const { setExamId, clearExamId ,setExam , setDuration } = examSlice.actions;  // Export actions
+export const { setExamId, clearExamId ,setExam , setDuration ,markSubmit} = examSlice.actions;  // Export actions
 
 export default examSlice.reducer;

@@ -4,7 +4,8 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import DataTime from "../../components/admin/Adm_DataTime";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector ,useDispatch} from "react-redux";
+import {clearExamId} from "../../redux/ExamSlice"
 
 const Adm_ViewQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -16,7 +17,7 @@ const Adm_ViewQuestions = () => {
   const sidebarRef = useRef(null);
   const examId  = useSelector((state) => state.exam.examId);
   // console.log('exam_id is ',examId);
-  
+  const dispatch = useDispatch()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +60,7 @@ const Adm_ViewQuestions = () => {
 
   const handleGoBack = () => {
     navigate("/admin/input");
+  
   };
 
   const handleSchedulePost = () => {
@@ -71,6 +73,7 @@ const Adm_ViewQuestions = () => {
 
   const handleSaveDraft = () => {
     navigate("/admin");
+    dispatch(clearExamId())
   };
 
   const handleScheduleTest = (startTime, endTime) => {
@@ -94,7 +97,7 @@ const Adm_ViewQuestions = () => {
         alert(
           `Error scheduling test: ${err.response?.data?.message || err.message}`
         )
-      );
+      ).finally(dispatch(clearExamId()))
   };
 
   const handleDelete = async () => {
@@ -215,7 +218,6 @@ const Adm_ViewQuestions = () => {
                 id={question.question_id}
                 index={index}
                 text={question.question_text}
-                updateText={updateQuestionText}
                 options={question.options}
                 correct_option = {question.correct_option}
               />

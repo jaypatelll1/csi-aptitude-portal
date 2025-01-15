@@ -1,17 +1,27 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
-const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId,status  }) => {
+const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, status }) => {
 
   const navigate = useNavigate();
-  // console.log('test exam id is ', examId);
+
+  let  submit = useSelector((state) => state.exam.submittedExamIds );
+  // console.log("Status:", status, "ExamId:", examId, "Submit:", submit);
+  let isExamSubmitted = submit.includes(String(examId));
+  // console.log('isExamSubmitted',isExamSubmitted);
+  
+  const isDisabled = status === "scheduled" || status === "past" || isExamSubmitted === true;
+
+    // console.log("Button Disabled:", isDisabled, "For ExamId:", examId)
+
   
 
- const  handleChange = async () => {
-   navigate("/test-instruction" ,{state :{examId : examId ,Duration :duration}})
-    
- }
- 
+  const handleChange = async () => {
+    navigate("/test-instruction", { state: { examId: examId, Duration: duration } , replace:true})
+
+  }
+
 
   return (
     <div className="border rounded-lg shadow-md p-3  max-w-lg relative">
@@ -48,9 +58,18 @@ const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId,stat
         <h1 className='font-medium text-sm ml-2'>{duration}</h1>
       </div>
 
-      <button className="bg-blue-700 font-semibold text-white text-sm px-4 py-2 rounded-md shadow hover:bg-blue-800 absolute bottom-3 right-3" onClick={(e)=>{handleChange(e)}}>
-        Start Test
+      <button
+        className={`font-semibold text-sm px-4 py-2 rounded-md shadow absolute bottom-3 right-3 
+    ${status === "scheduled" || isDisabled === true ? "bg-gray-400 text-gray-700 cursor-not-allowed" : "bg-blue-700 text-white hover:bg-blue-800"}`}
+        onClick={(e) => { handleChange(e) }}
+        disabled={isDisabled  }
+        
+      >
+       
+        {status === "past" ? "View Result" : "Start Test"}
       </button>
+
+
     </div>
   );
 };

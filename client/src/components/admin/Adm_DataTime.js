@@ -14,7 +14,10 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
       setFeedback("Please select a valid date and time!");
       return;
     }
-  
+    // console.log("Selected Date:", selectedDate);
+    // console.log("Selected Time:", selectedTime);
+    // console.log("Duration:", duration);
+    
     const [hours, minutes] = selectedTime.split(":").map(Number);
   
     // Combine selectedDate and time without offset
@@ -27,13 +30,42 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
       0,
       0
     );
-  
+
+    const currentDateTime = new Date();
+    if (startDateTime < currentDateTime) {
+      setFeedback("The selected start time is in the past. Please choose a future time.");
+      console.error("Invalid startDateTime:", startDateTime, "Current DateTime:", currentDateTime);
+      return;
+    }
+    if (isNaN(startDateTime.getTime())) {
+      setFeedback("Failed to create start date and time!");
+      console.error("Invalid startDateTime:", startDateTime);
+      return;
+    }
+
+    // Parse and validate duration
+const numericDuration = parseInt(duration, 10);
+if (isNaN(numericDuration)) {
+  setFeedback("Duration must be a valid number!");
+  console.error("Invalid numeric duration:", duration);
+  return;
+}
+
     // Manually adjust for the 6:30 hours discrepancy
     startDateTime.setHours(startDateTime.getHours() - 6);
     startDateTime.setMinutes(startDateTime.getMinutes() - 30);
   
-    const endDateTime = new Date(startDateTime);
-    endDateTime.setMinutes(endDateTime.getMinutes() + duration);
+    // Calculate endDateTime
+const endTimestamp = startDateTime.getTime() +( numericDuration * 60000 + 30 * 60000); // Add duration in ms
+const endDateTime = new Date(endTimestamp);
+
+    if (isNaN(endDateTime.getTime())) {
+      setFeedback("Failed to calculate end date and time!");
+      console.error("Invalid endDateTime:", endDateTime);
+      return;
+    }
+    
+  // console.log('startDateTime   endDateTime',startDateTime, endDateTime);
   
     if (onSchedule) {
       onSchedule(startDateTime.toISOString(), endDateTime.toISOString());
