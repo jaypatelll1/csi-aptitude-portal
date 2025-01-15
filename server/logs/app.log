@@ -21,15 +21,7 @@ Stack Trace: Error: Not Found - /users
     at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
     at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
     at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
-[2025-01-10 15:50:17] error: Error occurred: Not Found - /users 
-Stack Trace: Error: Not Found - /users
-    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\server.js:86:17
-    at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
-    at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
-    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
-    at Function.process_params (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
-    at next (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
-    at urlencodedParser (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\body-parser\lib\types\urlencoded.js:94:7)
-    at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
-    at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
-    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+[2025-01-17 12:07:01] info: User ID: 4, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-01-17 12:07:19] info: User ID: 6, Activity: Register user, Status: success, Details: User registered successfully
+[2025-01-17 12:07:24] info: User ID: 4, Activity: Viewed paginated exams, Status: success, Details: Page: 1, Limit: 100
+[2025-01-17 12:07:41] info: User ID: 4, Activity: New Exam, Status: success, Details: New Exam created successfully and saved as draft

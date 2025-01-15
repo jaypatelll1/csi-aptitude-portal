@@ -32,6 +32,7 @@ const CreateTestPage = () => {
     // console.log('year is ',year);
     // console.log("branch is ",branch)
     // console.log("branch is ",payload)
+    
 
     try {
       // Send a POST request to the server to create the test
@@ -44,7 +45,7 @@ const CreateTestPage = () => {
       console.log("Test created successfully:", response.data);
       navigate("/admin/input"); // Navigate to the input page after success
     } catch (error) {
-      alert("Invalid Input");
+      alert("Invalid Input")
       // Log error response if something goes wrong
       console.error(
         "Error creating test:",
