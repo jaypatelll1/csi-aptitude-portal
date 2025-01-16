@@ -1,5 +1,5 @@
 const questionModel = require('../models/questionModel');
-const { logActivity } = require('../utils/logger');
+const { logActivity } = require('../utils/logActivity');
 
 const createQuestions = async (req, res) => {
   const { question_text, options, correct_option } = req.body;

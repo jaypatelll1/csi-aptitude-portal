@@ -9,8 +9,8 @@ const { jwtAuthMiddleware } = require('./middlewares/jwtAuthMiddleware');
 const { limiter } = require('./utils/rateLimitUtils');
 const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
-require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
-require('./utils/autoliveExamStatus'); // For auto-updating live exam status
+// require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
+// require('./utils/autoliveExamStatus'); // For auto-updating live exam status
 
 
 // Import Routes
@@ -71,7 +71,7 @@ app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
 app.use('/api/export/', exportRoutes);
-app.use('/api/users', fileRoutes);
+app.use('/api/users/', fileRoutes);
 app.use('/api/exams/', fileRoutes);
 app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 const start_exam = io.of('/exams/start-exam')
