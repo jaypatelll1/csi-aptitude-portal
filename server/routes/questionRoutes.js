@@ -5,7 +5,6 @@ const {
   UpdateQuestion,
   DeleteQuestion,
   getPaginatedQuestionsByExam,
-  getQuestionCount
 } = require('../controllers/questionController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
@@ -18,8 +17,6 @@ router.post('/:exam_id', jwtAuthMiddleware,authorizeRoles, createQuestions);
 // Route to get all questions for a specific exam
 // router.get('/:exam_id', jwtAuthMiddleware, getPaginatedQuestionsByExam); 
 router.get('/:exam_id', jwtAuthMiddleware, getQuestion); 
-
-router.get('/count/:exam_id', jwtAuthMiddleware, getQuestionCount); 
 
 // Route to edit a question using question id
 router.put('/:exam_id/:question_id',jwtAuthMiddleware,authorizeRoles, UpdateQuestion);

@@ -13,7 +13,7 @@ router.get("/question/csv",jwtAuthMiddleware,authorizeRoles,exportToQuestionCSV 
 router.get("/question/excel",jwtAuthMiddleware,authorizeRoles,exportToQuestionExcel);
 
 // result export routes
-router.get("/result/csv/:exam_id",jwtAuthMiddleware,authorizeRoles, exportToResultCSV);
-router.get("/result/excel/:exam_id",jwtAuthMiddleware,authorizeRoles, exportToResultExcel);
+router.get("/result/csv",jwtAuthMiddleware,authorizeRoles, exportToResultCSV);
+router.get("/result/excel",jwtAuthMiddleware,authorizeRoles, exportToResultExcel);
 
 module.exports = router;
