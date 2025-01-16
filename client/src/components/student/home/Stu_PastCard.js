@@ -72,9 +72,9 @@ const Adm_PastCard = ({ test }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 border border-gray-400 flex flex-col">
+    <div className="bg-white rounded-lg p-4 border border-[#1AAB07] flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <span className="flex items-center bg-gray-100 text-gray-900 border border-gray-700 opacity-90 text-sm px-2 py-1 rounded space-x-2">
+        <span className="flex items-center bg-white text-[#1AAB07] border border-[#1AAB07] opacity-90 text-sm px-2 py-1 rounded space-x-2">
           {/* SVG Icon */}
           <svg
             width="16"
@@ -88,7 +88,7 @@ const Adm_PastCard = ({ test }) => {
               fill="#797979"
             />
           </svg>
-          <span>Past test</span>
+          <span>Finished</span>
         </span>
         <span className="text-black-500 text-sm">Created on: {test.date}</span>
       </div>
@@ -181,7 +181,7 @@ const Adm_PastCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button className="bg-[#e6e7ec] text-[#1349C5] px-3 lg:px-4 py-2 rounded hover:bg-[#4071e4] border border-[#1349C5] opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
         >
 
 

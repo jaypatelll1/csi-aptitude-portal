@@ -91,7 +91,7 @@ target_years:`${year}`,
         <Adm_Sidebar />
       </div>
 
-      <div className="flex-1 p-4 sm:p-6">
+      <div className="flex-1 p-4 sm:p-6 bg-gray-100">
         <div className="flex items-center  mb-4 sm:mb-6">
           {/* Burger Icon Button */}
           <button
@@ -122,7 +122,7 @@ target_years:`${year}`,
           </h1>
         </div>
 
-        <div className="flex items-center mb-6">
+        <div className="flex items-center mb-6 ">
           <button
             onClick={handleGoBack}
             className="flex items-center text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 mr-4"
@@ -147,8 +147,59 @@ target_years:`${year}`,
           </h2>
         </div>
 
+
         <div className="bg-white rounded-lg shadow-md p-6">
           <form>
+          <div className="grid grid-cols-2 gap-4 my-5">
+  {/* Branch Dropdown */}
+  <div>
+    <label
+      htmlFor="Branch"
+      className="block text-sm font-medium text-gray-400 mb-2"
+    >
+      Branch
+    </label>
+    <select 
+      id="branchSelect"
+      className="w-full  px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+      value={branch}
+      onChange={(e) => setBranch(e.target.value)}
+      required
+    >
+      <option value="" className="text-gray-400" disabled >Eg CMPN</option>
+      <option value="CMPN" className="text-black">CMPN</option>
+      <option value="INFT" className="text-black">INFT</option>
+      <option value="EXTC" className="text-black">EXTC</option>
+      <option value="ELEC" className="text-black">ELEC</option>
+      <option value="ECS" className="text-black">ECS</option>
+    </select>
+  </div>
+
+  {/* Year Dropdown */}
+  <div>
+    <label
+      htmlFor="Year"
+      className="block text-sm font-medium text-gray-700 mb-2"
+    >
+      Year
+    </label>
+    <select
+      id="yearSelect"
+      className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+      value={year}
+      onChange={(e) => setYear(e.target.value)}
+      required
+    >
+      <option value="" disabled>Eg FE</option>  
+      <option value="FE">FE</option>
+      <option value="SE">SE</option>
+      <option value="TE">TE</option>
+      <option value="BE">BE</option>
+    </select>
+  </div>
+</div>
+                
+
             <div className="mb-6">
               <label
                 htmlFor="testName"
@@ -185,56 +236,20 @@ target_years:`${year}`,
               />
             </div>
 
-            <div className="mb-6">
-              <label
-                htmlFor="Branch"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Branch
-              </label>
-              <input
-                type="text"
-                id="testName"
-                placeholder="Eg. CMPN, INFT, EXTC,ELEC, ECS"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="mb-6">
-              <label
-                htmlFor="Year"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Year
-              </label>
-              <input
-                type="text"
-                id="testName"
-                placeholder="Eg. FE, SE, TE, BE"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                required
-              />
-            </div>
-
           </form>
         </div>
 
         <div className="flex items-center space-x-4 mt-20">
           <button
             type="submit"
-            className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100"
+            className="bg-[#1349C5] text-white px-3 lg:px-4 py-2 rounded hover:bg-[#4d75d2] border-[#2c54b2] opacity-90 hover:opacity-100"
             onClick={handleCreateQuestions}
           >
             Create questions
           </button>
           <button
             type="button"
-            className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
+            className="bg-white text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
             onClick={handleCancel}
           >
             Cancel
