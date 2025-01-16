@@ -1,5 +1,5 @@
 const resultModel = require('../models/resultModel');
-const { logActivity } = require('../utils/logger');
+const { logActivity } = require('../utils/logActivity');
 const { viewResult } = require("../utils/viewResult")
 
 const createResult = async (req, res) => {

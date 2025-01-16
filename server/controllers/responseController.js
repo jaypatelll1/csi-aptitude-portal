@@ -1,5 +1,5 @@
 const responseModel = require('../models/responseModel');
-const { logActivity } = require('../utils/logger');
+const { logActivity } = require('../utils/logActivity');
 
 // Delete Exististing responses and initialize responses
 const deleteExistingResponses = async (req, res) => {

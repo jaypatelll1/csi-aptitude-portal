@@ -19,7 +19,7 @@ require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logActivity');
 const { hashPassword , verifyPassword } = require('../utils/hashUtil');
-
+const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
 const { token } = require('morgan');
@@ -188,6 +188,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
+
 // logout 
 const logout = async (req,res) => {
   res.clearCookie('jwttoken', { path: '/' }); // Ensure path matches the one used for setting the cookie
@@ -262,23 +263,6 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const verifyResetToken = async (req, res) => {
-    const resettoken = req.headers['resettoken'];
-    console.log(req.headers);
-    if (!resettoken) {
-      return res.status(400).json({ error: 'Reset token is required' });
-    }
-  
-    try {
-      const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
-      res.json({ message: 'Token is valid', userId: decoded.user_id });
-    } catch (err) {
-      console.error('Error verifying reset token:', err); // Log the error for debugging
-      res.status(400).json({ error: 'Invalid or expired reset token' });
-    }
-  };
-  
-
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
   const { page, limit, role } = req.query;
@@ -327,6 +311,25 @@ const getAllPaginatedUsers = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const verifyResetToken = async (req, res) => {
+    const resettoken = req.headers['resettoken'];
+    console.log(req.headers);
+    if (!resettoken) {
+      return res.status(400).json({ error: 'Reset token is required' });
+    }
+  
+    try {
+      const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
+      res.json({ message: 'Token is valid', userId: decoded.user_id });
+    } catch (err) {
+      console.error('Error verifying reset token:', err); // Log the error for debugging
+      res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+  };
+  
+
+
 const sendResetEmail = async (req, res) => {
     const  student  = req.body.student;
     console.log(student);
