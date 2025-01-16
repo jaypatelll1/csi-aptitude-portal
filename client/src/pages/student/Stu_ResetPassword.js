@@ -1,13 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Stu_ResetPassword = () => {
   const navigate = useNavigate();
+  const { resettoken } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [tokenValid, setTokenValid] = useState(false);
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      try {
+        await axios.get('/api/users/verify-reset-token', {
+          headers: {
+            resettoken: resettoken,
+            'Content-Type': 'application/json',
+          }
+        });        setTokenValid(true);
+      } catch (err) {
+        setError("Invalid or expired reset token.");
+      }
+    };
+
+    verifyToken();
+  }, [resettoken]);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -20,7 +39,9 @@ const Stu_ResetPassword = () => {
     setError("");
 
     try {
-      await axios.post("/api/users/reset-password", { password : newPassword });
+      await axios.post("/api/users/reset-password", { 
+        resettoken : resettoken,
+        password: newPassword });
       navigate("/"); // Redirect to login after successful password reset
     } catch (err) {
       setError("Failed to reset password. Please try again.");
@@ -28,6 +49,10 @@ const Stu_ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  if (!tokenValid) {
+    return <div>{error || "Verifying token..."}</div>;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

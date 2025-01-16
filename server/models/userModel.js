@@ -89,7 +89,7 @@ const deleteUser = async (id) => {
 // Get all users with pagination
 const getAllPaginatedUsers = async (page, limit) => {
   const query =
-    'SELECT user_id, name, email, role,year,department,rollno FROM users ';
+    'SELECT user_id, name, email, role,year,department,rollno FROM users ORDER BY user_id ASC';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery);
   return result.rows;
@@ -97,7 +97,7 @@ const getAllPaginatedUsers = async (page, limit) => {
 
 const getAllPaginatedRoleUsers = async (page, limit, role) => {
   const query =
-    'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ';
+    'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ORDER BY user_id ASC ';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, [role]);
   return result.rows;
@@ -105,17 +105,38 @@ const getAllPaginatedRoleUsers = async (page, limit, role) => {
 
 const getAllRoleUsers = async (role) => {
   const query =
-    'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ';
+    'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ORDER BY user_id ASC';
   const result = await pool.query(query, [role]);
   return result.rows;
 };
 
 const getUserCount = async () => {
   const query =
-    'SELECT user_id, name, email, role,year,department,rollno FROM users WHERE role =$1 ';
+    'SELECT COUNT(*) FROM users WHERE role =$1 ';
   const user_TPO = await pool.query(query, ['TPO']);
   const user_Student = await pool.query(query, ['Student']);
-  return {TPO : user_TPO.rowCount, Students: user_Student.rowCount};
+  return {TPO : user_TPO.rows[0].count, Students: user_Student.rows[0].count};
+};
+
+
+
+const getUsers = async () => {
+  try {
+    const result = await pool.query('SELECT user_id, name, email FROM users'); // Selecting relevant fields
+    return result.rows;
+  } catch (err) {
+    throw new Error('Error fetching users: ' + err.message);
+  }
+};
+
+
+const getUserByEmail = async (email) => {
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    return result.rows[0];  // Return the first user, or null if not found
+  } catch (err) {
+    throw new Error('Error fetching user by email: ' + err.message);
+  }
 };
 
 module.exports = {
@@ -128,4 +149,8 @@ module.exports = {
   getUserCount,
   getAllStudents,
   getUserById,
+  getUsers,
+  getUserByEmail,
 };
+
+

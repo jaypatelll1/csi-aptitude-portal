@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import DataTime from "./Adm_DataTime";
+import DataTime from "../../../components/admin/Adm_DataTime";
 import axios from "axios";
 
 
-const Adm_DraftedTestCard = ({ test }) => {
+const Adm_UpcomingTestCard = ({ test }) => {
   // console.log('test is ',test);
 
   const [isScheduling, setIsScheduling] = useState(false);
@@ -88,7 +88,7 @@ const Adm_DraftedTestCard = ({ test }) => {
               fill="#797979"
             />
           </svg>
-          <span>Edit test</span>
+          <span>Upcoming test</span>
         </span>
         <span className="text-black-500 text-sm">Created on: {test.date}</span>
       </div>
@@ -181,18 +181,18 @@ const Adm_DraftedTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button className="bg-blue-200 text-blue-900 px-3 lg:px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
         >
 
 
-          Publish
+          Start Test
         </button>
-        <button
+        {/* <button
           onClick={() => setIsScheduling(true)}
           className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
         >
           Schedule
-        </button>
+        </button> */}
       </div>
       <div className="relative">
         {/* Conditionally render the DataTime component for scheduling */}
@@ -219,4 +219,4 @@ const Adm_DraftedTestCard = ({ test }) => {
   );
 };
 
-export default Adm_DraftedTestCard;
+export default Adm_UpcomingTestCard;

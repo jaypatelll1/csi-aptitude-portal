@@ -1,22 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = useSelector((state) => state.user.user); // Get the user from Redux
   const location = useLocation();
+  const [isVerified, setIsVerified] = useState(null);
+
+  useEffect(() => {
+    const verifyResetToken = async () => {
+      try {
+        const response = await axios.get('/api/users/verify-reset-token');
+        if (response.data.message === 'Token is valid') {
+          setIsVerified(true);
+        }
+      } catch (error) {
+        setIsVerified(false);
+      }
+    };
+
+    if (user && user.status === "NOTACTIVE") {
+      verifyResetToken();
+    } else {
+      setIsVerified(true);
+    }
+  }, [user]);
+
+  if (isVerified === null) {
+    return <div>Loading...</div>; // Show a loading state while verifying
+  }
 
   if (!user) {
     // If the user is not logged in, redirect to login
     return <Navigate to="/" replace />;
   }
 
-  if (location.pathname === "/reset-password") {
-    if (user.status === "ACTIVE") {
-      // If the user is already active, redirect to home or any other page
-      return <Navigate to="/home" replace />;
-    }
-  } else if (!allowedRoles.includes(user.role)) {
+  if (user.status === "NOTACTIVE" && isVerified) {
+    // Redirect to reset password page with reset token in params
+    return <Navigate to={`/reset-password/${user.resetToken}`} replace />;
+  }
+
+
+  if (!allowedRoles.includes(user.role)) {
     // If the user's role is not allowed, redirect to an unauthorized page or home
     return <Navigate to="/home" replace />;
   }

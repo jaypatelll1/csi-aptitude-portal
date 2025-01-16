@@ -4,6 +4,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import UploadModal from "../../upload/UploadModal";
 
 const InputQuestions = () => {
   const [question, setQuestion] = useState("");
@@ -12,44 +13,103 @@ const InputQuestions = () => {
   const [toggles, setToggles] = useState([false, false, false, false]);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [questionCount, setQuestionCount] = useState(0);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Safely destructure location.state, fallback to empty object if undefined
-  const {
-    questionId,
-    questionText,
-    questionOptions = {},
-    exam_id,
-  } = location.state || {};
 
-  // Pre-fill the form when the component loads (for editing)
-  useEffect(() => {
-    if (questionText && questionOptions) {
-      setQuestion(questionText);
+  const examId = useSelector((state) => state.exam.examId);
+  // console.log('examID is ', examId);
 
-      // Check if the necessary options exist to prevent errors
-      const { a = "", b = "", c = "", d = "" } = questionOptions;
-      setOptions([a, b, c, d]);
 
-      // Ensure the correct_option exists before attempting to use it
-      const correctOptionIndex = ["a", "b", "c", "d"].indexOf(
-        questionOptions.correct_option
-      );
-      setToggles(
-        [false, false, false, false].map(
-          (_, index) => index === correctOptionIndex
-        )
-      );
+  // Handle file change and validate file type
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
+    const allowedTypes = [
+      "application/vnd.ms-excel",
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload a .csv or .xls file.");
+      return;
     }
-  }, [questionText, questionOptions]);
+
+    setSelectedFile(file);  // If valid, set the file
+  };
+
+  // Handle form submission (upload file)
+  const handleQuestionSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!selectedFile) {
+      alert("Please select a file to upload.");
+      return;
+    }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("questions", selectedFile); // Appending the file to formData
+
+    try {
+      const response = await axios.post(`/api/exams/${examId}/questions`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log('Response:', response.data);  // You can inspect the response
+      alert('File uploaded successfully!');  // Notify the user of success
+      setModalOpen(false); // Close modal after successful upload
+
+    } catch (error) {
+      console.error("Error uploading file:", error.response ? error.response.data : error.message);
+      alert("An error occurred while uploading the file.");
+    } finally {
+      setIsUploading(false); // Unlock the upload button after the process finishes
+
+    }
+  };
+
+  // Safely destructure location.state, fallback to empty object if undefined
+const {
+  questionId,
+  questionText,
+  questionOptions = {},
+  exam_id,
+  correct_option
+} = location.state || {};
+
+// Pre-fill the form when the component loads (for editing)
+useEffect(() => {
+  if (questionText && questionOptions) {
+    setQuestion(questionText);
+
+    // Check if the necessary options exist to prevent errors
+    const { a = "", b = "", c = "", d = "" } = questionOptions;
+    setOptions([a, b, c, d]);
+
+    // Ensure the correct_option exists before attempting to use it
+    const validOptions = ["a", "b", "c", "d"];
+    const correctOptionIndex = validOptions.indexOf(questionOptions.correct_option);
+
+    // Check if the correct_option is valid; fallback to first option if invalid
+    setToggles(
+      validOptions.map((option, index) => index === (correctOptionIndex >= 0 ? correctOptionIndex : 0))
+    );
+  }
+}, [questionText, questionOptions]);
 
   const viewquestions = () => {
     navigate("/admin/viewquestions"); // Navigate to /admin/viewquestions page
   };
 
-  const examId = useSelector((state) => state.exam.examId);
+
 
   const handleAddAnswer = () => {
     if (options.length < 4) {
@@ -116,10 +176,11 @@ const InputQuestions = () => {
             `/api/exams/questions/${examId}`,
             payload
           );
-          console.log("Question created successfully:", response.data);
+          // console.log("Question created successfully:", response.data);
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
+          setQuestionCount((prevCount) => prevCount + 1);
         } else {
           const response = await axios.put(
             `/api/exams/questions/${examId}/${questionId}`,
@@ -169,16 +230,15 @@ const InputQuestions = () => {
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Adm_Sidebar />
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-grow w-5/6 p-9 bg-gray-100 overflow-y-auto m-0">
-        <div className="flex items-center  mb-4 sm:mb-6">
+      <div className="flex-grow w-5/6 p-9 bg-gray-100 overflow-y-auto m-0 ">
+        <div className="flex items-center justify-between  mb-4 sm:mb-6">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -204,11 +264,30 @@ const InputQuestions = () => {
             </svg>
           </button>
           {/* Title Section */}
-          <h1 className="text-2xl font-semibold text-center text-gray-800 ml-52 xl:ml-0">
-            Create Aptitude Test
-          </h1>
-        </div>
+      
+            <div className="text-2xl font-semibold text-center text-gray-800 ml-0 xl:ml-0">
+                Create Aptitude Test
+            </div>
+            <div >
+              <button
+                className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
+                onClick={() => setModalOpen(true)} // Open modal
+              >
+                Upload File
+              </button>
 
+              <UploadModal
+                isOpen={isModalOpen}
+                check="Upload Questions"
+                
+                closeModal={() => setModalOpen(false)} // Close modal
+                onFileChange={handleFileChange}
+                onSubmit={handleQuestionSubmit}
+                isUploading={isUploading} // Pass isUploading state to the modal
+              />
+            </div>
+          </div>
+       
         {/* Navigation Section */}
         <div className="flex justify-between items-center mb-6">
           <button
@@ -232,8 +311,9 @@ const InputQuestions = () => {
             View Questions
           </button>
           <span className="text-xl text-gray-500 font-medium">
-            Question 1/30
+            Question {questionCount}
           </span>
+
         </div>
 
         {/* Main Form Section */}
@@ -254,7 +334,7 @@ const InputQuestions = () => {
             />
           </div>
 
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label
               htmlFor="answer-type"
               className="text-xl block text-gray-700 font-medium mb-2"
@@ -269,7 +349,7 @@ const InputQuestions = () => {
             >
               <option value="single">Single Choice</option>
             </select>
-          </div>
+          </div> */}
 
           <div>
             <label className="text-xl block text-gray-700 font-medium mb-2">
@@ -278,26 +358,24 @@ const InputQuestions = () => {
             {options.map((answer, index) => (
               <div
                 key={index}
-                className="group flex items-center gap-4 mb-4 p-3 border border-gray-300 rounded-lg bg-gray-50 hover:shadow-md"
+                className="group flex items-center gap-4 mb-2 p-3 rounded-lg "
               >
                 <input
                   type="text"
                   value={answer}
                   onChange={(e) => handleAnswerChange(index, e.target.value)}
                   placeholder={`Enter option ${index + 1}`}
-                  className="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <button
                   onClick={() => handleToggleChange(index)}
-                  className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                    toggles[index] ? "bg-[#449800]" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-all duration-300 ${toggles[index] ? "bg-[#449800]" : "bg-gray-300"
+                    }`}
                 >
                   <div
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
-                      toggles[index] ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${toggles[index] ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
 
@@ -324,7 +402,7 @@ const InputQuestions = () => {
             {options.length < 4 && (
               <button
                 onClick={handleAddAnswer}
-                className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-grey-100 transition-all duration-300"
+                className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
               >
                 + Add Answer
               </button>
@@ -335,12 +413,12 @@ const InputQuestions = () => {
         <div className="flex gap-4 justify-between">
           <button
             onClick={handleSubmit}
-            className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+            className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100"
           >
             Save and Add Next
           </button>
           <button
-            className="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500"
+            className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
             onClick={handleCancel}
           >
             Cancel

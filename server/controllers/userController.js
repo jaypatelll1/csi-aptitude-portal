@@ -9,7 +9,7 @@
  * {
  *  "name":"",
  *  "email":"",
- *  "passowrd":"",
+ *  "password":"",
  *  "role":""
  * }
  */
@@ -19,6 +19,7 @@ require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logger');
 const { hashPassword , verifyPassword } = require('../utils/hashUtil');
+const jwt = require('jsonwebtoken');
 
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
@@ -44,9 +45,17 @@ const registerUser = async (req, res) => {
   try {
     const existingUser = await userModel.findUserByEmail(email);
     if (existingUser) {
+       // Logging the failure activity for user already existing
+       await logActivity({
+        user_id: null,
+        activity: 'User creation failed',
+        status: 'failure',
+        details: `User already exists with email: ${email}`
+      });
       return res.status(409).json({ error: 'User already exists' });
     }
     const hashedPassword = await hashPassword(password, 10);
+  
     const newUser = await userModel.createUser(
       name,
       email,
@@ -58,35 +67,44 @@ const registerUser = async (req, res) => {
       phone
     );
 
-    if (newUser) {
-      await logActivity({
+    if(newUser){
+      await logActivity({ 
         user_id: newUser.user_id,
-        activity: 'Register user',
-        status: 'success',
-        details: 'User registered successfully',
-      });
+         activity: 'Register user',
+          status: 'success', 
+          details: 'User registered successfully' 
+        });
       return res.status(201).json(newUser);
     }
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
+    // Log the failure activity for user registration error
+  await logActivity({
+    user_id: null,
+    activity: 'Register user failed',
+    status: 'failure',
+    details: `Error: ${err.message}`
+  });
+  return res.status(500).json({ error: 'Internal server error' });
+}
 };
 
 // Function for logging in
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
   try {
     const result = await userModel.findUserByEmail(email);
     if (!result) {
-      await logActivity({
+      await logActivity({ 
+        // Log the failed login attempt if user is not found
+        user_id: null,
         activity: 'Login attempt',
-        status: 'failure',
-        details: 'User not found',
-      });
+         status: 'failure', 
+         details: 'User not found' });
       return res.status(404).json({ error: 'User not found' });
     }
     const isPasswordMatch = await verifyPassword(
@@ -112,14 +130,15 @@ const loginUser = async (req, res) => {
     };
 
     const token = await generateToken(userData);
-    const resetToken = await generateResetToken(userData);
+    const resettoken = await generateResetToken(userData);
 
-    await logActivity({
+    // Log the success activity for user login
+    await logActivity({ 
       user_id: userData.id,
-      activity: 'Login attempt',
-      status: 'success',
-      details: 'User logged in successfully',
-    });
+       activity: 'Login attempt', 
+       status: 'success', 
+       details: 'User logged in successfully'
+       });
 
     res.cookie('jwttoken', token, {
       httpOnly: true,
@@ -128,11 +147,7 @@ const loginUser = async (req, res) => {
     });
 
     if (result.status === 'NOTACTIVE') {
-      res.cookie('resettoken', resetToken, {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
-      });
+      res.set('resettoken', resettoken);
     }
 
     return res.status(200).json({
@@ -152,23 +167,44 @@ const loginUser = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    // Log the failure activity for login error
+    await logActivity({
+      user_id: null,
+      activity: 'Login failed',
+      status: 'failure',
+      details: `Error: ${error.message}`
+    });
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-const resetPassword = async (req, res) => {
-  const newPassword = req.password.password;
-
-  if (!req.id) {
-    return res.status(400).json({ error: 'User ID is required' });
+const verifyResetToken = async (req, res) => {
+  const resettoken = req.headers['resettoken'];
+  console.log(req.headers);
+  if (!resettoken) {
+    return res.status(400).json({ error: 'Reset token is required' });
   }
 
+  try {
+    const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
+    res.json({ message: 'Token is valid', userId: decoded.user_id });
+  } catch (err) {
+    console.error('Error verifying reset token:', err); // Log the error for debugging
+    res.status(400).json({ error: 'Invalid or expired reset token' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const newPassword = req.body.password;
+  const resettoken = req.body.resettoken;
+
+  const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
   try {
     // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
 
     // Update the user password using the `updateUser` model
-    const updatedUser = await userModel.updateUser(req.id, {
+    const updatedUser = await userModel.updateUser(decoded.id, {
       password_hash: hashedPassword,
       status: 'ACTIVE',
     });
@@ -197,47 +233,32 @@ const logout = async (req,res) => {
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, year,password, department, role, rollno, phone } =
-    req.body;
+  const { name, email, password, role,year,department,rollno  } = req.body;
   const id = req.params.user_id;
 
-
+  if (!name || !email || !password)
+    return res.status(400).json({ error: 'All fields are required' });
   try {
-    // Initialize an object to store fields that need updating
-    const updatedFields = {};
-
-    // Only include fields that were provided in the request
-    if (name) updatedFields.name = name;
-    if (email) updatedFields.email = email;
-    if (password) {
-      updatedFields.password_hash = await hashPassword(password); // Hash password if provided
-    }
-    if (role) updatedFields.role = role;
-    if (year) updatedFields.year = year;
-    if (department) updatedFields.department = department;
-    if (rollno) updatedFields.rollno = rollno;
-    if (phone) updatedFields.phone = phone; // Only update phone if provided
-
-    // If no fields are provided, return an error
-    if (Object.keys(updatedFields).length === 0) {
-      return res.status(400).json({ error: 'No fields provided to update' });
-    }
-
-    // Update the user in the database with the changed fields
-    const updatedUser = await userModel.updateUser(id, updatedFields);
-
-    // Log the activity for user update
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const updatedUser = await userModel.updateUser(id,name, email, hashedPassword,year,department,rollno );
+    
+    // Log the success activity for user update
     await logActivity({
       user_id: id,
       activity: 'Update user details',
-      status: 'success',
-      details: 'User details updated successfully',
-    });
-
+        status: 'success', 
+        details: 'User details updated successfully' });
     return res.status(200).json(updatedUser);
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ error: 'Internal server error' });
+     // Log the failure activity for update error
+     await logActivity({
+      user_id: id,
+      activity: 'Update user failed',
+      status: 'failure',
+      details: `Error: ${err.message}`
+    });
+    return res.status(500).json({ error: 'Internal server error' })
   }
 };
 
@@ -247,17 +268,25 @@ const deleteUser = async (req, res) => {
   try {
     console.log('Delete user id:', id);
     const deletedUser = await userModel.deleteUser(id);
-    await logActivity({
-      user_id: id,
-      activity: 'Delete user',
-      status: 'success',
-      details: 'User deleted successfully',
+
+     // Log the success activity for user deletion
+    await logActivity({ 
+      user_id: id, 
+      activity: 'Delete user', 
+      status: 'success', 
+      details: 'User deleted successfully' 
     });
-    return res
-      .status(200)
-      .json({ message: 'User deleted successfully', deletedUser });
+
+    return res.status(200).json({ message: 'User deleted successfully', deletedUser });
   } catch (err) {
     console.log(err);
+    // Log the failure activity for delete error
+    await logActivity({
+      user_id: id,
+      activity: 'Delete user failed',
+      status: 'failure',
+      details: `Error: ${err.message}`
+    });
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -267,49 +296,69 @@ const getAllPaginatedUsers = async (req, res) => {
   const { page, limit, role } = req.query;
   let users;
   try {
-    const numeberOfUsers = await userModel.getUserCount();
-    if (!page && !limit) {
-      users = await userModel.getAllStudents(role);
-      await logActivity({
-        user_id: user_id,
-        activity: `Viewed Particular users`,
-        status: 'success',
-        details: `Viewed All queried users`,
-      });
-      return res.status(200).json({
-        User_Count: numeberOfUsers,
-        users,
-      });
-    } else {
-      if (!role) {
-        users = await userModel.getAllPaginatedUsers(
-          parseInt(page),
-          parseInt(limit)
-        );
-      } else {
-        users = await userModel.getAllPaginatedRoleUsers(
-          parseInt(page),
-          parseInt(limit),
-          role
-        );
-      }
-      await logActivity({
-        user_id: user_id,
-        activity: `Viewed paginated users`,
-        status: 'success',
-        details: `Page: ${page}, Limit: ${limit}`,
-      });
-      return res.status(200).json({
-        page: parseInt(page),
-        limit: parseInt(limit),
-        User_Count: numeberOfUsers,
-        users,
-      });
-    }
+    const users = await userModel.getAllPaginatedUsers(parseInt(page), parseInt(limit));
+    
+    // Log the success activity for viewing paginated users
+    await logActivity({
+      user_id : user_id,
+      activity: `Viewed paginated exams`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    })
+    return res.status(200).json({ page: parseInt(page), limit: parseInt(limit), users });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Log the failure activity for pagination error
+    await logActivity({
+      user_id: user_id,
+      activity: `Failed to fetch paginated users`,
+      status: 'failure',
+      details: `Error: ${error.message}`
+    });
+    return res.status(500).json({ error: error.message });
   }
 };
+
+const sendResetEmail = async (req, res) => {
+  const  student  = req.body.student;
+  console.log(student);
+
+  if (!student.user_id) {
+    return res.status(400).json({ error: 'ID is required' });
+  }
+
+  try {
+    const resettoken = await generateResetToken({
+      id: student.user_id,
+      email: student.email,
+      name: student.name,
+      role: student.role,
+    });
+
+    const resetLink =
+    process.env.NODE_ENV === 'development'
+      ? `http://localhost:3000/reset-password/${resettoken}`
+      : `${process.env.FRONTEND_ORIGIN}/reset-password/${resettoken}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: student.email,
+      subject: 'CSI Aptitude Portal Password Reset',
+      text: `Click on the link to reset your password. This link will only be valid of 10 minutes: ${resetLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ error: 'Error sending email' });
+      }
+      console.log('Email sent:', info.response);
+      return res.status(200).json({ message: 'Email sent successfully' });
+    });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 module.exports = {
   registerUser,
@@ -317,6 +366,8 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllPaginatedUsers,
+  verifyResetToken,
   resetPassword,
-  logout
+  logout,
+  sendResetEmail,
 };

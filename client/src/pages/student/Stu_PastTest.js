@@ -1,26 +1,32 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import MSidebar from "../../components/student/home/MSidebar"; // Sidebar component
+import Stu_PastCard from "../../components/student/home/Stu_PastCard"; 
+import { useSelector , useDispatch } from 'react-redux';
+// Drafted Test Card component
 
-const Adm_ScheduledTest = () => {
-  const [scheduledTests, setScheduledTests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const Adm_DraftTest = () => {
+  const [tests, setTests] = useState([]); // State to store fetched drafted tests
+  const [loading, setLoading] = useState(true); // State to track loading status
+  const [error, setError] = useState(null); // State to track errors
+  const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
+
+  const userData = useSelector((state) => state.user.user);
+    console.log('uers data is',userData );
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // Number of items per page
 
   useEffect(() => {
+    // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setSidebarOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -33,40 +39,46 @@ const Adm_ScheduledTest = () => {
     return date.toLocaleDateString("en-IN", options);
   };
 
+  // Fetch drafted tests from the API
   useEffect(() => {
-    const fetchScheduledTests = async () => {
+    const fetchDraftedTests = async () => {
       try {
         setLoading(true);
         setError(null);
+        let url = "api/exams/student";
+        let payload = {
+            status: "past",
+            target_branches: `{${userData.department}}`,
+            target_years: `{${userData.year}}`
+          }
 
-        const response = await axios.get("/api/exams/scheduled", {
+        const response = await axios.post(url,payload, {
           withCredentials: true,
         });
-
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
           title: exam.exam_name || "Untitled Exam",
-          questions: exam.question_count || "N/A",
+          questions: exam.total_questions || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
         }));
 
-        setScheduledTests(fetchedTests);
+        setTests(fetchedTests);
       } catch (err) {
-        setError("Failed to load scheduled tests. Please try again later.");
+        setError("Failed to load drafted tests. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchScheduledTests();
+    fetchDraftedTests();
   }, []);
 
   // Pagination logic
-  const totalPages = Math.ceil(scheduledTests.length / itemsPerPage);
-  const paginatedTests = scheduledTests.slice(
+  const totalPages = Math.ceil(tests.length / itemsPerPage);
+  const paginatedTests = tests.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -79,19 +91,20 @@ const Adm_ScheduledTest = () => {
 
   return (
     <div className="min-h-screen flex">
+      {/* Sidebar Section */}
       <div
         ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <MSidebar />
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-1 bg-gray-100">
-        <Adm_Navbar/>
-        <div className="flex items-center h-12 ml-4 ">
+      <div className="flex-1 p-4 sm:p-6">
+        <div className="flex items-center  mb-4 sm:mb-6">
+          {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"
@@ -115,20 +128,21 @@ const Adm_ScheduledTest = () => {
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:ml-0  ">
-            Scheduled Tasks
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+            Past Tests
           </h1>
         </div>
-        <hr />
+
+        <hr className="mb-4" />
         {loading ? (
-          <p>Loading scheduled tests...</p>
+          <p>Loading past tests...</p> // Show loading indicator
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
               {paginatedTests.map((test, index) => (
-                <Adm_ScheduledTestCard key={index} test={test} />
+                <Stu_PastCard key={index} test={test} />
               ))}
             </div>
 
@@ -143,7 +157,7 @@ const Adm_ScheduledTest = () => {
                 }`}
                 disabled={currentPage === 1}
               >
-                &lt;
+                &lt; {/* Left Arrow */}
               </button>
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
@@ -167,7 +181,7 @@ const Adm_ScheduledTest = () => {
                 }`}
                 disabled={currentPage === totalPages}
               >
-                &gt;
+                &gt; {/* Right Arrow */}
               </button>
             </div>
           </>
@@ -177,4 +191,4 @@ const Adm_ScheduledTest = () => {
   );
 };
 
-export default Adm_ScheduledTest;
+export default Adm_DraftTest;

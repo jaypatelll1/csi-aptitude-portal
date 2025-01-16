@@ -5,12 +5,14 @@ import questionReducer from "./questionSlice";
 import userReducer from "./userSlice";
 import examReducer from './ExamSlice';
 
+
 const userPersistConfig = {
   key: "user",
   storage,
 };
 const examPersistConfig = {
   key: "exam",
+
   storage,
 };
 

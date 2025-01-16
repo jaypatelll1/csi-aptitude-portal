@@ -43,7 +43,7 @@ const resetPasswordAuthMiddleware = (req, res, next) => {
 };
 
 
-
+// For SOCKET requests
 const sockettAuthMiddleware = (socket, next) => {
   // Get token from cookie header
   const cookie = socket.handshake.headers.cookie;
@@ -117,4 +117,4 @@ const tokenMiddleware = async (req, res, next) => {
 
  
 
-module.exports = { jwtAuthMiddleware, sockettAuthMiddleware ,resetPasswordAuthMiddleware, tokenMiddleware };
+module.exports = { jwtAuthMiddleware, sockettAuthMiddleware , tokenMiddleware };

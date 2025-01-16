@@ -1,8 +1,8 @@
-// Adm_PastTest.js
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Import the Sidebar
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard"; // Import the PastTestCard
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const Adm_PastTest = () => {
   const [pastTests, setPastTests] = useState([]);
@@ -11,34 +11,43 @@ const Adm_PastTest = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9; // Number of items per page
+
   useEffect(() => {
-    // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setSidebarOpen(false);
       }
     };
 
-    // Attach event listener to the document
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
+  const formatToReadableDate = (isoString) => {
+    const date = new Date(isoString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-IN", options);
+  };
+
   useEffect(() => {
     const fetchPastTests = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/exams/past"); // Replace with your actual API endpoint
+        const response = await axios.get("/api/exams/past");
         const { exams } = response.data;
         const formattedTests = exams.map((exam) => ({
-          title: exam.exam_name,
-          date: new Date(exam.created_at).toLocaleDateString(),
-          questions: exam.duration, // Update if you have questions count in your API
-          duration: `${exam.duration} minutes`,
+          exam_id: exam.exam_id,
+          end_time: exam.end_time,
+          Start_time: exam.start_time,
+          title: exam.exam_name || "Untitled Exam",
+          questions: exam.question_count || "N/A",
+          duration: exam.duration ? `${exam.duration} min` : "N/A",
+          date: formatToReadableDate(exam.created_at),
         }));
         setPastTests(formattedTests);
       } catch (err) {
@@ -52,6 +61,19 @@ const Adm_PastTest = () => {
     fetchPastTests();
   }, []);
 
+  // Pagination logic
+  const totalPages = Math.ceil(pastTests.length / itemsPerPage);
+  const paginatedTests = pastTests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="min-h-screen flex">
       <div
@@ -63,10 +85,9 @@ const Adm_PastTest = () => {
         <Adm_Sidebar />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 ">
-        <div className="flex items-center  mb-4 sm:mb-6">
-          {/* Burger Icon Button */}
+      <div className="flex-1 bg-gray-100">
+        <Adm_Navbar/>
+        <div className="flex items-center h-12 ml-4 ">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"
@@ -84,8 +105,8 @@ const Adm_PastTest = () => {
                 strokeLinejoin="round"
                 d={
                   sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
-                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
                 }
               />
             </svg>
@@ -97,13 +118,55 @@ const Adm_PastTest = () => {
         <hr />
         {loading && <p>Loading past tests...</p>}
         {error && <p className="text-red-500">{error}</p>}
-        {/* Grid Layout for Past Test Cards */}
+
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
-            {pastTests.map((test, index) => (
-              <Adm_PastTestCard key={index} test={test} />
-            ))}
-          </div>
+          <>
+            {/* Grid Layout for Paginated Past Test Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
+              {paginatedTests.map((test, index) => (
+                <Adm_PastTestCard key={index} test={test} />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center mt-6">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === 1}
+              >
+                &lt; {/* Left Arrow */}
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 mx-1 border rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                &gt; {/* Right Arrow */}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>

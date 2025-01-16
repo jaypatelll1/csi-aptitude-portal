@@ -4,7 +4,8 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import DataTime from "../../components/admin/Adm_DataTime";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector ,useDispatch} from "react-redux";
+import {clearExamId} from "../../redux/ExamSlice"
 
 const Adm_ViewQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -14,7 +15,9 @@ const Adm_ViewQuestions = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [testDuration, setTestDuration] = useState(); 
   const sidebarRef = useRef(null);
-  const examId = useSelector((state) => state.exam.examId);
+  const examId  = useSelector((state) => state.exam.examId);
+  // console.log('exam_id is ',examId);
+  const dispatch = useDispatch()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,7 +59,8 @@ const Adm_ViewQuestions = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1);
+    navigate("/admin/input");
+  
   };
 
   const handleSchedulePost = () => {
@@ -65,6 +69,11 @@ const Adm_ViewQuestions = () => {
 
   const closeScheduleModal = () => {
     setScheduleModalOpen(false);
+  };
+
+  const handleSaveDraft = () => {
+    navigate("/admin");
+    dispatch(clearExamId())
   };
 
   const handleScheduleTest = (startTime, endTime) => {
@@ -78,16 +87,28 @@ const Adm_ViewQuestions = () => {
         start_time: startTime,
         end_time: endTime,
       })
+
       .then(() => {
         closeScheduleModal();
-        navigate("/admin");
+        console.log(startTime, endTime);
+        
       })
       .catch((err) =>
         alert(
           `Error scheduling test: ${err.response?.data?.message || err.message}`
         )
-      );
+      ).finally(dispatch(clearExamId()))
   };
+
+  const handleDelete = async () => {
+    console.log('exam id is ',examId );
+    
+    const response = await axios.delete(`/api/exams/${examId}`);
+    console.log('response is ',response);
+    navigate("/admin/createtest")
+    
+  }
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -138,7 +159,7 @@ const Adm_ViewQuestions = () => {
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+          <h1 className="text-xl sm:text-2xl font-bold ml-20 sm:ml-52 xl:m-0">
             Create Aptitude Test
           </h1>
         </div>
@@ -164,15 +185,23 @@ const Adm_ViewQuestions = () => {
             </svg>
           </button>
           <h2 className="text-lg font-semibold">Question Summary</h2>
-          <div className="flex space-x-2">
-            <button className="bg-white border border-gray-300 text-gray-700 font-thin py-2 px-4 rounded-lg hover:bg-gray-100">
+          <div className="flex space-x-2 items-end">
+            <button 
+            onClick={handleSaveDraft}
+            className="bg-white border border-gray-300 text-gray-700 font-thin sm:py-2 px-1 sm:px-4 rounded-lg hover:bg-gray-100">
               Save as Draft
             </button>
             <button
               onClick={handleSchedulePost}
-              className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg"
+              className="bg-white border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg"
             >
               Schedule Post
+            </button>
+            <button
+              onClick={handleDelete}
+              className="bg-red-600 border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg"
+            >
+             Delete Exam
             </button>
           </div>
         </div>
@@ -189,8 +218,8 @@ const Adm_ViewQuestions = () => {
                 id={question.question_id}
                 index={index}
                 text={question.question_text}
-                updateText={updateQuestionText}
                 options={question.options}
+                correct_option = {question.correct_option}
               />
             ))
           )}

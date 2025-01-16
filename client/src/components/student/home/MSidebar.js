@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Msidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
@@ -8,7 +9,7 @@ const Msidebar = () => {
   };
 
   return (
-    <div className="fixed left-0 top-0 w-64 h-full bg-white shadow-md p-5 font-sans z-50">
+    <div className="fixed left-0 top-0 w-64 h-full  p-5 font-sans z-50">
       <h2 className="text-blue-700 text-2xl font-bold mb-12">Aptitude</h2>
       <ul className="list-none p-0 m-0">
         <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
@@ -29,7 +30,7 @@ const Msidebar = () => {
               />
             </svg>
           </span>
-          Dashboard
+          <Link to="/home">Dashboard</Link>
         </li>
 
         <li
@@ -64,10 +65,10 @@ const Msidebar = () => {
         {showSubmenu && (
           <ul className="pl-9 ">
             <li className="p-1 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              Upcoming Tests
+              <Link to="/upcoming-tests">Upcoming Tests</Link>
             </li>
             <li className="p-1 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              Past Test
+            <Link to="/past-tests">Past Tests</Link>
             </li>
       
           </ul>

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 import axios from "axios";
 import { setUser } from "../redux/userSlice";
 import doodle from "../assets/sidebar/doodle.svg";
@@ -36,12 +35,13 @@ const Login = () => {
         dispatch(setUser(userData));
 
         if (userData.status === "NOTACTIVE") {
-          navigate("/reset-password");
+          console.log(response.headers.resettoken);
+          navigate(`/reset-password/${response.headers.resettoken}`);
         } else if (userData.status === "ACTIVE") {
           if (userData.role === "Student") {
-            navigate("/home", { state: { userData } });
+            navigate("/home",{replace:true});
           } else if (userData.role === "TPO") {
-            navigate("/admin");
+            navigate("/admin",{replace:true});
           } else {
             setError("Unauthorized role");
           }

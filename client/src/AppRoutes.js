@@ -10,13 +10,16 @@ import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
 import Adm_ScheduleTest from "./pages/admin/Adm_ScheduleTest";
 import Adm_PastTest from "./pages/admin/Adm_PastTest";
+import Adm_LiveTest from "./pages/admin/Adm_LiveTest";
 import Adm_InputQuestions from "./pages/admin/Adm_InputQuestions";
 import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import StudentList from "./pages/admin/Adm_StudentList";
 import StudentDashboard from "./pages/student/Stu_Dashboard";
 import TestInstruction from "./pages/student/Stu_TestInstruction";
 import ResetPassword from "./pages/student/Stu_ResetPassword";
-
+import TestStudentList from "./pages/admin/Adm_TestStudentList";
+import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
+import Stu_PastTest from "./pages/student/Stu_PastTest";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -49,6 +52,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <MCQExamPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upcoming-tests"
+        element={
+          <ProtectedRoute allowedRoles={["Student"]}>
+            <Stu_UpcomingTest />
           </ProtectedRoute>
         }
       />
@@ -95,6 +106,13 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/admin/teststudentlist"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <TestStudentList />
+          </ProtectedRoute>
+        } />
+      <Route
         path="/drafted-tests"
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
@@ -119,11 +137,17 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/reset-password"
+        path="/live-tests"
         element={
-          <ProtectedRoute allowedRoles={["Student"]}>
-            <ResetPassword />
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_LiveTest />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reset-password/:resettoken"
+        element={
+            <ResetPassword />
         }
       />
     </Routes>

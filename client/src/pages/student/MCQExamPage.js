@@ -1,7 +1,7 @@
-import React, { useEffect, useState ,useRef  } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-import  io  from "socket.io-client"
+import io from "socket.io-client";
 import Sidebar from "../../components/student/mcqexampage/Sidebar";
 import {
   setQuestions,
@@ -9,11 +9,10 @@ import {
   visitQuestion,
 } from "../../redux/questionSlice";
 import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponent";
-import { useParams } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
-
+import { markSubmit } from "../../redux/ExamSlice";
 
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
@@ -21,14 +20,12 @@ const MCQExamPage = () => {
 
   const dispatch = useDispatch();
   const { examId } = useParams();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   // console.log('examid is ',examId);
 
   const location = useLocation();
   const Duration = location.state?.Duration;
   // console.log('duration is',Duration);
- 
-
 
   const userId = useSelector((state) => state.user.user.id);
   const userName = useSelector((state) => state.user.user.name);
@@ -43,8 +40,7 @@ const MCQExamPage = () => {
   const [remainingTime, setRemainingTime] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
 
-  
-
+  // console.log(window.location.pathname); // Output: "/products/item"
 
   const formatTimeFromSeconds = (seconds) => {
     const hours = Math.floor(seconds / 3600); // Get total hours
@@ -52,12 +48,10 @@ const MCQExamPage = () => {
     const remainingSeconds = seconds % 60; // Get remaining seconds
 
     // Format and return as HH:MM:SS
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-
-
-
-
 
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
@@ -73,41 +67,78 @@ const MCQExamPage = () => {
       console.warn("Fullscreen API is not supported in this browser.");
     }
   };
+  const submitFinalResponse = async () => {
+    let url = `/api/exams/responses/final/${examId}`
+  const response = await axios.put(url)
+  console.log('response is submit final', response.data);
+  
+  }
 
+  const deleteExistingResponses = async () => {
+    let url = `/api/exams/responses/initialize/${examId}`
+    const response = await axios.post(url);
+    console.log('response is delete existing ',response.data);
+    
+  }
 
+  
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = io('/exams/start-exam');
-    }
-
-    const socket = socketRef.current;
-
-    socket.on('connect', () => {
-      console.log('Connected to the exam namespace:', socket.id);
-    });
-
-    socket.emit('start_exam', {
-      exam_id: examId,
-      duration: Duration * 60,
-    });
-
-    socket.on('timer_update', (data) => {
-      setRemainingTime(data.remainingTime);
-    });
-
-    socket.on('exam_ended', (data) => {
-      console.log('Exam ended:', data.message);
-      setTimeUp(true);
-    });
-
+    const socketConnect = async () => {
+      try {
+        if (!socketRef.current) {
+          socketRef.current = io("/exams/start-exam");
+          console.log("Socket not connected, initializing...");
+        }
+  
+        const socket = socketRef.current;
+  
+        // Handle socket connection
+        socket.on("connect", () => {
+          console.log("Connected to the exam namespace:", socket.id);
+  
+          // Call deleteExistingResponses only once when socket is connected
+          deleteExistingResponses();
+        });
+  
+        // Emit the start_exam event
+        socket.emit("start_exam", {
+          user_id: userId,
+          exam_id: examId,
+          duration: Duration * 60,
+        });
+  
+        // Listen for timer updates
+        socket.on("timer_update", (data) => {
+          console.log("Timer update received:", data.remainingTime);
+          setRemainingTime(data.remainingTime);
+        });
+  
+        // Listen for exam ended
+        socket.on("exam_ended", (data) => {
+          console.log("Exam ended:", data.message);
+          submitFinalResponse();
+          setTimeUp(true);
+        });
+      } catch (error) {
+        console.error("Error during socket connection:", error);
+      }
+    };
+  
+    socketConnect();
+  
+    // Cleanup function to remove listeners and disconnect the socket
     return () => {
-      socket.off('connect');
-      socket.off('timer_update');
-      socket.off('exam_ended');
-      socket.disconnect();
+      if (socketRef.current) {
+        const socket = socketRef.current;
+        socket.off("connect");
+        socket.off("timer_update");
+        socket.off("exam_ended");
+        socket.disconnect();
+        console.log("Socket disconnected and listeners removed");
+      }
     };
   }, [examId, Duration]);
-
+  
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -125,18 +156,16 @@ const MCQExamPage = () => {
     };
   }, [testSubmitted]);
 
-
-
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-      const response = await axios.get(`/api/exams/questions/${examId}`);
+        const response = await axios.get(`/api/exams/questions/${examId}`);
 
         const formattedQuestions = response.data.map((q) => ({
           ...q,
           answered: false,
         }));
-        console.log('formattedQuestions', formattedQuestions);
+        console.log("formattedQuestions", formattedQuestions);
 
         dispatch(setQuestions(formattedQuestions));
       } catch (error) {
@@ -150,26 +179,41 @@ const MCQExamPage = () => {
   const handlePermissionGranted = () => {
     enableFullscreen();
   };
+const singleResponse = async (option,id) => {
+  let url = `/api/exams/responses/${examId}`
+ let payload = {
+  question_id :id,
+  selected_option : option,
+  response_status:"draft"
+  }
+  console.log('payload is ',payload);
+  
+  const response = await axios.put(url,payload)
+  console.log('response single is ', response.data );
+  
+}
 
   const handleOptionSelect = (option, id) => {
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
-    socketRef.current.emit('submit_temp_response', {
-      exam_id: examId,
-      question_id: id,
-      selected_option: option,
-    });
-    // console.log('option is ', option);
-    // console.log('value  is ',id );
-
-    // const socket = io('/exams/start-exam');
-  
-  //   socket.emit('submit_temp_response', { 
-  //     "exam_id" : examId, 
-  //     "question_id" : id,
-  //   "selected_option": option
-  // });
-    
+    singleResponse(option,id)
+    // socketRef.current.emit("submit_temp_response", {
+    //   exam_id: examId,
+    //   question_id: id,
+    //   selected_option: option,
+    // });
   };
+
+  // useEffect(() => {
+  //   window.history.pushState(null, null, window.location.href = `/exam/${examId}`);
+  //   const preventBack = () => {
+  //     window.history.pushState(null, null, window.location.href = `/exam/${examId}`);
+  //   };
+  //   window.addEventListener('popstate', preventBack);
+
+  //   return () => {
+  //     window.removeEventListener('popstate', preventBack);
+  //   };
+  // }, [navigate,examId]);
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
@@ -184,8 +228,6 @@ const MCQExamPage = () => {
     }
   };
 
-
-
   const exitFullscreen = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch((err) => {
@@ -194,20 +236,15 @@ const MCQExamPage = () => {
     }
   };
 
+
   const handleSubmitTest = () => {
     setTestSubmitted(true);
+    submitFinalResponse();
+    dispatch(markSubmit(examId))
+    navigate("/home", {replace : true});
 
-  
-
-    socketRef.current.emit('submit_response', { 
-      "exam_id" : examId   
-  });
- 
-  navigate("/home")
-  
+    alert("Test submitted successfully!");
   };
-
-
 
   return (
     <div className="flex h-screen bg-[#F5F6F8]">
@@ -253,7 +290,6 @@ const MCQExamPage = () => {
             {Object.entries(questions[currentQuestionIndex]?.options || {}).map(
               ([key, value]) => (
                 <label
-                
                   key={key}
                   className="block p-2 rounded-lg hover:bg-gray-100 transition"
                 >
@@ -264,7 +300,12 @@ const MCQExamPage = () => {
                     checked={
                       questions[currentQuestionIndex]?.selectedOption === key
                     }
-                    onChange={() => handleOptionSelect(key,   questions[currentQuestionIndex]?.question_id)}
+                    onChange={() =>
+                      handleOptionSelect(
+                        key,
+                        questions[currentQuestionIndex]?.question_id
+                      )
+                    }
                   />
                   {value}
                 </label>
@@ -287,11 +328,10 @@ const MCQExamPage = () => {
             >
               Next
             </button>
-
           </div>
         </div>
       </div>
-      <Sidebar name={userName} onSubmitTest={handleSubmitTest} limit= {timeUp}/>
+      <Sidebar name={userName} onSubmitTest={handleSubmitTest} limit={timeUp} />
     </div>
   );
 };

@@ -4,10 +4,14 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice"; // Import the action
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setduration] = useState("");
+
+  const [branch, setBranch] = useState([""]);
+  const [year, setYear] = useState([""]);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -21,7 +25,13 @@ const CreateTestPage = () => {
     const payload = {
       name: `${testName}`, // The test name
       duration: `${duration}`, // Using duration as duration
+      target_years: `${year}`,
+      target_branches: `${branch}`,
     };
+
+    // console.log('year is ',year);
+    // console.log("branch is ",branch)
+    // console.log("branch is ",payload)
 
     try {
       // Send a POST request to the server to create the test
@@ -34,6 +44,7 @@ const CreateTestPage = () => {
       console.log("Test created successfully:", response.data);
       navigate("/admin/input"); // Navigate to the input page after success
     } catch (error) {
+      alert("Invalid Input");
       // Log error response if something goes wrong
       console.error(
         "Error creating test:",
@@ -78,7 +89,8 @@ const CreateTestPage = () => {
         <Adm_Sidebar />
       </div>
 
-      <div className="flex-1 p-4 sm:p-6">
+      <div className="flex-1  bg-gray-100">
+        <Adm_Navbar />
         <div className="flex items-center  mb-4 sm:mb-6">
           {/* Burger Icon Button */}
           <button
@@ -104,12 +116,12 @@ const CreateTestPage = () => {
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-2">
             Create Aptitude Test
           </h1>
         </div>
 
-        <div className="flex items-center mb-6">
+        <div className="flex items-center mb-6 ">
           <button
             onClick={handleGoBack}
             className="flex items-center text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 mr-4"
@@ -134,8 +146,71 @@ const CreateTestPage = () => {
           </h2>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-5">
           <form>
+            <div className="grid grid-cols-2 gap-4 my-5">
+              {/* Branch Dropdown */}
+              <div>
+                <label
+                  htmlFor="Branch"
+                  className="block text-sm font-medium text-gray-400 mb-2"
+                >
+                  Branch
+                </label>
+                <select
+                  id="branchSelect"
+                  className="w-full  px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                  required
+                >
+                  <option value="" className="text-gray-400" disabled>
+                    Eg CMPN
+                  </option>
+                  <option value="CMPN" className="text-black">
+                    CMPN
+                  </option>
+                  <option value="INFT" className="text-black">
+                    INFT
+                  </option>
+                  <option value="EXTC" className="text-black">
+                    EXTC
+                  </option>
+                  <option value="ELEC" className="text-black">
+                    ELEC
+                  </option>
+                  <option value="ECS" className="text-black">
+                    ECS
+                  </option>
+                </select>
+              </div>
+
+              {/* Year Dropdown */}
+              <div>
+                <label
+                  htmlFor="Year"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Year
+                </label>
+                <select
+                  id="yearSelect"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  required
+                >
+                  <option value="" disabled>
+                    Eg FE
+                  </option>
+                  <option value="FE">FE</option>
+                  <option value="SE">SE</option>
+                  <option value="TE">TE</option>
+                  <option value="BE">BE</option>
+                </select>
+              </div>
+            </div>
+
             <div className="mb-6">
               <label
                 htmlFor="testName"
@@ -174,17 +249,17 @@ const CreateTestPage = () => {
           </form>
         </div>
 
-        <div className="flex items-center space-x-4 mt-28">
+        <div className="flex items-center space-x-4 mt-20">
           <button
             type="submit"
-            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="bg-[#1349C5] text-white px-3 lg:px-4 py-2 rounded hover:bg-[#4d75d2] border-[#2c54b2] opacity-90 hover:opacity-100"
             onClick={handleCreateQuestions}
           >
             Create questions
           </button>
           <button
             type="button"
-            className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="bg-white text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
             onClick={handleCancel}
           >
             Cancel

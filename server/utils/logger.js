@@ -1,27 +1,39 @@
-// SCHEMA
-// CREATE TABLE logs (
-//     logs_id SERIAL PRIMARY KEY,
-//     user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
-//     activity VARCHAR(255) NOT NULL,
-//     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     status VARCHAR(50), -- e.g., "success" or "failure"
-//     details TEXT -- Optional: Additional information about the activity
-// );
-  
-const pool = require('../config/db');
+// utils/logger.js
+const winston = require('winston');
 
-const logActivity = async ({ user_id, activity, status, details = null }) => {
-  const query = `
-    INSERT INTO logs (user_id, activity, status, details)
-    VALUES ($1, $2, $3, $4)
-  `;
-  const values = [user_id, activity, status, details];
+// Custom log format with timestamp and level
+const logFormat = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),  // Timestamp format
+  winston.format.printf(({ timestamp, level, message }) => {
+    return `[${timestamp}] ${level}: ${message}`;  // Custom log message format
+  })
+);
 
-  try {
-    await pool.query(query, values);
-  } catch (error) {
-    console.error('Error logging activity:', error.message);
-  }
-};
+// Create the logger instance
+const logger = winston.createLogger({
+  level: 'debug',  // Set logging level to capture debug, info, warn, error
+  format: logFormat,
+  transports: [
+    // Log to console (with colorization for easier reading in the terminal)
+    new winston.transports.Console({ 
+      format: winston.format.combine(winston.format.colorize(), winston.format.simple())
+    }),
 
-module.exports = { logActivity };
+    // Log activities to app.log
+    new winston.transports.File({
+      filename: 'logs/app.log',
+      level: 'info',  // Log activity and info-level events
+      format: logFormat,
+    }),
+
+    // Log errors to error.log
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',  // Only log 'error' level messages to the file
+      format: logFormat,
+    }),
+  ],
+});
+
+
+module.exports = logger;

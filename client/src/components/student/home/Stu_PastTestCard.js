@@ -1,11 +1,12 @@
 import React from "react";
 
 const Stu_PastTestCard = ({
-    testName = "General Knowledge",
-    submittedOn = "12/12/12",
-    time = "30 min",
-    marks = 30,
-    status = "failed"
+    testName ,
+    submittedOn ,
+    time ,
+    status ,
+    max_score,
+    total_score,
 }) => {
     let colur;
     if (status === "Passed") {
@@ -20,7 +21,7 @@ const Stu_PastTestCard = ({
             <div className="text-sm text-gray-500 mt-3 space-y-1">
                 <p>Submitted on: {submittedOn}</p>
                 <p>Time taken: {time}</p>
-                <p>Marks: {marks}</p>
+                <p>Marks: {total_score}/{max_score}</p>
             </div>
             <div className={`h-8 w-24 ${colur} rounded-xl flex items-center justify-center absolute bottom-4 right-4`}>
                 <h1 className={colur}>{status}</h1>
