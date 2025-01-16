@@ -14,15 +14,16 @@
  * }
  */
 
-const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logger');
-const { hashPassword } = require('../utils/hashUtil');
+const { hashPassword , verifyPassword } = require('../utils/hashUtil');
 const jwt = require('jsonwebtoken');
 
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
+const { token } = require('morgan');
 
 // Function to create a new user/register
 const registerUser = async (req, res) => {
@@ -53,8 +54,8 @@ const registerUser = async (req, res) => {
       });
       return res.status(409).json({ error: 'User already exists' });
     }
+    const hashedPassword = await hashPassword(password, 10);
   
-    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await userModel.createUser(
       name,
       email,
@@ -106,7 +107,10 @@ const loginUser = async (req, res) => {
          details: 'User not found' });
       return res.status(404).json({ error: 'User not found' });
     }
-    const isPasswordMatch = await bcrypt.compare( password,result.password_hash);
+    const isPasswordMatch = await verifyPassword(
+      password,
+      result.password_hash
+    );
     if (!isPasswordMatch) {
       await logActivity({
         user_id: result.user_id,
@@ -219,6 +223,13 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// logout 
+const logout = async (req,res) => {
+  res.clearCookie('jwttoken', { path: '/' }); // Ensure path matches the one used for setting the cookie
+  res.status(200).json({message : "Logged out" })
+
+}
 
 // Function to update details of user
 const updateUser = async (req, res) => {
@@ -357,5 +368,6 @@ module.exports = {
   getAllPaginatedUsers,
   verifyResetToken,
   resetPassword,
+  logout,
   sendResetEmail,
 };

@@ -20,6 +20,12 @@ const uploadQuestionFile = async (req, res) => {
           message: "Excel file uploaded and parsed successfully",
           content: jsonData,
         });
+      }
+      if (!jsonData || !jsonData.data || jsonData.data.length === 0) {
+        return res.status(400).json({
+          message: "File uploaded successfully, but no valid data was found.",
+          warnings: result?.warnings || [],
+        });
       } else if (fileExtension === ".csv") {
         // Parse CSV file
         jsonData = await parseCSVquestion(filePath, examId); // Ensure parseCSVquestion is async
@@ -32,7 +38,11 @@ const uploadQuestionFile = async (req, res) => {
       }
     } catch (err) {
       console.error("Error processing file:", err);
-      return res.status(500).send("Error processing file.");
+  return res.status(500).json({
+    message: "Error processing file.",
+    error: err.message,
+
+  });
     } finally {
       // Delete file after processing
       setTimeout(() => {
