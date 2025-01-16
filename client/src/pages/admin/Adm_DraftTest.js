@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard"; // Drafted Test Card component
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -91,8 +92,9 @@ const Adm_DraftTest = () => {
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-1 p-4 sm:p-6">
-        <div className="flex items-center  mb-4 sm:mb-6">
+      <div className="flex-1 bg-gray-100">
+        <Adm_Navbar/>
+        <div className="flex items-center h-12 ml-4  ">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}

@@ -88,7 +88,7 @@ const Adm_DraftedTestCard = ({ test }) => {
               fill="#797979"
             />
           </svg>
-          <span>Draft test</span>
+          <span>Edit test</span>
         </span>
         <span className="text-black-500 text-sm">Created on: {test.date}</span>
       </div>

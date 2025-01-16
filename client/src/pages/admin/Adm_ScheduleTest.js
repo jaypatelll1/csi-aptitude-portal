@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const Adm_ScheduledTest = () => {
   const [scheduledTests, setScheduledTests] = useState([]);
@@ -88,8 +89,9 @@ const Adm_ScheduledTest = () => {
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-1 p-6">
-        <div className="flex items-center mb-4 sm:mb-6">
+      <div className="flex-1 bg-gray-100">
+        <Adm_Navbar/>
+        <div className="flex items-center h-12 ml-4 ">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"
@@ -113,7 +115,7 @@ const Adm_ScheduledTest = () => {
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:ml-0">
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:ml-0  ">
             Scheduled Tasks
           </h1>
         </div>

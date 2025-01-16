@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Import the Sidebar
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard"; // Import the PastTestCard
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const Adm_PastTest = () => {
   const [pastTests, setPastTests] = useState([]);
@@ -84,8 +85,9 @@ const Adm_PastTest = () => {
         <Adm_Sidebar />
       </div>
 
-      <div className="flex-1 p-6 ">
-        <div className="flex items-center mb-4 sm:mb-6">
+      <div className="flex-1 bg-gray-100">
+        <Adm_Navbar/>
+        <div className="flex items-center h-12 ml-4 ">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"

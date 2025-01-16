@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"; // Drafted Test Card component
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -96,8 +97,9 @@ console.log("resdfghj,",response)
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-1 p-4 sm:p-6">
-        <div className="flex items-center mb-4 sm:mb-6">
+      <div className="flex-1 bg-gray-100">
+        <Adm_Navbar/>
+        <div className="flex items-center h-12 ml-4 ">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -122,7 +124,7 @@ console.log("resdfghj,",response)
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0 ">
             Live Tests
           </h1>
         </div>

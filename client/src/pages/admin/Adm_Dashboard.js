@@ -5,15 +5,15 @@ import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
-import Details from "../../components/student/home/Stu_Details";
-import { useSelector, useDispatch } from "react-redux";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
+
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const detailsRef = useRef(null);
   const [tileData, setTileData] = useState([]);
   const [activeTab, setActiveTab] = useState("drafted");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,40 +25,13 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
-  // const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
-  const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
-  const [page, setPage] = useState(1);
-  let limit = 9;
 
   const [selectedTestId, setSelectedTestId] = useState(null);
 
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      setPage(page + 1);
-    }
-  };
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const startPage = Math.max(1, page - 3);
-    const endPage = Math.min(totalPages, page + 3);
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
-
   const handleTestClick = (exam_id) => {
     setSelectedTestId(exam_id);
-    // console.log('Clicked test ID:', exam_id); // Log the ID of the clicked test
   };
+
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
     const options = { day: "2-digit", month: "short", year: "numeric" };
@@ -68,15 +41,7 @@ const Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-      const response = await axios.get(endpoint, { params: { page, limit } });
-      console.log("respnse ", response);
-
-      // console.log('response.data.totalCount ',response.data.totalCount);
-      const totalRecords = response.data.totalRecords;
-      console.log("totalRecords", totalRecords);
-      setTotalPages(Math.ceil(totalRecords / limit));
-      console.log("total is ", totalPages);
-
+      const response = await axios.get(endpoint);
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams.map((exam) => ({
@@ -96,36 +61,6 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-
-  // Handle page change
-  const handleNext = () => {
-    if (page < totalPages) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (page > 1) {
-      setPage((prevPage) => prevPage - 1);
-    }
-  };
-
-  useEffect(() => {
-    // Close the sidebar if clicked outside
-    const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setSidebarOpen(false);
-      }
-    };
-
-    // Attach event listener to the document
-    document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -158,7 +93,6 @@ const Dashboard = () => {
         await fetchTestsData(`/api/exams/drafts`, "drafted");
         await fetchTestsData(`/api/exams/scheduled`, "scheduled");
         await fetchTestsData(`/api/exams/past`, "past");
-        await fetchTestsData(`/api/exams/live`, "past");
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");
@@ -172,59 +106,60 @@ const Dashboard = () => {
   const createTestHandler = () => {
     navigate("/admin/createtest");
   };
+
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);
 
   useEffect(() => {
-    // Close the Details component when clicking outside
-    function handleClickOutside(event) {
-      if (detailsRef.current && !detailsRef.current.contains(event.target)) {
-        closeDetails();
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setSidebarOpen(false);
       }
-    }
+    };
 
-    // Add event listener
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
-      // Cleanup the listener
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
+  const ITEMS_PER_PAGE = 9;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const paginatedData = testsData[activeTab]?.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const totalPages = Math.ceil((testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div className="min-h-screen flex">
-      {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+        className={`fixed top-0 left-0 h-full bg-gray-100 text-white z-50 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Adm_Sidebar testsData={testsData} />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1">
-        <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
-          <div
-            className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
-            onClick={openDetails}
-          >
-            AM
-          </div>
-          <div ref={detailsRef}>
-            {isDetailsOpen && (
-              <Details
-                name={userData.name}
-                email={userData.email}
-                mobile={userData.phone}
-                branch={userData.department}
-                year={userData.year}
-              />
-            )}
-          </div>
-        </div>
-        {/* Header */}
+      <div className="flex-1 bg-gray-100">
+        <Adm_Navbar />
+
         <div className="flex items-center justify-between mt-5">
           <button
             className="xl:hidden text-gray-800"
@@ -249,7 +184,7 @@ const Dashboard = () => {
               />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold text-gray-700">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-700 ml-5">Admin Dashboard</h1>
 
           <button
             onClick={createTestHandler}
@@ -259,14 +194,11 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Dashboard Tiles */}
         <div className="p-0 w-full flex justify-center">
           <Adm_DashboardTiles tileData={tileData} />
         </div>
 
-        {/* Tabs and Cards */}
         <div className="p-4">
-          {/* Tabs */}
           <div className="flex space-x-4 border-b pb-2">
             {["drafted", "scheduled", "past"].map((tab) => (
               <button
@@ -283,16 +215,14 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {loading ? (
               <p>Loading...</p>
             ) : error ? (
               <p>{error}</p>
             ) : (
-              testsData[activeTab]?.map((test) => {
-                // Ensure the key is unique (using test.test_id if available)
-                const key = test.test_id || test.id || test.name; // Adjust depending on your test object structure
+              paginatedData?.map((test) => {
+                const key = test.exam_id || test.id || test.name;
 
                 if (activeTab === "drafted") {
                   return <Adm_DraftedTestCard key={key} test={test} />;
@@ -305,53 +235,44 @@ const Dashboard = () => {
               })
             )}
           </div>
-          <div className="flex justify-center items-center mt-5">
-            <svg
-              onClick={handlePrevPage}
-              className="cursor-pointer mr-2"
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="24"
-              viewBox="0 0 12 24"
-              fill="none"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z"
-                fill="black"
-              />
-            </svg>
-            <div className="flex">
-              {getPageNumbers().map((p) => (
-                <div
-                  key={p}
-                  className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
-                    page === p ? "bg-blue-300 rounded-md" : "bg-white"
+
+          <div className="flex justify-center items-center mt-6">
+              <button
+                onClick={() => handleNextPage(currentPage - 1)}
+                className={`p-2 mx-1  rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === 1}
+              >
+                &lt; {/* Left Arrow */}
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handleNextPage(i + 1)}
+                  className={`px-3 py-1 mx-1 rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
                   }`}
-                  onClick={() => setPage(p)}
                 >
-                  {p}
-                </div>
+                  {i + 1}
+                </button>
               ))}
+              <button
+                onClick={() => handleNextPage(currentPage + 1)}
+                className={`p-2 mx-1  rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                &gt; {/* Right Arrow */}
+              </button>
             </div>
-            <svg
-              onClick={handleNextPage}
-              className="cursor-pointer ml-2"
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="24"
-              viewBox="0 0 12 24"
-              fill="none"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z"
-                fill="black"
-              />
-            </svg>
-          </div>
         </div>
       </div>
     </div>

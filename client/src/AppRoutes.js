@@ -63,14 +63,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/past-tests"
-        element={
-          <ProtectedRoute allowedRoles={["Student"]}>
-            <Stu_PastTest />
-          </ProtectedRoute>
-        }
-      />
 
       {/* Admin Routes */}
       <Route

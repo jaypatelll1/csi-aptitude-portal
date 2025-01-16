@@ -4,36 +4,34 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice"; // Import the action
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setduration] = useState("");
-  
+
   const [branch, setBranch] = useState([""]);
   const [year, setYear] = useState([""]);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
 
-
   const dispatch = useDispatch();
 
   const handleCreateQuestions = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
-
     // Create the payload to send to the server
     const payload = {
       name: `${testName}`, // The test name
       duration: `${duration}`, // Using duration as duration
-target_years:`${year}`,
-        target_branches: `${branch}`,
+      target_years: `${year}`,
+      target_branches: `${branch}`,
     };
 
     // console.log('year is ',year);
     // console.log("branch is ",branch)
     // console.log("branch is ",payload)
-    
 
     try {
       // Send a POST request to the server to create the test
@@ -46,7 +44,7 @@ target_years:`${year}`,
       console.log("Test created successfully:", response.data);
       navigate("/admin/input"); // Navigate to the input page after success
     } catch (error) {
-      alert("Invalid Input")
+      alert("Invalid Input");
       // Log error response if something goes wrong
       console.error(
         "Error creating test:",
@@ -91,7 +89,8 @@ target_years:`${year}`,
         <Adm_Sidebar />
       </div>
 
-      <div className="flex-1 p-4 sm:p-6 bg-gray-100">
+      <div className="flex-1  bg-gray-100">
+        <Adm_Navbar />
         <div className="flex items-center  mb-4 sm:mb-6">
           {/* Burger Icon Button */}
           <button
@@ -117,7 +116,7 @@ target_years:`${year}`,
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-2">
             Create Aptitude Test
           </h1>
         </div>
@@ -147,58 +146,70 @@ target_years:`${year}`,
           </h2>
         </div>
 
-
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-5">
           <form>
-          <div className="grid grid-cols-2 gap-4 my-5">
-  {/* Branch Dropdown */}
-  <div>
-    <label
-      htmlFor="Branch"
-      className="block text-sm font-medium text-gray-400 mb-2"
-    >
-      Branch
-    </label>
-    <select 
-      id="branchSelect"
-      className="w-full  px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-      value={branch}
-      onChange={(e) => setBranch(e.target.value)}
-      required
-    >
-      <option value="" className="text-gray-400" disabled >Eg CMPN</option>
-      <option value="CMPN" className="text-black">CMPN</option>
-      <option value="INFT" className="text-black">INFT</option>
-      <option value="EXTC" className="text-black">EXTC</option>
-      <option value="ELEC" className="text-black">ELEC</option>
-      <option value="ECS" className="text-black">ECS</option>
-    </select>
-  </div>
+            <div className="grid grid-cols-2 gap-4 my-5">
+              {/* Branch Dropdown */}
+              <div>
+                <label
+                  htmlFor="Branch"
+                  className="block text-sm font-medium text-gray-400 mb-2"
+                >
+                  Branch
+                </label>
+                <select
+                  id="branchSelect"
+                  className="w-full  px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                  required
+                >
+                  <option value="" className="text-gray-400" disabled>
+                    Eg CMPN
+                  </option>
+                  <option value="CMPN" className="text-black">
+                    CMPN
+                  </option>
+                  <option value="INFT" className="text-black">
+                    INFT
+                  </option>
+                  <option value="EXTC" className="text-black">
+                    EXTC
+                  </option>
+                  <option value="ELEC" className="text-black">
+                    ELEC
+                  </option>
+                  <option value="ECS" className="text-black">
+                    ECS
+                  </option>
+                </select>
+              </div>
 
-  {/* Year Dropdown */}
-  <div>
-    <label
-      htmlFor="Year"
-      className="block text-sm font-medium text-gray-700 mb-2"
-    >
-      Year
-    </label>
-    <select
-      id="yearSelect"
-      className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-      value={year}
-      onChange={(e) => setYear(e.target.value)}
-      required
-    >
-      <option value="" disabled>Eg FE</option>  
-      <option value="FE">FE</option>
-      <option value="SE">SE</option>
-      <option value="TE">TE</option>
-      <option value="BE">BE</option>
-    </select>
-  </div>
-</div>
-                
+              {/* Year Dropdown */}
+              <div>
+                <label
+                  htmlFor="Year"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Year
+                </label>
+                <select
+                  id="yearSelect"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  required
+                >
+                  <option value="" disabled>
+                    Eg FE
+                  </option>
+                  <option value="FE">FE</option>
+                  <option value="SE">SE</option>
+                  <option value="TE">TE</option>
+                  <option value="BE">BE</option>
+                </select>
+              </div>
+            </div>
 
             <div className="mb-6">
               <label
@@ -235,7 +246,6 @@ target_years:`${year}`,
                 required
               />
             </div>
-
           </form>
         </div>
 
