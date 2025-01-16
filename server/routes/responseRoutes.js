@@ -7,18 +7,13 @@ const {
   deleteResponse,
   submitAllResponses,
   getPaginatedResponsesForExam,
-  deleteExistingResponses,
-  submitFinalResponsesAndChangeStatus
 } = require('../controllers/responseController');
 const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 
 const router = express.Router();
 
 router.all('/')
-  .post('/initialize/:exam_id', jwtAuthMiddleware, deleteExistingResponses)
-  .put('/:exam_id',jwtAuthMiddleware,submitResponse) // Submit a single response
-  .put('/final/:exam_id', jwtAuthMiddleware, submitFinalResponsesAndChangeStatus)
-
+  .post('/:exam_id',jwtAuthMiddleware, submitResponse) // Submit a single response
   .post('/submit-all/:exam_id',jwtAuthMiddleware, submitAllResponses) // Submit all responses together
   .get('/users/:exam_id',jwtAuthMiddleware, getResponsesByStudent) // Get response by student
   

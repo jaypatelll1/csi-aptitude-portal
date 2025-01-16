@@ -108,69 +108,11 @@ async function deleteResult(exam_id) {
 // Pagination
 // Get all results for a specific exam with pagination
 const getPaginatedResultsByExam = async (exam_id, page, limit) => {
-  const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
-  const paginatedqueryText = paginate(queryText, page, limit);
+  const query = `SELECT * FROM results WHERE exam_id=${exam_id}`;
+  const paginatedqueryText = paginate(query, page, limit);
   const result = await query(paginatedqueryText);  
   return result.rows;
-  // console.log('rresult is ',result.rows);
-  
 };
-
-const getResultsByUsers = async (user_id) => {
-  const queryText = `
-SELECT DISTINCT 
-    e.exam_name,
-	e.exam_id,
-    e.duration,
-   e.end_time,
-    r.total_score,
-	r.max_score,
-	r.student_id,
-	 e.status,
-   e.exam_id,
-    r.result_id
-FROM results r
-JOIN exams e ON r.exam_id = e.exam_id
-WHERE r.student_id = $1 AND e.status ='past' 
-order by e.end_time desc
-
-`;
-
-
-
-const result = await query(queryText, [user_id]);
-//  console.log('result is ', result);
-
-// Helper function to format date to readable format
-const formatToReadableDate = (isoString) => {
-  const date = new Date(isoString);
-  const options = { day: "2-digit", month: "short", year: "numeric" };
-  return date.toLocaleDateString("en-IN", options);
-};
-
-// Calculate status for each result
-const resultsWithStatus = result.rows.map((row) => {
-  const percentage = ((row.total_score / row.max_score) * 100); // Up to 3 decimal places
-  const status = percentage >= 35 ? "Passed" : "Failed"; // Pass/Fail based on 35%
-  return {
-   
-    exam_name: row.exam_name,
-   
-    total_score : row.total_score,
-    max_score : row.max_score,
-    duration : row.duration,
-    exam_name : row.exam_name,
-   Date: formatToReadableDate(row.end_time), // Format date
-    percentage: Number(percentage), // Include calculated percentage
-    status :status, // Pass or Fail
-    
-  };
-});
-
-return resultsWithStatus;
- 
-
-}
 
 module.exports = {
   createResult,
@@ -179,5 +121,4 @@ module.exports = {
   updateResult,
   deleteResult,
   getPaginatedResultsByExam,
-  getResultsByUsers
 };
