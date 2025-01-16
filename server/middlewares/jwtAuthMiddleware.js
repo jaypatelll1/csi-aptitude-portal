@@ -20,22 +20,63 @@ const jwtAuthMiddleware = (req, res, next) => {
   });
 };
 
+const resetPasswordAuthMiddleware = (req, res, next) => {
+  const resettoken = req.cookies.resettoken;
+  const password = req.body;
+  if (!resettoken) {
+    return res.status(400).json({ error: 'Reset token is required' });
+  }
+
+  try {
+    // console.log('Password', password);
+    // Verify the reset token
+    const decodedReset = jwt.verify(resettoken, process.env.RESET_SECRET);
+    // Attach the user ID to the request object
+    req.id = decodedReset.id;
+    req.password = password;
+
+    next();
+  } catch (err) {
+    console.error('Error verifying reset token:', err);
+    res.status(401).json({ error: 'Invalid or expired reset token' });
+  }
+};
+
+
 // For SOCKET requests
 const sockettAuthMiddleware = (socket, next) => {
-  const token = socket.handshake.headers.cookie
+  // Get token from cookie header
+  const cookie = socket.handshake.headers.cookie;
+  if (!cookie) {
+    return next(new Error('Access Denied: No Cookie Provided'));
+  }
+
+  const token = cookie
     .split('; ')
     .find((cookie) => cookie.startsWith('jwttoken='))
-    .split('=')[1];
+    ?.split('=')[1];  // Use optional chaining to prevent errors if 'jwttoken=' not found
+
   if (!token) {
     return next(new Error('Access Denied: No Token Provided'));
   }
 
+  // Verify token
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return next(new Error('Invalid Token'));
-    socket.user = decoded; // Attach user details from the token to the socket object
-    next();
+    if (err) {
+      console.error('Invalid Token', err);  // Log the error for debugging
+      return next(new Error('Invalid Token'));
+    }
+
+    // Log for debugging purposes
+    // console.log('Decoded token:', decoded);  // Check the structure of the decoded token
+
+    // Assuming decoded contains { user_id } or any relevant data to be added to socket
+    socket.user = decoded;  // Attach user data from the token to the socket object
+    next();  // Continue with the connection
   });
 };
+
+
 
 
 const tokenMiddleware = async (req, res, next) => {

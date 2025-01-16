@@ -137,6 +137,27 @@ const DeleteQuestion = async (req, res) => {
   }
 };
 
+
+const getQuestionCount = async (req, res) => {
+  const { exam_id } = req.params;
+
+  try {
+    // Assuming questionModel.GetViewResult is a function that fetches the question count
+    const question = await questionModel.GetViewResult(exam_id);
+
+    // Respond with the question count
+    return res.status(200).json({ question });
+  } catch (error) {
+    console.error("Error fetching question count:", error.message);
+
+    // Handle errors gracefully
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
 // Pagination
 const getPaginatedQuestionsByExam = async (req, res) => {
   const user_id = req.user.id;
@@ -162,10 +183,14 @@ const getPaginatedQuestionsByExam = async (req, res) => {
   }
 };
 
+
+
+
 module.exports = {
   createQuestions,
   getQuestion,
   UpdateQuestion,
   DeleteQuestion,
   getPaginatedQuestionsByExam,
+  getQuestionCount
 };

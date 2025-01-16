@@ -1,19 +1,7 @@
 const { query } = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
-// Function to create the Questions table if it doesn't exist
-const createQuestionsTable = async () => {
-  const query = `
-    CREATE TABLE IF NOT EXISTS questions (
-      question_id SERIAL PRIMARY KEY,
-      exam_id VARCHAR(255) NOT NULL,
-      question_text TEXT NOT NULL,
-      options JSONB NOT NULL,
-      correct_option VARCHAR(255) NOT NULL,
-      FOREIGN KEY (exam_id) REFERENCES Exams(exam_id) ON DELETE CASCADE
-    );
-  `;
-};
+
 // Function to insert a new question
 const insertQuestion = async (
   exam_id,
@@ -94,11 +82,24 @@ const getPaginatedQuestionsByExam = async (exam_id, page, limit) => {
   return result.rows;
 };
 
+const GetViewResult = async (exam_id) => {
+  const queryText =  `SELECT COUNT(*) AS question_count FROM questions WHERE exam_id = $1`;
+
+   try {
+    const result = await query (queryText,[exam_id])
+    return result.rows[0];
+   } catch (error) {
+    console.error('Error deleting question', error.stack);
+    throw error;
+   }
+}
+
 module.exports = {
-  createQuestionsTable,
+ 
   insertQuestion,
   getQuestionsByExamId,
   UpdateQuestions,
   DeleteQuestions,
   getPaginatedQuestionsByExam,
+  GetViewResult
 };
