@@ -1,5 +1,5 @@
 const examModel = require('../models/examModel');
-const { logActivity } = require('../utils/logger');
+const { logActivity } = require('../utils/logActivity');
 
 const createExam = async (req, res) => {
   let { name, duration, start_time, end_time, target_years,target_branches} = req.body;

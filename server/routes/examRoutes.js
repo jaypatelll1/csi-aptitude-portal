@@ -22,12 +22,6 @@ const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 const router = express.Router();
 
 
-router.get('/',jwtAuthMiddleware, getAllPaginatedExams); // Pagination
-router.get('/drafts', jwtAuthMiddleware,authorizeRoles, getPaginatedDraftededExams)
-router.get('/scheduled', jwtAuthMiddleware, getPaginatedScheduledExams);
-router.get('/past', jwtAuthMiddleware, getPaginatedPastExams);
-router.get('/live',jwtAuthMiddleware, getPaginatedlive);
-router.get('/find/:exam_id',jwtAuthMiddleware, getExamById);
 
 router.get('/', getAllPaginatedExams); // Pagination
 router.get('/drafts',authorizeRoles, getPaginatedDraftedExams)

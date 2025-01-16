@@ -9,3 +9,5 @@ router.get('/all-tests', jwtAuthMiddleware, getAllTestsStats);
 router.get('/all-students', jwtAuthMiddleware, getAllStudentsStats);
 
 module.exports = router;
+
+
