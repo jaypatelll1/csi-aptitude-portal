@@ -157,25 +157,33 @@ const loginUser = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  const newPassword = req.password.password;
+  const { resettoken, password: newPassword } = req.body;
 
-  if (!req.id) {
-    return res.status(400).json({ error: 'User ID is required' });
+  if (!resettoken) {
+    return res.status(400).json({ error: 'Reset token is required' });
   }
 
   try {
+    // Decode the reset token to get the user ID
+    const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
+    const userId = decoded.id;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+
     // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
 
     // Update the user password using the `updateUser` model
-    const updatedUser = await userModel.updateUser(req.id, {
+    const updatedUser = await userModel.updateUser(userId, {
       password_hash: hashedPassword,
       status: 'ACTIVE',
     });
 
     // Log the password reset activity
     await logActivity({
-      user_id: req.id,
+      user_id: userId,
       activity: 'Password reset',
       status: 'success',
       details: 'Password reset successfully',
@@ -183,7 +191,7 @@ const resetPassword = async (req, res) => {
 
     res.json({ message: 'Password reset successfully' });
   } catch (err) {
-    console.error('Error resetting password:', err);
+    console.error('Error resetting password:', err); // Log the error for debugging
     res.status(500).json({ error: 'Internal server error' });
   }
 };
