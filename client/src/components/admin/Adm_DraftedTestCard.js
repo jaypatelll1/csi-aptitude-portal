@@ -87,7 +87,7 @@ const Adm_DraftedTestCard = ({ test }) => {
               fill="#797979"
             />
           </svg>
-          <span>Edit test</span>
+          <span>Draft test</span>
         </span>
         <div className="text-right">
         <div className="flex flex-col ">
@@ -155,7 +155,6 @@ const Adm_DraftedTestCard = ({ test }) => {
           {/* Display the question count */}
 
           <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
-          Number of Questions: {test ? test.questions : "Loading..."}
         </p>
         <p className="font-bold flex items-center">
           <svg
