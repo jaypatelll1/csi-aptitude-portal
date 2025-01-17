@@ -44,6 +44,7 @@ const CreateTestPage = () => {
     }
   };
 
+  
   const handleCancel = () => {
     setTestName("");
     setDuration("");
