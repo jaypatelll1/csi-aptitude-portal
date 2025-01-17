@@ -54,8 +54,8 @@ const Dashboard = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
-          target_year:exam.target_years || 'N/A',
-          target_branch:exam.target_branches || 'N/A',
+          target_years:exam.target_years || 'N/A',
+          target_branches:exam.target_branches || 'N/A',
         })),
       }));
     } catch (err) {

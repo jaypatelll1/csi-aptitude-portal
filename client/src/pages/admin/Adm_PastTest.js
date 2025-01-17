@@ -40,7 +40,7 @@ const Adm_PastTest = () => {
         setLoading(true);
         const response = await axios.get("/api/exams/past");
         const { exams } = response.data;
-        const formattedTests = exams.map((exam) => ({
+        const formattedTests = exams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
