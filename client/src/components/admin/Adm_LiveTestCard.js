@@ -24,7 +24,7 @@ const Adm_LiveTestCard = ({ test }) => {
         <div className="text-right">
         <div className="flex flex-col items-center">
     <span className="text-black-500 text-sm">Created on: {test.date}</span>
-    <span className="text-black-500 text-xs">Branch: {test.target_year.replace(/[{}]/g, '')} - {test.target_branch.replace(/[{}]/g, '')}</span>
+    <span className="text-black-500 text-xs">Branch: {test.target_years.replace(/[{}]/g, '')} - {test.target_branches.replace(/[{}]/g, '')}</span>
 </div>
     </div><span className="text-black-500 text-sm">Created on: {test.date}</span>
       </div>

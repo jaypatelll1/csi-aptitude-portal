@@ -45,7 +45,9 @@ const Adm_DraftTest = () => {
         const response = await axios.get("/api/exams/drafts", {
           withCredentials: true,
         });
-        const fetchedTests = response.data.exams.map((exam) => ({
+
+        console.log("response", response);
+        const fetchedTests = response.data.exams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -53,6 +55,8 @@ const Adm_DraftTest = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
 
         setTests(fetchedTests);

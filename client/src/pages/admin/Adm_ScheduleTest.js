@@ -43,7 +43,7 @@ const Adm_ScheduledTest = () => {
           withCredentials: true,
         });
 
-        const fetchedTests = response.data.exams.map((exam) => ({
+        const fetchedTests = response.data.exams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -51,6 +51,8 @@ const Adm_ScheduledTest = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
 
         setScheduledTests(fetchedTests);

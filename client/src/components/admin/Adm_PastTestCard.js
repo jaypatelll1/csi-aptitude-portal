@@ -52,7 +52,7 @@ const Adm_PastTestCard = ({ test, onClick }) => {
         <span className="text-black-500 text-sm font-sans">
           Conducted on: {test.date}
         </span>
-        <span className="text-black-500 text-xs">Branch: {test.target_year.replace(/[{}]/g, '')} - {test.target_branch.replace(/[{}]/g, '')}</span>
+        <span className="text-black-500 text-xs">Branch: {test.target_years.replace(/[{}]/g, '')} - {test.target_branches.replace(/[{}]/g, '')}</span>
 </div>
     </div>
         

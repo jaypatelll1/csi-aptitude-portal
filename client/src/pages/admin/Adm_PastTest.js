@@ -48,6 +48,8 @@ const Adm_PastTest = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
         setPastTests(formattedTests);
       } catch (err) {

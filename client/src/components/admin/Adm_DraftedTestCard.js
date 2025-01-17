@@ -26,6 +26,8 @@ const Adm_DraftedTestCard = ({ test }) => {
     setPage(newPage);
   };
 
+  console.log(test);
+
   // Handle limit change (optional)
   const handleLimitChange = (newLimit) => {
     setLimit(newLimit);
@@ -90,7 +92,7 @@ const Adm_DraftedTestCard = ({ test }) => {
         <div className="text-right">
         <div className="flex flex-col ">
     <span className="text-black-500 text-sm">Created on: {test.date}</span>
-    <span className="text-black-500 text-xs mr-5">Branch: {test.target_year.replace(/[{}]/g, '')} - {test.target_branch.replace(/[{}]/g, '')}</span>
+    <span className="text-black-500 text-xs mr-5">Branch: {test.target_years.replace(/[{}]/g, '')} - {test.target_branches.replace(/[{}]/g, '')}</span>
 </div>
     </div>
       </div>

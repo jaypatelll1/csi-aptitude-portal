@@ -51,7 +51,7 @@ const Adm_DraftTest = () => {
           withCredentials: true,
         },{params:{page:currentPage,limit:itemsPerPage}});
 console.log("resdfghj,",response)
-        const fetchedTests = response.data.exams.map((exam) => ({
+        const fetchedTests = response.data.exams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -59,6 +59,8 @@ console.log("resdfghj,",response)
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
 
         setTests(fetchedTests);
