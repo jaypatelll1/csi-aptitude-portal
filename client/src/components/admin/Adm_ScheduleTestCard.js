@@ -69,7 +69,7 @@ const Adm_ScheduledTestCard = ({ test }) => {
               fill="#797979"
             />
           </svg>
-          <span>Draft test</span>
+          <span>Schedule test</span>
         </span>
         
         <div className="text-right">
