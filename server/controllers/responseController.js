@@ -1,17 +1,33 @@
-const {
-  submitResponse,
-  getResponsesByStudent,
-  getResponsesForExam,
-  updateResponse,
-  deleteResponse,
-  submitMultipleResponses,
-  getPaginatedResponses,
-  submittedUnansweredQuestions,
-} = require('../models/responseModel');
+const responseModel = require('../models/responseModel');
 const { logActivity } = require('../utils/logActivity');
 
+// Delete Exististing responses and initialize responses
+const deleteExistingResponses = async (req, res) => {
+  const { exam_id } = req.params;
+  const student_id = req.user.id; // Assume the student ID is available via JWT
+
+  if (!student_id || !exam_id) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+
+  try {
+    await responseModel.deleteExistingResponses(exam_id, student_id);
+    const response = await responseModel.submittedUnansweredQuestions(
+      exam_id,
+      student_id
+    );
+    // console.log(response);
+    res
+      .status(201)
+      .json({ message: 'Responses initialized successfully', response });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Submit a response
-exports.submitResponse = async (req, res) => {
+const submitResponse = async (req, res) => {
   const { exam_id } = req.params;
   const { question_id, selected_option } = req.body;
   const student_id = req.user.id; // Assume the student ID is available via JWT
@@ -21,12 +37,14 @@ exports.submitResponse = async (req, res) => {
   }
 
   try {
-    const response = await submitResponse({
+    const response = await responseModel.submitResponse(
+      student_id,
       exam_id,
       question_id,
-      student_id,
       selected_option,
-    });
+      'draft'
+    );
+    // console.log(response);
     if (!response) {
       await logActivity({
         user_id: student_id,
@@ -50,12 +68,34 @@ exports.submitResponse = async (req, res) => {
   }
 };
 
+const submitFinalResponsesAndChangeStatus = async (req, res) => {
+  const { exam_id } = req.params;
+  const student_id = req.user.id; // Assume the student ID is available via JWT
+
+  if (!student_id || !exam_id) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const response = await responseModel.submitFinalResponsesAndChangeStatus(
+      student_id,
+      exam_id
+    );
+    
+    res
+      .status(201)
+      .json({ message: 'Responses submitted successfully', response });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // responses : {
 //   "question_id": number,
 //   "selected_option": character;
 // }
 // Submit all responses together
-exports.submitAllResponses = async (req, res) => {
+const submitAllResponses = async (req, res) => {
   const { exam_id } = req.params;
   const { responses } = req.body;
   const student_id = req.user.id;
@@ -81,11 +121,10 @@ exports.submitAllResponses = async (req, res) => {
       exam_id,
       student_id,
     }));
-    const submittedResponses = await submitMultipleResponses(preparedResponses);
-    const submittedUnansweredResponses = await submittedUnansweredQuestions(
-      exam_id,
-      student_id
-    );
+    const submittedResponses =
+      await responseModel.submitMultipleResponses(preparedResponses);
+    const submittedUnansweredResponses =
+      await responseModel.submittedUnansweredQuestions(exam_id, student_id);
 
     await logActivity({
       user_id: student_id,
@@ -103,12 +142,15 @@ exports.submitAllResponses = async (req, res) => {
 };
 
 // Get responses for a student in an exam
-exports.getResponsesByStudent = async (req, res) => {
+const getResponsesByStudent = async (req, res) => {
   const { exam_id } = req.params;
   const student_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
-    const responses = await getResponsesByStudent(exam_id, student_id);
+    const responses = await responseModel.getResponsesByStudent(
+      exam_id,
+      student_id
+    );
     if (!responses) {
       await logActivity({
         user_id: student_id,
@@ -131,12 +173,12 @@ exports.getResponsesByStudent = async (req, res) => {
 };
 
 // Get all responses for an exam (for admin or instructor)
-exports.getResponsesForExam = async (req, res) => {
+const getResponsesForExam = async (req, res) => {
   const { exam_id } = req.params;
   const student_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
-    const responses = await getResponsesForExam(exam_id);
+    const responses = await responseModel.getResponsesForExam(exam_id);
     if (!responses) {
       await logActivity({
         user_id: student_id,
@@ -159,7 +201,7 @@ exports.getResponsesForExam = async (req, res) => {
 };
 
 // Update a response
-exports.updateResponse = async (req, res) => {
+const updateResponse = async (req, res) => {
   const { response_id } = req.params; // Get the response ID from the route
   const { selected_option } = req.body; // Get the updated answer from the request body
   const student_id = req.user.id; // Assume the student ID is available via JWT
@@ -169,7 +211,10 @@ exports.updateResponse = async (req, res) => {
   }
 
   try {
-    const updatedResponse = await updateResponse(response_id, selected_option);
+    const updatedResponse = await responseModel.updateResponse(
+      response_id,
+      selected_option
+    );
 
     if (!updatedResponse) {
       await logActivity({
@@ -201,12 +246,12 @@ exports.updateResponse = async (req, res) => {
 };
 
 // Delete a response
-exports.deleteResponse = async (req, res) => {
+const deleteResponse = async (req, res) => {
   const { response_id } = req.params; // Get the response ID from the route
   const student_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
-    const deleted = await deleteResponse(response_id);
+    const deleted = await responseModel.deleteResponse(response_id);
 
     if (!deleted) {
       await logActivity({
@@ -230,12 +275,12 @@ exports.deleteResponse = async (req, res) => {
 };
 
 // Pagination
-exports.getPaginatedResponsesForExam = async (req, res) => {
+const getPaginatedResponsesForExam = async (req, res) => {
   const { exam_id } = req.params;
   const { page = 1, limit = 10 } = req.query;
   const student_id = req.user.id; // Retrieved from JWT
   try {
-    const responses = await getPaginatedResponses(
+    const responses = await responseModel.getPaginatedResponses(
       exam_id,
       student_id,
       parseInt(page),
@@ -256,4 +301,16 @@ exports.getPaginatedResponsesForExam = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+module.exports = {
+  submitResponse,
+  getResponsesByStudent,
+  getResponsesForExam,
+  updateResponse,
+  deleteResponse,
+  submitAllResponses,
+  getPaginatedResponsesForExam,
+  deleteExistingResponses,
+  submitFinalResponsesAndChangeStatus,
 };
