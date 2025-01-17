@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "./Adm_DataTime";
+import CreateTestPage from "../../pages/admin/Adm_CreateTestForm";
 import axios from "axios";
 
 
@@ -13,11 +14,13 @@ const Adm_DraftedTestCard = ({ test }) => {
   const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
   const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
   const [loading, setLoading] = useState(false);
-
+ 
+  const [requestInProgress, setRequestInProgress] = useState(false);
 
   const examId = test.exam_id;
   // console.log('examid is ',test);
 
+  // console.log("Test details",{branch: test.target_branch , year : test.target_year})
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -29,42 +32,36 @@ const Adm_DraftedTestCard = ({ test }) => {
     setPage(1); // Reset to first page whenever the limit changes
   };
 
+  const handlePublishClick = async () => {
+    if (requestInProgress) return; // Prevent multiple requests
+    setRequestInProgress(true); // Set request state to true
 
-
-
-
-  const handlePublishClick = async (test) => {
     try {
-
-      // Log the ID
-      // console.log('Clicked test ID:', test.exam_id);
-
-
-      const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
-
-      // console.log('Response from server:', response.data);
+      await axios.put(`/api/exams/live-exam/${examId}`);
       window.location.reload();
-
-
     } catch (error) {
-      console.error('Error during Put request:', error);
+      console.error("Error during Put request:", error);
+    } finally {
+      setRequestInProgress(false); // Reset request state
     }
   };
 
-  const handleSchedule = (start, end) => {
-    setScheduledTime({ start, end });
-    axios.put(`/api/exams/publish/${examId}`, {
-      start_time: start,
-      end_time: end,
-    })
-      .then(() => {
-        setIsScheduling(false);
-      })
-      .catch((err) =>
-        alert(
-          `Error scheduling test: ${err.response?.data?.message || err.message}`
-        )
-      );
+  const handleSchedule = async (start, end) => {
+    if (requestInProgress) return; // Prevent multiple requests
+    setRequestInProgress(true); // Set request state to true
+
+    try {
+      await axios.put(`/api/exams/publish/${examId}`, {
+        start_time: start,
+        end_time: end,
+      });
+      setScheduledTime({ start, end });
+      setIsScheduling(false);
+    } catch (err) {
+      alert(`Error scheduling test: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setRequestInProgress(false); // Reset request state
+    }
   };
 
   const handleCancel = () => {
@@ -72,7 +69,7 @@ const Adm_DraftedTestCard = ({ test }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 border border-gray-400 flex flex-col">
+    <div className="bg-white rounded-lg w-[96%] p-4 ml-4  border border-gray-400 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <span className="flex items-center bg-gray-100 text-gray-900 border border-gray-700 opacity-90 text-sm px-2 py-1 rounded space-x-2">
           {/* SVG Icon */}
@@ -90,7 +87,12 @@ const Adm_DraftedTestCard = ({ test }) => {
           </svg>
           <span>Edit test</span>
         </span>
-        <span className="text-black-500 text-sm">Created on: {test.date}</span>
+        <div className="text-right">
+        <div className="flex flex-col ">
+    <span className="text-black-500 text-sm">Created on: {test.date}</span>
+    <span className="text-black-500 text-xs mr-5">Branch: {test.target_year.replace(/[{}]/g, '')} - {test.target_branch.replace(/[{}]/g, '')}</span>
+</div>
+    </div>
       </div>
 
       {/* Test Info */}
@@ -98,7 +100,7 @@ const Adm_DraftedTestCard = ({ test }) => {
       <div className="text-gray-600 text-sm mt-4">
         <p className="mb-2 font-bold flex items-center">
         <svg
-            width="22"
+            width="22"  
             height="22"
             viewBox="0 0 22 22"
             fill="none"
@@ -151,6 +153,7 @@ const Adm_DraftedTestCard = ({ test }) => {
           {/* Display the question count */}
 
           <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
+          Number of Questions: {test ? test.questions : "Loading..."}
         </p>
         <p className="font-bold flex items-center">
           <svg
@@ -181,15 +184,17 @@ const Adm_DraftedTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button
+          className=" text-[#1aab07] px-3 lg:px-4 py-2 rounded border border-[#1aab07] opacity-90 hover:opacity-100"
+          onClick={handlePublishClick}
+          disabled={requestInProgress}
         >
-
-
-          Publish
+          {requestInProgress ? "Publishing..." : "Publish"}
         </button>
         <button
           onClick={() => setIsScheduling(true)}
           className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
+          disabled={requestInProgress}
         >
           Schedule
         </button>

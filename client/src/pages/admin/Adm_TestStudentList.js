@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import { useLocation } from "react-router-dom";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const TestStudentList = () => {
 
@@ -177,9 +178,10 @@ const TestStudentList = () => {
             </div>
             <div className="flex-grow bg-gray-100 h-max">
                 <div className="bg-white h-14 border-b border-gray-300">
+                    <Adm_Navbar/>
                     <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="xl:hidden text-gray-800 focus:outline-none"
+                        className="xl:hidden text-gray-800 focus:outline-none mt-4"
                     >
                         <svg
                             className="w-8 h-8 items-center ml-4 mt-3"
@@ -196,15 +198,15 @@ const TestStudentList = () => {
                         </svg>
                     </button>
                 </div>
-                <h1 className="ml-10 mt-6 flex flex-row justify-between">
+                <h1 className="ml-12 mt-7 flex flex-row justify-between">
 
-                  <div className="font-bold text-lg">{name} </div> 
+                  <div className="font-bold text-2xl">Test:{name} </div> 
                     <div className="flex flex-row justify-between"> 
 
                     {/* <button onClick={handleExportCSV} className=" px-3 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                         Export to CSV
                     </button> */}
-                    <button onClick={handleExportExcel} className=" px-3 mx-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    <button onClick={handleExportExcel} className=" px-3 mx-4 py-3 bg-[#533fcc] text-white rounded-md hover:bg-purple-800">
                         Export to Excel
                     </button>
                     </div>

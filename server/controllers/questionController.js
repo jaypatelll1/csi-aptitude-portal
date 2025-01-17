@@ -183,9 +183,6 @@ const getPaginatedQuestionsByExam = async (req, res) => {
   }
 };
 
-
-
-
 module.exports = {
   createQuestions,
   getQuestion,

@@ -3,7 +3,7 @@ const path = require("path");
 const csv = require("fast-csv");
 const XLSX = require("xlsx");
 const {getUserTable, getQuestionTable,getResultTable} = require("../models/ExportsModel")
-const{ResultALL} = require("../utils/ResultAll")
+
 
 
 
@@ -187,8 +187,7 @@ const result = rows.map((items) => ({
 // Export to Result CSV
 const exportToResultCSV = async (req, res) => {
     try {
-        const {exam_id}= req.params ;
-        const rows = await ResultALL(exam_id); // Fetch data from the database
+        const rows = await getResultTable(); // Fetch data from the database
 
         // Ensure that the file path resolves correctly
         const filePath = path.join(EXPORTS_DIR, "result.csv");
@@ -224,8 +223,7 @@ const exportToResultCSV = async (req, res) => {
 // Export to Result Excel
 const exportToResultExcel = async (req, res) => {
     try {
-        const {exam_id}= req.params
-        const rows = await ResultALL(exam_id); // Fetch data from the database
+        const rows = await getResultTable(); // Fetch data from the database
         const filePath = path.join(EXPORTS_DIR, "result.xlsx");
 
         const worksheet = XLSX.utils.json_to_sheet(rows);

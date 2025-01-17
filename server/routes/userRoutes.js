@@ -17,6 +17,8 @@ router.delete('/delete/:user_id', jwtAuthMiddleware, authorizeRoles, deleteUser)
 router.get('/verify-reset-token', verifyResetToken);
 router.post('/reset-password',  resetPassword);
 router.post('/send-reset-mail', jwtAuthMiddleware, sendResetEmail);
-router.post("/logout",logout)
 
 module.exports = router;
+
+
+

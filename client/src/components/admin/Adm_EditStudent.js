@@ -30,10 +30,10 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
 
     try {
       const response = await axios.put(
-        "/api/users/update/${user_id}",
+        `/api/users/update/${user_id}`,
         newStudent
       );
-      console.log("Student registered successfully:", response.data);
+      console.log("Student updated successfully:", response.data);
       alert("Student registered successfully!");
       closeEditModal(); // Close modal after successful registration
     } catch (error) {

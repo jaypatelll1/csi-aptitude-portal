@@ -87,7 +87,7 @@ const Adm_PastTest = () => {
 
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar/>
-        <div className="flex items-center h-12 ml-4 ">
+        <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"
@@ -111,7 +111,7 @@ const Adm_PastTest = () => {
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:ml-0">
+          <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">
             Past Tests
           </h1>
         </div>
@@ -122,7 +122,7 @@ const Adm_PastTest = () => {
         {!loading && !error && (
           <>
             {/* Grid Layout for Paginated Past Test Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-5 sm:gap-0 mt-8">
               {paginatedTests.map((test, index) => (
                 <Adm_PastTestCard key={index} test={test} />
               ))}
