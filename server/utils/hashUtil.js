@@ -22,4 +22,4 @@ const verifyPassword = async (plainTextPassword, hashedPassword)=>{
     }
 };
 
-module.exports = {hashPassword};
+module.exports = {hashPassword ,verifyPassword};
