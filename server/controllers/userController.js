@@ -124,7 +124,7 @@ const loginUser = async (req, res) => {
 
     res.cookie('jwttoken', token, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'None',
       secure: true,
     });
 
