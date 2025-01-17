@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "./Adm_DataTime";
+import CreateTestPage from "../../pages/admin/Adm_CreateTestForm";
 import axios from "axios";
 
 
@@ -13,11 +14,11 @@ const Adm_DraftedTestCard = ({ test }) => {
   const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
   const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
   const [loading, setLoading] = useState(false);
-
-
+ 
   const examId = test.exam_id;
   // console.log('examid is ',test);
 
+  // console.log("Test details",{branch: test.target_branch , year : test.target_year})
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -28,10 +29,6 @@ const Adm_DraftedTestCard = ({ test }) => {
     setLimit(newLimit);
     setPage(1); // Reset to first page whenever the limit changes
   };
-
-
-
-
 
   const handlePublishClick = async (test) => {
     try {
@@ -90,7 +87,12 @@ const Adm_DraftedTestCard = ({ test }) => {
           </svg>
           <span>Edit test</span>
         </span>
-        <span className="text-black-500 text-sm">Created on: {test.date}</span>
+        <div className="text-right">
+        <div className="flex flex-col ">
+    <span className="text-black-500 text-sm">Created on: {test.date}</span>
+    <span className="text-black-500 text-xs mr-5">Branch: {test.target_year.replace(/[{}]/g, '')} - {test.target_branch.replace(/[{}]/g, '')}</span>
+</div>
+    </div>
       </div>
 
       {/* Test Info */}
@@ -98,7 +100,7 @@ const Adm_DraftedTestCard = ({ test }) => {
       <div className="text-gray-600 text-sm mt-4">
         <p className="mb-2 font-bold flex items-center">
         <svg
-            width="22"
+            width="22"  
             height="22"
             viewBox="0 0 22 22"
             fill="none"

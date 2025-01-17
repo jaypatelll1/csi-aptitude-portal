@@ -22,15 +22,15 @@ const CreateTestPage = () => {
     e.preventDefault(); // Prevent default form submission
 
     // Create the payload to send to the server
-    const payload = {
+  const  payload = {
       name: `${testName}`, // The test name
       duration: `${duration}`, // Using duration as duration
       target_years: `${year}`,
       target_branches: `${branch}`,
     };
 
-    // console.log('year is ',year);
-    // console.log("branch is ",branch)
+    console.log('year is ',year);
+    console.log("branch is ",branch)
     // console.log("branch is ",payload)
 
     try {
@@ -53,6 +53,7 @@ const CreateTestPage = () => {
     }
   };
 
+  
   const handleCancel = () => {
     setTestName("");
     setduration("");
