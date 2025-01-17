@@ -82,11 +82,11 @@ app.get('/', (req, res) => {
 });
 
 // 404 Handler for undefined routes
-app.use((req, res, next) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
-  error.status = 404;
-  next(error);
-});
+// app.use((req, res, next) => {
+//   const error = new Error(`Not Found - ${req.originalUrl}`);
+//   error.status = 404;
+//   next(error);
+// });
 
 // Centralized error handling middleware
 app.use(errorHandler);
