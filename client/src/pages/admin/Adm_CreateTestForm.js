@@ -32,7 +32,9 @@ const CreateTestPage = () => {
     };
 
     try {
-      const response = await axios.post("/api/exams", payload);
+      // Send a POST request to the server to create the test
+      const response = await axios.post("/api/exams/", payload);
+      console.log("exam id is ", response.data.newExam.exam_id);
       const examId = response.data.newExam.exam_id;
       dispatch(setExamId(examId));
       navigate("/admin/input");

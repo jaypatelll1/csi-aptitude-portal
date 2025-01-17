@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { markSubmit } from "../../redux/ExamSlice";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
+
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
   const socketRef = useRef(null);

@@ -15,8 +15,8 @@ const Adm_ViewQuestions = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [testDuration, setTestDuration] = useState(); 
   const sidebarRef = useRef(null);
-  const examId  = useSelector((state) => state.exam.examId);
-  // console.log('exam_id is ',examId);
+  let examId  = useSelector((state) => state.exam.examId);
+  console.log('exam_id is ',examId);
   const dispatch = useDispatch()
   const navigate = useNavigate();
 
@@ -27,6 +27,8 @@ const Adm_ViewQuestions = () => {
           throw new Error("Exam ID is not defined");
         }
         const response = await axios.get(`/api/exams/questions/${examId}`);
+        console.log('repnse is ', response);
+        
         setQuestions(response.data || []);
       } catch (err) {
         setError(err.message || "Error fetching questions");
@@ -37,7 +39,12 @@ const Adm_ViewQuestions = () => {
 
     const fetchDuration = async () => {
       try {
-        const response = await axios.get(`/api/exams/find/${examId}`);
+        const id = examId
+        console.log('id is1  ',id);
+        
+        const response = await axios.get(`/api/exams/find/${id}`);
+        console.log('respnose is ',response);
+        
         setTestDuration(response.data.exam.duration); 
       } catch (err) {
         console.error("Error fetching test duration:", err.message);
@@ -77,29 +84,32 @@ const Adm_ViewQuestions = () => {
   };
 
   const handleScheduleTest = (startTime, endTime) => {
-    if (!examId) {
+    const id = examId;
+    console.log('id is ', id);
+    
+    if (!id) {
       alert("Exam ID is not available.");
       return;
     }
-
+  
     axios
-      .put(`/api/exams/publish/${examId}`, {
+      .put(`/api/exams/publish/${id}`, {
         start_time: startTime,
         end_time: endTime,
       })
-
       .then(() => {
         closeScheduleModal();
         console.log(startTime, endTime);
-        
+        dispatch(clearExamId()); // Dispatch clearing examId here to ensure it runs after successful API call
+        navigate("/admin"); // Navigate to /admin after successful test scheduling
       })
       .catch((err) =>
         alert(
           `Error scheduling test: ${err.response?.data?.message || err.message}`
         )
-      ).finally(dispatch(clearExamId()))
+      );
   };
-
+  
   const handleDelete = async () => {
     console.log('exam id is ',examId );
     

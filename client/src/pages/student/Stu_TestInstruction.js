@@ -23,7 +23,7 @@ const TestInstruction = () => {
   // console.log("duration", Duration);
 
   const handleStartTest = () => {
-    navigate(`/exam/${examId}`, { state: { Duration: Duration },replace:true });
+    navigate(`/exam/${examId}`, { state: { Duration: Duration   },replace:true });
 
   };
   useEffect(() => {

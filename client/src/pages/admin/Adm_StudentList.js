@@ -28,8 +28,13 @@ const StudentList = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   //    Handle file change and validate file type
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+    const handleFileChange = (event) => {
+      const file = event.target.files ? event.target.files[0] : null;
+
+      if (!file) {
+        console.error('No file selected');
+        return ;
+      }
 
     // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
     const allowedTypes = [
