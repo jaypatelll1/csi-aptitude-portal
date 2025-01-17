@@ -115,7 +115,7 @@ const StudentList = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(`/api/users?role=Student`);
+        const response = await axios.get(`/api/users/?page=1&role=Student&limit=100`);
         const studentData = response.data.users;
         setStudents(studentData);
       } catch (error) {
