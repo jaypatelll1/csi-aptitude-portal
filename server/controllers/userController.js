@@ -314,7 +314,7 @@ const getAllPaginatedUsers = async (req, res) => {
 
 
 const verifyResetToken = async (req, res) => {
-    const resettoken = req.headers['resettoken'];c
+    const resettoken = req.headers['resettoken'];
     console.log(req.headers);
     if (!resettoken) {
       return res.status(400).json({ error: 'Reset token is required' });
