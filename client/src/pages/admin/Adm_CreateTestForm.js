@@ -3,76 +3,64 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setExamId } from "../../redux/ExamSlice"; // Import the action
+import { setExamId } from "../../redux/ExamSlice";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
-  const [duration, setduration] = useState("");
-
-  const [branch, setBranch] = useState([""]);
-  const [year, setYear] = useState([""]);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
+  const [duration, setDuration] = useState("");
+  const [branch, setBranch] = useState("");
+  const [year, setYear] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
 
   const handleCreateQuestions = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
 
-    // Create the payload to send to the server
+    if (!testName || !duration || !branch || !year) {
+      alert("Please fill in all the fields.");
+      return;
+    }
+
     const payload = {
-      name: `${testName}`, // The test name
-      duration: `${duration}`, // Using duration as duration
-      target_years: `${year}`,
-      target_branches: `${branch}`,
+      name: testName,
+      duration: duration,
+      target_years: year,
+      target_branches: branch,
     };
 
-    // console.log('year is ',year);
-    // console.log("branch is ",branch)
-    // console.log("branch is ",payload)
-
     try {
-      // Send a POST request to the server to create the test
       const response = await axios.post("/api/exams", payload);
-      console.log("exam id is ", response.data.newExam.exam_id);
       const examId = response.data.newExam.exam_id;
-
       dispatch(setExamId(examId));
-      // Log success response and navigate to the input page
-      console.log("Test created successfully:", response.data);
-      navigate("/admin/input"); // Navigate to the input page after success
+      navigate("/admin/input");
     } catch (error) {
       alert("Invalid Input");
-      // Log error response if something goes wrong
-      console.error(
-        "Error creating test:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating test:", error.response?.data || error.message);
     }
   };
 
   const handleCancel = () => {
     setTestName("");
-    setduration("");
+    setDuration("");
+    setBranch("");
+    setYear("");
   };
 
   const handleGoBack = () => {
     navigate(-1);
   };
+
   useEffect(() => {
-    // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setSidebarOpen(false);
       }
     };
 
-    // Attach event listener to the document
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -89,10 +77,9 @@ const CreateTestPage = () => {
         <Adm_Sidebar />
       </div>
 
-      <div className="flex-1  bg-gray-100">
+      <div className="flex-1 bg-gray-100">
         <Adm_Navbar />
         <div className="flex items-center  mb-4 sm:mb-6">
-          {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"
@@ -110,18 +97,18 @@ const CreateTestPage = () => {
                 strokeLinejoin="round"
                 d={
                   sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
-                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
                 }
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-2">
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-6">
             Create Aptitude Test
           </h1>
         </div>
 
-        <div className="flex items-center mb-6 ">
+        <div className="flex items-center mb-6 ml-5">
           <button
             onClick={handleGoBack}
             className="flex items-center text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 mr-4"
@@ -146,67 +133,59 @@ const CreateTestPage = () => {
           </h2>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-5">
+        <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
             <div className="grid grid-cols-2 gap-4 my-5">
-              {/* Branch Dropdown */}
               <div>
                 <label
-                  htmlFor="Branch"
+                  htmlFor="branchSelect"
                   className="block text-sm font-medium text-gray-400 mb-2"
                 >
                   Branch
                 </label>
                 <select
                   id="branchSelect"
-                  className="w-full  px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className={`block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    branch ? "text-black" : "text-gray-500"
+                  }`}
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
                   required
                 >
-                  <option value="" className="text-gray-400" disabled>
-                    Eg CMPN
+                  <option value="" disabled hidden>
+                    Eg. CMPN
                   </option>
-                  <option value="CMPN" className="text-black">
-                    CMPN
-                  </option>
-                  <option value="INFT" className="text-black">
-                    INFT
-                  </option>
-                  <option value="EXTC" className="text-black">
-                    EXTC
-                  </option>
-                  <option value="ELEC" className="text-black">
-                    ELEC
-                  </option>
-                  <option value="ECS" className="text-black">
-                    ECS
-                  </option>
+                  <option value="CMPN" className="text-black">CMPN</option>
+                  <option value="INFT" className="text-black">INFT</option>
+                  <option value="EXTC" className="text-black">EXTC</option>
+                  <option value="ELEC" className="text-black">ELEC</option>
+                  <option value="ECS" className="text-black">ECS</option>
                 </select>
               </div>
 
-              {/* Year Dropdown */}
               <div>
                 <label
-                  htmlFor="Year"
+                  htmlFor="yearSelect"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Year
                 </label>
                 <select
                   id="yearSelect"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className={`block w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    year ? "text-black" : "text-gray-500"
+                  }`}
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   required
                 >
-                  <option value="" disabled>
-                    Eg FE
+                  <option value="" disabled hidden>
+                    Eg. FE
                   </option>
-                  <option value="FE">FE</option>
-                  <option value="SE">SE</option>
-                  <option value="TE">TE</option>
-                  <option value="BE">BE</option>
+                  <option value="FE" className="text-black">FE</option>
+                  <option value="SE" className="text-black">SE</option>
+                  <option value="TE" className="text-black">TE</option>
+                  <option value="BE" className="text-black">BE</option>
                 </select>
               </div>
             </div>
@@ -242,14 +221,14 @@ const CreateTestPage = () => {
                 placeholder="Eg. 30"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={duration}
-                onChange={(e) => setduration(e.target.value)}
+                onChange={(e) => setDuration(e.target.value)}
                 required
               />
             </div>
           </form>
         </div>
 
-        <div className="flex items-center space-x-4 mt-20">
+        <div className="flex items-center space-x-4 mt-20 ml-6">
           <button
             type="submit"
             className="bg-[#1349C5] text-white px-3 lg:px-4 py-2 rounded hover:bg-[#4d75d2] border-[#2c54b2] opacity-90 hover:opacity-100"

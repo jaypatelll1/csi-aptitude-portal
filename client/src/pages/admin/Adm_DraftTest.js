@@ -94,7 +94,7 @@ const Adm_DraftTest = () => {
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar/>
-        <div className="flex items-center h-12 ml-4  ">
+        <div className="flex items-center h-16 ml-4  border-b border-black mr-3">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -131,7 +131,7 @@ const Adm_DraftTest = () => {
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 sm:gap-0 mt-6">
               {paginatedTests.map((test, index) => (
                 <Adm_DraftedTestCard key={index} test={test} />
               ))}
@@ -141,7 +141,7 @@ const Adm_DraftTest = () => {
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 border rounded ${
+                className={`p-2 mx-1  rounded ${
                   currentPage === 1
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-200"
@@ -154,7 +154,7 @@ const Adm_DraftTest = () => {
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 border rounded ${
+                  className={`px-3 py-1 mx-1 rounded ${
                     currentPage === i + 1
                       ? "bg-blue-500 text-white"
                       : "hover:bg-gray-200"
@@ -165,7 +165,7 @@ const Adm_DraftTest = () => {
               ))}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 border rounded ${
+                className={`p-2 mx-1 rounded ${
                   currentPage === totalPages
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-200"

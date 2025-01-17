@@ -26,7 +26,7 @@ if(limit=== true){
         <div className="mb-6">
           <h1 className="text-xl font-semibold mb-2">{name}</h1>
           <div className="flex items-center text-center">
-            <div className="px-8 py- flex flex-row border border-[#1349C5] mr-5 rounded-md text-black">
+            <div className="px-8 py-2 flex flex-row border border-[#1349C5] mr-5 rounded-md text-black">
               <h2 className="font-medium">Attempted:</h2>
               <p className="font-bold">
                 {attemptedCount}/{total}

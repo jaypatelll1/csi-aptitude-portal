@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Msidebar from "../../components/student/home/MSidebar";
 import { useLocation } from "react-router-dom";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 
 // import { useSelector } from "react-redux";
@@ -53,6 +54,8 @@ const TestInstruction = () => {
       >
         <Msidebar />
       </div>
+      <div className="flex-1">
+        <Adm_Navbar/>
       <div className="h-screen  bg-gray-50 p-4 rounded-lg flex flex-col justify-between flex-grow">
         <div>
           <div className="flex items-center  mb-4 sm:mb-6">
@@ -115,6 +118,7 @@ const TestInstruction = () => {
           >
             Start Test
           </button>
+        </div>
         </div>
       </div>
     </div>

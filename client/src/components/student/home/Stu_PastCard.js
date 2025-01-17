@@ -181,7 +181,7 @@ const Adm_PastCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-[#e6e7ec] text-[#1349C5] px-3 lg:px-4 py-2 rounded hover:bg-[#4071e4] border border-[#1349C5] opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border  opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
         >
 
 

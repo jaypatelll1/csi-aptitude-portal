@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { markSubmit } from "../../redux/ExamSlice";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
@@ -68,20 +69,17 @@ const MCQExamPage = () => {
     }
   };
   const submitFinalResponse = async () => {
-    let url = `/api/exams/responses/final/${examId}`
-  const response = await axios.put(url)
-  console.log('response is submit final', response.data);
-  
-  }
+    let url = `/api/exams/responses/final/${examId}`;
+    const response = await axios.put(url);
+    console.log("response is submit final", response.data);
+  };
 
   const deleteExistingResponses = async () => {
-    let url = `/api/exams/responses/initialize/${examId}`
+    let url = `/api/exams/responses/initialize/${examId}`;
     const response = await axios.post(url);
-    console.log('response is delete existing ',response.data);
-    
-  }
+    console.log("response is delete existing ", response.data);
+  };
 
-  
   useEffect(() => {
     const socketConnect = async () => {
       try {
@@ -89,30 +87,30 @@ const MCQExamPage = () => {
           socketRef.current = io("/exams/start-exam");
           console.log("Socket not connected, initializing...");
         }
-  
+
         const socket = socketRef.current;
-  
+
         // Handle socket connection
         socket.on("connect", () => {
           console.log("Connected to the exam namespace:", socket.id);
-  
+
           // Call deleteExistingResponses only once when socket is connected
           deleteExistingResponses();
         });
-  
+
         // Emit the start_exam event
         socket.emit("start_exam", {
           user_id: userId,
           exam_id: examId,
           duration: Duration * 60,
         });
-  
+
         // Listen for timer updates
         socket.on("timer_update", (data) => {
           console.log("Timer update received:", data.remainingTime);
           setRemainingTime(data.remainingTime);
         });
-  
+
         // Listen for exam ended
         socket.on("exam_ended", (data) => {
           console.log("Exam ended:", data.message);
@@ -123,9 +121,9 @@ const MCQExamPage = () => {
         console.error("Error during socket connection:", error);
       }
     };
-  
+
     socketConnect();
-  
+
     // Cleanup function to remove listeners and disconnect the socket
     return () => {
       if (socketRef.current) {
@@ -138,7 +136,6 @@ const MCQExamPage = () => {
       }
     };
   }, [examId, Duration]);
-  
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -179,23 +176,22 @@ const MCQExamPage = () => {
   const handlePermissionGranted = () => {
     enableFullscreen();
   };
-const singleResponse = async (option,id) => {
-  let url = `/api/exams/responses/${examId}`
- let payload = {
-  question_id :id,
-  selected_option : option,
-  response_status:"draft"
-  }
-  console.log('payload is ',payload);
-  
-  const response = await axios.put(url,payload)
-  console.log('response single is ', response.data );
-  
-}
+  const singleResponse = async (option, id) => {
+    let url = `/api/exams/responses/${examId}`;
+    let payload = {
+      question_id: id,
+      selected_option: option,
+      response_status: "draft",
+    };
+    console.log("payload is ", payload);
+
+    const response = await axios.put(url, payload);
+    console.log("response single is ", response.data);
+  };
 
   const handleOptionSelect = (option, id) => {
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
-    singleResponse(option,id)
+    singleResponse(option, id);
     // socketRef.current.emit("submit_temp_response", {
     //   exam_id: examId,
     //   question_id: id,
@@ -236,59 +232,62 @@ const singleResponse = async (option,id) => {
     }
   };
 
-
   const handleSubmitTest = () => {
     setTestSubmitted(true);
     submitFinalResponse();
-    dispatch(markSubmit(examId))
-    navigate("/home", {replace : true});
+    dispatch(markSubmit(examId));
+    navigate("/home", { replace: true });
 
     alert("Test submitted successfully!");
   };
 
   return (
-    <div className="flex h-screen bg-[#F5F6F8]">
-      <NoCopyComponent onPermissionGranted={handlePermissionGranted} />
-      {fullscreenError && !testSubmitted && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
-            <h2 className="text-lg font-semibold mb-4 text-red-500">
-              Fullscreen Mode Required
-            </h2>
-            <p className="text-sm text-gray-600 mb-6">
-              You have exited fullscreen mode. Please return to fullscreen to
-              continue the exam.
-            </p>
-            <button
-              onClick={() => {
-                setFullscreenError(false);
-                enableFullscreen();
-              }}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              Re-enter Fullscreen
-            </button>
+    <div className="flex-1">
+      {/* <Adm_Navbar /> */}
+      <div className="flex h-screen bg-[#F5F6F8] ">
+        <NoCopyComponent onPermissionGranted={handlePermissionGranted} />
+        {fullscreenError && !testSubmitted && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
+              <h2 className="text-lg font-semibold mb-4 text-red-500">
+                Fullscreen Mode Required
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">
+                You have exited fullscreen mode. Please return to fullscreen to
+                continue the exam.
+              </p>
+              <button
+                onClick={() => {
+                  setFullscreenError(false);
+                  enableFullscreen();
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Re-enter Fullscreen
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-      <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8]">
-        <h1 className="text-xl font-bold text-gray-800 mb-4">
-          General Knowledge
-        </h1>
-        <div className="bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-black">
-              {currentQuestionIndex + 1}.{" "}
-              {questions[currentQuestionIndex]?.question_text || "Loading..."}
-            </h2>
-            <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
-              {formatTimeFromSeconds(remainingTime)}
-            </span>
-          </div>
+        )}
 
-          <div className="space-y-4">
-            {Object.entries(questions[currentQuestionIndex]?.options || {}).map(
-              ([key, value]) => (
+        <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8]">
+          <h1 className="text-xl font-bold text-gray-800 mb-4">
+            General Knowledge
+          </h1>
+          <div className="bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-black">
+                {currentQuestionIndex + 1}.{" "}
+                {questions[currentQuestionIndex]?.question_text || "Loading..."}
+              </h2>
+              <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
+                {formatTimeFromSeconds(remainingTime)}
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {Object.entries(
+                questions[currentQuestionIndex]?.options || {}
+              ).map(([key, value]) => (
                 <label
                   key={key}
                   className="block p-2 rounded-lg hover:bg-gray-100 transition"
@@ -309,29 +308,33 @@ const singleResponse = async (option,id) => {
                   />
                   {value}
                 </label>
-              )
-            )}
-          </div>
+              ))}
+            </div>
 
-          <div className="mt-56 flex justify-between">
-            <button
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
-              disabled={currentQuestionIndex === 0}
-              onClick={handlePreviousQuestion}
-            >
-              Previous
-            </button>
-            <button
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
-              disabled={currentQuestionIndex === questions.length - 1}
-              onClick={handleNextQuestion}
-            >
-              Next
-            </button>
+            <div className="mt-56 flex justify-between">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
+                disabled={currentQuestionIndex === 0}
+                onClick={handlePreviousQuestion}
+              >
+                Previous
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
+                disabled={currentQuestionIndex === questions.length - 1}
+                onClick={handleNextQuestion}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
+        <Sidebar
+          name={userName}
+          onSubmitTest={handleSubmitTest}
+          limit={timeUp}
+        />
       </div>
-      <Sidebar name={userName} onSubmitTest={handleSubmitTest} limit={timeUp} />
     </div>
   );
 };

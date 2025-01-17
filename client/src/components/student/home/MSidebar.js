@@ -68,7 +68,7 @@ const Msidebar = () => {
               <Link to="/upcoming-tests">Upcoming Tests</Link>
             </li>
             <li className="p-1 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-            <Link to="/past-tests">Past Tests</Link>
+            <Link to="/past-test">Past Tests</Link>
             </li>
       
           </ul>

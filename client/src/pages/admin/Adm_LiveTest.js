@@ -99,7 +99,7 @@ console.log("resdfghj,",response)
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar/>
-        <div className="flex items-center h-12 ml-4 ">
+        <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -136,7 +136,7 @@ console.log("resdfghj,",response)
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 sm:gap-0  mt-6">
               {/* Display only current items */}
               {currentItems.map((test, index) => (
                 <Adm_LiveTestCard key={index} test={test} />
