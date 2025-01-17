@@ -53,16 +53,9 @@ const Adm_PastTestCard = ({ test, onClick }) => {
         <span className="bg-green-200 text-green-900 text-sm px-2 py-1 rounded font-sans border border-green-700 opacity-100">
           Finished
         </span>
-        
-        <div className="text-right">
-        <div className="flex flex-col items-center">
         <span className="text-black-500 text-sm font-sans">
           Conducted on: {test.date}
         </span>
-        <span className="text-black-500 text-xs">Branch: {test.target_year.replace(/[{}]/g, '')} - {test.target_branch.replace(/[{}]/g, '')}</span>
-</div>
-    </div>
-        
       </div>
 
       {/* Test Info */}

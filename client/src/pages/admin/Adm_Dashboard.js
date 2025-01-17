@@ -6,7 +6,6 @@ import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-import CreateTestPage from "./Adm_CreateTestForm";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
@@ -53,8 +52,6 @@ const Dashboard = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
-          target_year:exam.target_years || 'N/A',
-          target_branch:exam.target_branches || 'N/A',
         })),
       }));
     } catch (err) {
@@ -191,7 +188,7 @@ const Dashboard = () => {
 
           <button
             onClick={createTestHandler}
-            className="bg-[#1349C5] text-white px-4 py-2 rounded hover:bg-blue-300 hover:text-black border border-blue-700 opacity-90 hover:opacity-100 mr-4"
+            className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100 mr-4"
           >
             + Create Test
           </button>
