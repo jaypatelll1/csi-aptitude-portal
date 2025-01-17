@@ -43,9 +43,10 @@ const Dashboard = () => {
   const fetchTestsData = async (endpoint, key) => {
     try {
       const response = await axios.get(endpoint);
+      console.log(response)
       setTestsData((prevData) => ({
         ...prevData,
-        [key]: response.data.exams.map((exam) => ({
+        [key]: response.data.exams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
