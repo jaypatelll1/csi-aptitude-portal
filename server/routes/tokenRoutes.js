@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const {tokenMiddleware}= require("../middlewares/jwtAuthMiddleware")
+const {tokenController} = require("../controllers/tokenContoller")
 
-router.post("/",tokenMiddleware);
+router.post("/",tokenController);
 
 
 module.exports = router;

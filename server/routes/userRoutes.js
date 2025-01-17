@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, updateUser, deleteUser, getAllPaginatedUsers, verifyResetToken ,resetPassword, sendResetEmail } = require('../controllers/userController');
+const { registerUser, loginUser, updateUser, deleteUser, getAllPaginatedUsers, verifyResetToken ,resetPassword, sendResetEmail, logout } = require('../controllers/userController');
 const { jwtAuthMiddleware, } = require('../middlewares/jwtAuthMiddleware');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const userController = require('../controllers/userController'); 

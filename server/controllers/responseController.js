@@ -1,14 +1,5 @@
-const {
-  submitResponse,
-  getResponsesByStudent,
-  getResponsesForExam,
-  updateResponse,
-  deleteResponse,
-  submitMultipleResponses,
-  getPaginatedResponses,
-  submittedUnansweredQuestions,
-} = require('../models/responseModel');
-const { logActivity } = require('../utils/logger');
+const responseModel = require('../models/responseModel');
+const { logActivity } = require('../utils/logActivity');
 
 // Submit a response
 exports.submitResponse = async (req, res) => {

@@ -21,3 +21,75 @@ Stack Trace: Error: Not Found - /users
     at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
     at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
     at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+[2025-01-10 15:50:17] error: Error occurred: Not Found - /users 
+Stack Trace: Error: Not Found - /users
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\server.js:86:17
+    at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at urlencodedParser (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\body-parser\lib\types\urlencoded.js:94:7)
+    at Layer.handle [as handle_request] (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Desktop\JAY CSI APTITUDE PORTAL\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+[2025-01-16 21:41:45] error: Error occurred: Not Found - /main.fbd4b6371a9311ef8d75.hot-update.json 
+Stack Trace: Error: Not Found - /main.fbd4b6371a9311ef8d75.hot-update.json
+    at D:\csi_project3\csi-aptitude-portal\server\server.js:89:17
+    at Layer.handle [as handle_request] (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at urlencodedParser (D:\csi_project3\csi-aptitude-portal\server\node_modules\body-parser\lib\types\urlencoded.js:94:7)
+    at Layer.handle [as handle_request] (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+[2025-01-16 22:10:07] error: Error occurred: Not Found - /api/export/question/excel/137 
+Stack Trace: Error: Not Found - /api/export/question/excel/137
+    at D:\csi_project3\csi-aptitude-portal\server\server.js:89:17
+    at Layer.handle [as handle_request] (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:646:15
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:265:14)
+    at Function.handle (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:175:3)
+    at router (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:47:12)
+[2025-01-16 22:10:15] error: Error occurred: Not Found - /api/export/question/excel/65 
+Stack Trace: Error: Not Found - /api/export/question/excel/65
+    at D:\csi_project3\csi-aptitude-portal\server\server.js:89:17
+    at Layer.handle [as handle_request] (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:646:15
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:265:14)
+    at Function.handle (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:175:3)
+    at router (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:47:12)
+[2025-01-16 22:10:26] error: Error occurred: Not Found - /api/export/question/excel/75 
+Stack Trace: Error: Not Found - /api/export/question/excel/75
+    at D:\csi_project3\csi-aptitude-portal\server\server.js:89:17
+    at Layer.handle [as handle_request] (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:646:15
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:265:14)
+    at Function.handle (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:175:3)
+    at router (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:47:12)
+[2025-01-16 22:25:40] error: Error occurred: Not Found - /main.a8093a81ab4a4d389d92.hot-update.json 
+Stack Trace: Error: Not Found - /main.a8093a81ab4a4d389d92.hot-update.json
+    at D:\csi_project3\csi-aptitude-portal\server\server.js:89:17
+    at Layer.handle [as handle_request] (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:280:10)
+    at urlencodedParser (D:\csi_project3\csi-aptitude-portal\server\node_modules\body-parser\lib\types\urlencoded.js:94:7)
+    at Layer.handle [as handle_request] (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\csi_project3\csi-aptitude-portal\server\node_modules\express\lib\router\index.js:286:9

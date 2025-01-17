@@ -1,5 +1,5 @@
 const { getLastExam } = require('../models/examModel');
-const { logActivity } = require('../utils/logger');
+const { logActivity } = require('../utils/logActivity');
 const pool = require('../config/db');
 
 const getLastExamStats = async (req, res) => {
