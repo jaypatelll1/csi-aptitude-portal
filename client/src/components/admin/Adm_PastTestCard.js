@@ -153,9 +153,7 @@ const Adm_PastTestCard = ({ test, onClick }) => {
         >
           View Results
         </button>
-        <button className="bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">
-          Archive
-        </button>
+        
       </div>
     </div>
   );
