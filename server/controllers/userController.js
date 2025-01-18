@@ -23,7 +23,8 @@ const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
 const { token } = require('morgan');
-
+const dotenv = require('dotenv');
+dotenv.config();
 // Function to create a new user/register
 const registerUser = async (req, res) => {
   const { name, email, password, role, year, department, rollno, phone } =
@@ -123,16 +124,12 @@ const loginUser = async (req, res) => {
 
     res.cookie('jwttoken', token, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'None',
       secure: true,
     });
 
     if (result.status === 'NOTACTIVE') {
-      res.cookie('resettoken', resetToken, {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
-      });
+      res.set('resettoken', resetToken);
     }
 
     return res.status(200).json({
@@ -157,25 +154,33 @@ const loginUser = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  const newPassword = req.password.password;
+  const newPassword = req.body.password;
+  const resettoken = req.body.resettoken;
 
-  if (!req.id) {
-    return res.status(400).json({ error: 'User ID is required' });
+  console.log('Reset password request:', req.body);
+
+  if (!resettoken) {
+    return res.status(400).json({ error: 'Reset token is required' });
   }
 
   try {
+    // Decode the reset token to get the user ID
+    const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
+    console.log(decoded);
+    const userId = decoded.id;
+
     // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
 
     // Update the user password using the `updateUser` model
-    const updatedUser = await userModel.updateUser(req.id, {
+    const updatedUser = await userModel.updateUser(userId, {
       password_hash: hashedPassword,
       status: 'ACTIVE',
     });
 
     // Log the password reset activity
     await logActivity({
-      user_id: req.id,
+      user_id: userId,
       activity: 'Password reset',
       status: 'success',
       details: 'Password reset successfully',
@@ -184,10 +189,15 @@ const resetPassword = async (req, res) => {
     res.json({ message: 'Password reset successfully' });
   } catch (err) {
     console.error('Error resetting password:', err);
+    await logActivity({
+      user_id: null,
+      activity: 'Password reset',
+      status: 'failure',
+      details: `Error: ${err.message}`,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 
 // logout 
 const logout = async (req,res) => {
