@@ -3,6 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Import the Sidebar
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard"; // Import the PastTestCard
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_PastTest = () => {
   const [pastTests, setPastTests] = useState([]);
@@ -38,7 +39,7 @@ const Adm_PastTest = () => {
     const fetchPastTests = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/exams/past");
+        const response = await axios.get(`${API_BASE_URL}/api/exams/past`);
         const { exams } = response.data;
         const formattedTests = exams.exams.map((exam) => ({
           exam_id: exam.exam_id,

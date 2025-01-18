@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "../../../components/admin/Adm_DataTime";
 import axios from "axios";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
 const Adm_UpcomingTestCard = ({ test }) => {
@@ -40,7 +41,7 @@ const Adm_UpcomingTestCard = ({ test }) => {
       // console.log('Clicked test ID:', test.exam_id);
 
 
-      const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
+      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`);
 
       // console.log('Response from server:', response.data);
       window.location.reload();
@@ -53,7 +54,7 @@ const Adm_UpcomingTestCard = ({ test }) => {
 
   const handleSchedule = (start, end) => {
     setScheduledTime({ start, end });
-    axios.put(`/api/exams/publish/${examId}`, {
+    axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
       start_time: start,
       end_time: end,
     })

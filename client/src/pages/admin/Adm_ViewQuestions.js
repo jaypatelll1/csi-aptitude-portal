@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector ,useDispatch} from "react-redux";
 import {clearExamId} from "../../redux/ExamSlice"
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ViewQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -26,7 +27,7 @@ const Adm_ViewQuestions = () => {
         if (!examId) {
           throw new Error("Exam ID is not defined");
         }
-        const response = await axios.get(`/api/exams/questions/${examId}`);
+        const response = await axios.get(`${API_BASE_URL}/api/exams/questions/${examId}`);
         console.log('repnse is ', response);
         
         setQuestions(response.data || []);
@@ -42,7 +43,7 @@ const Adm_ViewQuestions = () => {
         const id = examId
         console.log('id is1  ',id);
         
-        const response = await axios.get(`/api/exams/find/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/api/exams/find/${id}`);
         console.log('respnose is ',response);
         
         setTestDuration(response.data.exam.duration); 

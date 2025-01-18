@@ -3,6 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard"; // Drafted Test Card component
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -42,7 +43,7 @@ const Adm_DraftTest = () => {
         setLoading(true);
         setError(null);
 
-        const response = await axios.get("/api/exams/drafts", {
+        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
           withCredentials: true,
         });
 

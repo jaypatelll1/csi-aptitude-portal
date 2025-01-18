@@ -3,6 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ViewQuestionCard = ({ id, text, options, index, correct_option }) => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Adm_ViewQuestionCard = ({ id, text, options, index, correct_option }) => {
     });
   };
 const handleDeleteQuestion= async () => {
-  const response = await axios.delete(`/api/exams/questions/${exam_id}/${id}`)
+  const response = await axios.delete(`${API_BASE_URL}/api/exams/questions/${exam_id}/${id}`)
   console.log('response is ',response);
  // Reload the page
 window.location.reload();

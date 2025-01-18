@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "./Adm_DataTime";
-import CreateTestPage from "../../pages/admin/Adm_CreateTestForm";
 import axios from "axios";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
 const Adm_DraftedTestCard = ({ test }) => {
@@ -39,7 +39,7 @@ const Adm_DraftedTestCard = ({ test }) => {
     setRequestInProgress(true); // Set request state to true
 
     try {
-      await axios.put(`/api/exams/live-exam/${examId}`);
+      await axios.put(`${API_BASE_URL}/api/exams/live-exam/${examId}`);
       window.location.reload();
     } catch (error) {
       console.error("Error during Put request:", error);
@@ -53,7 +53,7 @@ const Adm_DraftedTestCard = ({ test }) => {
     setRequestInProgress(true); // Set request state to true
 
     try {
-      await axios.put(`/api/exams/publish/${examId}`, {
+      await axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
         start_time: start,
         end_time: end,
       });

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import DataTime from "./Adm_DataTime";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ScheduledTestCard = ({ test }) => {
   const [isScheduling, setIsScheduling] = useState(false);
@@ -15,7 +16,7 @@ const Adm_ScheduledTestCard = ({ test }) => {
     setIsPublishing(true);
     try {
       console.log("Clicked test ID:", test.exam_id);
-      const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
+      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`);
       console.log("Response from server:", response.data);
       window.location.reload();
     } catch (error) {

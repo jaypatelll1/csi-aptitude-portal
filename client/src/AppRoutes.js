@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 // Pages
 import Stu_login from "./pages/Login";
-import MCQExamPage from "./pages/student/MCQExamPage";
+import MCQExamPage from "./pages/student/Stu_MCQExamPage";
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
 import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";

@@ -1,8 +1,9 @@
 import React from "react";
 import axios from "axios";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { clearUser } from "../../../redux/userSlice";
 import { useSelector, useDispatch } from "react-redux";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Details = () => {
   let user = useSelector((state) => state.user.user);
@@ -12,7 +13,7 @@ const Details = () => {
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
-    const response = await axios.post("/api/users/logout");
+    const response = await axios.post(`${API_BASE_URL}/api/users/logout`);
     dispatch(clearUser());
     navigate("/", { replace: true });
   };

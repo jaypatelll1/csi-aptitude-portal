@@ -6,9 +6,9 @@ import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-import CreateTestPage from "./Adm_CreateTestForm";
 import axios from "axios";
 import { useSelector } from "react-redux";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -70,9 +70,9 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
-          axios.get("/api/stats/all-students"),
-          axios.get("/api/stats/all-tests"),
-          axios.get("/api/stats/last-test"),
+          axios.get(`${API_BASE_URL}/api/stats/all-students`),
+          axios.get(`${API_BASE_URL}/api/stats/all-tests`),
+          axios.get(`${API_BASE_URL}/api/stats/last-test`),
         ]);
 
         const studentsCount = studentsRes.data.totalStudentsCount;
@@ -94,9 +94,9 @@ const Dashboard = () => {
     const fetchAllTestsData = async () => {
       setLoading(true);
       try {
-        await fetchTestsData(`/api/exams/drafts`, "drafted");
-        await fetchTestsData(`/api/exams/scheduled`, "scheduled");
-        await fetchTestsData(`/api/exams/past`, "past");
+        await fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted");
+        await fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled");
+        await fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past");
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");

@@ -3,10 +3,10 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from "../../components/admin/Adm_Filter";
 import AddStudent from "../../components/admin/Adm_AddStudent";
-import searchIcon from "../../assets/studentlist/Search.svg";
 import EditStudent from "../../components/admin/Adm_EditStudent";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar"
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const StudentList = () => {
   const [showFilter, setShowFilter] = useState(false);
@@ -63,7 +63,7 @@ const StudentList = () => {
     formData.append("Files", selectedFile); // Appending the file to formData
 
     try {
-      const response = await axios.post(`/api/users/upload`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/users/upload`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -115,7 +115,7 @@ const StudentList = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(`/api/users/?page=1&role=Student&limit=100`);
+        const response = await axios.get(`${API_BASE_URL}/api/users/?page=1&role=Student&limit=100`);
         const studentData = response.data.users;
         setStudents(studentData);
       } catch (error) {

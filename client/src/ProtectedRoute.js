@@ -5,7 +5,6 @@ import axios from "axios";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = useSelector((state) => state.user.user); // Get the user from Redux
-  const location = useLocation();
   const [isVerified, setIsVerified] = useState(null);
 
   useEffect(() => {

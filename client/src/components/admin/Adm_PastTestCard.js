@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_PastTestCard = ({ test, onClick }) => {
-  // console.log('test is ',test);
 
   const [result, setResult] = useState([]);
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const Adm_PastTestCard = ({ test, onClick }) => {
       console.log("Clicked test duration:");
 
       const response = await axios.get(
-        `/api/exams/results/all/${test.exam_id}?page=1&limit=3`
+        `${API_BASE_URL}/api/exams/results/all/${test.exam_id}?page=1&limit=3`
       );
       const fetchedResult = response.data.results;
       setResult(fetchedResult);

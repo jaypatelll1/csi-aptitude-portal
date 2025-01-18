@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const InputQuestions = () => {
   const [question, setQuestion] = useState("");
@@ -50,7 +51,7 @@ const InputQuestions = () => {
 
     try {
       const response = await axios.post(
-        `/api/exams/${examId}/questions`,
+        `${API_BASE_URL}/api/exams/${examId}/questions`,
         formData,
         {
           headers: {
