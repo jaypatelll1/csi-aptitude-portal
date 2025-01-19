@@ -5,10 +5,7 @@ import axios from "axios";
 import { setUser } from "../redux/userSlice";
 import doodle from "../assets/sidebar/doodle.svg";
 
-
 const Login = () => {
- 
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,13 +27,19 @@ const Login = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-       
+
       // console.log('API_BASE_URL',API_BASE_URL);
-      
-      const response = await axios.post(`${API_BASE_URL}/api/users/login`, {
-        email,
-        password,
-      });
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/users/login`,
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
       if (response.data.message === "Login Successful") {
         const userData = response.data.result;
         dispatch(setUser(userData));
@@ -46,9 +49,9 @@ const Login = () => {
           navigate(`/reset-password/${response.headers.resettoken}`);
         } else if (userData.status === "ACTIVE") {
           if (userData.role === "Student") {
-            navigate("/home",{replace:true});
+            navigate("/home", { replace: true });
           } else if (userData.role === "TPO") {
-            navigate("/admin",{replace:true});
+            navigate("/admin", { replace: true });
           } else {
             setError("Unauthorized role");
           }
