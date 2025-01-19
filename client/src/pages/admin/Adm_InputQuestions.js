@@ -157,25 +157,25 @@ const InputQuestions = () => {
 
       try {
         if (!questionId) {
-          await axios.post(
-            `/api/exams/questions/${examId}`,
-            payload
-          );
-          setQuestion("");
-          setOptions(["", "", "", ""]);
-          setToggles([false, false, false, false]);
-          setQuestionCount((prevCount) => prevCount + 1);
+            await axios.post(
+                `${API_BASE_URL}/api/exams/questions/${examId}`,
+                payload
+            );
+            setQuestion("");
+            setOptions(["", "", "", ""]);
+            setToggles([false, false, false, false]);
+            setQuestionCount((prevCount) => prevCount + 1);
         } else {
-          await axios.put(
-            `/api/exams/questions/${examId}/${questionId}`,
-            payload
-          );
-          setQuestion("");
-          setOptions(["", "", "", ""]);
-          setToggles([false, false, false, false]);
-          navigate("/admin/viewquestions");
+            await axios.put(
+                `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
+                payload
+            );
+            setQuestion("");
+            setOptions(["", "", "", ""]);
+            setToggles([false, false, false, false]);
+            navigate("/admin/viewquestions");
         }
-      } catch (error) {
+    } catch (error) {
         console.error("Error creating test:", error.response?.data || error.message);
       }
     } else {

@@ -9,8 +9,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   useEffect(() => {
     const verifyResetToken = async () => {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       try {
-        const response = await axios.get('/api/users/verify-reset-token');
+        const response = await axios.get(
+          `${API_BASE_URL}/api/users/verify-reset-token`,
+          {
+            withCredentials: true
+          }
+        );
         if (response.data.message === 'Token is valid') {
           setIsVerified(true);
         }

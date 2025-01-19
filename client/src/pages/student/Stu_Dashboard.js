@@ -4,25 +4,21 @@ import StuTestCard from "../../components/student/home/Stu_TestCard";
 import StuPastTestCard from "../../components/student/home/Stu_PastTestCard";
 import Details from "../../components/student/home/Stu_Details";
 import axios from "axios";
-import { useSelector , useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import { setExam } from "../../redux/ExamSlice";
 
-
-
 function StudentDashboard() {
- 
-
   const userData = useSelector((state) => state.user.user);
-  console.log('uers data is',userData );
+  console.log("uers data is", userData);
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const[result,setResult]= useState([])
+  const [result, setResult] = useState([]);
   const detailsRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
-const dispatch = useDispatch();
+  const dispatch = useDispatch();
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
@@ -36,37 +32,37 @@ const dispatch = useDispatch();
       payload = {
         status: "live",
         target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`
-      }
-    }
-    else if (filterType === "upcoming") {
+        target_years: `{${userData.year}}`,
+      };
+    } else if (filterType === "upcoming") {
       payload = {
         status: "scheduled",
         target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`
-      }
-        ;
+        target_years: `{${userData.year}}`,
+      };
     } else if (filterType === "past") {
       payload = {
         status: "past",
         target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`
-      }
+        target_years: `{${userData.year}}`,
+      };
     }
 
     try {
       const response = await axios.post(url, payload);
-      console.log('response is ', response);
-const pastPaper = await axios.get(`/api/exams/results/student/${userData.id}`)
-// using redux
- dispatch(setExam(response.data.exams ));
-console.log('past tests is ', pastPaper);
-setResult(pastPaper.data.results)
+      console.log("response is ", response);
+      const pastPaper = await axios.get(
+        `/api/exams/results/student/${userData.id}`
+      );
+      // using redux
+      dispatch(setExam(response.data.exams));
+      console.log("past tests is ", pastPaper);
+      setResult(pastPaper.data.results);
 
       setTests(response.data.exams || []);
     } catch (err) {
-      console.error("error getting response ", err)
-    } 
+      console.error("error getting response ", err);
+    }
   };
 
   useEffect(() => {
@@ -85,7 +81,6 @@ setResult(pastPaper.data.results)
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
 
   useEffect(() => {
     fetchTests(filter);
@@ -119,8 +114,9 @@ setResult(pastPaper.data.results)
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-          } transition-transform duration-300 w-64 xl:block`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+        } transition-transform duration-300 w-64 xl:block`}
       >
         <MSidebar />
       </div>
@@ -156,18 +152,16 @@ setResult(pastPaper.data.results)
               />
             </svg>
           </button>
-          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
+          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
+            Dashboard
+          </h1>
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}
           >
             AM
           </div>
-          <div ref={detailsRef}>
-            {isDetailsOpen && (
-              <Details/>
-            )}
-          </div>
+          <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
 
         {/* Main Content */}
@@ -201,7 +195,7 @@ setResult(pastPaper.data.results)
                   examId={test.exam_id}
                   testName={test.exam_name}
                   duration={test.duration}
-                  status = {test.status}
+                  status={test.status}
                   questionCount={test.total_questions}
                   lastDate={formatToReadableDate(test.created_at)}
                 />
@@ -225,7 +219,7 @@ setResult(pastPaper.data.results)
                     testName={test.exam_name}
                     submittedOn={test.Date}
                     time={test.duration}
-                    total_score={test.total_score }
+                    total_score={test.total_score}
                     max_score={test.max_score}
                     status={test.status}
                   />
@@ -236,8 +230,6 @@ setResult(pastPaper.data.results)
         </div>
       </div>
     </div>
-
-
   );
 }
 

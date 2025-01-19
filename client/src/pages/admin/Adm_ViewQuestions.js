@@ -114,8 +114,9 @@ const Adm_ViewQuestions = () => {
   const handleDelete = async () => {
     console.log('exam id is ',examId );
     
-    const response = await axios.delete(`/api/exams/${examId}`);
-    console.log('response is ',response);
+    const response = await axios.delete(
+      `${API_BASE_URL}/api/exams/${examId}`
+  );    console.log('response is ',response);
     navigate("/admin/createtest")
     
   }
