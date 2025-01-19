@@ -30,23 +30,10 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-const FRONTEND_ORIGIN = process.env.NODE_ENV === 'production'
-  ? ['https://csi-aptitude-portal-client.onrender.com', 'https://todo-list-two-livid-23.vercel.app']
-  : ['http://localhost:3000'];
-
-
-  const corsOptions = {
-    origin: (origin, callback) => {
-      if (FRONTEND_ORIGIN.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true, // If using cookies or authorization headers
-  };
-  
-  app.use(cors(corsOptions));
+const FRONTEND_ORIGIN =
+  process.env.NODE_ENV === 'production'
+    ? 'https://csi-aptitude-portal-client.onrender.com' // Production frontend URL
+    : 'http://localhost:3000'; // Local frontend URL
 
 const io = new Server(server, {
   cookie: true,
@@ -57,12 +44,12 @@ const io = new Server(server, {
 
 // Middlewares
 app.use(cookieParser());
-// app.use(
-//   cors({
-//     origin: FRONTEND_ORIGIN, // Update this to your frontend URL deployed on Render
-//     credentials: true, // Allow cookies to be sent
-//   })
-// );
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN, // Update this to your frontend URL deployed on Render
+    credentials: true, // Allow cookies to be sent
+  })
+);
 app.use(express.json());
 app.use(bodyParser.json());
 
