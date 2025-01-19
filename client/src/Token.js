@@ -7,7 +7,8 @@ const Token = () => {
     useEffect(() => {
         const handleTokenRefresh = async () => {
             try {
-                const response = await axios.post("/api/token", {
+                let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+                const response = await axios.post(`${API_BASE_URL}/api/token`, {
                     "id": user.user.id,
                     "email": user.user.email,
                     "name": user.user.name,
