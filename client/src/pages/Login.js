@@ -26,10 +26,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/users/login", {
-        email,
-        password,
-      });
+      const response = await axios.post("/api/users/login", 
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true
+        }
+      );
       if (response.data.message === "Login Successful") {
         const userData = response.data.result;
         dispatch(setUser(userData));
