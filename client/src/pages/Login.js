@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setUser } from "../redux/userSlice";
 import doodle from "../assets/sidebar/doodle.svg";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+
 
 const Login = () => {
+ 
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,6 +29,10 @@ const Login = () => {
     setLoading(true);
 
     try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+       
+      // console.log('API_BASE_URL',API_BASE_URL);
+      
       const response = await axios.post(`${API_BASE_URL}/api/users/login`, {
         email,
         password,
