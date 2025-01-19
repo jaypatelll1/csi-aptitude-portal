@@ -123,6 +123,7 @@ const loginUser = async (req, res) => {
     });
 
     res.cookie('jwttoken', token, {
+      expires: new Date(Date.now() + 86400000),
       httpOnly: true,
       sameSite: 'None',
       secure: true,
