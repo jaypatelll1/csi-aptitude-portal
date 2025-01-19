@@ -6,14 +6,17 @@ const Token = () => {
     const user = useSelector(state => state.user);
     useEffect(() => {
         const handleTokenRefresh = async () => {
+            let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
             try {
-                let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
                 const response = await axios.post(`${API_BASE_URL}/api/token`, {
                     "id": user.user.id,
                     "email": user.user.email,
                     "name": user.user.name,
                     "role": user.user.role
+                }, {
+                    withCredentials: true,  // Make sure the cookie is sent with the request
                 });
+            
                
 
             } catch (error) {
@@ -22,7 +25,7 @@ const Token = () => {
         };
 
         handleTokenRefresh();
-        const intervalId = setInterval(handleTokenRefresh, 30 * 60 * 1000); // 30 minutes
+        const intervalId = setInterval(handleTokenRefresh, 1 * 60 * 1000); // 30 minutes
         return () => clearInterval(intervalId);
     }, []);
 
