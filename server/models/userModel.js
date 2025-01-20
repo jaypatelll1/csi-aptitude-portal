@@ -57,7 +57,11 @@ const createUser = async (
 
 const getAllStudents = async (role) => {
   const query =
-    'SELECT user_id, name, email, role, year, department, rollno, phone FROM users where role = $1 ORDER BY user_id ASC';
+  `SELECT user_id, name, email, role , department,year,phone, rollno,  
+  FROM users 
+  WHERE role = $1 
+  ORDER BY user_id ASC`
+  
   const result = await pool.query(query, [role]);
   return result.rows;
 };
@@ -89,7 +93,7 @@ const deleteUser = async (id) => {
 // Get all users with pagination
 const getAllPaginatedUsers = async (page, limit) => {
   const query =
-    'SELECT user_id, name, email, role,year,department,rollno FROM users ORDER BY user_id ASC';
+    'SELECT user_id, name, email, role,year,department,rollno,phone FROM users ORDER BY user_id ASC';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery);
   return result.rows;
@@ -97,7 +101,7 @@ const getAllPaginatedUsers = async (page, limit) => {
 
 const getAllPaginatedRoleUsers = async (page, limit, role) => {
   const query =
-    'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ORDER BY user_id ASC ';
+    'SELECT user_id, name, email, role,year,department,rollno, phone FROM users where role =$1 ORDER BY user_id ASC ';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery, [role]);
   return result.rows;
@@ -105,7 +109,7 @@ const getAllPaginatedRoleUsers = async (page, limit, role) => {
 
 const getAllRoleUsers = async (role) => {
   const query =
-    'SELECT user_id, name, email, role,year,department,rollno FROM users where role =$1 ORDER BY user_id ASC';
+    'SELECT user_id, name, email, role,year,department,rollno,phone FROM users where role =$1 ORDER BY user_id ASC';
   const result = await pool.query(query, [role]);
   return result.rows;
 };

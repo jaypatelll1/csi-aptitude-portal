@@ -13,6 +13,7 @@ const parseExcelUsers = async (filePath) => {
         const sheetNames = workbook.SheetNames;
         const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
         console.log("Excel Data to insert:", jsonData);
+// console.log('jsonData',jsonData);
 
         // Process each row
         for (const row of jsonData) {
