@@ -3,19 +3,17 @@ import DataTime from "./Adm_DataTime";
 import axios from "axios";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-
 const Adm_DraftedTestCard = ({ test }) => {
   // console.log('test is ',test);
- 
 
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
-  const [questions, setQuestions] = useState([])
+  const [questions, setQuestions] = useState([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
   const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
   const [loading, setLoading] = useState(false);
- 
+
   const [requestInProgress, setRequestInProgress] = useState(false);
 
   const examId = test.exam_id;
@@ -56,14 +54,20 @@ const Adm_DraftedTestCard = ({ test }) => {
 
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      await axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
-        start_time: start,
-        end_time: end,
-      });
+      await axios.put(
+        `${API_BASE_URL}/api/exams/publish/${examId}`,
+        {
+          start_time: start,
+          end_time: end,
+        },
+        { withCredentials: true }
+      );
       setScheduledTime({ start, end });
       setIsScheduling(false);
     } catch (err) {
-      alert(`Error scheduling test: ${err.response?.data?.message || err.message}`);
+      alert(
+        `Error scheduling test: ${err.response?.data?.message || err.message}`
+      );
     } finally {
       setRequestInProgress(false); // Reset request state
     }
@@ -93,19 +97,24 @@ const Adm_DraftedTestCard = ({ test }) => {
           <span>Draft test</span>
         </span>
         <div className="text-right">
-        <div className="flex flex-col ">
-    <span className="text-black-500 text-sm">Created on: {test.date}</span>
-    <span className="text-black-500 text-xs mr-5">Branch: {test.target_years.replace(/[{}]/g, '')} - {test.target_branches.replace(/[{}]/g, '')}</span>
-</div>
-    </div>
+          <div className="flex flex-col ">
+            <span className="text-black-500 text-sm">
+              Created on: {test.date}
+            </span>
+            <span className="text-black-500 text-xs mr-5">
+              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
+              {test.target_branches.replace(/[{}]/g, "")}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Test Info */}
       <h2 className="text-lg font-bold text-gray-900">{test.title}</h2>
       <div className="text-gray-600 text-sm mt-4">
         <p className="mb-2 font-bold flex items-center">
-        <svg
-            width="22"  
+          <svg
+            width="22"
             height="22"
             viewBox="0 0 22 22"
             fill="none"
@@ -157,7 +166,7 @@ const Adm_DraftedTestCard = ({ test }) => {
           </svg>
           {/* Display the question count */}
 
-          <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
+          <h4>Number of Questions: {test ? test.questions : "Loading..."}</h4>
         </p>
         <p className="font-bold flex items-center">
           <svg
@@ -224,7 +233,6 @@ const Adm_DraftedTestCard = ({ test }) => {
         )}
       </div>
     </div>
-    
   );
 };
 

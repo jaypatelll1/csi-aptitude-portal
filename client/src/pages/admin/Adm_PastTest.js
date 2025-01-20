@@ -43,8 +43,7 @@ const Adm_PastTest = () => {
         const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
           withCredentials: true, // Make sure the cookie is sent with the request
         });
-        const { exams } = response.data;
-        const formattedTests = exams.exams.map((exam) => ({
+        const formattedTests =response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -55,6 +54,7 @@ const Adm_PastTest = () => {
           target_years: exam.target_years,
           target_branches: exam.target_branches,
         }));
+        console.log("formattedTests",formattedTests)
         setPastTests(formattedTests);
       } catch (err) {
         console.error("Error fetching past tests:", err);
@@ -69,11 +69,12 @@ const Adm_PastTest = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(pastTests.length / itemsPerPage);
+  
   const paginatedTests = pastTests.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
+  console.log("paginatedTests",paginatedTests)
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
