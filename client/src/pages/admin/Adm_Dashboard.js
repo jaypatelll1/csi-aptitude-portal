@@ -43,7 +43,8 @@ const Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      console.log("endpoint",endpoint)
       const response = await axios.get(endpoint , {
         withCredentials: true,
       });
