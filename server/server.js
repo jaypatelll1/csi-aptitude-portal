@@ -38,7 +38,9 @@ const FRONTEND_ORIGIN =
 const io = new Server(server, {
   cookie: true,
   cors: {
-    origin: FRONTEND_ORIGIN,
+    origin: FRONTEND_ORIGIN, // Allow frontend origin
+    methods: ['GET', 'POST'], // Specify HTTP methods
+    credentials: true, // Allow credentials (cookies)
   },
 });
 
