@@ -18,7 +18,7 @@ import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
- 
+
   const socketRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -71,20 +71,16 @@ const MCQExamPage = () => {
     }
   };
   const submitFinalResponse = async () => {
-    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    let url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
-    const response = await axios.put(url,{
-      withCredentials: true,  // Make sure the cookie is sent with the request
-  });
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
+    const response = await axios.put(url, {}, {withCredentials: true});
     console.log("response is submit final", response.data);
   };
 
   const deleteExistingResponses = async () => {
-    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    let url = `${API_BASE_URL}/api/exams/responses/initialize/${examId}`;
-    const response = await axios.post(url,{
-      withCredentials: true,  // Make sure the cookie is sent with the request
-  });
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const response = await axios.post(
+      `${API_BASE_URL}/api/exams/responses/initialize/${examId}`, {}, {withCredentials: true});
     console.log("response is delete existing ", response.data);
   };
 
@@ -92,8 +88,10 @@ const MCQExamPage = () => {
     const socketConnect = async () => {
       try {
         if (!socketRef.current) {
-          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-          socketRef.current = io(`${API_BASE_URL}/exams/start-exam`);
+          const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          socketRef.current = io(`${API_BASE_URL}/exams/start-exam`, {
+            withCredentials:true
+          });
           console.log("Socket not connected, initializing...");
         }
 
@@ -166,7 +164,10 @@ const MCQExamPage = () => {
     const fetchQuestions = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/questions/${examId}`);
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/questions/${examId}`,
+          { withCredentials: true }
+        );
 
         const formattedQuestions = response.data.map((q) => ({
           ...q,
@@ -196,7 +197,7 @@ const MCQExamPage = () => {
     };
     console.log("payload is ", payload);
 
-    const response = await axios.put(url, payload);
+    const response = await axios.put(url, payload, { withCredentials: true });
     console.log("response single is ", response.data);
   };
 
