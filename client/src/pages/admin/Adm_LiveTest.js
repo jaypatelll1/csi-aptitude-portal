@@ -48,10 +48,14 @@ const Adm_DraftTest = () => {
         setLoading(true); // Set loading to true before fetching
         setError(null); // Clear any existing errors
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/live`, {
-          withCredentials: true,
-        },{params:{page:currentPage,limit:itemsPerPage}});
-console.log("resdfghj,",response)
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/live`,
+          {
+            withCredentials: true,
+          },
+          { params: { page: currentPage, limit: itemsPerPage } }
+        );
+        console.log("resdfghj,", response);
         const fetchedTests = response.data.exams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
@@ -101,7 +105,7 @@ console.log("resdfghj,",response)
 
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar/>
+        <Adm_Navbar />
         <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           {/* Burger Icon Button */}
           <button
@@ -148,72 +152,73 @@ console.log("resdfghj,",response)
 
             {/* Pagination Controls */}
             <div className="flex justify-center mt-6">
-  {/* Left Arrow Button */}
-  <button
-    onClick={() => handlePageChange(currentPage - 1)}
-    className={`p-2 mx-1 border rounded ${
-      currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-    }`}
-    disabled={currentPage === 1}
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 19l-7-7 7-7"
-      />
-    </svg>
-  </button>
+              {/* Left Arrow Button */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === 1}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
 
-  {/* Page Number Buttons */}
-  {Array.from({ length: totalPages }, (_, i) => (
-    <button
-      key={i + 1}
-      onClick={() => handlePageChange(i + 1)}
-      className={`px-3 py-1 mx-1 text-sm border rounded ${
-        currentPage === i + 1
-          ? "bg-blue-500 text-white"
-          : "hover:bg-gray-200"
-      }`}
-    >
-      {i + 1}
-    </button>
-  ))}
+              {/* Page Number Buttons */}
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 mx-1 text-sm border rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
 
-  {/* Right Arrow Button */}
-  <button
-    onClick={() => handlePageChange(currentPage + 1)}
-    className={`p-2 mx-1 border rounded ${
-      currentPage === totalPages
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:bg-gray-200"
-    }`}
-    disabled={currentPage === totalPages}
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 5l7 7-7 7"
-      />
-    </svg>
-  </button>
-</div>
-
+              {/* Right Arrow Button */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
           </>
         )}
       </div>

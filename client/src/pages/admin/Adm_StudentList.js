@@ -5,7 +5,7 @@ import Filter from "../../components/admin/Adm_Filter";
 import AddStudent from "../../components/admin/Adm_AddStudent";
 import EditStudent from "../../components/admin/Adm_EditStudent";
 import UploadModal from "../../upload/UploadModal";
-import Adm_Navbar from "../../components/admin/Adm_Navbar"
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const StudentList = () => {
@@ -28,13 +28,13 @@ const StudentList = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   //    Handle file change and validate file type
-    const handleFileChange = (event) => {
-      const file = event.target.files ? event.target.files[0] : null;
+  const handleFileChange = (event) => {
+    const file = event.target.files ? event.target.files[0] : null;
 
-      if (!file) {
-        console.error('No file selected');
-        return ;
-      }
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
 
     // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
     const allowedTypes = [
@@ -64,11 +64,16 @@ const StudentList = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(`${API_BASE_URL}/api/users/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/api/users/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      );
 
       console.log("Response:", response.data); // You can inspect the response
       alert("File uploaded successfully!"); // Notify the user of success
@@ -117,7 +122,12 @@ const StudentList = () => {
     const fetchStudents = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/users/?page=1&role=Student&limit=100`);
+        const response = await axios.get(
+          `${API_BASE_URL}/api/users/?page=1&role=Student&limit=100`,
+          {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }
+        );
         const studentData = response.data.users;
         setStudents(studentData);
       } catch (error) {

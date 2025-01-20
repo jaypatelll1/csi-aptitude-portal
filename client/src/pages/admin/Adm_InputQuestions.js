@@ -58,6 +58,7 @@ const InputQuestions = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          withCredentials: true, // Make sure the cookie is sent with the request
         }
       );
       alert("File uploaded successfully!");
@@ -161,7 +162,10 @@ const InputQuestions = () => {
           let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           await axios.post(
             `${API_BASE_URL}/api/exams/questions/${examId}`,
-            payload
+            payload,
+            {
+              withCredentials: true, // Make sure the cookie is sent with the request
+            }
           );
           setQuestion("");
           setOptions(["", "", "", ""]);
@@ -169,17 +173,23 @@ const InputQuestions = () => {
           setQuestionCount((prevCount) => prevCount + 1);
         } else {
           let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-            await axios.put(
-                `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
-                payload
-            );
-            setQuestion("");
-            setOptions(["", "", "", ""]);
-            setToggles([false, false, false, false]);
-            navigate("/admin/viewquestions");
+          await axios.put(
+            `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
+            payload,
+            {
+              withCredentials: true, // Make sure the cookie is sent with the request
+            }
+          );
+          setQuestion("");
+          setOptions(["", "", "", ""]);
+          setToggles([false, false, false, false]);
+          navigate("/admin/viewquestions");
         }
-    } catch (error) {
-        console.error("Error creating test:", error.response?.data || error.message);
+      } catch (error) {
+        console.error(
+          "Error creating test:",
+          error.response?.data || error.message
+        );
       }
     } else {
       alert("Please fill in all fields before submitting.");

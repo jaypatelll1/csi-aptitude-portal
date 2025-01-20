@@ -4,8 +4,8 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import DataTime from "../../components/admin/Adm_DataTime";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useSelector ,useDispatch} from "react-redux";
-import {clearExamId} from "../../redux/ExamSlice"
+import { useSelector, useDispatch } from "react-redux";
+import { clearExamId } from "../../redux/ExamSlice";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ViewQuestions = () => {
@@ -14,11 +14,11 @@ const Adm_ViewQuestions = () => {
   const [error, setError] = useState(null);
   const [isScheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [testDuration, setTestDuration] = useState(); 
+  const [testDuration, setTestDuration] = useState();
   const sidebarRef = useRef(null);
-  let examId  = useSelector((state) => state.exam.examId);
-  console.log('exam_id is ',examId);
-  const dispatch = useDispatch()
+  let examId = useSelector((state) => state.exam.examId);
+  console.log("exam_id is ", examId);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,9 +28,14 @@ const Adm_ViewQuestions = () => {
           throw new Error("Exam ID is not defined");
         }
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/questions/${examId}`);
-        console.log('repnse is ', response);
-        
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/questions/${examId}`,
+          {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }
+        );
+        console.log("repnse is ", response);
+
         setQuestions(response.data || []);
       } catch (err) {
         setError(err.message || "Error fetching questions");
@@ -41,13 +46,18 @@ const Adm_ViewQuestions = () => {
 
     const fetchDuration = async () => {
       try {
-        const id = examId
-        console.log('id is1  ',id);
+        const id = examId;
+        console.log("id is1  ", id);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/find/${id}`);
-        console.log('respnose is ',response);
-        
-        setTestDuration(response.data.exam.duration); 
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/find/${id}`,
+          {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }
+        );
+        console.log("respnose is ", response);
+
+        setTestDuration(response.data.exam.duration);
       } catch (err) {
         console.error("Error fetching test duration:", err.message);
       }
@@ -69,7 +79,6 @@ const Adm_ViewQuestions = () => {
 
   const handleGoBack = () => {
     navigate("/admin/input");
-  
   };
 
   const handleSchedulePost = () => {
@@ -82,13 +91,13 @@ const Adm_ViewQuestions = () => {
 
   const handleSaveDraft = () => {
     navigate("/admin");
-    dispatch(clearExamId())
+    dispatch(clearExamId());
   };
 
   const handleScheduleTest = (startTime, endTime) => {
     const id = examId;
-    console.log('id is ', id);
-    
+    console.log("id is ", id);
+
     if (!id) {
       alert("Exam ID is not available.");
       return;
@@ -98,6 +107,7 @@ const Adm_ViewQuestions = () => {
       .put(`${API_BASE_URL}/api/exams/publish/${id}`, {
         start_time: startTime,
         end_time: endTime,
+        withCredentials: true, // Make sure the cookie is sent with the request
       })
       .then(() => {
         closeScheduleModal();
@@ -111,17 +121,17 @@ const Adm_ViewQuestions = () => {
         )
       );
   };
-  
+
   const handleDelete = async () => {
-    console.log('exam id is ',examId );
+    console.log("exam id is ", examId);
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    
-    const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`);
-    console.log('response is ',response);
-    navigate("/admin/createtest")
-    
-  }
-  
+
+    const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
+      withCredentials: true, // Make sure the cookie is sent with the request
+    });
+    console.log("response is ", response);
+    navigate("/admin/createtest");
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -199,9 +209,10 @@ const Adm_ViewQuestions = () => {
           </button>
           <h2 className="text-lg font-semibold">Question Summary</h2>
           <div className="flex space-x-2 items-end">
-            <button 
-            onClick={handleSaveDraft}
-            className="bg-white border border-gray-300 text-gray-700 font-thin sm:py-2 px-1 sm:px-4 rounded-lg hover:bg-gray-100">
+            <button
+              onClick={handleSaveDraft}
+              className="bg-white border border-gray-300 text-gray-700 font-thin sm:py-2 px-1 sm:px-4 rounded-lg hover:bg-gray-100"
+            >
               Save as Draft
             </button>
             <button
@@ -214,7 +225,7 @@ const Adm_ViewQuestions = () => {
               onClick={handleDelete}
               className="bg-red-600 border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg"
             >
-             Delete Exam
+              Delete Exam
             </button>
           </div>
         </div>
@@ -232,7 +243,7 @@ const Adm_ViewQuestions = () => {
                 index={index}
                 text={question.question_text}
                 options={question.options}
-                correct_option = {question.correct_option}
+                correct_option={question.correct_option}
               />
             ))
           )}

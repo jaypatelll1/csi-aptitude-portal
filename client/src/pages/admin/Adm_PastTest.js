@@ -40,7 +40,9 @@ const Adm_PastTest = () => {
       try {
         setLoading(true);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/past`);
+        const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
         const { exams } = response.data;
         const formattedTests = exams.exams.map((exam) => ({
           exam_id: exam.exam_id,
@@ -90,7 +92,7 @@ const Adm_PastTest = () => {
       </div>
 
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar/>
+        <Adm_Navbar />
         <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
