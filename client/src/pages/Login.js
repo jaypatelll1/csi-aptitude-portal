@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setUser } from "../redux/userSlice";
 import doodle from "../assets/sidebar/doodle.svg";
-
+import csi from "../assets/csi.svg";
+import ace from "../assets/ace.svg";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,6 +75,7 @@ const Login = () => {
       <div className="w-full md:w-1/3 relative flex flex-col items-center p-6 bg-gradient-to-br from-[#0E2A47] to-[#04448D]">
         <div className="relative z-10 flex flex-col items-center w-full max-w-xs text-center text-white">
           <div className="w-full text-center mb-6 mt-8">
+       
             <h1 className="text-3xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-wide">
               Aptitude <br />
               <span>Portal</span>
