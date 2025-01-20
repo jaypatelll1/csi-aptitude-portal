@@ -33,7 +33,9 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.put(
         `${API_BASE_URL}/api/users/update/${user_id}`,
-        newStudent
+        newStudent,{
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
       );
       console.log("Student updated successfully:", response.data);
       alert("Student registered successfully!");
@@ -47,7 +49,9 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
   const handleDelete = async (user_id) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`);
+      const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`,{
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
       console.log("Student deleted successfully:", response.data);
       alert("Student deleted successfully!");
       counter();
@@ -61,7 +65,9 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
   const handleReset = async (student) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student});
+      const response = await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student},{
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
       console.log("Student reset successfully:", response.data);
       alert("Student reset mail sent successfully!");
       closeEditModal(); // Close modal after successful registration

@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { clearUser } from "../../../redux/userSlice";
 import { useSelector, useDispatch } from "react-redux";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+
 
 const Details = () => {
   let user = useSelector((state) => state.user.user);
@@ -13,6 +13,7 @@ const Details = () => {
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const response = await axios.post(`${API_BASE_URL}/api/users/logout`,{
       withCredentials: true,  // Make sure the cookie is sent with the request
   });
