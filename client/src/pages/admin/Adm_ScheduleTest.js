@@ -44,7 +44,7 @@ const Adm_ScheduledTest = () => {
           withCredentials: true,
         });
 
-        const fetchedTests = response.data.exams.exams.map((exam) => ({
+        const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
