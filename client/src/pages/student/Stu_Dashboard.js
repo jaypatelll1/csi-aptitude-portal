@@ -50,10 +50,14 @@ function StudentDashboard() {
     }
 
     try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(url, payload);
+      const response = await axios.post(url, payload,{
+        withCredentials: true,  // Make sure the cookie is sent with the request
+    });
       console.log('response is ', response);
-const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/student/${userData.id}`)
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/student/${userData.id}`,{
+  withCredentials: true,  // Make sure the cookie is sent with the request
+})
 // using redux
  dispatch(setExam(response.data.exams ));
 console.log('past tests is ', pastPaper);

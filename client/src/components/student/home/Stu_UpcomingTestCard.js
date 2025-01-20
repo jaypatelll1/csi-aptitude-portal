@@ -41,7 +41,9 @@ const Adm_UpcomingTestCard = ({ test }) => {
       // console.log('Clicked test ID:', test.exam_id);
 
 
-      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`);
+      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,{
+        withCredentials: true,  // Make sure the cookie is sent with the request
+    });
 
       // console.log('Response from server:', response.data);
       window.location.reload();
@@ -57,7 +59,9 @@ const Adm_UpcomingTestCard = ({ test }) => {
     axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
       start_time: start,
       end_time: end,
-    })
+    },{
+      withCredentials: true,  // Make sure the cookie is sent with the request
+  })
       .then(() => {
         setIsScheduling(false);
       })

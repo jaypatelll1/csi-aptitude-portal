@@ -73,14 +73,18 @@ const MCQExamPage = () => {
   const submitFinalResponse = async () => {
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
-    const response = await axios.put(url);
+    const response = await axios.put(url,{
+      withCredentials: true,  // Make sure the cookie is sent with the request
+  });
     console.log("response is submit final", response.data);
   };
 
   const deleteExistingResponses = async () => {
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let url = `${API_BASE_URL}/api/exams/responses/initialize/${examId}`;
-    const response = await axios.post(url);
+    const response = await axios.post(url,{
+      withCredentials: true,  // Make sure the cookie is sent with the request
+  });
     console.log("response is delete existing ", response.data);
   };
 

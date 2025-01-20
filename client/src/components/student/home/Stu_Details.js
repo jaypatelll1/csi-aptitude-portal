@@ -13,7 +13,9 @@ const Details = () => {
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
-    const response = await axios.post(`${API_BASE_URL}/api/users/logout`);
+    const response = await axios.post(`${API_BASE_URL}/api/users/logout`,{
+      withCredentials: true,  // Make sure the cookie is sent with the request
+  });
     dispatch(clearUser());
     navigate("/", { replace: true });
   };
