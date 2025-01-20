@@ -46,6 +46,7 @@ const Dashboard = () => {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(endpoint);
       console.log(response)
+      console.log( "testsData", testsData)
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams.map((exam) => ({
@@ -73,9 +74,15 @@ const Dashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/stats/all-students`),
-          axios.get(`${API_BASE_URL}/api/stats/all-tests`),
-          axios.get(`${API_BASE_URL}/api/stats/last-test`),
+          axios.get(`${API_BASE_URL}/api/stats/all-students`, {
+            withCredentials: true,  // Make sure the cookie is sent with the request
+        }),
+          axios.get(`${API_BASE_URL}/api/stats/all-tests`, {
+            withCredentials: true,  // Make sure the cookie is sent with the request
+        }),
+          axios.get(`${API_BASE_URL}/api/stats/last-test`, {
+            withCredentials: true,  // Make sure the cookie is sent with the request
+        }),
         ]);
 
         const studentsCount = studentsRes.data.totalStudentsCount;
@@ -224,6 +231,7 @@ const Dashboard = () => {
             ) : (
               paginatedData?.map((test) => {
                 const key = test.exam_id || test.id || test.name;
+                console.log(test)
 
                 if (activeTab === "drafted") {
                   return <Adm_DraftedTestCard key={key} test={test} />;

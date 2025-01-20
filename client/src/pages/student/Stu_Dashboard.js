@@ -28,7 +28,7 @@ function StudentDashboard() {
   const fetchTests = async (filterType) => {
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let payload;
-    let url = `${API_BASE_URL}api/exams/student`; // Default for "All"
+    let url = `${API_BASE_URL}/api/exams/student`; // Default for "All"
     if (filterType === "all") {
       payload = {
         status: "live",
