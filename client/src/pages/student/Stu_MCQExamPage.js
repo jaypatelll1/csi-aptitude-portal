@@ -18,6 +18,7 @@ import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
+ 
   const socketRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -70,13 +71,15 @@ const MCQExamPage = () => {
     }
   };
   const submitFinalResponse = async () => {
-    let url = `/api/exams/responses/final/${examId}`;
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    let url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
     const response = await axios.put(url);
     console.log("response is submit final", response.data);
   };
 
   const deleteExistingResponses = async () => {
-    let url = `/api/exams/responses/initialize/${examId}`;
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    let url = `${API_BASE_URL}/api/exams/responses/initialize/${examId}`;
     const response = await axios.post(url);
     console.log("response is delete existing ", response.data);
   };
@@ -85,7 +88,8 @@ const MCQExamPage = () => {
     const socketConnect = async () => {
       try {
         if (!socketRef.current) {
-          socketRef.current = io("/exams/start-exam");
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          socketRef.current = io(`${API_BASE_URL}/exams/start-exam`);
           console.log("Socket not connected, initializing...");
         }
 
@@ -157,7 +161,8 @@ const MCQExamPage = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(`/api/exams/questions/${examId}`);
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(`${API_BASE_URL}/api/exams/questions/${examId}`);
 
         const formattedQuestions = response.data.map((q) => ({
           ...q,
@@ -178,7 +183,8 @@ const MCQExamPage = () => {
     enableFullscreen();
   };
   const singleResponse = async (option, id) => {
-    let url = `/api/exams/responses/${examId}`;
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    let url = `${API_BASE_URL}/api/exams/responses/${examId}`;
     let payload = {
       question_id: id,
       selected_option: option,

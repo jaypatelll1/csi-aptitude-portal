@@ -30,8 +30,9 @@ const dispatch = useDispatch();
     return date.toLocaleDateString("en-IN", options);
   };
   const fetchTests = async (filterType) => {
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let payload;
-    let url = "api/exams/student"; // Default for "All"
+    let url = `${API_BASE_URL}api/exams/student`; // Default for "All"
     if (filterType === "all") {
       payload = {
         status: "live",
@@ -55,9 +56,10 @@ const dispatch = useDispatch();
     }
 
     try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(url, payload);
       console.log('response is ', response);
-const pastPaper = await axios.get(`/api/exams/results/student/${userData.id}`)
+const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/student/${userData.id}`)
 // using redux
  dispatch(setExam(response.data.exams ));
 console.log('past tests is ', pastPaper);

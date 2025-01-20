@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+
 
 
 const AddStudent = ({ closeModal }) => {
+
+    var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");

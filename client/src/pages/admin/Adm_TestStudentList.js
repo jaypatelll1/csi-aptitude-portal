@@ -3,7 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import { useLocation } from "react-router-dom";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const TestStudentList = () => {
 
@@ -30,6 +30,7 @@ const TestStudentList = () => {
     // Function to handle CSV download
     const handleExportCSV = async () => {
         try {
+            let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
             const response = await axios.get(`${API_BASE_URL}/api/export/result/csv/${examId}`, {
                 responseType: 'blob', // Important for downloading files
             });
@@ -52,6 +53,7 @@ const TestStudentList = () => {
     // Function to handle Excel download
     const handleExportExcel = async () => {
         try {
+            let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
             const response = await axios.get(`${API_BASE_URL}/api/export/result/excel/${examId}`, {
                 responseType: 'blob', // Important for downloading files
             });
@@ -108,6 +110,7 @@ const TestStudentList = () => {
 
         const fetchUserDetails = async () => {
             try {
+                let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
                 const response = await axios.get(`${API_BASE_URL}/api/exams/results/allpast/${examId}`);
                 const data = response.data.response;
                 console.log('data ', data);

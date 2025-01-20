@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector ,useDispatch} from "react-redux";
 import {clearExamId} from "../../redux/ExamSlice"
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ViewQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -27,6 +27,7 @@ const Adm_ViewQuestions = () => {
         if (!examId) {
           throw new Error("Exam ID is not defined");
         }
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/questions/${examId}`);
         console.log('repnse is ', response);
         
@@ -42,7 +43,7 @@ const Adm_ViewQuestions = () => {
       try {
         const id = examId
         console.log('id is1  ',id);
-        
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/find/${id}`);
         console.log('respnose is ',response);
         
@@ -92,9 +93,9 @@ const Adm_ViewQuestions = () => {
       alert("Exam ID is not available.");
       return;
     }
-  
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     axios
-      .put(`/api/exams/publish/${id}`, {
+      .put(`${API_BASE_URL}/api/exams/publish/${id}`, {
         start_time: startTime,
         end_time: endTime,
       })
@@ -114,7 +115,7 @@ const Adm_ViewQuestions = () => {
   const handleDelete = async () => {
     console.log('exam id is ',examId );
     
-    const response = await axios.delete(`/api/exams/${examId}`);
+    const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`);
     console.log('response is ',response);
     navigate("/admin/createtest")
     

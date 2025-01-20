@@ -8,7 +8,8 @@ import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(endpoint);
       console.log(response)
       setTestsData((prevData) => ({
@@ -69,6 +71,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/api/stats/all-students`),
           axios.get(`${API_BASE_URL}/api/stats/all-tests`),
@@ -94,6 +97,7 @@ const Dashboard = () => {
     const fetchAllTestsData = async () => {
       setLoading(true);
       try {
+        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         await fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted");
         await fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled");
         await fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past");

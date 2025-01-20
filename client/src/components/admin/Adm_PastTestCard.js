@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_PastTestCard = ({ test, onClick }) => {
 
@@ -15,9 +15,9 @@ const Adm_PastTestCard = ({ test, onClick }) => {
       }
 
       // Log the ID
-      console.log("Clicked test ID:", test.exam_id);
-      console.log("Clicked test duration:");
-
+      // console.log("Clicked test ID:", test.exam_id);
+      // console.log("Clicked test duration:");
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
         `${API_BASE_URL}/api/exams/results/all/${test.exam_id}?page=1&limit=3`
       );

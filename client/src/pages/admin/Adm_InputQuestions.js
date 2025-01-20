@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const InputQuestions = () => {
   const [question, setQuestion] = useState("");
@@ -50,6 +50,7 @@ const InputQuestions = () => {
     formData.append("questions", selectedFile);
 
     try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(
         `${API_BASE_URL}/api/exams/${examId}/questions`,
         formData,
@@ -157,8 +158,9 @@ const InputQuestions = () => {
 
       try {
         if (!questionId) {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           await axios.post(
-            `/api/exams/questions/${examId}`,
+            `${API_BASE_URL}/api/exams/questions/${examId}`,
             payload
           );
           setQuestion("");

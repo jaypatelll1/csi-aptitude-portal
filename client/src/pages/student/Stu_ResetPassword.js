@@ -14,7 +14,8 @@ const Stu_ResetPassword = () => {
   useEffect(() => {
     const verifyToken = async () => {
       try {
-        await axios.get('/api/users/verify-reset-token', {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        await axios.get(`${API_BASE_URL}/api/users/verify-reset-token`, {
           headers: {
             resettoken: resettoken,
             'Content-Type': 'application/json',
@@ -39,7 +40,8 @@ const Stu_ResetPassword = () => {
     setError("");
 
     try {
-      await axios.post("/api/users/reset-password", { 
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      await axios.post(`${API_BASE_URL}/api/users/reset-password`, { 
         resettoken : resettoken,
         password: newPassword });
       navigate("/"); // Redirect to login after successful password reset

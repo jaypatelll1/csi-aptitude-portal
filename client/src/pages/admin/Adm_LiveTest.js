@@ -3,7 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"; // Drafted Test Card component
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -47,7 +47,7 @@ const Adm_DraftTest = () => {
       try {
         setLoading(true); // Set loading to true before fetching
         setError(null); // Clear any existing errors
-
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/live`, {
           withCredentials: true,
         },{params:{page:currentPage,limit:itemsPerPage}});

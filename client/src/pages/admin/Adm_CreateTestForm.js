@@ -5,7 +5,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+
 
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
@@ -34,6 +34,7 @@ const CreateTestPage = () => {
 
     try {
       // Send a POST request to the server to create the test
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(`${API_BASE_URL}/api/exams`, payload);
       console.log("exam id is ", response.data.newExam.exam_id);
       const examId = response.data.newExam.exam_id;

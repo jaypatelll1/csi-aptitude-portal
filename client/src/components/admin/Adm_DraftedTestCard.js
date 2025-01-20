@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "./Adm_DataTime";
 import axios from "axios";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
 const Adm_DraftedTestCard = ({ test }) => {
   // console.log('test is ',test);
+ 
 
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
@@ -39,6 +40,7 @@ const Adm_DraftedTestCard = ({ test }) => {
     setRequestInProgress(true); // Set request state to true
 
     try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       await axios.put(`${API_BASE_URL}/api/exams/live-exam/${examId}`);
       window.location.reload();
     } catch (error) {
@@ -53,6 +55,7 @@ const Adm_DraftedTestCard = ({ test }) => {
     setRequestInProgress(true); // Set request state to true
 
     try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       await axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
         start_time: start,
         end_time: end,

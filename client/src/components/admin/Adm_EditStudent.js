@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const EditStudent = ({ closeEditModal, student, counter }) => {
   const firstname = student.name.split(" ")[0];
@@ -30,6 +30,7 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
     };
 
     try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.put(
         `${API_BASE_URL}/api/users/update/${user_id}`,
         newStudent
@@ -45,6 +46,7 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
 
   const handleDelete = async (user_id) => {
     try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`);
       console.log("Student deleted successfully:", response.data);
       alert("Student deleted successfully!");
@@ -58,6 +60,7 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
 
   const handleReset = async (student) => {
     try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student});
       console.log("Student reset successfully:", response.data);
       alert("Student reset mail sent successfully!");

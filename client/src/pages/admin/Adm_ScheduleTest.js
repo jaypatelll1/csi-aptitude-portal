@@ -3,7 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ScheduledTest = () => {
   const [scheduledTests, setScheduledTests] = useState([]);
@@ -39,7 +39,7 @@ const Adm_ScheduledTest = () => {
       try {
         setLoading(true);
         setError(null);
-
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled`, {
           withCredentials: true,
         });
