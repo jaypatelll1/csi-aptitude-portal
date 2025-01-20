@@ -168,16 +168,17 @@ const InputQuestions = () => {
           setToggles([false, false, false, false]);
           setQuestionCount((prevCount) => prevCount + 1);
         } else {
-          await axios.put(
-            `/api/exams/questions/${examId}/${questionId}`,
-            payload
-          );
-          setQuestion("");
-          setOptions(["", "", "", ""]);
-          setToggles([false, false, false, false]);
-          navigate("/admin/viewquestions");
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+            await axios.put(
+                `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
+                payload
+            );
+            setQuestion("");
+            setOptions(["", "", "", ""]);
+            setToggles([false, false, false, false]);
+            navigate("/admin/viewquestions");
         }
-      } catch (error) {
+    } catch (error) {
         console.error("Error creating test:", error.response?.data || error.message);
       }
     } else {
