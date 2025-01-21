@@ -218,7 +218,7 @@ const CreateTestPage = () => {
                 htmlFor="duration"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Duration
+                Duration (in minutes)
               </label>
               <input
                 type="number"
