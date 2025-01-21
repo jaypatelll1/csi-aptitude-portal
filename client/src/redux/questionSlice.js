@@ -19,6 +19,7 @@ const questionsSlice = createSlice({
       const questionIndex = action.payload;
     
       state.currentQuestionIndex = questionIndex;
+      state.questions[0].visited = true;
       state.questions[action.payload].visited = true;
       if (!state.questions[questionIndex].visited) {
         state.questions[questionIndex].visited = true;
@@ -36,6 +37,6 @@ const questionsSlice = createSlice({
   },
 });
 
-export const { setQuestions, markAnswered, visitQuestion, setSelectedOption } =
+export const { setQuestions, markAnswered, visitQuestion, setSelectedOption ,clearQuestions} =
   questionsSlice.actions;
 export default questionsSlice.reducer;

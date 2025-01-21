@@ -13,6 +13,7 @@ import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { markSubmit } from "../../redux/ExamSlice";
+import {clearQuestions} from "../../redux/questionSlice"
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
 
@@ -251,7 +252,7 @@ const MCQExamPage = () => {
     submitFinalResponse();
     dispatch(markSubmit(examId));
     navigate("/home", { replace: true });
-
+dispatch(clearQuestions())
     alert("Test submitted successfully!");
   };
 
