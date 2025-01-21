@@ -62,7 +62,16 @@ const Login = () => {
         setError("Invalid login credentials");
       }
     } catch (err) {
+      console.log(err)
+      if(err.response.data.error === 'Invalid email or password'){
+        setError("Invalid Email or Password!")
+      } 
+      else if(err.response.data.error === 'User not found'){
+        setError("User Not Found!")
+      }
+      else{
       setError("An error occurred during login. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
