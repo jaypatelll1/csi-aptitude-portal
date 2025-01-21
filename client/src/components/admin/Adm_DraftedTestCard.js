@@ -39,7 +39,11 @@ const Adm_DraftedTestCard = ({ test }) => {
 
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      await axios.put(`${API_BASE_URL}/api/exams/live-exam/${examId}`);
+      await axios.put(
+        `${API_BASE_URL}/api/exams/live-exam/${examId}`,
+        {},
+        { withCredentials: true }
+      );
       window.location.reload();
     } catch (error) {
       console.error("Error during Put request:", error);
