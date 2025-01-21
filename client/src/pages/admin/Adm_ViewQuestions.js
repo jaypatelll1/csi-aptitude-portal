@@ -104,11 +104,16 @@ const Adm_ViewQuestions = () => {
     }
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     axios
-      .put(`${API_BASE_URL}/api/exams/publish/${id}`, {
-        start_time: startTime,
-        end_time: endTime,
-        withCredentials: true, // Make sure the cookie is sent with the request
-      })
+      .put(
+        `${API_BASE_URL}/api/exams/publish/${id}`,
+        {
+          start_time: startTime,
+          end_time: endTime,
+        },
+        {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      )
       .then(() => {
         closeScheduleModal();
         console.log(startTime, endTime);

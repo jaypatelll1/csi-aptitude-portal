@@ -17,7 +17,11 @@ const Adm_ScheduledTestCard = ({ test }) => {
     try {
       console.log("Clicked test ID:", test.exam_id);
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`);
+      const response = await axios.put(
+        `${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,
+        {},
+        { withCredentials: true }
+      );
       console.log("Response from server:", response.data);
       window.location.reload();
     } catch (error) {
@@ -33,10 +37,14 @@ const Adm_ScheduledTestCard = ({ test }) => {
     setScheduledTime({ start, end });
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     axios
-      .put(`/api/exams/publish/${examId}`, {
-        start_time: start,
-        end_time: end,
-      })
+      .put(
+        `${API_BASE_URL}/api/exams/publish/${examId}`,
+        {
+          start_time: start,
+          end_time: end,
+        },
+        { withCredentials: true }
+      )
       .then(() => {
         setIsScheduling(false);
       })
@@ -74,22 +82,25 @@ const Adm_ScheduledTestCard = ({ test }) => {
           </svg>
           <span>Schedule test</span>
         </span>
-        
+
         <div className="text-right">
-        <div className="flex flex-col items-center">
-        <span className="text-black-500 text-sm">
-          Scheduled for: {test.date}
-        </span>
-    <span className="text-black-500 text-xs">Branch: {test.target_years.replace(/[{}]/g, '')} - {test.target_branches.replace(/[{}]/g, '')}</span>
-</div>
-    </div>
+          <div className="flex flex-col items-center">
+            <span className="text-black-500 text-sm">
+              Scheduled for: {test.date}
+            </span>
+            <span className="text-black-500 text-xs">
+              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
+              {test.target_branches.replace(/[{}]/g, "")}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Test Info */}
       <h2 className="text-lg font-bold text-gray-900">{test.title}</h2>
       <div className="text-gray-600 text-sm mt-4">
         <p className="mb-2 font-bold flex items-center">
-        <svg
+          <svg
             width="22"
             height="22"
             viewBox="0 0 22 22"
@@ -143,7 +154,7 @@ const Adm_ScheduledTestCard = ({ test }) => {
           <h4>Number of Questions: {test ? test.questions : "Loading..."}</h4>
         </p>
         <p className="font-bold flex items-center">
-        <svg
+          <svg
             width="22"
             height="20"
             viewBox="0 0 20 20"
