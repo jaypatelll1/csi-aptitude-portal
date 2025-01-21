@@ -2,15 +2,24 @@ const pool = require('../config/db');
 const format = require('pg-format');
 const { paginate } = require('../utils/pagination');
 
-// Delete Existing Responses
 const deleteExistingResponses = async (exam_id, user_id) => {
-  // console.log('exam_id, user_id',exam_id, user_id);
-  
+  if (!exam_id || !user_id) {
+    throw new Error("Both exam_id and user_id are required to delete responses.");
+  }
+
   const query = `DELETE FROM responses WHERE exam_id = $1 AND student_id = $2;`;
   const values = [exam_id, user_id];
 
-  const result = await pool.query(query, values);
+  try {
+    const result = await pool.query(query, values);
+    console.log(`Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, user_id: ${user_id}`);
+    return { success: true, deletedRows: result.rowCount };
+  } catch (error) {
+    console.error("Error deleting responses:", error);
+    throw new Error("Failed to delete responses. Please try again.");
+  }
 };
+
 
 // Submit a response
 const submitResponse = async (

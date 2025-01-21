@@ -9,7 +9,8 @@ const { jwtAuthMiddleware } = require('./middlewares/jwtAuthMiddleware');
 const { limiter } = require('./utils/rateLimitUtils');
 const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
-require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
+require('./utils/autoUpdateExamStatus'); // For auto-updating past exams status
+require('./utils/autoliveExamStatus'); // For auto-updating live status
 
 // Import Routes
 const userRoutes = require('./routes/userRoutes');

@@ -25,6 +25,6 @@ router.all('/')
   .get('/:exam_id',jwtAuthMiddleware, getPaginatedResponsesForExam) // pagination
 
   .put('/questions/:exam_id/:question_id/:response_id',jwtAuthMiddleware, updateResponse)
-  .delete('/questions/:exam_id/:question_id/:response_id',jwtAuthMiddleware, deleteResponse);
+  .delete('/questions/:exam_id',jwtAuthMiddleware, deleteResponse);
 
 module.exports = router;
