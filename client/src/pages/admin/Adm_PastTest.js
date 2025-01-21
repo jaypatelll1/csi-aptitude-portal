@@ -129,7 +129,7 @@ const Adm_PastTest = () => {
         {!loading && !error && (
           <>
             {/* Grid Layout for Paginated Past Test Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-5 sm:gap-0 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
                 <Adm_PastTestCard key={index} test={test} />
               ))}
