@@ -4,6 +4,8 @@ const { paginate } = require('../utils/pagination');
 
 // Delete Existing Responses
 const deleteExistingResponses = async (exam_id, user_id) => {
+  // console.log('exam_id, user_id',exam_id, user_id);
+  
   const query = `DELETE FROM responses WHERE exam_id = $1 AND student_id = $2;`;
   const values = [exam_id, user_id];
 
@@ -19,16 +21,14 @@ const submitResponse = async (
   response_status
 ) => {
   const query = `
-      INSERT INTO responses (exam_id, question_id, student_id, selected_option, status)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
+      UPDATE responses SET selected_option=$1, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 RETURNING *;
     `;
   const values = [
+    selected_option,
+    response_status,
     exam_id,
     question_id,
     student_id,
-    selected_option,
-    response_status,
   ];
   const result = await pool.query(query, values);
   return result.rows[0];
@@ -66,7 +66,7 @@ const submitMultipleResponses = async (responses) => {
 
 // Insert 'NULL' in unanswered questions
 // Initialize all responses for an exam when a user starts an exam
-submittedUnansweredQuestions = async (exam_id, student_id) => {
+const submittedUnansweredQuestions = async (exam_id, student_id) => {
   const query = `
     SELECT question_id
     FROM questions
@@ -179,5 +179,5 @@ module.exports = {
   getPaginatedResponses,
   submittedUnansweredQuestions,
   submitFinalResponsesAndChangeStatus,
-  deleteExistingResponses
+  deleteExistingResponses,
 };
