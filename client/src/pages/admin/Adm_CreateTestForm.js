@@ -144,7 +144,7 @@ const CreateTestPage = () => {
               <div>
                 <label
                   htmlFor="branchSelect"
-                  className="block text-sm font-medium text-gray-400 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Branch
                 </label>
