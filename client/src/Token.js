@@ -26,7 +26,7 @@ const Token = () => {
         };
 
         handleTokenRefresh();
-        const intervalId = setInterval(handleTokenRefresh, 1 * 60 * 1000); // 30 minutes
+        const intervalId = setInterval(handleTokenRefresh, 30 * 60 * 1000); // 30 minutes
         return () => clearInterval(intervalId);
     }, []);
 

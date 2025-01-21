@@ -13,7 +13,7 @@ const Adm_DraftTest = () => {
   const sidebarRef = useRef(null);
 
   const userData = useSelector((state) => state.user.user);
-  console.log('uers data is',userData );
+  // console.log('uers data is',userData );
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

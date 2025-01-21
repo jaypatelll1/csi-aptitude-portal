@@ -19,17 +19,20 @@ const questionsSlice = createSlice({
       const questionIndex = action.payload;
     
       state.currentQuestionIndex = questionIndex;
-    
+      state.questions[action.payload].visited = true;
       if (!state.questions[questionIndex].visited) {
         state.questions[questionIndex].visited = true;
       }
-    }
-    ,
+    },
     setSelectedOption(state, action) {
       const { index, option } = action.payload;
       state.questions[index].selectedOption = option;
       state.questions[index].answered = true;
     },
+    clearQuestions(state,action){
+      state.questions =[];
+      state.currentQuestionIndex = 0
+    }, 
   },
 });
 

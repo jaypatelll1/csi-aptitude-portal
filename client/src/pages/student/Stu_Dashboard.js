@@ -9,7 +9,7 @@ import { setExam } from "../../redux/ExamSlice";
 
 function StudentDashboard() {
   const userData = useSelector((state) => state.user.user);
-  console.log("uers data is", userData);
+  // console.log("uers data is", userData);
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -53,14 +53,14 @@ function StudentDashboard() {
       const response = await axios.post(url, payload,{
         withCredentials: true,  // Make sure the cookie is sent with the request
     });
-      console.log('response is ', response);
+      // console.log('response is ', response);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/student/${userData.id}`,{
   withCredentials: true,  // Make sure the cookie is sent with the request
 })
 // using redux
  dispatch(setExam(response.data.exams ));
-console.log('past tests is ', pastPaper);
+// console.log('past tests is ', pastPaper);
 setResult(pastPaper.data.results)
 
       setTests(response.data.exams || []);

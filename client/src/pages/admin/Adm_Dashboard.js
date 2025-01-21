@@ -44,12 +44,12 @@ const Dashboard = () => {
   const fetchTestsData = async (endpoint, key) => {
     try {
       // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      console.log("endpoint",endpoint)
+      // console.log("endpoint",endpoint)
       const response = await axios.get(endpoint , {
         withCredentials: true,
       });
       console.log(response)
-      console.log( "testsData", testsData)
+      // console.log( "testsData", testsData)
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams.map((exam) => ({

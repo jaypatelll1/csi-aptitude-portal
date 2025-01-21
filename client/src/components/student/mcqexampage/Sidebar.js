@@ -15,8 +15,11 @@ if(limit=== true){
   const { questions, currentQuestionIndex } = useSelector(
     (state) => state.questions
   );
+  // console.log('questions',questions);
+  
 
-  const attemptedCount = questions.filter((q) => q.answered).length;
+  let attemptedCount = questions.filter((q) => q.answered ).length;
+  let visitedCount = questions.filter((q) => q.visited ).length;
   const total = questions.length;
   const remaining = total - attemptedCount;
 
@@ -92,8 +95,8 @@ if(limit=== true){
 
         <button
           className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
-          onClick={(attemptedCount === total) ? onSubmitTest : null}
-          disabled={attemptedCount !== total}
+          onClick={(attemptedCount === total || visitedCount === total) ? onSubmitTest : null}
+          disabled={!attemptedCount === total || !visitedCount === total}
         >
           Submit Test
         </button>

@@ -74,14 +74,15 @@ const MCQExamPage = () => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
     const response = await axios.put(url, {}, {withCredentials: true});
-    console.log("response is submit final", response.data);
+    // console.log("response is submit final", response.data);
   };
 
   const deleteExistingResponses = async () => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const response = await axios.post(
-      `${API_BASE_URL}/api/exams/responses/initialize/${examId}`, {}, {withCredentials: true});
-    console.log("response is delete existing ", response.data);
+    const delete_response = await axios.delete(`${API_BASE_URL}/api/exams/responses/questions/${examId}`,{withCredentials: true})
+    console.log("response is delete existing ", delete_response.data);
+    const response = await axios.post(`${API_BASE_URL}/api/exams/responses/initialize/${examId}`,{}, {withCredentials: true});
+    console.log("response is initialize existing ", response.data);
   };
 
   useEffect(() => {
@@ -92,14 +93,14 @@ const MCQExamPage = () => {
           socketRef.current = io(`${API_BASE_URL}/exams/start-exam`, {
             withCredentials:true
           });
-          console.log("Socket not connected, initializing...");
+          // console.log("Socket not connected, initializing...");
         }
 
         const socket = socketRef.current;
 
         // Handle socket connection
         socket.on("connect", () => {
-          console.log("Connected to the exam namespace:", socket.id);
+          // console.log("Connected to the exam namespace:", socket.id);
 
           // Call deleteExistingResponses only once when socket is connected
           deleteExistingResponses();
@@ -114,13 +115,13 @@ const MCQExamPage = () => {
 
         // Listen for timer updates
         socket.on("timer_update", (data) => {
-          console.log("Timer update received:", data.remainingTime);
+          // console.log("Timer update received:", data.remainingTime);
           setRemainingTime(data.remainingTime);
         });
 
         // Listen for exam ended
         socket.on("exam_ended", (data) => {
-          console.log("Exam ended:", data.message);
+          // console.log("Exam ended:", data.message);
           submitFinalResponse();
           setTimeUp(true);
         });
@@ -139,10 +140,10 @@ const MCQExamPage = () => {
         socket.off("timer_update");
         socket.off("exam_ended");
         socket.disconnect();
-        console.log("Socket disconnected and listeners removed");
+        // console.log("Socket disconnected and listeners removed");
       }
     };
-  }, [examId, Duration]);
+  }, []);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -172,8 +173,9 @@ const MCQExamPage = () => {
         const formattedQuestions = response.data.map((q) => ({
           ...q,
           answered: false,
+          visited : false,
         }));
-        console.log("formattedQuestions", formattedQuestions);
+        // console.log("formattedQuestions", formattedQuestions);
 
         dispatch(setQuestions(formattedQuestions));
       } catch (error) {
@@ -195,10 +197,10 @@ const MCQExamPage = () => {
       selected_option: option,
       response_status: "draft",
     };
-    console.log("payload is ", payload);
+    // console.log("payload is ", payload);
 
     const response = await axios.put(url, payload, { withCredentials: true });
-    console.log("response single is ", response.data);
+    // console.log("response single is ", response.data);
   };
 
   const handleOptionSelect = (option, id) => {

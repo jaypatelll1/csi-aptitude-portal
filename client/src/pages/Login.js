@@ -46,7 +46,7 @@ const Login = () => {
         dispatch(setUser(userData));
 
         if (userData.status === "NOTACTIVE") {
-          console.log(response.headers.resettoken);
+          // console.log(response.headers.resettoken);
           navigate(`/reset-password/${response.headers.resettoken}`);
         } else if (userData.status === "ACTIVE") {
           if (userData.role === "Student") {
