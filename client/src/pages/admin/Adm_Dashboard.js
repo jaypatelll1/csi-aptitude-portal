@@ -5,6 +5,7 @@ import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
+import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -111,6 +112,7 @@ const Dashboard = () => {
         await fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted");
         await fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled");
         await fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past");
+        await fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live");
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");
@@ -211,7 +213,7 @@ const Dashboard = () => {
 
         <div className="p-4 w-[97%] xl:w-[98%] mt-8 ml-4 rounded-xl bg-white">
           <div className="flex space-x-4 border-b pb-2">
-            {["drafted", "scheduled", "past"].map((tab) => (
+            {["drafted", "scheduled", "past","live"].map((tab) => (
               <button
                 key={tab}
                 className={`text-lg font-semibold ${
@@ -242,6 +244,8 @@ const Dashboard = () => {
                   return <Adm_ScheduledTestCard key={key} test={test} />;
                 } else if (activeTab === "past") {
                   return <Adm_PastTestCard key={key} test={test} />;
+                }else if (activeTab === "live") {
+                  return <Adm_LiveTestCard key={key} test={test} />;
                 }
                 return null;
               })
