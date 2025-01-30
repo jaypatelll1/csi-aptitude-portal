@@ -1,35 +1,76 @@
 const path = require("path");
-const {parseExcelUsers,parseCSVusers,}= require("../models/UserFileModels");
+const { parseExcelUsers, parseCSVusers, } = require("../models/UserFileModels");
 const fs = require("fs");
 
 
 
 
 
-const uploadFile = (req, res) => {
+const uploadFile = async (req, res) => {
     const filePath = path.resolve('uploads', req.file.filename);
-    console.log('file path is ',filePath);
+    console.log('file path is ', filePath);
     const fileExtension = path.extname(req.file.originalname).toLowerCase();
 
     if (fileExtension === ".xlsx" || fileExtension === ".xls") {
         // Parse Excel file
-        const jsonData = parseExcelUsers(filePath);
-        res.json({
-            message: "Excel file uploaded and parsed successfully",
-            content: jsonData,
-        });
+        try {
+            // Call the model function to parse and insert data
+            const result = await parseExcelUsers(filePath);
+            console.log('result', result);
+
+
+            // Check the result and send appropriate response
+            if (result.status === 'success') {
+                // If there are warnings, include them in the response
+                return res.json({
+                    status: 'success',
+                    message: result.message,
+                    warnings: result.warnings || [] // Send warnings if they exist
+                });
+            } else {
+                // If there's an error, send the error message
+                return res.status(500).json({
+                    status: 'error',
+                    message: result.message
+                });
+            }
+        } catch (err) {
+            console.error("Error uploading file:", err);
+            return res.status(500).json({
+                status: 'error',
+                message: "An unexpected error occurred."
+            });
+        }
     } else if (fileExtension === ".csv") {
         // Parse CSV file
-      parseCSVusers(filePath)
-            .then((jsonData) => {
-                res.json({
-                    message: "CSV file uploaded and parsed successfully",
-                    content: jsonData,
+        try {
+            // Call the model function to parse and insert data
+            const result = await parseCSVusers(filePath);
+            console.log('result', result);
+
+
+            // Check the result and send appropriate response
+            if (result.status === 'success') {
+                // If there are warnings, include them in the response
+                return res.json({
+                    status: 'success',
+                    message: result.message,
+                    warnings: result.warnings || [] // Send warnings if they exist
                 });
-            }) .catch((err) => {
-                console.error("Error parsing CSV file:", err);
-                res.status(500).send("Error parsing CSV file");
+            } else {
+                // If there's an error, send the error message
+                return res.status(500).json({
+                    status: 'error',
+                    message: result.message
+                });
+            }
+        } catch (err) {
+            console.error("Error uploading file:", err);
+            return res.status(500).json({
+                status: 'error',
+                message: "An unexpected error occurred."
             });
+        }
     } else {
         res.status(400).send("Invalid file format. Only Excel and CSV files are supported.");
     }
@@ -48,7 +89,7 @@ const uploadFile = (req, res) => {
 };
 
 
-module.exports ={
+module.exports = {
 
-  uploadFile
+    uploadFile
 }

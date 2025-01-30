@@ -12,8 +12,10 @@ const parseExcelUsers = async (filePath) => {
         const workbook = XLSX.readFile(filePath);
         const sheetNames = workbook.SheetNames;
         const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-        console.log("Excel Data to insert:", jsonData);
-// console.log('jsonData',jsonData);
+        // console.log("Excel Data to insert:", jsonData);
+
+        const warnings = []; // Collect all warnings here
+        let index = 0;
 
         // Process each row
         for (const row of jsonData) {
@@ -24,8 +26,6 @@ const parseExcelUsers = async (filePath) => {
                     name = '',
                     email = '',
                     password = '',
-                    role = '',
-                    status = '',
                     department = '',
                     year = '',
                     rollno = '',
@@ -37,6 +37,13 @@ const parseExcelUsers = async (filePath) => {
 
                 const createdAt = new Date().toISOString();
 
+                // Check if the row data is valid
+                if (!name || !email || !password || !department || !year || !rollno || !phone) {
+                    warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
+                    index++; // Increment index
+                    continue; // Skip this row
+                }
+
                 // Query to insert data
                 const queryText = `
                     INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
@@ -46,31 +53,61 @@ const parseExcelUsers = async (filePath) => {
                     name,
                     email,
                     passwordHash,
-                    role,
+                    'Student',
                     createdAt,
-                    status,
+                    'NOTACTIVE',
                     department,
                     year,
                     rollno,
                     phone.toString()
                 ];
 
-                // console.log('Inserting row:', values);
-
-                // Execute query
-                await query(queryText, values);
+                try {
+                    // Attempt to insert the row into the database
+                    await query(queryText, values);
+                } catch (error) {
+                    // console.log('dbError',error);
+                    
+                    // If the error is a duplicate email (unique constraint violation), skip the row
+                    if (error.code === '23505') {
+                        warnings.push(`Row ${index + 1}: Skipped due to duplicate email - ${email}`);
+                        console.log('warnings',warnings);
+                        
+                        
+                    } else {
+                        // For other errors, log the error but continue
+                        console.error(`Error inserting row: ${JSON.stringify(row)}`, error);
+                    }
+                    // Continue to the next row without throwing
+                }
+                
             } catch (rowError) {
-                console.error(`Error inserting row: ${JSON.stringify(row)}`, rowError);
-                // Optionally continue to the next row without throwing
+                console.error(`Error processing row: ${JSON.stringify(row)}`, rowError);
             }
+
+            index++; // Increment index for each row processed
         }
 
         console.log('All data processed successfully.');
+        if (warnings.length > 0) {
+            // console.log("Warnings:", warnings.join('\n'));
+            return {
+                status: 'success',
+                message: 'Data processed successfully.',
+                warnings: warnings.length > 0 ? warnings : null
+            };
+        }
     } catch (err) {
         console.error("Error processing Excel file:", err);
-        throw new Error("Failed to parse and insert Excel data");
+        // throw new Error("Failed to parse and insert Excel data");
+        return {
+            status: 'error',
+            message: err.message || "Error inserting data into the database"
+        };
     }
 };
+
+
 
 
 const parseCSVusers = async (filePath) => {
@@ -90,34 +127,78 @@ const parseCSVusers = async (filePath) => {
                 });
         });
 
-        // console.log("CSV Data to insert:", jsonData);
+        const warnings = []; // Array to collect warnings
+        let index = 0;  // Initialize the index for row tracking
 
-        // Inserting each row into the database
+        // Process each row in the CSV file
         for (const row of jsonData) {
-            const { user_id, name, email, password, role , status,department , year, rollno ,phone}  = row;
+            const { user_id, name, email, password, department, year, rollno, phone } = row;
             const created_at = new Date().toISOString();
             const password_hash = await hashPassword(password); // assuming hashPassword is async
 
-            const queryText =   `
-            INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-          `;
-            const values = [name, email, password_hash, role, created_at , status,department , year, rollno ,phone];
-            // console.log('values is department',department,year,rollno,phone);
-            
+            // Skip invalid rows if any fields are missing
+            if (!name || !email || !password || !department || !year || !rollno || !phone) {
+                warnings.push(`Row ${index + 1}: Skipped due to missing data - ${JSON.stringify(row)}`);
+                index++; // Increment index for skipped row
+                continue; // Skip this row
+            }
 
+            const queryText = `
+                INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `;
+            const values = [
+                name,
+                email,
+                password_hash,
+                'Student',
+                created_at,
+                'NOTACTIVE',
+                department,
+                year,
+                rollno,
+                phone.toString()
+            ];
 
-            // Run the query and wait for it to complete
-            await query(queryText, values);
+            try {
+                // Attempt to insert the row into the database
+                await query(queryText, values);
+            } catch (error) {
+                console.log('Error inserting row:', error);
+
+                // If the error is a duplicate email (unique constraint violation), skip the row
+                if (error.code === '23505') {
+                    warnings.push(`Row ${index + 1}: Skipped due to duplicate email - ${email}`);
+                    console.log(`Duplicate email found. Skipping row ${index + 1} with email: ${email}`);
+                } else {
+                    // For other errors, log the error but continue
+                    console.error(`Error inserting row: ${JSON.stringify(row)} - Error:`, error);
+                }
+
+                // Continue to the next row
+            }
+
+            index++; // Increment index for each row processed
         }
 
-        console.log('All data inserted successfully.');
+        console.log('All data processed successfully.');
+        if (warnings.length > 0) {
+            // console.log("Warnings:", warnings.join('\n'));
+            return {
+                status: 'success',
+                message: 'Data processed successfully.',
+                warnings: warnings.length > 0 ? warnings : null
+            };
+        }
+
     } catch (err) {
-        console.error("Error inserting data:", err);
-        throw new Error(err.detail || "Error inserting data into the database");
+        console.error("Error processing CSV file:", err);
+        return {
+            status: 'error',
+            message: err.message || "Error inserting data into the database"
+        };
     }
 };
-
 
 
 
