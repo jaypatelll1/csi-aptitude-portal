@@ -5,7 +5,7 @@ import UploadForm from "./UploadForm";
 
 const UploadModal = ({ isOpen, closeModal, onFileChange, onSubmit, isUploading,check }) => {
   if (!isOpen) return null;
-console.log("checkis",check)
+// console.log("checkis",check)
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-md shadow-lg w-96">

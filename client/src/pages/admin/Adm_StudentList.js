@@ -64,7 +64,8 @@ const StudentList = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(
+     
+      let response = await axios.post(
         `${API_BASE_URL}/api/users/upload`,
         formData,
         {
@@ -76,6 +77,19 @@ const StudentList = () => {
       );
 
       console.log("Response:", response.data); // You can inspect the response
+
+      if (response.data.status === 'success') {
+        console.log("File processed successfully");
+
+        // If there are warnings, display them to the user
+        if (response.data.warnings && response.data.warnings.length > 0) {
+            alert(`Warnings:\n${response.data.warnings.join('\n')}`);
+        } else {
+            alert('No warnings, data processed successfully.');
+        }
+    } else {
+        alert(`Error: ${response.data.message}`);
+    }
       alert("File uploaded successfully!"); // Notify the user of success
       setModalOpen(false); // Close modal after successful upload
     } catch (error) {
