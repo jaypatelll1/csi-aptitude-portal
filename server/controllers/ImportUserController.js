@@ -16,11 +16,11 @@ const uploadFile = async (req, res) => {
         try {
             // Call the model function to parse and insert data
             const result = await parseExcelUsers(filePath);
-            console.log('result', result);
+            // console.log('result', result);
 
 
             // Check the result and send appropriate response
-            if (result.status === 'success') {
+          if (result.status === 'success') {
                 // If there are warnings, include them in the response
                 return res.json({
                     status: 'success',

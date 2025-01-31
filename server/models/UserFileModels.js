@@ -79,6 +79,7 @@ const parseExcelUsers = async (filePath) => {
                         console.error(`Error inserting row: ${JSON.stringify(row)}`, error);
                     }
                     // Continue to the next row without throwing
+                  
                 }
                 
             } catch (rowError) {
@@ -96,7 +97,13 @@ const parseExcelUsers = async (filePath) => {
                 message: 'Data processed successfully.',
                 warnings: warnings.length > 0 ? warnings : null
             };
+            
         }
+        return {
+            status: 'success',
+            message: 'All data processed successfully.',
+            warnings: null
+        };
     } catch (err) {
         console.error("Error processing Excel file:", err);
         // throw new Error("Failed to parse and insert Excel data");
