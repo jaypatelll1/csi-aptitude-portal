@@ -144,8 +144,8 @@ const InputQuestions = () => {
       };
 
       let b = findTrueIndex();
-      const correctOption = String.fromCharCode(96 + b);
-
+      const correctOption = String.fromCharCode(97 + b);
+      console.log(correctOption);
       const payload = {
         question_text: `${question}`,
         options: {
