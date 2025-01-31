@@ -5,7 +5,7 @@ import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
-import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"
+import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -46,10 +46,10 @@ const Dashboard = () => {
     try {
       // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       // console.log("endpoint",endpoint)
-      const response = await axios.get(endpoint , {
+      const response = await axios.get(endpoint, {
         withCredentials: true,
       });
-      console.log(response)
+      console.log(response);
       // console.log( "testsData", testsData)
       setTestsData((prevData) => ({
         ...prevData,
@@ -61,8 +61,8 @@ const Dashboard = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
-          target_years:exam.target_years || 'N/A',
-          target_branches:exam.target_branches || 'N/A',
+          target_years: exam.target_years || "N/A",
+          target_branches: exam.target_branches || "N/A",
         })),
       }));
     } catch (err) {
@@ -79,14 +79,14 @@ const Dashboard = () => {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/api/stats/all-students`, {
-            withCredentials: true,  // Make sure the cookie is sent with the request
-        }),
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }),
           axios.get(`${API_BASE_URL}/api/stats/all-tests`, {
-            withCredentials: true,  // Make sure the cookie is sent with the request
-        }),
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }),
           axios.get(`${API_BASE_URL}/api/stats/last-test`, {
-            withCredentials: true,  // Make sure the cookie is sent with the request
-        }),
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }),
         ]);
 
         const studentsCount = studentsRes.data.totalStudentsCount;
@@ -110,7 +110,10 @@ const Dashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         await fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted");
-        await fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled");
+        await fetchTestsData(
+          `${API_BASE_URL}/api/exams/scheduled`,
+          "scheduled"
+        );
         await fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past");
         await fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live");
       } catch (err) {
@@ -147,7 +150,9 @@ const Dashboard = () => {
   const ITEMS_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil((testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(
+    (testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE
+  );
   const paginatedData = testsData[activeTab]?.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -197,7 +202,9 @@ const Dashboard = () => {
               />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold text-gray-700 ml-5">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-700 ml-5">
+            Admin Dashboard
+          </h1>
 
           <button
             onClick={createTestHandler}
@@ -213,7 +220,7 @@ const Dashboard = () => {
 
         <div className="p-4 w-[97%] xl:w-[98%] mt-8 ml-4 rounded-xl bg-white">
           <div className="flex space-x-4 border-b pb-2">
-            {["drafted", "scheduled", "past","live"].map((tab) => (
+            {["live", "drafted", "scheduled", "past"].map((tab) => (
               <button
                 key={tab}
                 className={`text-lg font-semibold ${
@@ -236,16 +243,16 @@ const Dashboard = () => {
             ) : (
               paginatedData?.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-                console.log(test)
+                console.log(test);
 
-                if (activeTab === "drafted") {
-                  return <Adm_DraftedTestCard key={key} test={test} />;
+                if (activeTab === "live") {
+                  return <Adm_LiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
                   return <Adm_ScheduledTestCard key={key} test={test} />;
                 } else if (activeTab === "past") {
                   return <Adm_PastTestCard key={key} test={test} />;
-                }else if (activeTab === "live") {
-                  return <Adm_LiveTestCard key={key} test={test} />;
+                } else if (activeTab === "drafted") {
+                  return <Adm_DraftedTestCard key={key} test={test} />;
                 }
                 return null;
               })
