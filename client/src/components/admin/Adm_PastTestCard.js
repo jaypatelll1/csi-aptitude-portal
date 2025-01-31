@@ -60,7 +60,7 @@ const Adm_PastTestCard = ({ test, onClick }) => {
                 : "N/A"}{" "}
               -{" "}
               {test.target_branches
-                ? test.target_years.replace(/[{}]/g, "")
+                ? test.target_branches.replace(/[{}]/g, "")
                 : "N/A"}
             </span>
           </div>
