@@ -18,7 +18,7 @@ const InputQuestions = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [questionCount, setQuestionCount] = useState(0);
+  const [questionCount, setQuestionCount] = useState(1);
 
   const navigate = useNavigate();
   const location = useLocation();
