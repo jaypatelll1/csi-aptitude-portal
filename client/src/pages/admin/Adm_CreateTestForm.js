@@ -220,12 +220,13 @@ const CreateTestPage = () => {
                               type="checkbox"
                               checked={branch.includes(b)}
                               onChange={() => handleBranchChange(b)}
+                              value={branch.toString()}
                               className="text-blue-500 rounded focus:ring-blue-500"
                             />
                             <span className="text-md">{b}</span>
                           </label>
                         ))}
-                      </div>
+                      </div>    
                     </div>
                   )}
                 </div>
@@ -265,6 +266,7 @@ const CreateTestPage = () => {
                             type="checkbox"
                             checked={year.length === years.length}
                             onChange={() => handleYearChange('All')}
+                            value={year.toString()}
                             className="text-blue-500 rounded focus:ring-blue-500"
                           />
                           <span className="text-md">All Years</span>
