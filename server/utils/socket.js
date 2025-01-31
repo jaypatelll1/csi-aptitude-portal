@@ -1,33 +1,43 @@
 const { sockettAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
-const {
-  submitResponse,
-  submitFinalResponsesAndChangeStatus,
-  deleteExistingResponses,
-  submittedUnansweredQuestions,
-} = require('../models/responseModel');
 
 const timers = {}; // Store timers per room
 
 const initSocketHandlers = (io) => {
-  io.use(sockettAuthMiddleware);
+  io.use(sockettAuthMiddleware);  // Assuming this middleware sets socket.user_id
+
   io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
 
     // Start an exam
     socket.on('start_exam', async ({ exam_id, duration }) => {
-      const user_id = parseInt(socket.user.id);
-      console.log(`Exam started in room ${user_id} with duration ${duration}`);
+      const user_id = socket.user.id; // Get user_id from socket (set by middleware)
+      console.log('user_id', user_id);
 
-      // If a new user's exam is starting, initialize its timer
-      if (!timers[user_id]) {
-        timers[user_id] = { remainingTime: duration, interval: null };
-        await deleteExistingResponses(exam_id, user_id)
-        await submittedUnansweredQuestions(exam_id, user_id)
+      if (!user_id) {
+        console.error('No user_id found on socket');
+        return;
       }
 
+      if (timers[user_id]) {
+        if (timers[user_id].paused && !timers[user_id].submitted) {
+          timers[user_id].remainingTime = timers[user_id].pauseTime;
+          timers[user_id].pauseTime = null;
+        }
+      } else {
+        // If a new user's exam is starting, initialize its timer
+        timers[user_id] = {
+          remainingTime: duration,
+          interval: null,
+          paused: false,
+          pauseTime: null,
+          submitted: false,
+        };
+      }
+
+      console.log(`Exam started for user ${user_id} with duration ${timers[user_id].remainingTime}`);
 
       socket.join(user_id, () => {
-        console.log(`Student joined room ${user_id}`);
+        console.log(`Student ${user_id} joined room`);
       });
 
       // Sets timer if not already set
@@ -44,60 +54,116 @@ const initSocketHandlers = (io) => {
             delete timers[user_id];
 
             // Notify room that exam ended
-            io.to(user_id).emit('exam_ended', {message: "Time's up!!"}, async () => {
-              const res = await submitFinalResponsesAndChangeStatus(user_id, exam_id);
-            });
+            io.to(user_id).emit('exam_ended', { message: "Time's up!!" });
           }
         }, 1000);
       }
     });
 
-    // Handle individual response submissions
-    socket.on(
-      'submit_temp_response',
-      async ({ exam_id, question_id, selected_option }) => {
-        const user_id = parseInt(socket.user.id);
+    // Pause timer
+    socket.on('pause_timer', () => {
+      const user_id = socket.user.id;
 
-        const r = await submitResponse(
-          user_id,
-          exam_id,
-          question_id,
-          selected_option,
-          'draft'
-        );
-        console.log(`Response saved for user ${user_id}`);
+      if (!user_id) {
+        console.error('No user_id found on socket during pause');
+        return;
       }
-    );
 
-    socket.on('submit_responses', async ({ exam_id }) => {
-      const user_id = parseInt(socket.user.id);
-      const res = await submitFinalResponsesAndChangeStatus(user_id, exam_id);
+      if (timers[user_id] && !timers[user_id].submitted) {
+        // Clear the existing interval
+        if (timers[user_id].interval) {
+          clearInterval(timers[user_id].interval);
+          timers[user_id].interval = null;
+        }
 
-      clearInterval(timers[user_id].interval);
-      delete timers[user_id];
+        // Store the current time and mark as paused
+        timers[user_id].paused = true;
+        timers[user_id].pauseTime = timers[user_id].remainingTime;
+
+        console.log(`Timer paused for user ${user_id} at time: ${timers[user_id].pauseTime}`);
+
+        // Notify client that timer is paused
+        io.to(user_id).emit('timer_paused', {
+          remainingTime: timers[user_id].pauseTime
+        });
+      }
     });
 
+    // Resume timer
+    socket.on('resume_timer', () => {
+      const user_id = socket.user.id;
+
+      if (!user_id) {
+        console.error('No user_id found on socket during resume');
+        return;
+      }
+
+      if (timers[user_id] && timers[user_id].paused && !timers[user_id].submitted) {
+        // Restore time from pauseTime if it exists
+        if (timers[user_id].pauseTime !== null) {
+          timers[user_id].remainingTime = timers[user_id].pauseTime;
+          timers[user_id].pauseTime = null;
+        }
+
+        // Clear paused state
+        timers[user_id].paused = false;
+
+        // Start a new interval
+        if (!timers[user_id].interval) {
+          timers[user_id].interval = setInterval(() => {
+            timers[user_id].remainingTime--;
+
+            io.to(user_id).emit('timer_update', {
+              remainingTime: timers[user_id].remainingTime,
+            });
+
+            if (timers[user_id].remainingTime <= 0) {
+              clearInterval(timers[user_id].interval);
+              delete timers[user_id];
+
+              // Notify room that exam ended
+              io.to(user_id).emit('exam_ended', { message: "Time's up!!" });
+            }
+          }, 1000);
+        }
+
+        console.log(`Timer resumed for user ${user_id}`);
+        
+        // Notify client that timer is resumed
+        io.to(user_id).emit('timer_resumed', {
+          remainingTime: timers[user_id].remainingTime
+        });
+      }
+    });
+
+    // Handle disconnect event
     socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
+      const user_id = socket.user.id;
+
+      if (!user_id) {
+        console.error('No user_id found on socket during disconnect');
+        return;
+      }
+
+      if (timers[user_id]) {
+        if (!timers[user_id].submitted) {
+          // Clear the interval if it exists
+          if (timers[user_id].interval) {
+            clearInterval(timers[user_id].interval);
+            timers[user_id].interval = null;
+          }
+          
+          timers[user_id].paused = true;
+          timers[user_id].pauseTime = timers[user_id].remainingTime;
+          console.log(`Paused timer for user ${user_id} at time: ${timers[user_id].pauseTime}`);
+        } else {
+          delete timers[user_id];
+        }
+      }
+
+      console.log('Client disconnected:', socket.user.id);
     });
   });
 };
 
 module.exports = { initSocketHandlers };
-
-// SERVER_TO-DO
-// 1. Whenever next button is clicked, response is stored in db as 'draft'.
-// 2. Whenever Student clicks on 'Submit', response_status is changed to 'submitted'.
-// 3. Whenever Timer runs out, student's responses' response_status is changed to 'submitted'.
-
-
-// CLIENT TO-DO
-// io.emit('connection') -> To request socket.io connection upgrade
-// io.emit('start_exam') -> To start the exam timer when clicked on 'Start Exam' button
-// io.on('timer_update') -> To update timer every second (updated time will be sent back every second)
-// io.on('exam_ended') -> To submit all responses automatically when time's up
-// io.emit('submit_temp_response') -> To store the student responses as 'draft' in the database
-// io.emit('submit_responses') -> To save the responses as 'submitted' if the student clicks the 'Submit' button before exam ends
-// io.emit('disconnect') -> To disconnect the socket.io connection
-
-// For req body, refer POSTMAN

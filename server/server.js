@@ -31,10 +31,10 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-const FRONTEND_ORIGIN =
-  process.env.NODE_ENV === 'production'
-    ? 'https://csi-aptitude-portal-client.onrender.com' // Production frontend URL
-    : 'http://localhost:3000'; // Local frontend URL
+const FRONTEND_ORIGIN = process.env.NODE_ENV === 'production'
+? ['https://csi-aptitude-portal-client.onrender.com', 'http://localhost:3000']
+: ['http://localhost:3000']; // Development also returns an array
+// Local frontend URL
 
 const io = new Server(server, {
   cookie: true,
