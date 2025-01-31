@@ -174,6 +174,39 @@ const getResponsesByStudent = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// getResponsesForUsers
+const getResponsesForUsers = async (req, res) => {
+  const {status}= req.query ;
+  console.log('status',status);
+  
+  const user_id = req.user.id; // Assume the student ID is available via JWT
+
+  try {
+    const responses = await responseModel.getExamIdByResponse(status,
+      user_id
+    );
+    if (!responses) {
+      await logActivity({
+        user_id: user_id,
+        activity: 'View Responses',
+        status: 'failure',
+        details: 'Responses not found',
+      });
+      return res.status(404).json({ message: 'Responses not found.' });
+    }
+    await logActivity({
+      user_id: user_id,
+      activity: 'View Responses',
+      status: 'success',
+      details: 'Responses found',
+    });
+    res.status(200).json(responses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 
 // Get all responses for an exam (for admin or instructor)
 const getResponsesForExam = async (req, res) => {
@@ -335,4 +368,5 @@ module.exports = {
   getPaginatedResponsesForExam,
   deleteExistingResponses,
   submitFinalResponsesAndChangeStatus,
+  getResponsesForUsers
 };

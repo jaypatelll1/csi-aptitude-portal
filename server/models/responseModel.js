@@ -151,6 +151,24 @@ const updateResponse = async (response_id, selected_option) => {
   return result.rows[0]; // Return the updated response if found
 };
 
+const getExamIdByResponse = async (status,user_id) => {
+  try {
+    const result = await pool.query(
+        `SELECT DISTINCT exam_id FROM responses 
+         WHERE student_id = $1 AND status = $2`, 
+        [user_id,status]  
+    );
+
+    // Return only the exam_id array
+    return result.rows.map(row => row.exam_id)
+
+} catch (error) {
+    console.error(error);
+   return error 
+}
+}
+
+
 // Delete a response
 const deleteResponse = async (response_id) => {
   const query = `
@@ -189,4 +207,5 @@ module.exports = {
   submittedUnansweredQuestions,
   submitFinalResponsesAndChangeStatus,
   deleteExistingResponses,
+  getExamIdByResponse
 };

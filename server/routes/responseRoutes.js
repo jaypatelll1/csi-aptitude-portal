@@ -8,7 +8,8 @@ const {
   submitAllResponses,
   getPaginatedResponsesForExam,
   deleteExistingResponses,
-  submitFinalResponsesAndChangeStatus
+  submitFinalResponsesAndChangeStatus,
+  getResponsesForUsers
 } = require('../controllers/responseController');
 const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 
@@ -21,7 +22,7 @@ router.all('/')
 
   .post('/submit-all/:exam_id',jwtAuthMiddleware, submitAllResponses) // Submit all responses together
   .get('/users/:exam_id',jwtAuthMiddleware, getResponsesByStudent) // Get response by student
-  
+  .get('/user_id',jwtAuthMiddleware, getResponsesForUsers) // response for particular users 
   .get('/:exam_id',jwtAuthMiddleware, getPaginatedResponsesForExam) // pagination
 
   .put('/questions/:exam_id/:question_id/:response_id',jwtAuthMiddleware, updateResponse)
