@@ -87,6 +87,7 @@ const StudentList = () => {
         } else {
             alert('No warnings, data processed successfully.');
         }
+        
     } else {
         alert(`Error: ${response.data.message}`);
     }
@@ -412,7 +413,7 @@ const StudentList = () => {
                 .map((student, index) => (
                   <tr key={student.user_id} className="hover:bg-gray-50">
                     {/* <td className='py-4 px-5 text-blue-700 font-bold'>{index + 1}</td> */}
-                    <td className="py-4">{student.user_id}</td>
+                    <td className="py-4">{index+1}</td>
                     <td className="py-4">{student.name}</td>
                     <td className="py-4">{student.email}</td>
                     <td className="py-4">{student.phone || "N/A"}</td>

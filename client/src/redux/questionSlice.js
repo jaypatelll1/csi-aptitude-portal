@@ -17,14 +17,15 @@ const questionsSlice = createSlice({
     },
     visitQuestion(state, action) {
       const questionIndex = action.payload;
-    
+      
       state.currentQuestionIndex = questionIndex;
       state.questions[0].visited = true;
       state.questions[action.payload].visited = true;
       if (!state.questions[questionIndex].visited) {
-        state.questions[questionIndex].visited = true;
-      }
-    },
+      state.questions[questionIndex].visited = true;
+        }  
+        },
+    
     setSelectedOption(state, action) {
       const { index, option } = action.payload;
       state.questions[index].selectedOption = option;

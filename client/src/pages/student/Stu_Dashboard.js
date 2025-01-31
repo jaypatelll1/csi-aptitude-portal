@@ -5,7 +5,8 @@ import StuPastTestCard from "../../components/student/home/Stu_PastTestCard";
 import Details from "../../components/student/home/Stu_Details";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setExam } from "../../redux/ExamSlice";
+import { setExam , markSubmit } from "../../redux/ExamSlice";
+
 
 function StudentDashboard() {
   const userData = useSelector((state) => state.user.user);
@@ -58,11 +59,16 @@ function StudentDashboard() {
 const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/student/${userData.id}`,{
   withCredentials: true,  // Make sure the cookie is sent with the request
 })
-// using redux
+const responseExamId = await axios.get(
+  `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+  { withCredentials: true }
+);
+
  dispatch(setExam(response.data.exams ));
 // console.log('past tests is ', pastPaper);
 setResult(pastPaper.data.results)
-
+// console.log('responseExamId.data',responseExamId.data);
+dispatch(markSubmit(responseExamId.data))
       setTests(response.data.exams || []);
     } catch (err) {
       console.error("error getting response ", err);

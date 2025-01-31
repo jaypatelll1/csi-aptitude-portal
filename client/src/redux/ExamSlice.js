@@ -6,7 +6,8 @@ const examSlice = createSlice({
   initialState: {
     examId: null,  // Initial state for examId
     exam : null,
-    submittedExamIds: [],
+    submittedExamIds: null,
+ 
   
 
   },
@@ -26,15 +27,19 @@ state.time = action.payload ;  // Set exam in the Redux state
       }
       // state.submittedExamIds = []; 
     },
+   
+    
     markVisited (state,action){
       state.question_count = action.payload ;
     },
     clearExamId: (state) => {
       state.examId = null;  // Clear examId from Redux state
+     
+      state.submittedExamIds = null;
     },
   },
 });
 
-export const { setExamId, clearExamId ,setExam , setDuration ,markSubmit} = examSlice.actions;  // Export actions
+export const { setExamId, clearExamId ,setExam , setDuration ,markSubmit,markVisited} = examSlice.actions;  // Export actions
 
 export default examSlice.reducer;

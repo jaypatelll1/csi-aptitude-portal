@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Msidebar from "../../components/student/home/MSidebar";
 import { useLocation } from "react-router-dom";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import {  useDispatch } from "react-redux";
+import axios from "axios";
+import {
+  setQuestions
+} from "../../redux/questionSlice";
 
 
 // import { useSelector } from "react-redux";
@@ -15,6 +20,7 @@ const TestInstruction = () => {
   const location = useLocation();
   const examId = location.state?.examId;
   const Duration = location.state?.Duration;
+  const dispatch = useDispatch();
   
 
   // const examId = useSelector((state)=>state.examId)
@@ -22,9 +28,35 @@ const TestInstruction = () => {
   // console.log("examId", examId);
   // console.log("duration", Duration);
 
+  const fetchQuestions = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(
+        `${API_BASE_URL}/api/exams/questions/students/${examId}`,
+        { withCredentials: true }
+      );
+
+      const formattedQuestions = response.data.map((q) => ({
+        ...q,
+        answered: false,
+        visited : false,
+        selectedOption: null ,
+      }));
+      // console.log("formattedQuestions", formattedQuestions);
+
+      dispatch(setQuestions(formattedQuestions));
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    }
+  };
+
+
+
+
+
   const handleStartTest = () => {
     navigate(`/exam/${examId}`, { state: { Duration: Duration   },replace:true });
-
+      
   };
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -36,6 +68,7 @@ const TestInstruction = () => {
 
     // Attach event listener to the document
     document.addEventListener("mousedown", handleClickOutside);
+    fetchQuestions();
 
     // Cleanup the event listener
     return () => {

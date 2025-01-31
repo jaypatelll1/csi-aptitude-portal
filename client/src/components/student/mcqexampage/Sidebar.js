@@ -1,27 +1,25 @@
-import React from "react";
+import React ,{useEffect} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { visitQuestion } from "../../../redux/questionSlice";
 
 const Sidebar = ({ name , onSubmitTest , limit }) => {
-
-// console.log('limit is ',limit);
-
-if(limit=== true){
-  onSubmitTest();
-}
-
   const dispatch = useDispatch();
   
   const { questions, currentQuestionIndex } = useSelector(
     (state) => state.questions
   );
-  // console.log('questions',questions);
-  
 
-  let attemptedCount = questions.filter((q) => q.answered  ).length;
-  let visitedCount = questions.filter((q) => q.visited=== true).length;
+  let attemptedCount = questions.filter((q) => q.answered).length;
+  let visitedCount = questions.filter((q) => q.visited).length;
   const total = questions.length;
   const remaining = total - attemptedCount;
+
+  // Auto-submit when the limit is reached
+  useEffect(() => {
+    if (limit) {
+      onSubmitTest();
+    }
+  }, [limit, onSubmitTest]);
 
   return (
     <div className="w-3/12 flex items-center justify-center">
@@ -84,6 +82,7 @@ if(limit=== true){
                 key={index}
                 className={`${bgColor} ${text} font-semibold py-2 w-16 h-10 rounded-lg hover:opacity-80 transition`}
                 onClick={() => {
+
                   dispatch(visitQuestion(index));
                 }}
               >
@@ -95,8 +94,9 @@ if(limit=== true){
 
         <button
           className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
-          onClick={ visitedCount === total ? onSubmitTest : null}
-          disabled={ !visitedCount === total}
+          onClick={() => { if (visitedCount === total) onSubmitTest(); }}
+
+          disabled={ visitedCount !== total}
         >
           Submit Test
         </button>

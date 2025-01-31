@@ -12,7 +12,7 @@ import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponen
 import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { markSubmit } from "../../redux/ExamSlice";
+
 import {clearQuestions} from "../../redux/questionSlice"
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
@@ -78,13 +78,7 @@ const MCQExamPage = () => {
     // console.log("response is submit final", response.data);
   };
 
-  const deleteExistingResponses = async () => {
-    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const delete_response = await axios.delete(`${API_BASE_URL}/api/exams/responses/questions/${examId}`,{withCredentials: true})
-    console.log("response is delete existing ", delete_response.data);
-    const response = await axios.post(`${API_BASE_URL}/api/exams/responses/initialize/${examId}`,{}, {withCredentials: true});
-    console.log("response is initialize existing ", response.data);
-  };
+  
 
   useEffect(() => {
     const socketConnect = async () => {
@@ -101,10 +95,7 @@ const MCQExamPage = () => {
 
         // Handle socket connection
         socket.on("connect", () => {
-          // console.log("Connected to the exam namespace:", socket.id);
-
-          // Call deleteExistingResponses only once when socket is connected
-          deleteExistingResponses();
+          
         });
 
         // Emit the start_exam event
@@ -162,31 +153,7 @@ const MCQExamPage = () => {
     };
   }, [testSubmitted]);
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/questions/${examId}`,
-          { withCredentials: true }
-        );
-
-        const formattedQuestions = response.data.map((q) => ({
-          ...q,
-          answered: false,
-          visited : false,
-        }));
-        // console.log("formattedQuestions", formattedQuestions);
-
-        dispatch(setQuestions(formattedQuestions));
-      } catch (error) {
-        console.error("Error fetching questions:", error);
-      }
-    };
-
-    fetchQuestions();
-  }, [dispatch]);
-
+  
   const handlePermissionGranted = () => {
     enableFullscreen();
   };
@@ -250,7 +217,7 @@ const MCQExamPage = () => {
   const handleSubmitTest = () => {
     setTestSubmitted(true);
     submitFinalResponse();
-    dispatch(markSubmit(examId));
+ 
     navigate("/home", { replace: true });
 dispatch(clearQuestions())
     alert("Test submitted successfully!");

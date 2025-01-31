@@ -1,14 +1,20 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import { useSelector , useDispatch} from 'react-redux';
+import axios from 'axios';
+
 
 const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, status }) => {
-
+const dispatch = useDispatch()
   const navigate = useNavigate();
 
   let  submit = useSelector((state) => state.exam.submittedExamIds );
+  console.log('submit',submit);
+  
   // console.log("Status:", status, "ExamId:", examId, "Submit:", submit);
-  let isExamSubmitted = submit.includes(String(examId));
+  let isExamSubmitted = submit.includes((examId));
+  
+ 
   // console.log('isExamSubmitted',isExamSubmitted);
   
   const isDisabled = status === "scheduled" || status === "past" || isExamSubmitted === true;
@@ -18,6 +24,38 @@ const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, sta
   
 
   const handleChange = async () => {
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const responseExamId = await axios.get(
+      `${API_BASE_URL}/api/exams/responses/user_id?status=draft`,
+      { withCredentials: true }
+    );
+  
+   // Check if examId exists in responseExamId.data
+   
+
+   if (!responseExamId.data.includes(examId)) {
+     // If examId is not present, delete and initialize new responses
+     const InitiatingResponses = async () => {
+       try {
+         const delete_response = await axios.delete(
+           `${API_BASE_URL}/api/exams/responses/questions/${examId}`,
+           { withCredentials: true }
+         );
+        
+
+         const response = await axios.post(
+           `${API_BASE_URL}/api/exams/responses/initialize/${examId}`,
+           {},
+           { withCredentials: true }
+         );
+        
+       } catch (error) {
+         console.error("Error in initiating responses:", error);
+       }
+     };
+
+     await InitiatingResponses();
+   }
     navigate("/test-instruction", { state: { examId: examId, Duration: duration } , replace:true})
 
   }
