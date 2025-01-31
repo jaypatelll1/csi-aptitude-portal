@@ -4,13 +4,11 @@ const pool = require('../config/db');
 // Run this job every minute
 const autoUpdate = cron.schedule('* * * * *', async () => {
   try {
-    const now = new Date().toISOString();
+    // const now = new Date().toISOString();
     // console.log('now',now);
-    
-   
+
     const result = await pool.query(
-      `UPDATE exams SET status = 'live' WHERE status = 'scheduled' AND start_time < $1`,
-      [now]
+      `UPDATE exams SET status = 'live' WHERE status = 'scheduled' AND start_time < CURRENT_TIMESTAMP`
     );
     console.log(`${result.rowCount} exams updated to 'live'.`);
   } catch (error) {
