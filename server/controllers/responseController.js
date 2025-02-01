@@ -329,32 +329,48 @@ const deleteResponse = async (req, res) => {
 };
 
 
-// Pagination
 const getPaginatedResponsesForExam = async (req, res) => {
   const { exam_id } = req.params;
-  const { page = 1, limit = 10 } = req.query;
+  let { page, limit } = req.query;
   const student_id = req.user.id; // Retrieved from JWT
+
   try {
+    // Convert query params to integers and handle missing values
+    page = parseInt(page);
+    limit = parseInt(limit);
+    
+    if (isNaN(page) || page < 1) page = null;
+    if (isNaN(limit) || limit < 1) limit = null;
+
     const responses = await responseModel.getPaginatedResponses(
       exam_id,
       student_id,
-      parseInt(page),
-      parseInt(limit)
+      page,
+      limit
     );
-    await logActivity({
-      user_id: student_id,
-      activity: `Viewed paginated responses`,
-      status: 'success',
-      details: `Page: ${page}, Limit: ${limit}`,
-    });
+
+    // Log activity but ensure it doesn't break execution
+    try {
+      await logActivity({
+        user_id: student_id,
+        activity: `Viewed paginated responses`,
+        status: 'success',
+        details: `Page: ${page || "All"}, Limit: ${limit || "All"}`,
+      });
+    } catch (logError) {
+      console.error("Error logging activity:", logError);
+    }
+
     return res.status(200).json({
-      page: parseInt(page),
-      limit: parseInt(limit),
+      page: page || "All",
+      limit: limit || "All",
       student_id,
       responses,
     });
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching paginated responses:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

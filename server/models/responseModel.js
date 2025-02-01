@@ -182,19 +182,24 @@ const deleteResponse = async (response_id) => {
   return result.rowCount > 0; // Return true if a row was deleted
 };
 
-// Pagination
-// Get paginated responses for a specific exam and student
 const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
-  const query = `
-  SELECT response_id, selected_option, answered_at, responses.question_id, question_text
-  FROM responses
-  INNER JOIN questions ON responses.question_id = questions.question_id
-  WHERE questions.exam_id = ${exam_id}
+  let query = `
+    SELECT response_id, selected_option, answered_at, responses.question_id, q.question_text,q.options  
+    FROM responses
+    INNER JOIN questions AS q ON responses.question_id = q.question_id
+    WHERE q.exam_id = $1 AND responses.student_id = $2
   `;
-  const paginatedQuery = paginate(query, page, limit);
-  const result = await pool.query(paginatedQuery);
+
+  const values = [exam_id, student_id];
+
+  if (page && limit) {
+    query = paginate(query, page, limit); // Use pagination function
+  }
+
+  const result = await pool.query(query, values);
   return result.rows;
 };
+
 
 module.exports = {
   submitResponse,
