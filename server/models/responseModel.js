@@ -188,6 +188,7 @@ const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
     FROM responses
     INNER JOIN questions AS q ON responses.question_id = q.question_id
     WHERE q.exam_id = $1 AND responses.student_id = $2
+    order by response_id
   `;
 
   const values = [exam_id, student_id];

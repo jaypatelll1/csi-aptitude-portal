@@ -108,7 +108,7 @@ const initSocketHandlers = (io) => {
     });
 
     socket.on('disconnect', () => {
-      console.log(timers);
+      // console.log(timers);
       if (timers[user_id]) {
         // if (!timers[user_id].submitted) {
         timers[user_id].paused = true;
