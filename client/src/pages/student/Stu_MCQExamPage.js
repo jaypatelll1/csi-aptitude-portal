@@ -117,9 +117,9 @@ const MCQExamPage = () => {
           setTimeUp(true);
         });
 
-        if(timeUp === true || testSubmitted === true){
-          socket.emit("submit_responses")
-        }
+        // if(timeUp === true || testSubmitted === true){
+        //   socket.emit("submit_responses")
+        // }
 
         socket.on("disconnect", (data) => {
           console.log(data);
@@ -143,6 +143,26 @@ const MCQExamPage = () => {
       }
     };
   }, []);
+
+  // useEffect(() => {
+  //   // Make sure socketRef is initialized
+  //   const socket = socketRef.current;
+  //   if (!socket) return; // Return if socket is not initialized yet
+
+  //   // Emit "submit_responses" when either condition is met
+  //   if (timeUp === true || testSubmitted === true) {
+  //     socket.emit("submit_responses");
+  //   }
+
+  //   // Cleanup function to disconnect socket on component unmount
+  //   return () => {
+  //     // Any necessary cleanup, like closing socket connection or removing listeners
+  //     if (socket) {
+  //       socket.off("exam_ended");
+  //       socket.off("disconnect");
+  //     }
+  //   };
+  // }, [timeUp, testSubmitted]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -221,8 +241,12 @@ const MCQExamPage = () => {
   };
 
   const handleSubmitTest = () => {
+    const socket = socketRef.current;
+    if (!socket) return; 
+
     setTestSubmitted(true);
     submitFinalResponse();
+    socket.emit("submit_responses");
     dispatch(clearExamId(examId))
     navigate("/home", { replace: true });
     dispatch(clearQuestions());

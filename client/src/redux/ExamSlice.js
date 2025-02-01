@@ -23,8 +23,6 @@ state.time = action.payload ;  // Set exam in the Redux state
     },
 
     markVisited (state,action){
-      
-
       state.question_count = action.payload ;
     },
     clearExamId: (state) => {
