@@ -9,7 +9,7 @@ const initSocketHandlers = (io) => {
     console.log('New client connected:', socket.id);
 
     // Start an exam
-    socket.on('start_exam', async ({ exam_id, duration }) => {
+    socket.on('start_exam', async ({  duration }) => {
       const user_id = parseInt(socket.user.id);
       console.log(`Exam started in room ${user_id} with duration ${duration}`);
 
@@ -49,13 +49,13 @@ const initSocketHandlers = (io) => {
     // Handle individual response submissions
     socket.on(
       'submit_temp_response',
-      async ({ exam_id, question_id, selected_option }) => {
+      async () => {
         const user_id = parseInt(socket.user.id);
 
       }
     );
 
-    socket.on('submit_responses', async ({ exam_id }) => {
+    socket.on('submit_responses', async () => {
       const user_id = parseInt(socket.user.id);
    
 
