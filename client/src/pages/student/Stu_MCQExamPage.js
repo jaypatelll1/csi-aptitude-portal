@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-import {clearQuestions} from "../../redux/questionSlice"
+import { clearQuestions } from "../../redux/questionSlice";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import {clearExamId} from "../../redux/ExamSlice"
 
@@ -75,11 +75,9 @@ const MCQExamPage = () => {
   const submitFinalResponse = async () => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
-    const response = await axios.put(url, {}, {withCredentials: true});
+    const response = await axios.put(url, {}, { withCredentials: true });
     // console.log("response is submit final", response.data);
   };
-
-  
 
   useEffect(() => {
     const socketConnect = async () => {
@@ -87,9 +85,9 @@ const MCQExamPage = () => {
         if (!socketRef.current) {
           const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           socketRef.current = io(`${API_BASE_URL}/exams/start-exam`, {
-            withCredentials:true
+            withCredentials: true,
           });
-          // console.log("Socket not connected, initializing...");
+          console.log("Socket not connected, initializing...");
         }
 
         const socket = socketRef.current;
@@ -108,15 +106,23 @@ const MCQExamPage = () => {
 
         // Listen for timer updates
         socket.on("timer_update", (data) => {
-          // console.log("Timer update received:", data.remainingTime);
+          console.log("Timer update received:", data.remainingTime);
           setRemainingTime(data.remainingTime);
         });
 
         // Listen for exam ended
         socket.on("exam_ended", (data) => {
-          // console.log("Exam ended:", data.message);
+          console.log("Exam ended:", data.message);
           submitFinalResponse();
           setTimeUp(true);
+        });
+
+        if(timeUp === true || testSubmitted === true){
+          socket.emit("submit_responses")
+        }
+
+        socket.on("disconnect", (data) => {
+          console.log(data);
         });
       } catch (error) {
         console.error("Error during socket connection:", error);
@@ -133,7 +139,7 @@ const MCQExamPage = () => {
         socket.off("timer_update");
         socket.off("exam_ended");
         socket.disconnect();
-        // console.log("Socket disconnected and listeners removed");
+        console.log("Socket disconnected and listeners removed");
       }
     };
   }, []);
@@ -154,7 +160,6 @@ const MCQExamPage = () => {
     };
   }, [testSubmitted]);
 
-  
   const handlePermissionGranted = () => {
     enableFullscreen();
   };
@@ -220,7 +225,7 @@ const MCQExamPage = () => {
     submitFinalResponse();
     dispatch(clearExamId(examId))
     navigate("/home", { replace: true });
-dispatch(clearQuestions())
+    dispatch(clearQuestions());
     alert("Test submitted successfully!");
   };
 
