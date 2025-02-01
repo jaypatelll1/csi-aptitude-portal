@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "./Adm_DataTime";
 import axios from "axios";
+import{setExamId} from "../.././redux/ExamSlice"
+import { useDispatch } from "react-redux";
+import { replace, useNavigate } from "react-router-dom";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftedTestCard = ({ test }) => {
@@ -17,6 +20,8 @@ const Adm_DraftedTestCard = ({ test }) => {
   const [requestInProgress, setRequestInProgress] = useState(false);
 
   const examId = test.exam_id;
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
   // console.log('examid is ',test);
 
   // console.log("Test details",{branch: test.target_branch , year : test.target_year})
@@ -38,13 +43,18 @@ const Adm_DraftedTestCard = ({ test }) => {
     setRequestInProgress(true); // Set request state to true
 
     try {
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      await axios.put(
-        `${API_BASE_URL}/api/exams/live-exam/${examId}`,
-        {},
-        { withCredentials: true }
-      );
-      window.location.reload();
+
+   dispatch(setExamId(examId))
+
+   navigate("/admin/input", {replace:true} )
+
+      // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      // await axios.put(
+      //   `${API_BASE_URL}/api/exams/live-exam/${examId}`,
+      //   {},
+      //   { withCredentials: true }
+      // );
+      // window.location.reload();
     } catch (error) {
       console.error("Error during Put request:", error);
     } finally {
@@ -206,7 +216,7 @@ const Adm_DraftedTestCard = ({ test }) => {
           onClick={handlePublishClick}
           disabled={requestInProgress}
         >
-          {requestInProgress ? "Publishing..." : "Publish"}
+          Edit
         </button>
         <button
           onClick={() => setIsScheduling(true)}
