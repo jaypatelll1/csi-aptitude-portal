@@ -4,6 +4,7 @@ const csvParser = require('csv-parser');
 const { query } = require("../config/db")
 const { hashPassword } = require("../utils/hashUtil");
 const { error } = require('console');
+const {sendBulkEmailToUsers} = require('../utils/emailSender');
 
 
 const parseExcelUsers = async (filePath) => {
@@ -65,6 +66,7 @@ const parseExcelUsers = async (filePath) => {
                 try {
                     // Attempt to insert the row into the database
                     await query(queryText, values);
+                    await sendBulkEmailToUsers(email,password);
                 } catch (error) {
                     // console.log('dbError',error);
                     
