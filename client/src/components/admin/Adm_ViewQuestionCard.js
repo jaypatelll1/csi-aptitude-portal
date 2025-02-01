@@ -24,8 +24,9 @@ const Adm_ViewQuestionCard = ({ id, text, options, index, correct_option }) => {
     });
   };
 const handleDeleteQuestion= async () => {
-  const response = await axios.delete(`${API_BASE_URL}/api/exams/questions/${exam_id}/${id}`)
-  console.log('response is ',response);
+  let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+  const response = await axios.delete(`${API_BASE_URL}/api/exams/questions/${exam_id}/${id}` ,{withCredentials:true })
+  // console.log('response is ',response);
  // Reload the page
 window.location.reload();
 

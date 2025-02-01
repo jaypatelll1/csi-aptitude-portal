@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 import {clearQuestions} from "../../redux/questionSlice"
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import {clearExamId} from "../../redux/ExamSlice"
 
 
 const MCQExamPage = () => {
@@ -100,7 +101,7 @@ const MCQExamPage = () => {
 
         // Emit the start_exam event
         socket.emit("start_exam", {
-          user_id: userId,
+         
           exam_id: examId,
           duration: Duration * 60,
         });
@@ -217,7 +218,7 @@ const MCQExamPage = () => {
   const handleSubmitTest = () => {
     setTestSubmitted(true);
     submitFinalResponse();
- 
+    dispatch(clearExamId(examId))
     navigate("/home", { replace: true });
 dispatch(clearQuestions())
     alert("Test submitted successfully!");

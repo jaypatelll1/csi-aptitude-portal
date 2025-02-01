@@ -9,7 +9,7 @@ const examSlice = createSlice({
     submittedExamIds: null,
  
   
-
+ 
   },
   reducers: {
     setExamId: (state, action) => {
@@ -21,25 +21,21 @@ state.exam = action.payload ;  // Set exam in the Redux state
     setDuration :(state,action)=>{
 state.time = action.payload ;  // Set exam in the Redux state
     },
-    markSubmit(state, action) {
-      if (!state.submittedExamIds.includes(action.payload)) {
-        state.submittedExamIds.push(action.payload);
-      }
-      // state.submittedExamIds = []; 
-    },
-   
-    
+
     markVisited (state,action){
+      
+
       state.question_count = action.payload ;
     },
     clearExamId: (state) => {
       state.examId = null;  // Clear examId from Redux state
-     
-      state.submittedExamIds = null;
+    state.time = null ;
+     state.exam = null ;
+ 
     },
   },
 });
 
-export const { setExamId, clearExamId ,setExam , setDuration ,markSubmit,markVisited} = examSlice.actions;  // Export actions
+export const { setExamId, clearExamId ,setExam , setDuration } = examSlice.actions;  // Export actions
 
 export default examSlice.reducer;

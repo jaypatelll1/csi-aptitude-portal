@@ -59,6 +59,7 @@ function StudentDashboard() {
 const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/student/${userData.id}`,{
   withCredentials: true,  // Make sure the cookie is sent with the request
 })
+
 const responseExamId = await axios.get(
   `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
   { withCredentials: true }
@@ -68,7 +69,7 @@ const responseExamId = await axios.get(
 // console.log('past tests is ', pastPaper);
 setResult(pastPaper.data.results)
 // console.log('responseExamId.data',responseExamId.data);
-dispatch(markSubmit(responseExamId.data))
+// dispatch(markSubmit(responseExamId.data))
       setTests(response.data.exams || []);
     } catch (err) {
       console.error("error getting response ", err);

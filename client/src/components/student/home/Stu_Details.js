@@ -3,11 +3,14 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { clearUser } from "../../../redux/userSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { clearExamId } from "../../../redux/ExamSlice";
+import { clearQuestions } from "../../../redux/questionSlice";
 
 
 const Details = () => {
   let user = useSelector((state) => state.user.user);
-  console.log("user is ", user);
+  let examId = useSelector((state)=>state.exam.examId)
+  // console.log("user is ", user);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -18,6 +21,8 @@ const Details = () => {
       withCredentials: true,  // Make sure the cookie is sent with the request
   });
     dispatch(clearUser());
+    dispatch(clearExamId(examId))
+    dispatch(clearQuestions())
     navigate("/", { replace: true });
   };
 
