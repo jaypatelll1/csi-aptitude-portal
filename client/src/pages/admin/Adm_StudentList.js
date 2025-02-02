@@ -138,7 +138,7 @@ const StudentList = () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(
-          `${API_BASE_URL}/api/users/?page=1&role=Student&limit=100`,
+          `${API_BASE_URL}/api/users/?page=1&role=Student&limit=1000`,
           {
             withCredentials: true, // Make sure the cookie is sent with the request
           }

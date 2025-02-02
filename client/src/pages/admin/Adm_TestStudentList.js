@@ -9,7 +9,7 @@ const TestStudentList = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(50);
+  const [limit] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
@@ -112,8 +112,10 @@ const TestStudentList = () => {
         const response = await axios.get(
           `${API_BASE_URL}/api/exams/results/allpast/${examId}`,
           {
+            params: { page: 1, limit : 1000 },
             withCredentials: true, // Make sure the cookie is sent with the request
-          }
+          },
+         
         );
         const data = response.data.response;
         console.log("data ", data);
