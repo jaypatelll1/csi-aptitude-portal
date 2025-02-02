@@ -113,7 +113,7 @@ const loginUser = async (req, res) => {
     };
 
     const token = await generateToken(userData);
-    const resetToken = await generateResetToken(userData);
+    const resettoken = await generateResetToken(userData);
 
     await logActivity({
       user_id: userData.id,
@@ -130,7 +130,8 @@ const loginUser = async (req, res) => {
     });
 
     if (result.status === 'NOTACTIVE') {
-      res.set('resettoken', resetToken);
+      res.set('Access-Control-Expose-Headers', 'resettoken');
+      res.set('resettoken', resettoken);
     }
 
     return res.status(200).json({
