@@ -18,7 +18,7 @@
 require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logActivity');
-const { hashPassword , verifyPassword } = require('../utils/hashUtil');
+const { hashPassword, verifyPassword } = require('../utils/hashUtil');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
@@ -202,15 +202,20 @@ const resetPassword = async (req, res) => {
 };
 
 // logout 
-const logout = async (req,res) => {
-  res.clearCookie('jwttoken', { path: '/' }); // Ensure path matches the one used for setting the cookie
-  res.status(200).json({message : "Logged out" })
+const logout = async (req, res) => {
+  res.clearCookie('jwttoken', {
+    expires: new Date(Date.now() + 86400000),
+    httpOnly: true,
+    sameSite: 'None',
+    secure: true,
+  }); // Ensure path matches the one used for setting the cookie
+  res.status(200).json({ message: "Logged out" })
 
 }
 
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, year,password, department, role, rollno, phone } =
+  const { name, email, year, password, department, role, rollno, phone } =
     req.body;
   const id = req.params.user_id;
 
@@ -326,64 +331,64 @@ const getAllPaginatedUsers = async (req, res) => {
 
 
 const verifyResetToken = async (req, res) => {
-    const resettoken = req.headers['resettoken'];
-    console.log(req.headers);
-    if (!resettoken) {
-      return res.status(400).json({ error: 'Reset token is required' });
-    }
-  
-    try {
-      const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
-      res.json({ message: 'Token is valid', userId: decoded.user_id });
-    } catch (err) {
-      console.error('Error verifying reset token:', err); // Log the error for debugging
-      res.status(400).json({ error: 'Invalid or expired reset token' });
-    }
-  };
-  
+  const resettoken = req.headers['resettoken'];
+  console.log(req.headers);
+  if (!resettoken) {
+    return res.status(400).json({ error: 'Reset token is required' });
+  }
 
-  const sendResetEmail = async (req, res) => {
-    const  student  = req.body.student;
-    console.log(student);
-  
-    if (!student.user_id) {
-      return res.status(400).json({ error: 'ID is required' });
-    }
-  
-    try {
-      const resettoken = await generateResetToken({
-        id: student.user_id,
-        email: student.email,
-        name: student.name,
-        role: student.role,
-      });
-  
-      const resetLink =
+  try {
+    const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
+    res.json({ message: 'Token is valid', userId: decoded.user_id });
+  } catch (err) {
+    console.error('Error verifying reset token:', err); // Log the error for debugging
+    res.status(400).json({ error: 'Invalid or expired reset token' });
+  }
+};
+
+
+const sendResetEmail = async (req, res) => {
+  const student = req.body.student;
+  console.log(student);
+
+  if (!student.user_id) {
+    return res.status(400).json({ error: 'ID is required' });
+  }
+
+  try {
+    const resettoken = await generateResetToken({
+      id: student.user_id,
+      email: student.email,
+      name: student.name,
+      role: student.role,
+    });
+
+    const resetLink =
       process.env.NODE_ENV === 'development'
         ? `http://localhost:3000/reset-password/${resettoken}`
         : `${process.env.FRONTEND_ORIGIN}/reset-password/${resettoken}`;
-  
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: student.email,
-        subject: 'CSI Aptitude Portal Password Reset',
-        text: `Click on the link to reset your password. This link will only be valid of 10 minutes: ${resetLink}`,
-      };
-  
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending email:', error);
-          return res.status(500).json({ error: 'Error sending email' });
-        }
-        console.log('Email sent:', info.response);
-        return res.status(200).json({ message: 'Email sent successfully' });
-      });
-    } catch (error) {
-      console.error('Error sending email:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: student.email,
+      subject: 'CSI Aptitude Portal Password Reset',
+      text: `Click on the link to reset your password. This link will only be valid of 10 minutes: ${resetLink}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ error: 'Error sending email' });
+      }
+      console.log('Email sent:', info.response);
+      return res.status(200).json({ message: 'Email sent successfully' });
+    });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
-  
+}
+
 module.exports = {
   registerUser,
   loginUser,
