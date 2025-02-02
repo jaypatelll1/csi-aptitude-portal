@@ -14,10 +14,13 @@ const sendEmail = async (email, password) => {
         <p style="font-size: 16px; color: #333;">Thank you for registering on our Aptitude Portal.</p>
         <hr style="border: 0; height: 1px; background: #007bff; margin: 15px 0;">
         <p style="font-size: 16px;"><strong>Your Credentials:</strong></p>
-        <div style="background: #007bff; color: white; padding: 10px; border-radius: 5px; text-align: left;">
-          <p style="margin: 5px 0; color: white;"><strong>Email:</strong> <strong>${email}</strong></p>
-          <p style="margin: 5px 0; color: white;"><strong>Password:</strong> <strong>${password}</strong></p>
+        
+        <div style="background: white; color: black; padding: 10px; border-radius: 5px; text-align: left; border: 2px solid #007bff;">
+          <p style="margin: 5px 0; font-weight: bold;">Email: <span style="font-weight: bold;">${email}</span></p>
+          <p style="margin: 5px 0; font-weight: bold;">Password: <span style="font-weight: bold;">${password}</span></p>
+          <p style="margin: 5px 0; font-weight: bold;">Link: <a href="https://csi-aptitude-portal-client.onrender.com/home" style="color: #007bff; font-weight: bold; text-decoration: none;">Click Here</a></p>
         </div>
+
         <p style="margin-top: 20px; color: #555;">We recommend changing your password after logging in.</p>
       </div>
     `,
