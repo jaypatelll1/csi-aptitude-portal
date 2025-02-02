@@ -34,6 +34,8 @@ const questionsSlice = createSlice({
       const { index, option } = action.payload;
       state.questions[index].selectedOption = option;
       state.questions[index].answered = true;
+      state.questions[index].visited = true;
+      
     },
     clearQuestions(state,action){
       state.questions =[];

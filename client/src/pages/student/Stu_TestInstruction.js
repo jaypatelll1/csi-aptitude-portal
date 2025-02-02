@@ -97,43 +97,23 @@ const TestInstruction = () => {
         }
 
         else if (response.data.includes(examId)) {
-          const responses = await axios.get(`${API_BASE_URL}/api/exams/responses/${examId}`, { withCredentials: true })
-
-
-          const selectedOptions = [];
-
-          const formattedQuestions = responses.data.responses.map((q, index) => {
-            const selectedOption = q.selected_option || null;
-
-            if (selectedOption !== null) {
-              selectedOptions.push({ index, option: selectedOption });
-            }
-
-            return {
-              ...q, 
-              answered: false,
-              visited: false,
-              selectedOption,
-            };
-          });
-
-          // Dispatch selected options only once
-          if (selectedOptions.length > 0) {
-            dispatch(
-              setQuestions(
-                formattedQuestions.map((q, index) => ({
-                  ...q,
-                  selectedOption: selectedOptions.find((opt) => opt.index === index)?.option || null,
-                }))
-              )
-            );
-          }
-          
-
-         
-
-
+          const responses = await axios.get(
+            `${API_BASE_URL}/api/exams/responses/${examId}`,
+            { withCredentials: true }
+          );
+        
+          // Format questions with selected options directly in map()
+          const formattedQuestions = responses.data.responses.map((q) => ({
+            ...q,
+            answered: false,
+            visited: false,
+            selectedOption: q.selected_option || null, // Directly use selected_option
+          }));
+        
+          // Dispatch once to update Redux state
+          dispatch(setQuestions(formattedQuestions));
         }
+        
       } catch (error) {
         console.error("Error in initiating responses:", error.response || error);
       }
