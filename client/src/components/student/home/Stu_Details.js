@@ -23,6 +23,7 @@ const Details = () => {
     dispatch(clearUser());
     dispatch(clearExamId(examId))
     dispatch(clearQuestions())
+  
     navigate("/", { replace: true });
   };
 

@@ -4,13 +4,17 @@ import StuTestCard from "../../components/student/home/Stu_TestCard";
 import StuPastTestCard from "../../components/student/home/Stu_PastTestCard";
 import Details from "../../components/student/home/Stu_Details";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setExam , markSubmit } from "../../redux/ExamSlice";
+import { setExam , clearExamId } from "../../redux/ExamSlice";
+import { clearUser } from "../../redux/userSlice";
+import { clearQuestions } from "../../redux/questionSlice";
 
 
 function StudentDashboard() {
   const userData = useSelector((state) => state.user.user);
   // console.log("uers data is", userData);
+    let examId = useSelector((state)=>state.exam.examId)
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -20,6 +24,9 @@ function StudentDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
@@ -116,9 +123,41 @@ setResult(pastPaper.data.results)
     };
   }, []);
 
+  
+
+  const handleOnline = async () => {
+    try {
+      alert("You are online!");
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const response = await axios.post(`${API_BASE_URL}/api/users/logout`,{
+      withCredentials: true,  // Make sure the cookie is sent with the request
+  });
+    dispatch(clearUser());
+    dispatch(clearExamId(examId))
+    dispatch(clearQuestions())
+  
+    navigate("/", { replace: true });
+    } catch (error) {
+      console.error("Error handling online event:", error); // Log any potential errors
+    }
+  };
+  
+  useEffect(() => {
+    // Add the 'online' event listener when the component mounts
+    window.addEventListener('online', handleOnline);
+  
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+  
+
   const handleFilterChange = (e) => {
     setFilter(e.target.value); // Update filter
   };
+
+
 
   return (
     <div className={`flex h-screen`}>

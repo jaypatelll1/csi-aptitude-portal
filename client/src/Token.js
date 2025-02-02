@@ -16,7 +16,7 @@ const Token = () => {
                 }, {
                     withCredentials: true,  // Make sure the cookie is sent with the request
                 });
-                console.log("response token", response)
+                // console.log("response token", response)
             
                
 

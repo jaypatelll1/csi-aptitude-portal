@@ -57,39 +57,7 @@ const dispatch = useDispatch()
 
 
   const handleChange = async () => {
-    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const responseExamId = await axios.get(
-      `${API_BASE_URL}/api/exams/responses/user_id?status=draft`,
-      { withCredentials: true }
-    );
-  
-   // Check if examId exists in responseExamId.data
    
-
-   if (!responseExamId.data.includes(examId)) {
-     // If examId is not present, delete and initialize new responses
-     const InitiatingResponses = async () => {
-       try {
-         const delete_response = await axios.delete(
-           `${API_BASE_URL}/api/exams/responses/questions/${examId}`,
-           { withCredentials: true }
-         );
-        
-
-         const response = await axios.post(
-           `${API_BASE_URL}/api/exams/responses/initialize/${examId}`,
-           {},
-           { withCredentials: true }
-         );
-        //  dispatch(setDuration(duration))
-        
-       } catch (error) {
-         console.error("Error in initiating responses:", error);
-       }
-     };
-
-     await InitiatingResponses();
-   }
     navigate("/test-instruction", { state: { examId: examId, Duration: duration } , replace:true})
 
   }

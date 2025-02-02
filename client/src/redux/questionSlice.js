@@ -17,14 +17,18 @@ const questionsSlice = createSlice({
     },
     visitQuestion(state, action) {
       const questionIndex = action.payload;
-      
       state.currentQuestionIndex = questionIndex;
-      state.questions[0].visited = true;
-      state.questions[action.payload].visited = true;
-      if (!state.questions[questionIndex].visited) {
-      state.questions[questionIndex].visited = true;
-        }  
-        },
+    
+      // Debugging log to track when a question is visited
+      // console.log(`Visiting question: ${questionIndex}`);
+    
+      // Mark the specific question as visited if it's not visited yet
+      const currentQuestion = state.questions[questionIndex];
+      if (!currentQuestion.visited) {
+        // console.log(`Marking question ${questionIndex} as visited`);
+        state.questions[questionIndex].visited = true;
+      } 
+    },
     
     setSelectedOption(state, action) {
       const { index, option } = action.payload;

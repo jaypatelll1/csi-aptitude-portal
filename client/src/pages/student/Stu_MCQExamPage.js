@@ -18,6 +18,9 @@ import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import {clearExamId} from "../../redux/ExamSlice"
 
 
+
+
+
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
 
@@ -79,6 +82,17 @@ const MCQExamPage = () => {
     // console.log("response is submit final", response.data);
   };
 
+
+  useEffect(() => {
+    const currentQuestion = questions[currentQuestionIndex];
+    
+    // Mark as visited if it hasn't been visited yet
+    if (currentQuestion && !currentQuestion.visited) {
+      dispatch(visitQuestion(currentQuestionIndex));  // Mark as visited
+    }
+  }, [dispatch, questions, currentQuestionIndex]);
+
+
   useEffect(() => {
     const socketConnect = async () => {
       try {
@@ -106,7 +120,7 @@ const MCQExamPage = () => {
 
         // Listen for timer updates
         socket.on("timer_update", (data) => {
-          console.log("Timer update received:", data.remainingTime);
+          // console.log("Timer update received:", data.remainingTime);
           setRemainingTime(data.remainingTime);
         });
 
@@ -219,6 +233,42 @@ const MCQExamPage = () => {
   //   };
   // }, [navigate,examId]);
 
+  // Handler when the network goes offline
+const handleOffline = () => {
+  const socket = socketRef.current;
+  if (!socket) {
+    console.error("Socket connection not found.");
+    return; // Early return if socket is not available
+  }
+  try {
+    socket.on("disconnect", (data) => {
+      console.log(data);
+    });
+
+    alert('You are offline. Some features may not be available.');
+    navigate("/home", {replace : true})
+
+ 
+  } catch (error) {
+    console.log(`timer couldonot stop`)
+  }
+  
+
+};
+  
+
+  useEffect(() => {
+    // Add event listeners for online and offline events
+
+    window.addEventListener('offline', handleOffline);
+
+    // Cleanup the event listeners when the component unmounts
+    return () => {
+      
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       dispatch(visitQuestion(currentQuestionIndex + 1));
@@ -246,7 +296,7 @@ const MCQExamPage = () => {
 
     setTestSubmitted(true);
     submitFinalResponse();
-    socket.emit("submit_responses");
+     socket.emit("submit_responses");
     dispatch(clearExamId(examId))
     navigate("/home", { replace: true });
     dispatch(clearQuestions());

@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 // Pages
 import Stu_login from "./pages/Login";
@@ -19,7 +19,7 @@ import TestInstruction from "./pages/student/Stu_TestInstruction";
 import ResetPassword from "./pages/student/Stu_ResetPassword";
 import TestStudentList from "./pages/admin/Adm_TestStudentList";
 import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
-import Stu_PastTest from "./pages/student/Stu_PastTest";
+// import Stu_PastTest from "./pages/student/Stu_PastTest";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
