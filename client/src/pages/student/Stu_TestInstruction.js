@@ -130,7 +130,7 @@ const TestInstruction = () => {
           }
           
 
-          dispatch(setQuestions(formattedQuestions));
+         
 
 
         }
