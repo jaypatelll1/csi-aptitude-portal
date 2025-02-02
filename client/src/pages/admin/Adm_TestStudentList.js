@@ -9,7 +9,7 @@ const TestStudentList = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(5);
+  const [limit] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);

@@ -17,7 +17,7 @@ const Adm_ViewQuestions = () => {
   const [testDuration, setTestDuration] = useState();
   const sidebarRef = useRef(null);
   let examId = useSelector((state) => state.exam.examId);
-  console.log("exam_id is ", examId);
+  // console.log("exam_id is ", examId);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

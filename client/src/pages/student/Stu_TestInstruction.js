@@ -105,8 +105,8 @@ const TestInstruction = () => {
           // Format questions with selected options directly in map()
           const formattedQuestions = responses.data.responses.map((q) => ({
             ...q,
-            answered: false,
-            visited: false,
+            answered: q.selected_option !==null,
+            visited: q.selected_option !==null ,
             selectedOption: q.selected_option || null, // Directly use selected_option
           }));
         
@@ -218,6 +218,7 @@ const TestInstruction = () => {
                       <span className="font-semibold">Time allotted:</span> {examItem.duration} minutes
                     </li>
                     <li>Each question carries 1 mark; there are no negative marks.</li>
+                    <li>If all questions have been visited, you may submit the test.</li>
                     <li>Do not refresh the page.</li>
                     <li>All the best!</li>
                   </ul>

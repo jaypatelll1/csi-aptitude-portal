@@ -14,8 +14,9 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import { clearQuestions } from "../../redux/questionSlice";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
-import {clearExamId} from "../../redux/ExamSlice"
+// import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import { clearExamId } from "../../redux/ExamSlice"
+
 
 
 
@@ -29,6 +30,9 @@ const MCQExamPage = () => {
   const dispatch = useDispatch();
   const { examId } = useParams();
   const navigate = useNavigate();
+  const exam = useSelector((state) => state.exam.exam)
+  // console.log('exam',exam);
+
   // console.log('examid is ',examId);
 
   const location = useLocation();
@@ -85,7 +89,7 @@ const MCQExamPage = () => {
 
   useEffect(() => {
     const currentQuestion = questions[currentQuestionIndex];
-    
+
     // Mark as visited if it hasn't been visited yet
     if (currentQuestion && !currentQuestion.visited) {
       dispatch(visitQuestion(currentQuestionIndex));  // Mark as visited
@@ -108,12 +112,12 @@ const MCQExamPage = () => {
 
         // Handle socket connection
         socket.on("connect", () => {
-          
+
         });
 
         // Emit the start_exam event
         socket.emit("start_exam", {
-         
+
           exam_id: examId,
           duration: Duration * 60,
         });
@@ -163,7 +167,7 @@ const MCQExamPage = () => {
       // Call handleSubmitTest when timeUp is true
       handleSubmitTest();
     }
-  }, [timeUp]); 
+  }, [timeUp]);
 
   // useEffect(() => {
   //   // Make sure socketRef is initialized
@@ -241,28 +245,28 @@ const MCQExamPage = () => {
   // }, [navigate,examId]);
 
   // Handler when the network goes offline
-const handleOffline = () => {
-  const socket = socketRef.current;
-  if (!socket) {
-    console.error("Socket connection not found.");
-    return; // Early return if socket is not available
-  }
-  try {
-    socket.on("disconnect", (data) => {
-      console.log(data);
-    });
+  const handleOffline = () => {
+    const socket = socketRef.current;
+    if (!socket) {
+      console.error("Socket connection not found.");
+      return; // Early return if socket is not available
+    }
+    try {
+      socket.on("disconnect", (data) => {
+        console.log(data);
+      });
 
-    alert('You are offline. Some features may not be available.');
-    navigate("/home", {replace : true})
+      alert('You are offline. Some features may not be available.');
+      navigate("/home", { replace: true })
 
- 
-  } catch (error) {
-    console.log(`timer couldonot stop`)
-  }
-  
 
-};
-  
+    } catch (error) {
+      console.log(`timer couldonot stop`)
+    }
+
+
+  };
+
 
   useEffect(() => {
     // Add event listeners for online and offline events
@@ -271,7 +275,7 @@ const handleOffline = () => {
 
     // Cleanup the event listeners when the component unmounts
     return () => {
-      
+
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
@@ -300,21 +304,21 @@ const handleOffline = () => {
   const handleSubmitTest = async () => {
     const socket = socketRef.current;
     if (!socket) return;
-  
+
     setTestSubmitted(true);
     await submitFinalResponse();
     socket.emit("submit_responses");
     dispatch(clearExamId(examId));
     dispatch(clearQuestions());
-  
+
     alert("Test submitted successfully!");
-  
+
     // Ensuring navigation happens after the alert closes
     Promise.resolve().then(() => {
       navigate("/home", { replace: true });
     });
   };
-  
+
 
   return (
     <div className="flex-1">
@@ -345,9 +349,14 @@ const handleOffline = () => {
         )}
 
         <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8]">
-          <h1 className="text-xl font-bold text-gray-800 mb-4">
-            General Knowledge
-          </h1>
+          {exam?.filter((examItem) => examItem.exam_id === Number(examId)) // Filter exams matching examId
+            .map((examItem) => (
+              <h1 key={examItem.exam_id} className="text-xl font-bold text-gray-800 mb-4">
+                {examItem.exam_name}
+              </h1>
+            ))}
+
+
           <div className="bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-black">
@@ -407,7 +416,7 @@ const handleOffline = () => {
         <Sidebar
           name={userName}
           onSubmitTest={handleSubmitTest}
-       
+
         />
       </div>
     </div>
