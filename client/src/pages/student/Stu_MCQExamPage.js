@@ -158,6 +158,13 @@ const MCQExamPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (timeUp) {
+      // Call handleSubmitTest when timeUp is true
+      handleSubmitTest();
+    }
+  }, [timeUp]); 
+
   // useEffect(() => {
   //   // Make sure socketRef is initialized
   //   const socket = socketRef.current;
@@ -290,18 +297,24 @@ const handleOffline = () => {
     }
   };
 
-  const handleSubmitTest = () => {
+  const handleSubmitTest = async () => {
     const socket = socketRef.current;
-    if (!socket) return; 
-
+    if (!socket) return;
+  
     setTestSubmitted(true);
-    submitFinalResponse();
-     socket.emit("submit_responses");
-    dispatch(clearExamId(examId))
-    navigate("/home", { replace: true });
+    await submitFinalResponse();
+    socket.emit("submit_responses");
+    dispatch(clearExamId(examId));
     dispatch(clearQuestions());
+  
     alert("Test submitted successfully!");
+  
+    // Ensuring navigation happens after the alert closes
+    Promise.resolve().then(() => {
+      navigate("/home", { replace: true });
+    });
   };
+  
 
   return (
     <div className="flex-1">
@@ -394,7 +407,7 @@ const handleOffline = () => {
         <Sidebar
           name={userName}
           onSubmitTest={handleSubmitTest}
-          limit={timeUp}
+       
         />
       </div>
     </div>

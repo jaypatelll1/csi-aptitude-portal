@@ -2,7 +2,7 @@ import React ,{useEffect} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { visitQuestion } from "../../../redux/questionSlice";
 
-const Sidebar = ({ name , onSubmitTest , limit }) => {
+const Sidebar = ({ name , onSubmitTest  }) => {
   const dispatch = useDispatch();
   
   const { questions, currentQuestionIndex } = useSelector(
@@ -14,12 +14,12 @@ const Sidebar = ({ name , onSubmitTest , limit }) => {
   const total = questions.length;
   const remaining = total - attemptedCount;
 
-  // Auto-submit when the limit is reached
-  useEffect(() => {
-    if (limit) {
-      onSubmitTest();
-    }
-  }, [limit, onSubmitTest]);
+  // // Auto-submit when the limit is reached
+  // useEffect(() => {
+  //   if (limit) {
+  //     onSubmitTest();
+  //   }
+  // }, [limit, onSubmitTest]);
 
   return (
     <div className="w-3/12 flex items-center justify-center">
