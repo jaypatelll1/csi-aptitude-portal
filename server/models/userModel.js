@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+
 const { paginate } = require('../utils/pagination');
 
 // Function to find a user by email
@@ -28,7 +29,7 @@ const getUserById = async (id) => {
 const createUser = async (
   name,
   email,
-  hashPassword,
+  passwordHash,
   role,
   year,
   department,
@@ -41,13 +42,15 @@ const createUser = async (
     const newUser = await pool.query(query, [
       name,
       email,  
-      hashPassword,
+      passwordHash,
       role,
       year,
       department,
       rollno,
       phone,
     ]);
+
+    
     return newUser.rows[0];
   } catch (err) {
     console.error(err);

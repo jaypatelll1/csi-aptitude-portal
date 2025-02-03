@@ -3,7 +3,7 @@ const pool = require('../config/db');
 const { calculateAndStoreTotalScore } = require('./scoreUtils');
 
 // Run this job every minute (adjust schedule as needed)
-const autoUpdate = cron.schedule('0 * * * *', async () => {
+const autoUpdate = cron.schedule('*/5 * * * *', async () => {
   try {
     // const now = new Date().toISOString();
     // console.log('Current time:', now);

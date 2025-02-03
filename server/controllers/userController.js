@@ -23,6 +23,8 @@ const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
 const { token } = require('morgan');
+const {generateRandomPassword} = require("../utils/randomPassword")
+const { sendBulkEmailToUsers } = require('../utils/emailSender');
 const dotenv = require('dotenv');
 dotenv.config();
 // Function to create a new user/register
@@ -32,7 +34,6 @@ const registerUser = async (req, res) => {
   if (
     !name ||
     !email ||
-    !password ||
     !role ||
     !year ||
     !department ||
@@ -43,15 +44,19 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
   try {
+
     const existingUser = await userModel.findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
-    const hashedPassword = await hashPassword(password, 10);
+    const password = generateRandomPassword(8, true)
+    // Ensure password is a string
+    const passwordHash = await hashPassword(password.toString());
+
     const newUser = await userModel.createUser(
       name,
       email,
-      hashedPassword,
+      passwordHash,
       role,
       year,
       department,
@@ -66,6 +71,7 @@ const registerUser = async (req, res) => {
         status: 'success',
         details: 'User registered successfully',
       });
+      await sendBulkEmailToUsers(email, password);
       return res.status(201).json(newUser);
     }
   } catch (err) {
