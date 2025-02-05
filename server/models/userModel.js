@@ -60,7 +60,7 @@ const createUser = async (
 
 const getAllStudents = async (role) => {
   const query =
-  `SELECT user_id, name, email, role , department,year,phone, rollno,  
+  `SELECT user_id, name, email, role , department,year,phone, rollno  
   FROM users 
   WHERE role = $1 
   ORDER BY user_id ASC`
