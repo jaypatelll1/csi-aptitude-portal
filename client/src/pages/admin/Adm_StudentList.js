@@ -138,7 +138,7 @@ const StudentList = () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(
-          `${API_BASE_URL}/api/users/?page=1&role=Student&limit=1000`,
+          `${API_BASE_URL}/api/users/?role=Student`,
           {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
@@ -413,7 +413,7 @@ const StudentList = () => {
                 .map((student, index) => (
                   <tr key={student.user_id} className="hover:bg-gray-50">
                     {/* <td className='py-4 px-5 text-blue-700 font-bold'>{index + 1}</td> */}
-                    <td className="py-4">{index+1}</td>
+                    <td className="py-4">{student.user_id}</td>
                     <td className="py-4">{student.name}</td>
                     <td className="py-4">{student.email}</td>
                     <td className="py-4">{student.phone || "N/A"}</td>
