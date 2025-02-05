@@ -2,15 +2,24 @@ const pool = require('../config/db');
 const format = require('pg-format');
 const { paginate } = require('../utils/pagination');
 
-// Delete Existing Responses
 const deleteExistingResponses = async (exam_id, user_id) => {
-  // console.log('exam_id, user_id',exam_id, user_id);
-  
+  if (!exam_id || !user_id) {
+    throw new Error("Both exam_id and user_id are required to delete responses.");
+  }
+
   const query = `DELETE FROM responses WHERE exam_id = $1 AND student_id = $2;`;
   const values = [exam_id, user_id];
 
-  const result = await pool.query(query, values);
+  try {
+    const result = await pool.query(query, values);
+    console.log(`Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, user_id: ${user_id}`);
+    return { success: true, deletedRows: result.rowCount };
+  } catch (error) {
+    console.error("Error deleting responses:", error);
+    throw new Error("Failed to delete responses. Please try again.");
+  }
 };
+
 
 // Submit a response
 const submitResponse = async (
@@ -142,6 +151,24 @@ const updateResponse = async (response_id, selected_option) => {
   return result.rows[0]; // Return the updated response if found
 };
 
+const getExamIdByResponse = async (status,user_id) => {
+  try {
+    const result = await pool.query(
+        `SELECT DISTINCT exam_id FROM responses 
+         WHERE student_id = $1 AND status = $2`, 
+        [user_id,status]  
+    );
+
+    // Return only the exam_id array
+    return result.rows.map(row => row.exam_id)
+
+} catch (error) {
+    console.error(error);
+   return error 
+}
+}
+
+
 // Delete a response
 const deleteResponse = async (response_id) => {
   const query = `
@@ -155,19 +182,25 @@ const deleteResponse = async (response_id) => {
   return result.rowCount > 0; // Return true if a row was deleted
 };
 
-// Pagination
-// Get paginated responses for a specific exam and student
 const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
-  const query = `
-  SELECT response_id, selected_option, answered_at, responses.question_id, question_text
-  FROM responses
-  INNER JOIN questions ON responses.question_id = questions.question_id
-  WHERE questions.exam_id = ${exam_id}
+  let query = `
+    SELECT response_id, selected_option, answered_at, responses.question_id, q.question_text,q.options  
+    FROM responses
+    INNER JOIN questions AS q ON responses.question_id = q.question_id
+    WHERE q.exam_id = $1 AND responses.student_id = $2
+    order by response_id
   `;
-  const paginatedQuery = paginate(query, page, limit);
-  const result = await pool.query(paginatedQuery);
+
+  const values = [exam_id, student_id];
+
+  if (page && limit) {
+    query = paginate(query, page, limit); // Use pagination function
+  }
+
+  const result = await pool.query(query, values);
   return result.rows;
 };
+
 
 module.exports = {
   submitResponse,
@@ -180,4 +213,5 @@ module.exports = {
   submittedUnansweredQuestions,
   submitFinalResponsesAndChangeStatus,
   deleteExistingResponses,
+  getExamIdByResponse
 };

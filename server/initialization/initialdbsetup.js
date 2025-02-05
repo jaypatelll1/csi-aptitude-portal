@@ -36,6 +36,7 @@ CREATE TABLE exams (
     duration INTEGER,
     start_time TIMESTAMP,
     end_time TIMESTAMP,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     status exam_status DEFAULT 'draft',
     FOREIGN KEY (created_by) REFERENCES users (user_id)
 );

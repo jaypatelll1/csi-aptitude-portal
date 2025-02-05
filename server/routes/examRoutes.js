@@ -17,7 +17,6 @@ const {
  
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
-const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
 
 const router = express.Router();
 
@@ -38,6 +37,6 @@ router.put('/publish/:exam_id',authorizeRoles, scheduleExam); // to publish an e
 router.put('/past-exam/:exam_id',authorizeRoles, markPastExam); // to mark an exam as past
 router.put('/live-exam/:exam_id',authorizeRoles, markLiveExam); // to mark an exam as past
 
-router.delete('/:exam_id', jwtAuthMiddleware,authorizeRoles, deleteExam);
+router.delete('/:exam_id',authorizeRoles, deleteExam);
 
 module.exports = router;

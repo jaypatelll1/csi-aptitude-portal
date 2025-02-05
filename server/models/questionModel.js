@@ -51,6 +51,18 @@ const getQuestionsByExamId = async (exam_id) => {
     throw err;
   }
 };
+const getStudentQuestionsByExamId = async (exam_id) => {
+  const queryText = 'SELECT question_id ,exam_id,question_text,options FROM questions WHERE exam_id = $1';
+  const values = [exam_id];
+  try {
+    const res = await query(queryText, values);
+
+    return res.rows; // Return the inserted question
+  } catch (err) {
+    console.error('Error inserting question: 12345', err.stack);
+    throw err;
+  }
+};
 
 const UpdateQuestions = async (
   question_id,
@@ -101,4 +113,5 @@ module.exports = {
   UpdateQuestions,
   DeleteQuestions,
   getPaginatedQuestionsByExam,
+  getStudentQuestionsByExamId
 };

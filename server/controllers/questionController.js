@@ -1,5 +1,5 @@
 const questionModel = require('../models/questionModel');
-const { logActivity } = require('../utils/logger');
+const { logActivity } = require('../utils/logActivity');
 
 const createQuestions = async (req, res) => {
   const { question_text, options, correct_option } = req.body;
@@ -69,6 +69,37 @@ const getQuestion = async (req, res) => {
     res.status(500).json({ message: 'Error fetching questions', error });
   }
 };
+const getStudentQuestion = async (req, res) => {
+  const { exam_id } = req.params;
+  const id = req.user.id; // Get user_id from token
+  try {
+    const questions = await questionModel.getStudentQuestionsByExamId(exam_id);
+
+    if (!questions) {
+      await logActivity({
+        user_id: id,
+        activity: 'View Question',
+        status: 'failure',
+        details: 'No Questions found',
+      });
+      return res.status(404).json({
+        error: ' Not Found',
+        message: 'Resource not Found',
+      });
+    }
+    await logActivity({
+      user_id: id,
+      activity: 'View Question',
+      status: 'success',
+      details: 'View Questions successfully',
+    });
+    res.status(200).json(questions);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching questions', error });
+  }
+};
+
+// getStudentQuestion
 
 const UpdateQuestion = async (req, res) => {
   const { question_id, exam_id } = req.params;
@@ -168,4 +199,5 @@ module.exports = {
   UpdateQuestion,
   DeleteQuestion,
   getPaginatedQuestionsByExam,
+  getStudentQuestion
 };

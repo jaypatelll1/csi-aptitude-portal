@@ -9,13 +9,17 @@ const parseExcelQuestion = async (filePath, examId) => {
     const sheetNames = workbook.SheetNames;
     const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
     // console.log("Excel Data to insert:", jsonData);
-
+    const warnings = []; // Collect all warnings here
+    let index = 0; 
     for (const row of jsonData) {
+      // console.log(jsonData)
       const { question_text, correct_option, options_a, options_b, options_c, options_d } = row;
 
       if (!question_text || (!options_a && !options_b && !options_c && !options_d) || !correct_option) {
-        console.warn(`Skipping invalid row: ${JSON.stringify(row)}`);
-        continue;
+        warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
+        // console.log(warnings)
+    index++; // Increment index
+    continue;
       }
 
       // Construct the options object dynamically
@@ -33,9 +37,11 @@ const parseExcelQuestion = async (filePath, examId) => {
       `;
       const values = [examId, question_text, JSON.stringify(optionsObject), correct_option];
       await query(queryText, values);
+      index++; // Increment index after processin
     }
 
     console.log("All Excel data inserted successfully.");
+    return warnings; 
   } catch (err) {
     console.error("Error inserting Excel data:", err);
     throw new Error(err.detail || "Error inserting data into the database");

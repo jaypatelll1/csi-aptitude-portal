@@ -276,4 +276,4 @@ module.exports = {
   getLastExam,
   getExamsByStatus,
   ExamCount
-};
+};  
