@@ -32,7 +32,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 const FRONTEND_ORIGIN = process.env.NODE_ENV === 'production'
-? ['https://csi-aptitude-portal-client.onrender.com', 'http://localhost:3000']
+? ['https://csi-aptitude-portal-client.onrender.com', 'http://localhost:3000', 'https://aptitude.csiace.com']
 : ['http://localhost:3000']; // Development also returns an array
 // Local frontend URL
 

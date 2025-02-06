@@ -1,6 +1,7 @@
 const path = require("path");
 const { parseExcelUsers, parseCSVusers, } = require("../models/UserFileModels");
-const fs = require("fs");
+const fs = require("fs/promises");
+const { Worker } = require("worker_threads");
 
 const uploadFile = async (req, res) => {
     const filePath = path.resolve('uploads', req.file.filename);
@@ -10,60 +11,143 @@ const uploadFile = async (req, res) => {
     if (fileExtension === ".xlsx" || fileExtension === ".xls") {
         // Parse Excel file
         try {
-            // Call the model function to parse and insert data
-            const result = await parseExcelUsers(filePath);
-            // console.log('result', result);
-
-            // Check the result and send appropriate response
-          if (result.status === 'success') {
-                // If there are warnings, include them in the response
-                return res.json({
-                    status: 'success',
-                    message: result.message,
-                    warnings: result.warnings || [] // Send warnings if they exist
-                });
-            } else {
-                // If there's an error, send the error message
-                return res.status(500).json({
+            const worker = new Worker("./workers/fileParser.js", {workerData: {
+                filePath : filePath,
+                fileExtension : fileExtension
+            }});
+            let hasResponded = false;
+        
+            res.on('close', () => {
+                worker.terminate();
+            });
+        
+            // Add timeout handling
+            const timeout = setTimeout(() => {
+                if (!hasResponded) {
+                    hasResponded = true;
+                    worker.terminate();
+                    res.status(500).json({
+                        status: 'error',
+                        message: 'Worker timeout'
+                    });
+                }
+            }, 30000); // 30 second timeout
+        
+            worker.on("message", async (message) => {
+                if (hasResponded) return;
+                hasResponded = true;
+                clearTimeout(timeout);
+        
+                try {
+                    console.log("Worker message:", message);
+                    if (message.status === 'success') {
+                        await fs.unlink(filePath); // Delete file after successful processing
+                        res.json({
+                            status: 'success',
+                            message: message.message,
+                            warnings: message.warnings || []
+                        });
+                    } else {
+                        res.status(500).json({
+                            status: 'error',
+                            message: message.message || 'Unknown error'
+                        });
+                    }
+                } catch (err) {
+                    console.error('Message handler error:', err);
+                } finally {
+                    worker.terminate();
+                }
+            });
+            
+            worker.on("error", (error) => {
+                if (hasResponded) return;
+                hasResponded = true;
+                clearTimeout(timeout);
+        
+                console.error("Worker error:", error);
+                res.status(500).json({
                     status: 'error',
-                    message: result.message
+                    message: error.message || 'Worker encountered an error'
                 });
-            }
+                worker.terminate();
+            });
         } catch (err) {
-            console.error("Error uploading file:", err);
+            console.error("Error:", err);
             return res.status(500).json({
                 status: 'error',
-                message: "An unexpected error occurred."
+                message: err.message || 'An unexpected error occurred'
             });
         }
     } else if (fileExtension === ".csv") {
         // Parse CSV file
         try {
-            // Call the model function to parse and insert data
-            const result = await parseCSVusers(filePath);
-            console.log('result', result);
-
-
-            // Check the result and send appropriate response
-            if (result.status === 'success') {
-                // If there are warnings, include them in the response
-                return res.json({
-                    status: 'success',
-                    message: result.message,
-                    warnings: result.warnings || [] // Send warnings if they exist
-                });
-            } else {
-                // If there's an error, send the error message
-                return res.status(500).json({
+            const worker = new Worker("./workers/fileParser.js", {workerData: {
+                filePath : filePath,
+                fileExtension : fileExtension
+            }});
+            let hasResponded = false;
+        
+            res.on('close', () => {
+                worker.terminate();
+            });
+        
+            // Add timeout handling
+            const timeout = setTimeout(() => {
+                if (!hasResponded) {
+                    hasResponded = true;
+                    worker.terminate();
+                    res.status(500).json({
+                        status: 'error',
+                        message: 'Worker timeout'
+                    });
+                }
+            }, 30000); // 30 second timeout
+        
+            worker.on("message", async (message) => {
+                if (hasResponded) return;
+                hasResponded = true;
+                clearTimeout(timeout);
+        
+                try {
+                    console.log("Worker message:", message);
+                    if (message.status === 'success') {
+                        await fs.unlink(filePath); // Delete file after successful processing
+                        res.json({
+                            status: 'success',
+                            message: message.message,
+                            warnings: message.warnings || []
+                        });
+                    } else {
+                        res.status(500).json({
+                            status: 'error',
+                            message: message.message || 'Unknown error'
+                        });
+                    }
+                } catch (err) {
+                    console.error('Message handler error:', err);
+                } finally {
+                    worker.terminate();
+                }
+            });
+            
+            worker.on("error", (error) => {
+                if (hasResponded) return;
+                hasResponded = true;
+                clearTimeout(timeout);
+        
+                console.error("Worker error:", error);
+                res.status(500).json({
                     status: 'error',
-                    message: result.message
+                    message: error.message || 'Worker encountered an error'
                 });
-            }
+                worker.terminate();
+            });
         } catch (err) {
-            console.error("Error uploading file:", err);
+            console.error("Error:", err);
             return res.status(500).json({
                 status: 'error',
-                message: "An unexpected error occurred."
+                message: err.message || 'An unexpected error occurred'
             });
         }
     } else {
@@ -71,15 +155,15 @@ const uploadFile = async (req, res) => {
     }
 
 
-    setTimeout(() => {
-        try {
-            console.log('Deleting file:', filePath);
-            fs.unlinkSync(filePath);
-            console.log('File deleted successfully:', filePath);
-        } catch (err) {
-            console.error('Error deleting file:', err);
-        }
-    }, 5000);
+    // setTimeout(() => {
+    //     try {
+    //         console.log('Deleting file:', filePath);
+    //         fs.unlinkSync(filePath);
+    //         console.log('File deleted successfully:', filePath);
+    //     } catch (err) {
+    //         console.error('Error deleting file:', err);
+    //     }
+    // }, 5000);
 
 };
 
