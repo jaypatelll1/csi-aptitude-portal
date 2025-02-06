@@ -94,12 +94,12 @@ app.get('/', (req, res) => {
 // Centralized error handling middleware
 app.use(errorHandler);
 
-// server.listen(PORT, HOST ,() => {
-//   console.log(`Server is running at http://${HOST}:${PORT}`);
-// });
+server.listen(PORT, HOST ,() => {
+  console.log(`Server is running at http://${HOST}:${PORT}`);
+});
 
 // FOR SOCKET.IO TESTING
-server.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+// server.listen(PORT, () => {
+//   console.log(`Server is running at http://localhost:${PORT}`);
 
-});
+// });
