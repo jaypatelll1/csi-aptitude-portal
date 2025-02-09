@@ -85,7 +85,14 @@ CREATE TABLE student_analysis (
     attempted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
+CREATE TABLE student_rank (
+    rank_id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    department_name branch_enum NOT NULL,
+    rank INT NOT NULL,
+    total_students INT NOT NULL, -- Total students in the department
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 `;
 
 // Function to initialize the database schema
