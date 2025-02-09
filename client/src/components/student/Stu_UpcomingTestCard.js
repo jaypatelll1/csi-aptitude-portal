@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import DataTime from "../../../components/admin/Adm_DataTime";
+import DataTime from "../admin/Adm_DataTime";
 import axios from "axios";
 const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
-const Adm_PastCard = ({ test }) => {
+const Adm_UpcomingTestCard = ({ test }) => {
   // console.log('test is ',test);
 
   const [isScheduling, setIsScheduling] = useState(false);
@@ -59,7 +59,7 @@ const Adm_PastCard = ({ test }) => {
     axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
       start_time: start,
       end_time: end,
-    } ,{
+    },{
       withCredentials: true,  // Make sure the cookie is sent with the request
   })
       .then(() => {
@@ -77,9 +77,9 @@ const Adm_PastCard = ({ test }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 border border-[#1AAB07] flex flex-col">
+    <div className="bg-white rounded-lg p-4 border border-gray-400 flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <span className="flex items-center bg-white text-[#1AAB07] border border-[#1AAB07] opacity-90 text-sm px-2 py-1 rounded space-x-2">
+        <span className="flex items-center bg-gray-100 text-gray-900 border border-gray-700 opacity-90 text-sm px-2 py-1 rounded space-x-2">
           {/* SVG Icon */}
           <svg
             width="16"
@@ -93,7 +93,7 @@ const Adm_PastCard = ({ test }) => {
               fill="#797979"
             />
           </svg>
-          <span>Finished</span>
+          <span>Upcoming test</span>
         </span>
         <span className="text-black-500 text-sm">Created on: {test.date}</span>
       </div>
@@ -186,11 +186,11 @@ const Adm_PastCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border  opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button className="bg-blue-200 text-blue-900 px-3 lg:px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
         >
 
 
-          View Results
+          Start Test
         </button>
         {/* <button
           onClick={() => setIsScheduling(true)}
@@ -224,4 +224,4 @@ const Adm_PastCard = ({ test }) => {
   );
 };
 
-export default Adm_PastCard;
+export default Adm_UpcomingTestCard;

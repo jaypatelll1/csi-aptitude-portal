@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Stu_Sidebar from "../../components/student/home/Stu_Sidebar"; // Sidebar component
-import Stu_UpcomingTestCard from "../../components/student/home/Stu_UpcomingTestCard"; 
+import Stu_Sidebar from "../../components/student/Stu_Sidebar"; // Sidebar component
+import Stu_UpcomingTestCard from "../../components/student/Stu_UpcomingTestCard"; 
 import { useSelector } from 'react-redux';
 
 

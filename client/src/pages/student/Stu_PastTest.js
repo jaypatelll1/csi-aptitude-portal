@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Stu_Sidebar from "../../components/student/home/Stu_Sidebar"; // Sidebar component
-import Stu_PastCard from "../../components/student/home/Stu_PastCard";
+import Stu_Sidebar from "../../components/student/Stu_Sidebar"; // Sidebar component
+import Stu_PastCard from "../../components/student/Stu_PastCard";
 import { useSelector, useDispatch } from "react-redux";
-import Stu_Sidebar from "../../components/student/home/Stu_Sidebar";
+import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 
 const Stu_PastTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests

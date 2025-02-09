@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import Stu_Sidebar from "../../components/admin/Adm_Sidebar";
-import Details from "../../components/student/home/Stu_Details";
+import Stu_Sidebar from "../../components/student/Stu_Sidebar";
+import Details from "../../components/student/Stu_Details";
 
 function Stu_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Stu_Sidebar from "../../components/student/home/Stu_Sidebar";
+import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import { useLocation } from "react-router-dom";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import { useDispatch, useSelector } from "react-redux";
