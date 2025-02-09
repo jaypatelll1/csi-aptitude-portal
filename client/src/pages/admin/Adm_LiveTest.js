@@ -5,7 +5,7 @@ import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"; // Draft
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_DraftTest = () => {
+const Adm_LiveTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -226,4 +226,4 @@ const Adm_DraftTest = () => {
   );
 };
 
-export default Adm_DraftTest;
+export default Adm_LiveTest;

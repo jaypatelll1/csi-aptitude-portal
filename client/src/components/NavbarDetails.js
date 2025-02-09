@@ -7,7 +7,7 @@ import { clearExamId } from "../redux/ExamSlice";
 import { clearQuestions } from "../redux/questionSlice";
 
 
-const Details = () => {
+const NavbarDetails = () => {
   let user = useSelector((state) => state.user.user);
   let examId = useSelector((state)=>state.exam.examId)
   // console.log("user is ", user);
@@ -54,4 +54,4 @@ const Details = () => {
   );
 };
 
-export default Details;
+export default NavbarDetails;

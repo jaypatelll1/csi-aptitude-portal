@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 
-const CreateTestPage = () => {
+const Dep_CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
   const [branch, setBranch] = useState([]);
@@ -351,4 +351,4 @@ const CreateTestPage = () => {
   );
 };
 
-export default CreateTestPage;
+export default Dep_CreateTestPage;

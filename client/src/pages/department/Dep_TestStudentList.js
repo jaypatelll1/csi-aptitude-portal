@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const TestStudentList = () => {
+const Dep_TestStudentList = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [page, setPage] = useState(1);
@@ -340,4 +340,4 @@ const TestStudentList = () => {
   );
 };
 
-export default TestStudentList;
+export default Dep_TestStudentList;
