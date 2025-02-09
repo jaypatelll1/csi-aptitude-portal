@@ -89,4 +89,53 @@ const testCompletion = async (student_id) => {
     }
 }
 
-module.exports = { getOverallResultsOfAStudent, getResultOfAParticularExam, testCompletion };
+// Check if student analysis already exists
+async function checkStudentAnalysis(exam_id, student_id) {
+  try {
+      const sql = `
+          SELECT * FROM student_analysis 
+          WHERE exam_id = $1 AND student_id = $2;
+      `;
+
+      const result = await query(sql, [exam_id, student_id]);
+      return result.rows.length > 0; // Returns true if entry exists, false otherwise
+  } catch (error) {
+      console.error("Error checking student analysis:", error);
+      throw error;
+  }
+}
+
+
+async function insertStudentAnalysis(data) {
+    try {
+        const sql = `
+            INSERT INTO student_analysis (
+                exam_id, department_name, student_id, student_name, exam_name, 
+                category, total_score, max_score, attempted
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING *;
+        `;
+
+        const values = [
+            data.exam_id,
+            data.department_name,
+            data.student_id,
+            data.student_name,
+            data.exam_name,
+            data.category,
+            data.total_score,
+            data.max_score,
+            data.attempted
+        ];
+
+        const result = await query(sql, values);
+        return result.rows[0];  // Return the inserted row
+    } catch (error) {
+        console.error("Error inserting student analysis:", error);
+        throw error;
+    }
+}
+
+
+
+module.exports = { getOverallResultsOfAStudent, getResultOfAParticularExam, testCompletion ,insertStudentAnalysis , checkStudentAnalysis };

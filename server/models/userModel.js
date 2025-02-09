@@ -16,7 +16,7 @@ const findUserByEmail = async (email) => {
 
 const getUserById = async (id) => {
   try {
-    const query = 'SELECT * FROM users WHERE user_id = $1::text;';
+    const query = 'SELECT * FROM users WHERE user_id = $1;';
     const result = await pool.query(query, [id]);
     return result.rows[0];
   } catch (err) {
