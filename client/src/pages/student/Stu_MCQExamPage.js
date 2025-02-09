@@ -7,177 +7,114 @@ import {
   setQuestions,
   setSelectedOption,
   visitQuestion,
+  clearQuestions,
 } from "../../redux/questionSlice";
-import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponent";
-import { useParams } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { clearQuestions } from "../../redux/questionSlice";
-// import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import { clearExamId } from "../../redux/ExamSlice";
+import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponent";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "./MCQExamPage.css";
+
 const MCQExamPage = () => {
-  // const socket = io('/exams/start-exam');
-
   const socketRef = useRef(null);
-
   const dispatch = useDispatch();
   const { examId } = useParams();
   const navigate = useNavigate();
   const exam = useSelector((state) => state.exam.exam);
-  // console.log('exam',exam);
-
-  // console.log('examid is ',examId);
-
   const location = useLocation();
   const Duration = location.state?.Duration;
-  // console.log('duration is',Duration);
-
   const userId = useSelector((state) => state.user.user.id);
   const userName = useSelector((state) => state.user.user.name);
   const userEmail = useSelector((state) => state.user.user.email);
-
-  // console.log('usesr id is ',userId);
-
   const { questions, currentQuestionIndex } = useSelector(
     (state) => state.questions
   );
+
   const [fullscreenError, setFullscreenError] = useState(false);
   const [testSubmitted, setTestSubmitted] = useState(false);
   const [remainingTime, setRemainingTime] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
 
-  // console.log(window.location.pathname); // Output: "/products/item"
-
   const formatTimeFromSeconds = (seconds) => {
-    const hours = Math.floor(seconds / 3600); // Get total hours
-    const minutes = Math.floor((seconds % 3600) / 60); // Get remaining minutes
-    const remainingSeconds = seconds % 60; // Get remaining seconds
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
 
-    // Format and return as HH:MM:SS
     return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-  const Watermark = ({ text }) => {
-    return (
-      <div
-        className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
-        style={{
-          zIndex: 1,
-          transform: "rotate(-45deg)",
-          opacity: 0.1,
-        }}
-      >
-        <span
-          className="text-6xl font-bold text-gray-500 whitespace-nowrap"
-          style={{
-            userSelect: "none",
-          }}
-        >
-          {text}
-        </span>
-      </div>
-    );
-  };
+
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
     if (rootElement.requestFullscreen) {
       rootElement.requestFullscreen().catch((err) => {
         console.error("Fullscreen request failed:", err);
       });
-    } else if (rootElement.webkitRequestFullscreen) {
-      rootElement.webkitRequestFullscreen();
-    } else if (rootElement.msRequestFullscreen) {
-      rootElement.msRequestFullscreen();
     } else {
       console.warn("Fullscreen API is not supported in this browser.");
     }
   };
+
   const submitFinalResponse = async () => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
-    const response = await axios.put(url, {}, { withCredentials: true });
-    // console.log("response is submit final", response.data);
+    await axios.put(url, {}, { withCredentials: true });
   };
 
   useEffect(() => {
-    const currentQuestion = questions[currentQuestionIndex];
+    const disableKeyboard = (e) => e.preventDefault();
+    window.addEventListener("keydown", disableKeyboard);
+    return () => window.removeEventListener("keydown", disableKeyboard);
+  }, []);
 
-    // Mark as visited if it hasn't been visited yet
+  useEffect(() => {
+    const currentQuestion = questions[currentQuestionIndex];
     if (currentQuestion && !currentQuestion.visited) {
-      dispatch(visitQuestion(currentQuestionIndex)); // Mark as visited
+      dispatch(visitQuestion(currentQuestionIndex));
     }
   }, [dispatch, questions, currentQuestionIndex]);
 
   useEffect(() => {
     const socketConnect = async () => {
-      try {
-        if (!socketRef.current) {
-          const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-          socketRef.current = io(`${API_BASE_URL}/exams/start-exam`, {
-            withCredentials: true,
-          });
-          console.log("Socket not connected, initializing...");
+      if (!socketRef.current) {
+        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        socketRef.current = io(`${API_BASE_URL}/exams/start-exam`, {
+          withCredentials: true,
+        });
+      }
+
+      const socket = socketRef.current;
+      socket.emit("start_exam", {
+        exam_id: examId,
+        duration: Duration * 60,
+      });
+
+      socket.on("timer_update", (data) => setRemainingTime(data.remainingTime));
+      socket.on("exam_ended", () => {
+        submitFinalResponse();
+        setTimeUp(true);
+      });
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.off("connect");
+          socketRef.current.off("timer_update");
+          socketRef.current.off("exam_ended");
+          socketRef.current.disconnect();
         }
-
-        const socket = socketRef.current;
-
-        // Handle socket connection
-        socket.on("connect", () => {});
-
-        // Emit the start_exam event
-        socket.emit("start_exam", {
-          exam_id: examId,
-          duration: Duration * 60,
-        });
-
-        // Listen for timer updates
-        socket.on("timer_update", (data) => {
-          setRemainingTime(data.remainingTime);
-        });
-
-        // Listen for exam ended
-        socket.on("exam_ended", (data) => {
-          console.log("Exam ended:", data.message);
-          submitFinalResponse();
-          setTimeUp(true);
-        });
-
-        socket.on("disconnect", (data) => {
-          console.log(data);
-        });
-      } catch (error) {
-        console.error("Error during socket connection:", error);
-      }
+      };
     };
-
     socketConnect();
-
-    // Cleanup function to remove listeners and disconnect the socket
-    return () => {
-      if (socketRef.current) {
-        const socket = socketRef.current;
-        socket.off("connect");
-        socket.off("timer_update");
-        socket.off("exam_ended");
-        socket.disconnect();
-        console.log("Socket disconnected and listeners removed");
-      }
-    };
   }, []);
 
   useEffect(() => {
-    if (timeUp) {
-      // Call handleSubmitTest when timeUp is true
-      handleSubmitTest();
-    }
+    if (timeUp) handleSubmitTest();
   }, [timeUp]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement && !testSubmitted) {
-        setFullscreenError(true); // Show overlay when user exits fullscreen mode
+        setFullscreenError(true);
       }
     };
 
@@ -190,60 +127,36 @@ const MCQExamPage = () => {
     };
   }, [testSubmitted]);
 
-  const handlePermissionGranted = () => {
-    enableFullscreen();
-  };
-  const singleResponse = async (option, id) => {
-    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    let url = `${API_BASE_URL}/api/exams/responses/${examId}`;
-    let payload = {
-      question_id: id,
-      selected_option: option,
-      response_status: "draft",
-    };
-
-    const response = await axios.put(url, payload, { withCredentials: true });
-  };
-
   const handleOptionSelect = (option, id) => {
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
     singleResponse(option, id);
   };
 
-  const handleOffline = () => {
-    const socket = socketRef.current;
-    if (!socket) {
-      console.error("Socket connection not found.");
-      return; // Early return if socket is not available
-    }
-    try {
-      socket.on("disconnect", (data) => {
-        console.log(data);
-      });
+  const singleResponse = async (option, id) => {
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const url = `${API_BASE_URL}/api/exams/responses/${examId}`;
+    const payload = {
+      question_id: id,
+      selected_option: option,
+      response_status: "draft",
+    };
+    await axios.put(url, payload, { withCredentials: true });
+  };
 
-      alert("You are offline. Some features may not be available.");
-      navigate("/home", { replace: true });
-    } catch (error) {
-      console.log(`timer couldonot stop`);
-    }
+  const handleOffline = () => {
+    alert("You are offline. Some features may not be available.");
+    navigate("/home", { replace: true });
   };
 
   useEffect(() => {
-    // Add event listeners for online and offline events
-
     window.addEventListener("offline", handleOffline);
-
-    // Cleanup the event listeners when the component unmounts
-    return () => {
-      window.removeEventListener("offline", handleOffline);
-    };
+    return () => window.removeEventListener("offline", handleOffline);
   }, []);
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       dispatch(visitQuestion(currentQuestionIndex + 1));
     }
-    // console.log('option is ', option);
   };
 
   const handlePreviousQuestion = () => {
@@ -252,30 +165,14 @@ const MCQExamPage = () => {
     }
   };
 
-  const exitFullscreen = () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch((err) => {
-        console.error("Error exiting fullscreen:", err);
-      });
-    }
-  };
-
   const handleSubmitTest = async () => {
-    const socket = socketRef.current;
-    if (!socket) return;
-
     setTestSubmitted(true);
     await submitFinalResponse();
-    socket.emit("submit_responses");
+    socketRef.current.emit("submit_responses");
     dispatch(clearExamId(examId));
     dispatch(clearQuestions());
-
     alert("Test submitted successfully!");
-
-    // Ensuring navigation happens after the alert closes
-    Promise.resolve().then(() => {
-      navigate("/home", { replace: true });
-    });
+    navigate("/home", { replace: true });
   };
 
   return (
@@ -318,73 +215,71 @@ const MCQExamPage = () => {
               </h1>
             ))}
 
-<div className="relative bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8 overflow-hidden">
-  {/* Watermark Overlay */}
-  <div className="watermark-overlay">
-    {Array.from({ length: 300 }).map((_, index) => (
-      <div key={index} className="watermark-text">
-        {userEmail}
-      </div>
-    ))}
-  </div>
+          <div className="relative bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8 overflow-hidden">
+            {/* Watermark Overlay */}
+            <div className="watermark-overlay">
+              {Array.from({ length: 300 }).map((_, index) => (
+                <div key={index} className="watermark-text">
+                  {userEmail}
+                </div>
+              ))}
+            </div>
 
-  {/* Main Content */}
-  <div className="flex items-center justify-between mb-6">
-    <h2 className="text-2xl font-semibold text-black select-none">
-      {currentQuestionIndex + 1}.{" "}
-      {questions[currentQuestionIndex]?.question_text || "Loading..."}
-    </h2>
-    <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
-      {formatTimeFromSeconds(remainingTime)}
-    </span>
-  </div>
+            {/* Main Content */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-black select-none">
+                {currentQuestionIndex + 1}.{" "}
+                {questions[currentQuestionIndex]?.question_text || "Loading..."}
+              </h2>
+              <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
+                {formatTimeFromSeconds(remainingTime)}
+              </span>
+            </div>
 
-  <div className="space-y-4">
-    {Object.entries(questions[currentQuestionIndex]?.options || {}).map(
-      ([key, value]) => (
-        <label
-          key={key}
-          className="block p-2 rounded-lg hover:bg-gray-100 transition"
-        >
-          <input
-            type="radio"
-            name={`question-${currentQuestionIndex}`}
-            className="mr-2"
-            checked={
-              questions[currentQuestionIndex]?.selectedOption === key
-            }
-            onChange={() =>
-              handleOptionSelect(
-                key,
-                questions[currentQuestionIndex]?.question_id
-              )
-            }
-          />
-          {value}
-        </label>
-      )
-    )}
-  </div>
+            <div className="space-y-4">
+              {Object.entries(
+                questions[currentQuestionIndex]?.options || {}
+              ).map(([key, value]) => (
+                <label
+                  key={key}
+                  className="block p-2 rounded-lg hover:bg-gray-100 transition"
+                >
+                  <input
+                    type="radio"
+                    name={`question-${currentQuestionIndex}`}
+                    className="mr-2"
+                    checked={
+                      questions[currentQuestionIndex]?.selectedOption === key
+                    }
+                    onChange={() =>
+                      handleOptionSelect(
+                        key,
+                        questions[currentQuestionIndex]?.question_id
+                      )
+                    }
+                  />
+                  {value}
+                </label>
+              ))}
+            </div>
 
-  <div className="absolute bottom-5 w-full flex justify-between">
-    <button
-      className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
-      disabled={currentQuestionIndex === 0}
-      onClick={handlePreviousQuestion}
-    >
-      Previous
-    </button>
-    <button
-      className="px-4 py-2 mr-10 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
-      disabled={currentQuestionIndex === questions.length - 1}
-      onClick={handleNextQuestion}
-    >
-      Next
-    </button>
-  </div>
-</div>
-
-
+            <div className="absolute bottom-5 w-full flex justify-between">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
+                disabled={currentQuestionIndex === 0}
+                onClick={handlePreviousQuestion}
+              >
+                Previous
+              </button>
+              <button
+                className="px-4 py-2 mr-10 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
+                disabled={currentQuestionIndex === questions.length - 1}
+                onClick={handleNextQuestion}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
         <Sidebar name={userName} onSubmitTest={handleSubmitTest} />
       </div>
