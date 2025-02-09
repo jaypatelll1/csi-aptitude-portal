@@ -8,7 +8,7 @@ import UploadModal from "../../upload/UploadModal";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const StudentList = () => {
+const Dep_StudentList = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(undefined);
   const [students, setStudents] = useState([]);
@@ -510,4 +510,4 @@ const StudentList = () => {
   );
 };
 
-export default StudentList;
+export default Dep_StudentList;

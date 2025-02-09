@@ -1,13 +1,13 @@
 import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { clearUser } from "../../redux/userSlice";
+import { clearUser } from "../redux/userSlice";
 import { useSelector, useDispatch } from "react-redux";
-import { clearExamId } from "../../redux/ExamSlice";
-import { clearQuestions } from "../../redux/questionSlice";
+import { clearExamId } from "../redux/ExamSlice";
+import { clearQuestions } from "../redux/questionSlice";
 
 
-const Details = () => {
+const NavbarDetails = () => {
   let user = useSelector((state) => state.user.user);
   let examId = useSelector((state)=>state.exam.examId)
   // console.log("user is ", user);
@@ -54,4 +54,4 @@ const Details = () => {
   );
 };
 
-export default Details;
+export default NavbarDetails;

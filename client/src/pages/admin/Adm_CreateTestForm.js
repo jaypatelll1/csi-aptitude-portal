@@ -1,12 +1,12 @@
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice";
+import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
-const CreateTestPage = () => {
+const Adm_CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
   const [branch, setBranch] = useState([]);
@@ -351,4 +351,4 @@ const CreateTestPage = () => {
   );
 };
 
-export default CreateTestPage;
+export default Adm_CreateTestPage;

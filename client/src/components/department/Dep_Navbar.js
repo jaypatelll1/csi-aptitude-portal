@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import Details from "../student/Stu_Details";
+import Details from "../NavbarDetails";
 
 function Dep_Navbar() {
   const userData = useSelector((state) => state.user.user);

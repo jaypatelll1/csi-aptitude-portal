@@ -7,11 +7,7 @@ const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ViewQuestionCard = ({ id, text, options, index, correct_option }) => {
   const navigate = useNavigate();
- 
   const exam_id = useSelector((state) => state.exam.examId);
-
-  
-
   const handleEditQuestion = () => {
     navigate("/admin/input", {
       state: {

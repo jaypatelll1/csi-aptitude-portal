@@ -5,7 +5,7 @@ import Dep_LiveTestCard from "../../components/department/Dep_LiveTestCard"; // 
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Dep_DraftTest = () => {
+const Dep_LiveTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -226,4 +226,4 @@ const Dep_DraftTest = () => {
   );
 };
 
-export default Dep_DraftTest;
+export default Dep_LiveTest;

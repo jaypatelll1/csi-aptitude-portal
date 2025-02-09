@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-
-
-const AddStudent = ({ closeModal }) => {
+const Adm_AddStudent = ({ closeModal }) => {
 
     var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const [firstName, setFirstName] = useState("");
@@ -160,4 +158,4 @@ const AddStudent = ({ closeModal }) => {
     );
 };
 
-export default AddStudent;
+export default Adm_AddStudent;

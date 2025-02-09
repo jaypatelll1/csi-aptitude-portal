@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const EditStudent = ({ closeEditModal, student, counter }) => {
+const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
   const firstname = student.name.split(" ")[0];
   const lastname = student.name.split(" ")[1];
 
@@ -208,4 +208,4 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
   );
 };
 
-export default EditStudent;
+export default Adm_EditStudent;

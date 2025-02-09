@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import StuTestCard from "../../components/student/Stu_TestCard";
 import StuPastTestCard from "../../components/student/Stu_PastTestCard";
-import Details from "../../components/student/Stu_Details";
+import Details from "../../components/NavbarDetails";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";

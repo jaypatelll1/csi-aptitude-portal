@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
-const Dashboard = () => {
+const Adm_Dashboard = () => {
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
 
@@ -302,4 +302,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Adm_Dashboard;

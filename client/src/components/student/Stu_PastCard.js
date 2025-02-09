@@ -4,7 +4,7 @@ import axios from "axios";
 const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
-const Adm_PastCard = ({ test }) => {
+const Stu_PastCard = ({ test }) => {
   // console.log('test is ',test);
 
   const [isScheduling, setIsScheduling] = useState(false);
@@ -224,4 +224,4 @@ const Adm_PastCard = ({ test }) => {
   );
 };
 
-export default Adm_PastCard;
+export default Stu_PastCard;

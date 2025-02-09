@@ -15,7 +15,7 @@ const validCategories = [
   "general knowledge",
 ];
 
-const InputQuestions = () => {
+const Adm_InputQuestions = () => {
   const [question, setQuestion] = useState("");
   const [questionType, setQuestionType] = useState("single");
   const [options, setOptions] = useState(["", "", "", ""]);
@@ -424,4 +424,4 @@ const InputQuestions = () => {
   );
 };
 
-export default InputQuestions;
+export default Adm_InputQuestions;

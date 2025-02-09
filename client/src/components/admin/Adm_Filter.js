@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Filter = ({ toggleFilter, handleFilter }) => {
+const Adm_Filter = ({ toggleFilter, handleFilter }) => {
     const [selectedDepartment, setSelectedDepartment] = useState('');
 
     const handleSelectChange = (event) => {
@@ -51,4 +51,4 @@ const Filter = ({ toggleFilter, handleFilter }) => {
     );
 };
 
-export default Filter;
+export default Adm_Filter;

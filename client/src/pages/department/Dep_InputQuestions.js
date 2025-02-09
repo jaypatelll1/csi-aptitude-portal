@@ -8,7 +8,7 @@ import UploadModal from "../../upload/UploadModal";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const InputQuestions = () => {
+const Dep_InputQuestions = () => {
   const [question, setQuestion] = useState("");
   const [questionType, setQuestionType] = useState("single");
   const [options, setOptions] = useState(["", "", "", ""]);
@@ -391,4 +391,4 @@ const InputQuestions = () => {
   );
 };
 
-export default InputQuestions;
+export default Dep_InputQuestions;

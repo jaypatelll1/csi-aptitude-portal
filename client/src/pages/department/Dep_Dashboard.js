@@ -11,7 +11,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 
-const Dashboard = () => {
+const Dep_Dashboard = () => {
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
 
@@ -301,4 +301,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Dep_Dashboard;
