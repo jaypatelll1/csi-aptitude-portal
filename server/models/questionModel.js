@@ -14,29 +14,29 @@ const createQuestionsTable = async () => {
     );
   `;
 };
-// Function to insert a new question
 const insertQuestion = async (
   exam_id,
   question_text,
   options,
-  correct_option
+  correct_option,
+  category_type
 ) => {
   const queryText = `
-    INSERT INTO questions (exam_id, question_text, options, correct_option)
-    VALUES ($1, $2, $3, $4) RETURNING *;
+    INSERT INTO questions (exam_id, question_text, options, correct_option, category)
+    VALUES ($1, $2, $3, $4, $5) RETURNING *;
   `;
 
-  const values = [exam_id, question_text, options, correct_option];
+  const values = [exam_id, question_text, options, correct_option, category_type];
 
   try {
     const res = await query(queryText, values);
-
     return res.rows[0]; // Return the inserted question
   } catch (err) {
     console.error('Error inserting question:', err.stack);
     throw err;
   }
 };
+
 
 // Function to get all questions for a given exam_id
 const getQuestionsByExamId = async (exam_id) => {
@@ -69,11 +69,12 @@ const UpdateQuestions = async (
   exam_id,
   question_text,
   options,
-  correct_option
+  correct_option,
+  category_type
 ) => {
   const queryText =
-    'UPDATE questions SET question_text = $1, correct_option = $2, exam_id = $3, options = $4 WHERE question_id = $5 RETURNING *';
-  const values = [question_text, correct_option, exam_id, options, question_id];
+    'UPDATE questions SET question_text = $1, correct_option = $2, exam_id = $3, options = $4 , category = $6 WHERE question_id = $5 RETURNING *';
+  const values = [question_text, correct_option, exam_id, options, question_id ,category_type];
 
   try {
     const res = await query(queryText, values);

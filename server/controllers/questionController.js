@@ -2,19 +2,36 @@ const questionModel = require('../models/questionModel');
 const { logActivity } = require('../utils/logActivity');
 
 const createQuestions = async (req, res) => {
-  const { question_text, options, correct_option } = req.body;
+  const { question_text, options, correct_option,category  } = req.body;
   const { exam_id } = req.params;
   const id = req.user.id; // Get user_id from token
+  
 
-  if (!exam_id || !question_text || !options || !correct_option) {
+  if (!exam_id || !question_text || !options || !correct_option || !category) {
     return res.status(400).json({ error: 'All fields are required' });
   }
+ // Convert category to lowercase and validate it against ENUM values
+ const category_type = category.toLowerCase();
+ const validCategories = [
+   'quantitative aptitude',
+   'logical reasoning',
+   'verbal ability',
+   'technical',
+   'general knowledge',
+ ];
+
+
+ if (!validCategories.includes(category_type)) {
+  return res.status(400).json({ error: 'Invalid category value' });
+}
+
   try {
     const newQuestion = await questionModel.insertQuestion(
       exam_id,
       question_text,
       options,
-      correct_option
+      correct_option,
+      category_type
     );
     if (!newQuestion) {
       await logActivity({
@@ -103,15 +120,35 @@ const getStudentQuestion = async (req, res) => {
 
 const UpdateQuestion = async (req, res) => {
   const { question_id, exam_id } = req.params;
-  const { question_text, options, correct_option } = req.body;
+  const { question_text, options, correct_option ,category} = req.body;
   const id = req.user.id; // Get user_id from token
+
+  
+  if (!exam_id || !question_id|| !question_text || !options || !correct_option || !category) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+ // Convert category to lowercase and validate it against ENUM values
+ const category_type = category.toLowerCase();
+ const validCategories = [
+   'quantitative aptitude',
+   'logical reasoning',
+   'verbal ability',
+   'technical',
+   'general knowledge',
+ ];
+
+
+ if (!validCategories.includes(category_type)) {
+  return res.status(400).json({ error: 'Invalid category value' });
+}
   try {
     const questions = await questionModel.UpdateQuestions(
       question_id,
       exam_id,
       question_text,
       options,
-      correct_option
+      correct_option,
+      category_type
     );
 
     if (!questions) {
