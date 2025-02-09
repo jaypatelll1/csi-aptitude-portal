@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Msidebar from "../../components/student/home/MSidebar";
+import Stu_Sidebar from "../../components/student/home/Stu_Sidebar";
 import { useLocation } from "react-router-dom";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import { useDispatch, useSelector } from "react-redux";
@@ -163,7 +163,7 @@ const TestInstruction = () => {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
     >
-      <Msidebar />
+      <Stu_Sidebar />
     </div>
   
     <div className="flex-1">

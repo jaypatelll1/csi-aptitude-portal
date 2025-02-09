@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-const Msidebar = () => {
+const Stu_Sidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
 
   const toggleSubmenu = () => {
@@ -37,4 +37,4 @@ const Msidebar = () => {
   );
 };
 
-export default Msidebar;
+export default Stu_Sidebar;
