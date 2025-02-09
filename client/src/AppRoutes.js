@@ -9,7 +9,7 @@ import StudentDashboard from "./pages/student/Stu_Dashboard";
 import ResetPassword from "./pages/student/Stu_ResetPassword";
 import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
 import TestInstruction from "./pages/student/Stu_TestInstruction";
-
+import Stu_Analytics from "./pages/student/Stu_Analytics";
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
 import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
@@ -22,6 +22,15 @@ import Adm_StudentList from "./pages/admin/Adm_StudentList";
 import TestStudentList from "./pages/admin/Adm_TestStudentList";
 
 import Dep_Dashboard from "./pages/department/Dep_Dashboard";
+import Dep_CreateTestForm from "./pages/department/Dep_CreateTestForm";
+import Dep_DraftTest from "./pages/department/Dep_DraftTest";
+import Dep_ScheduleTest from "./pages/department/Dep_ScheduleTest";
+import Dep_PastTest from "./pages/department/Dep_PastTest";
+import Dep_LiveTest from "./pages/department/Dep_LiveTest";
+import Dep_InputQuestions from "./pages/department/Dep_InputQuestions";
+import Dep_StudentList from "./pages/department/Dep_StudentList";
+import Dep_ViewQuestions from "./pages/department/Dep_ViewQuestions";
+import Dep_TestStudentList from "./pages/department/Dep_TestStudentList";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -31,7 +40,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Login />} />
-      
+
       {/* Student Routes */}
       <Route
         path="/home"
@@ -65,7 +74,14 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute allowedRoles={["Student"]}>
+            <Stu_Analytics />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Admin Routes */}
       <Route
@@ -114,7 +130,8 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={["TPO"]}>
             <TestStudentList />
           </ProtectedRoute>
-        } />
+        }
+      />
       <Route
         path="/drafted-tests"
         element={
@@ -148,25 +165,90 @@ const AppRoutes = () => {
         }
       />
 
-  {/* Department Routes */}
+      {/* Department Routes */}
       <Route
         path="/department"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
-          < Dep_Dashboard/>
+            <Dep_Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/createtest"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+            <Dep_CreateTestForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/drafted-tests"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+            <Dep_DraftTest />
           </ProtectedRoute>
         }
       />
 
-
-
-
       <Route
-        path="/reset-password/:resettoken"
+        path="/department/live-tests"
         element={
-            <ResetPassword />
+          <ProtectedRoute allowedRoles={["Department"]}>
+            <Dep_LiveTest />
+          </ProtectedRoute>
         }
       />
+      <Route
+        path="/department/past_tests"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+          < Dep_PastTest/>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/scheduled-tests"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+          < Dep_ScheduleTest />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/input"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+          < Dep_InputQuestions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/studentlist"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+          < Dep_StudentList/>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/test-students"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+          < Dep_TestStudentList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/viewquestions"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+          < Dep_ViewQuestions/>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/reset-password/:resettoken" element={<ResetPassword />} />
     </Routes>
   );
 };
