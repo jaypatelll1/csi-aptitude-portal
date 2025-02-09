@@ -52,7 +52,10 @@ const Login = () => {
             navigate("/home", { replace: true });
           } else if (userData.role === "TPO") {
             navigate("/admin", { replace: true });
-          } else {
+          }else if (userData.role === "Department") {
+            navigate("/department", { replace: true });
+          }  
+          else {
             setError("Unauthorized role");
           }
         } else {

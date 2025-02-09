@@ -3,8 +3,13 @@ import { Route, Routes } from "react-router-dom";
 // import { useSelector } from "react-redux";
 
 // Pages
-import Stu_login from "./pages/Login";
+import Login from "./pages/Login";
 import MCQExamPage from "./pages/student/Stu_MCQExamPage";
+import StudentDashboard from "./pages/student/Stu_Dashboard";
+import ResetPassword from "./pages/student/Stu_ResetPassword";
+import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
+import TestInstruction from "./pages/student/Stu_TestInstruction";
+
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
 import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
@@ -13,13 +18,10 @@ import Adm_PastTest from "./pages/admin/Adm_PastTest";
 import Adm_LiveTest from "./pages/admin/Adm_LiveTest";
 import Adm_InputQuestions from "./pages/admin/Adm_InputQuestions";
 import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
-import StudentList from "./pages/admin/Adm_StudentList";
-import StudentDashboard from "./pages/student/Stu_Dashboard";
-import TestInstruction from "./pages/student/Stu_TestInstruction";
-import ResetPassword from "./pages/student/Stu_ResetPassword";
+import Adm_StudentList from "./pages/admin/Adm_StudentList";
 import TestStudentList from "./pages/admin/Adm_TestStudentList";
-import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
-// import Stu_PastTest from "./pages/student/Stu_PastTest";
+
+import Dep_Dashboard from "./pages/department/Dep_Dashboard";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -28,7 +30,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Stu_login />} />
+      <Route path="/" element={<Login />} />
       
       {/* Student Routes */}
       <Route
@@ -63,14 +65,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      {/* <Route
-        path="/past-test"
-        element={
-          <ProtectedRoute allowedRoles={["Student"]}>
-            <Stu_PastTest />
-          </ProtectedRoute>
-        }
-      /> */}
+      
 
       {/* Admin Routes */}
       <Route
@@ -109,7 +104,7 @@ const AppRoutes = () => {
         path="/admin/studentlist"
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
-            <StudentList />
+            <Adm_StudentList />
           </ProtectedRoute>
         }
       />
@@ -152,6 +147,20 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+  {/* Department Routes */}
+      <Route
+        path="/department"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+          < Dep_Dashboard/>
+          </ProtectedRoute>
+        }
+      />
+
+
+
+
       <Route
         path="/reset-password/:resettoken"
         element={
