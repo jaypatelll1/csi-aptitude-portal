@@ -87,6 +87,7 @@ CREATE TABLE student_analysis (
 );
 
 `;
+
 // Function to initialize the database schema
 async function initializeDB() {
   try {
