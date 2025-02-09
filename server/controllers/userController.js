@@ -24,7 +24,7 @@ const userModel = require('../models/userModel');
 const transporter = require('../config/email');
 const { token } = require('morgan');
 const {generateRandomPassword} = require("../utils/randomPassword")
-const { sendBulkEmailToUsers } = require('../utils/emailSender');
+const { sendBulkEmailToUsers, sendResetPasswordEmail, } = require('../utils/emailSender');
 const dotenv = require('dotenv');
 dotenv.config();
 // Function to create a new user/register
@@ -368,32 +368,39 @@ const sendResetEmail = async (req, res) => {
       name: student.name,
       role: student.role,
     });
+    await sendResetPasswordEmail(student.email, resettoken);
 
-    const resetLink =
-      process.env.NODE_ENV === 'development'
-        ? `http://localhost:3000/reset-password/${resettoken}`
-        : `${process.env.FRONTEND_ORIGIN}/reset-password/${resettoken}`;
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: student.email,
-      subject: 'CSI Aptitude Portal Password Reset',
-      text: `Click on the link to reset your password. This link will only be valid of 10 minutes: ${resetLink}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email:', error);
-        return res.status(500).json({ error: 'Error sending email' });
-      }
-      console.log('Email sent:', info.response);
-      return res.status(200).json({ message: 'Email sent successfully' });
-    });
+    return res.status(200).json({ message: 'Password reset email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
+//     const resetLink =
+//       process.env.NODE_ENV === 'development'
+//         ? `http://localhost:3000/reset-password/${resettoken}`
+//         : `${process.env.FRONTEND_ORIGIN}/reset-password/${resettoken}`;
+
+//     const mailOptions = {
+//       from: process.env.EMAIL_USER,
+//       to: student.email,
+//       subject: 'CSI Aptitude Portal Password Reset',
+//       text: `Click on the link to reset your password. This link will only be valid of 10 minutes: ${resetLink}`,
+//     };
+
+//     transporter.sendMail(mailOptions, (error, info) => {
+//       if (error) {
+//         console.error('Error sending email:', error);
+//         return res.status(500).json({ error: 'Error sending email' });
+//       }
+//       console.log('Email sent:', info.response);
+//       return res.status(200).json({ message: 'Email sent successfully' });
+//     });
+//   } catch (error) {
+//     console.error('Error sending email:', error);
+//     return res.status(500).json({ error: 'Internal server error' });
+//   }
+// }
 
 module.exports = {
   registerUser,
@@ -405,4 +412,5 @@ module.exports = {
   resetPassword,
   logout,
   sendResetEmail,
+  sendResetPasswordEmail,
 };

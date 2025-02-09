@@ -34,7 +34,7 @@ const sendEmail = async (email, password) => {
       <p style="margin: 5px 0; font-weight: bold; text-align: justify;">Password: <span style="font-weight: bold;">${password}</span></p>
     </div>
   
-    <a href="https://csi-aptitude-portal-client.onrender.com/home" 
+    <a href="https://csi-aptitude-portal-client.onrender.com" 
       style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #28a745; 
              color: white; text-decoration: none; font-weight: bold; border-radius: 5px;">
       Access Your Portal
@@ -50,6 +50,8 @@ const sendEmail = async (email, password) => {
     `,
   };
 
+
+
   try {
     await transporter.sendMail(mailOptions);
     console.log(`Email sent to ${email}`);
@@ -57,6 +59,53 @@ const sendEmail = async (email, password) => {
     console.error(`Failed to send email to ${email}:`, error);
   }
 };
+
+
+const sendResetPasswordEmail = async (email, resettoken) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Reset Your Password for CSI Aptitude Portal',
+    html: `
+    <div style="max-width: 600px; margin: auto; font-family: Arial, sans-serif; border: 2px solid #007bff; border-radius: 10px; padding: 20px; text-align: center; background-color: #f9f9f9;"> 
+
+      <div style="background-color: #2C3E50; padding: 20px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+        <i class="fas fa-laptop-code" style="font-size: 50px; color: white;"></i>
+        <h2 style="color: white; margin-top: 10px;">CSI APTITUDE PORTAL</h2>
+      </div>
+  
+      <h2 style="color: #007bff; margin: 20px 0;">Reset Your Password</h2>
+  
+      <p style="font-size: 16px; color: #333; padding: 0 20px; text-align: justify; margin-bottom: 20px;">
+        We received a request to reset your password for the CSI Aptitude Portal. To proceed, please click the button below to reset your password.
+      </p>
+  
+      <hr style="border: 0; height: 1px; background: #007bff; margin: 15px 0;">
+  
+    
+      <a href="https://csi-aptitude-portal-client.onrender.com/reset-password/${resettoken}" 
+        style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #ff5733; 
+               color: white; text-decoration: none; font-weight: bold; border-radius: 5px; margin-bottom: 20px;">
+        Reset Your Password
+      </a>
+  
+      
+      <div style="background: #2C3E50; color: white; padding: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+        <p style="margin: 0; text-align: center;"> CSI-ACE</p>
+      </div>
+  
+    </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent to ${email}`);
+  } catch (error) {
+    console.error(`Failed to send reset password email to ${email}:`, error);
+  }
+};
+
 
 const sendEmailsToUsers = async () => {
   try {
@@ -78,5 +127,16 @@ const sendBulkEmailToUsers = async (email, password) => {
   };
 }
 
+// const sendResetPasswordEmail = async (email, resettoken) => {
+//   try {
+//     // Send the reset password email
+//     await sendResetPasswordEmail(email, resettoken);
+//   } catch (error) {
+//     console.error('Error sending reset password email:', error);
+//   }
+// };
+
+
+
 module.exports = {sendEmailsToUsers, 
-    sendBulkEmailToUsers};
+    sendBulkEmailToUsers, sendResetPasswordEmail};
