@@ -3,10 +3,9 @@ import axios from "axios";
 import Stu_Sidebar from "../../components/student/home/Stu_Sidebar"; // Sidebar component
 import Stu_PastCard from "../../components/student/home/Stu_PastCard";
 import { useSelector, useDispatch } from "react-redux";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
-// Drafted Test Card component
+import Stu_Sidebar from "../../components/student/home/Stu_Sidebar";
 
-const Adm_DraftTest = () => {
+const Stu_PastTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -104,7 +103,7 @@ const Adm_DraftTest = () => {
 
       {/* Main Content Section */}
       <div className="flex-1">
-        <Adm_Navbar />
+        <Stu_Sidebar />
         <div className="flex-1 p-4 sm:p-6">
           <div className="flex items-center  mb-4 sm:mb-6">
             {/* Burger Icon Button */}
@@ -193,4 +192,4 @@ const Adm_DraftTest = () => {
   );
 };
 
-export default Adm_DraftTest;
+export default Stu_PastTest;

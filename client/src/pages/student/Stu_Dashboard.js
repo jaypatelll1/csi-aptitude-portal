@@ -13,7 +13,6 @@ import { clearQuestions } from "../../redux/questionSlice";
 
 function Stu_Dashboard() {
   const userData = useSelector((state) => state.user.user);
-  // console.log("uers data is", userData);
     let examId = useSelector((state)=>state.exam.examId)
 
   const [tests, setTests] = useState([]);

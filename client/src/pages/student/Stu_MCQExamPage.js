@@ -14,7 +14,7 @@ import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponen
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "./MCQExamPage.css";
 
-const MCQExamPage = () => {
+const Stu_MCQExamPage = () => {
   const socketRef = useRef(null);
   const dispatch = useDispatch();
   const { examId } = useParams();
@@ -287,4 +287,4 @@ const MCQExamPage = () => {
   );
 };
 
-export default MCQExamPage;
+export default Stu_MCQExamPage;

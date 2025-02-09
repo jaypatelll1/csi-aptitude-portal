@@ -5,7 +5,7 @@ import Stu_UpcomingTestCard from "../../components/student/home/Stu_UpcomingTest
 import { useSelector } from 'react-redux';
 
 
-const Adm_DraftTest = () => {
+const Stu_UpcomingTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -191,4 +191,4 @@ const Adm_DraftTest = () => {
   );
 };
 
-export default Adm_DraftTest;
+export default Stu_UpcomingTest;

@@ -13,7 +13,7 @@ import {
 
 // import { useSelector } from "react-redux";
 
-const TestInstruction = () => {
+const Stu_TestInstruction = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -241,4 +241,4 @@ const TestInstruction = () => {
     );
 };
 
-export default TestInstruction;
+export default Stu_TestInstruction;
