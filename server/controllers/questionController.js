@@ -2,6 +2,7 @@ const questionModel = require('../models/questionModel');
 const { logActivity } = require('../utils/logActivity');
 
 const createQuestions = async (req, res) => {
+
   const { question_text, options, correct_option,category  } = req.body;
   const { exam_id } = req.params;
   const id = req.user.id; // Get user_id from token
@@ -30,6 +31,7 @@ const createQuestions = async (req, res) => {
       exam_id,
       question_text,
       options,
+
       correct_option,
       category_type
     );
@@ -120,6 +122,7 @@ const getStudentQuestion = async (req, res) => {
 
 const UpdateQuestion = async (req, res) => {
   const { question_id, exam_id } = req.params;
+
   const { question_text, options, correct_option ,category} = req.body;
   const id = req.user.id; // Get user_id from token
 
@@ -147,6 +150,7 @@ const UpdateQuestion = async (req, res) => {
       exam_id,
       question_text,
       options,
+
       correct_option,
       category_type
     );
@@ -204,6 +208,7 @@ const DeleteQuestion = async (req, res) => {
     res.status(500).json({ message: 'Error fetching questions', error });
   }
 };
+
 
 
 const getQuestionCount = async (req, res) => {

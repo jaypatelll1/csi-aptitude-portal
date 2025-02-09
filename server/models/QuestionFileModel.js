@@ -14,6 +14,7 @@ const parseExcelQuestion = async (filePath, examId) => {
     let index = 0; 
     for (const row of jsonData) {
       // console.log(jsonData)
+
       const { question_text, correct_option, options_a, options_b, options_c, options_d ,category} = row;
 
       if (!question_text || (!options_a && !options_b && !options_c && !options_d) || !correct_option || !category) {

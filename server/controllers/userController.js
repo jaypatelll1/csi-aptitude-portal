@@ -49,7 +49,6 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
-
     const password = generateRandomPassword(8, true)
     // Ensure password is a string
     const passwordHash = await hashPassword(password.toString());
@@ -180,6 +179,7 @@ const resetPassword = async (req, res) => {
     // Decode the reset token to get the user ID
     const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
 
+
     console.log(decoded);
     const userId = decoded.id;
 
@@ -215,7 +215,6 @@ const resetPassword = async (req, res) => {
 };
 
 // logout 
-
 const logout = async (req, res) => {
   res.clearCookie('jwttoken', {
     expires: new Date(Date.now() + 86400000),
@@ -382,6 +381,7 @@ const sendResetEmail = async (req, res) => {
       process.env.NODE_ENV === 'development'
         ? `http://localhost:3000/reset-password/${resettoken}`
         : `${process.env.FRONTEND_ORIGIN}/reset-password/${resettoken}`;
+
 
 
 const sendResetEmail = async (req, res) => {
