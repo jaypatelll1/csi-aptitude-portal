@@ -22,7 +22,7 @@ import Adm_LiveTest from "./pages/admin/Adm_LiveTest";
 import Adm_InputQuestions from "./pages/admin/Adm_InputQuestions";
 import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import Adm_StudentList from "./pages/admin/Adm_StudentList";
-import Adm_TestStudentList from "./pages/admin/TestStudentList";
+import Adm_TestStudentList from "./pages/admin/Adm_TestStudentList";
 
 import Dep_Dashboard from "./pages/department/Dep_Dashboard";
 import Dep_CreateTestForm from "./pages/department/Dep_CreateTestForm";
