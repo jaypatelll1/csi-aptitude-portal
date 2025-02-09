@@ -9,9 +9,9 @@ const { jwtAuthMiddleware } = require('./middlewares/jwtAuthMiddleware');
 const { limiter } = require('./utils/rateLimitUtils');
 const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
-// require('./utils/autoUpdateExamStatus'); // For auto-updating exam status
-// require('./utils/autoliveExamStatus'); // For auto-updating live exam status
 
+require('./utils/autoUpdateExamStatus'); // For auto-updating past exams status
+require('./utils/autoliveExamStatus'); // For auto-updating live status
 
 // Import Routes
 const userRoutes = require('./routes/userRoutes');
@@ -32,16 +32,18 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-const FRONTEND_ORIGIN =
-  process.env.NODE_ENV === 'production'
-    ? 'https://csi-aptitude-portal.onrender.com' // Production frontend URL
-    : 'http://localhost:3000'; // Local frontend URL
+const FRONTEND_ORIGIN = process.env.NODE_ENV === 'production'
+? ['https://csi-aptitude-portal-client.onrender.com', 'http://localhost:3000', 'https://aptitude.csiace.com']
+: ['http://localhost:3000']; // Development also returns an array
+// Local frontend URL
 
 
 const io = new Server(server, {
   cookie: true,
   cors: {
-    origin: FRONTEND_ORIGIN,
+    origin: FRONTEND_ORIGIN, // Allow frontend origin
+    methods: ['GET', 'POST'], // Specify HTTP methods
+    credentials: true, // Allow credentials (cookies)
   },
 });
 
@@ -64,15 +66,16 @@ app.use(express.urlencoded({ extended: false }));
 // app.use(limiter);
 
 // Routes
-app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes, fileRoutes);
 app.use("/api/token", tokenRoutes)
-app.use('/api/exams', jwtAuthMiddleware, examRoutes);
+app.use('/api/exams', jwtAuthMiddleware, examRoutes, fileRoutes);
 app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
-app.use('/api/export/', exportRoutes);
-app.use('/api/users/', fileRoutes);
-app.use('/api/exams/', fileRoutes);
+
+app.use('/api/export', exportRoutes);
+// app.use('/api/users', fileRoutes);
+// app.use('/api/exams', fileRoutes);
 app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 const start_exam = io.of('/exams/start-exam')
 
@@ -85,21 +88,21 @@ app.get('/', (req, res) => {
 });
 
 // 404 Handler for undefined routes
-app.use((req, res, next) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
-  error.status = 404;
-  next(error);
-});
+// app.use((req, res, next) => {
+//   const error = new Error(`Not Found - ${req.originalUrl}`);
+//   error.status = 404;
+//   next(error);
+// });
 
 // Centralized error handling middleware
 app.use(errorHandler);
 
-// server.listen(PORT, HOST ,() => {
-//   console.log(`Server is running at http://${HOST}:${PORT}`);
-// });
+server.listen(PORT, HOST ,() => {
+  console.log(`Server is running at http://${HOST}:${PORT}`);
+});
 
 // FOR SOCKET.IO TESTING
-server.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+// server.listen(PORT, () => {
+//   console.log(`Server is running at http://localhost:${PORT}`);
 
-});
+// });

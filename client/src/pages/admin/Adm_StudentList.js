@@ -3,10 +3,10 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from "../../components/admin/Adm_Filter";
 import AddStudent from "../../components/admin/Adm_AddStudent";
-import searchIcon from "../../assets/studentlist/Search.svg";
 import EditStudent from "../../components/admin/Adm_EditStudent";
 import UploadModal from "../../upload/UploadModal";
-import Adm_Navbar from "../../components/admin/Adm_Navbar"
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const StudentList = () => {
   const [showFilter, setShowFilter] = useState(false);
@@ -16,7 +16,7 @@ const StudentList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [numberofpages, setNumberofpages] = useState(14);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(50);
+  const [limit, setLimit] = useState(20);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -28,13 +28,13 @@ const StudentList = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   //    Handle file change and validate file type
-    const handleFileChange = (event) => {
-      const file = event.target.files ? event.target.files[0] : null;
+  const handleFileChange = (event) => {
+    const file = event.target.files ? event.target.files[0] : null;
 
-      if (!file) {
-        console.error('No file selected');
-        return ;
-      }
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
 
     // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
     const allowedTypes = [
@@ -63,13 +63,34 @@ const StudentList = () => {
     formData.append("Files", selectedFile); // Appending the file to formData
 
     try {
-      const response = await axios.post(`/api/users/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+     
+      let response = await axios.post(
+        `${API_BASE_URL}/api/users/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      );
 
       console.log("Response:", response.data); // You can inspect the response
+
+      if (response.data.status === 'success') {
+        console.log("File processed successfully");
+
+        // If there are warnings, display them to the user
+        if (response.data.warnings && response.data.warnings.length > 0) {
+            alert(`Warnings:\n${response.data.warnings.join('\n')}`);
+        } else {
+            alert('No warnings, data processed successfully.');
+        }
+        
+    } else {
+        alert(`Error: ${response.data.message}`);
+    }
       alert("File uploaded successfully!"); // Notify the user of success
       setModalOpen(false); // Close modal after successful upload
     } catch (error) {
@@ -115,7 +136,13 @@ const StudentList = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(`/api/users?role=Student`);
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(
+          `${API_BASE_URL}/api/users/?role=Student`,
+          {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }
+        );
         const studentData = response.data.users;
         setStudents(studentData);
       } catch (error) {

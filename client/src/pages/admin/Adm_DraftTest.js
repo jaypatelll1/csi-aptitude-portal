@@ -3,6 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard"; // Drafted Test Card component
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -41,10 +42,12 @@ const Adm_DraftTest = () => {
       try {
         setLoading(true);
         setError(null);
-
-        const response = await axios.get("/api/exams/drafts", {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
           withCredentials: true,
         });
+
+        console.log("response", response);
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
@@ -53,6 +56,8 @@ const Adm_DraftTest = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
 
         setTests(fetchedTests);
@@ -131,7 +136,7 @@ const Adm_DraftTest = () => {
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 sm:gap-0 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-6">
               {paginatedTests.map((test, index) => (
                 <Adm_DraftedTestCard key={index} test={test} />
               ))}

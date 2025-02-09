@@ -3,6 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Import the Sidebar
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard"; // Import the PastTestCard
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_PastTest = () => {
   const [pastTests, setPastTests] = useState([]);
@@ -38,9 +39,11 @@ const Adm_PastTest = () => {
     const fetchPastTests = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/exams/past");
-        const { exams } = response.data;
-        const formattedTests = exams.map((exam) => ({
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
+        const formattedTests =response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -48,7 +51,10 @@ const Adm_PastTest = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
+        console.log("formattedTests",formattedTests)
         setPastTests(formattedTests);
       } catch (err) {
         console.error("Error fetching past tests:", err);
@@ -63,11 +69,12 @@ const Adm_PastTest = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(pastTests.length / itemsPerPage);
+  
   const paginatedTests = pastTests.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
+  console.log("paginatedTests",paginatedTests)
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -86,7 +93,7 @@ const Adm_PastTest = () => {
       </div>
 
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar/>
+        <Adm_Navbar />
         <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -122,7 +129,7 @@ const Adm_PastTest = () => {
         {!loading && !error && (
           <>
             {/* Grid Layout for Paginated Past Test Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-5 sm:gap-0 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
                 <Adm_PastTestCard key={index} test={test} />
               ))}

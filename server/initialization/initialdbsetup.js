@@ -2,8 +2,6 @@ const pool = require('../config/db');
 
 // Initialize connection pool
 
-
-
 const query = ` 
 CREATE TYPE role_enum AS ENUM ('TPO','Student');
 CREATE TYPE user_status AS ENUM ('NOTACTIVE', 'ACTIVE');
@@ -36,6 +34,7 @@ CREATE TABLE exams (
     duration INTEGER,
     start_time TIMESTAMP,
     end_time TIMESTAMP,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     status exam_status DEFAULT 'draft',
     FOREIGN KEY (created_by) REFERENCES users (user_id)
 );
@@ -72,7 +71,30 @@ CREATE TABLE results (
     FOREIGN KEY (student_id) REFERENCES users (user_id)
 );
 
-` 
+CREATE TABLE student_analysis (
+    analysis_id SERIAL PRIMARY KEY,
+    exam_id INT REFERENCES exams(exam_id) ON DELETE CASCADE,
+    department_name branch_enum NOT NULL,
+    student_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    student_name VARCHAR(255),
+    exam_name VARCHAR(255),
+    category category_enum NOT NULL, -- Using ENUM type
+    category_score FLOAT NOT NULL,
+    total_score FLOAT NOT NULL,
+    max_score FLOAT NOT NULL,
+    attempted BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE student_rank (
+    rank_id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    department_name branch_enum NOT NULL,
+    rank INT NOT NULL,
+    total_students INT NOT NULL, -- Total students in the department
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
 // Function to initialize the database schema
 async function initializeDB() {
   try {
@@ -80,10 +102,9 @@ async function initializeDB() {
     console.log(`Successfully Completed`);
   } catch (error) {
     console.log(error);
-  } 
+  }
 }
 initializeDB();
 
 // Export query method and initialization function
 //module.exports = { pool, initializeDB };
-

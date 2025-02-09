@@ -1,19 +1,29 @@
 import React from "react";
 import axios from "axios";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { clearUser } from "../../../redux/userSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { clearExamId } from "../../../redux/ExamSlice";
+import { clearQuestions } from "../../../redux/questionSlice";
+
 
 const Details = () => {
   let user = useSelector((state) => state.user.user);
-  console.log("user is ", user);
+  let examId = useSelector((state)=>state.exam.examId)
+  // console.log("user is ", user);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
-    const response = await axios.post("/api/users/logout");
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const response = await axios.post(`${API_BASE_URL}/api/users/logout`,{
+      withCredentials: true,  // Make sure the cookie is sent with the request
+  });
     dispatch(clearUser());
+    dispatch(clearExamId(examId))
+    dispatch(clearQuestions())
+  
     navigate("/", { replace: true });
   };
 

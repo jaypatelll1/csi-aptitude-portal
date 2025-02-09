@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import MSidebar from "../../components/student/home/MSidebar"; // Sidebar component
 import Stu_UpcomingTestCard from "../../components/student/home/Stu_UpcomingTestCard"; 
-import { useSelector , useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 
 const Adm_DraftTest = () => {
@@ -13,7 +13,7 @@ const Adm_DraftTest = () => {
   const sidebarRef = useRef(null);
 
   const userData = useSelector((state) => state.user.user);
-  console.log('uers data is',userData );
+  // console.log('uers data is',userData );
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

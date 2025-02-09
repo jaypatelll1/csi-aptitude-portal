@@ -3,6 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ScheduledTest = () => {
   const [scheduledTests, setScheduledTests] = useState([]);
@@ -38,8 +39,8 @@ const Adm_ScheduledTest = () => {
       try {
         setLoading(true);
         setError(null);
-
-        const response = await axios.get("/api/exams/scheduled", {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled`, {
           withCredentials: true,
         });
 
@@ -51,6 +52,8 @@ const Adm_ScheduledTest = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
 
         setScheduledTests(fetchedTests);
@@ -126,7 +129,7 @@ const Adm_ScheduledTest = () => {
           <p className="text-red-500">{error}</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 sm:gap-0 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
                 <Adm_ScheduledTestCard key={index} test={test} />
               ))}

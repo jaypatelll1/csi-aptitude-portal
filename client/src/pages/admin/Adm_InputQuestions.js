@@ -7,6 +7,14 @@ import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 
+const validCategories = [
+  "quantitative aptitude",
+  "logical reasoning",
+  "verbal ability",
+  "technical",
+  "general knowledge",
+];
+
 const InputQuestions = () => {
   const [question, setQuestion] = useState("");
   const [questionType, setQuestionType] = useState("single");
@@ -17,7 +25,8 @@ const InputQuestions = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [questionCount, setQuestionCount] = useState(0);
+  const [questionCount, setQuestionCount] = useState(1);
+  const [category, setCategory] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,13 +58,15 @@ const InputQuestions = () => {
     formData.append("questions", selectedFile);
 
     try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(
-        `/api/exams/${examId}/questions`,
+        `${API_BASE_URL}/api/exams/${examId}/questions`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          withCredentials: true,
         }
       );
       alert("File uploaded successfully!");
@@ -135,14 +146,19 @@ const InputQuestions = () => {
         return;
       }
 
+      if (!category) {
+        alert("Please select a category.");
+        return;
+      }
+
       const findTrueIndex = () => {
         var a = toggles.findIndex((toggle) => toggle === true);
         return a !== -1 ? a : "No true value found";
       };
 
       let b = findTrueIndex();
-      const correctOption = String.fromCharCode(96 + b);
-
+      const correctOption = String.fromCharCode(97 + b);
+      console.log(correctOption);
       const payload = {
         question_text: `${question}`,
         options: {
@@ -152,22 +168,31 @@ const InputQuestions = () => {
           d: `${options[3]}`,
         },
         correct_option: `${correctOption}`,
+        category: category,
       };
 
       try {
         if (!questionId) {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           await axios.post(
-            `/api/exams/questions/${examId}`,
-            payload
+            `${API_BASE_URL}/api/exams/questions/${examId}`,
+            payload,
+            {
+              withCredentials: true,
+            }
           );
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
           setQuestionCount((prevCount) => prevCount + 1);
         } else {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           await axios.put(
-            `/api/exams/questions/${examId}/${questionId}`,
-            payload
+            `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
+            payload,
+            {
+              withCredentials: true,
+            }
           );
           setQuestion("");
           setOptions(["", "", "", ""]);
@@ -175,7 +200,10 @@ const InputQuestions = () => {
           navigate("/admin/viewquestions");
         }
       } catch (error) {
-        console.error("Error creating test:", error.response?.data || error.message);
+        console.error(
+          "Error creating test:",
+          error.response?.data || error.message
+        );
       }
     } else {
       alert("Please fill in all fields before submitting.");
@@ -299,6 +327,25 @@ const InputQuestions = () => {
                 placeholder="Enter question description..."
                 className="w-full p-4 h-24 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+            <div className="mb-4">
+              <label className="text-xl block text-gray-700 font-medium mb-2">
+                Select Category:
+              </label>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="" hidden disabled className="text-gray-400">
+                  Enter a category
+                </option>
+                {validCategories.map((cat, index) => (
+                  <option key={index} value={cat} className="text-gray-800">
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-xl block text-gray-700 font-medium mb-2">

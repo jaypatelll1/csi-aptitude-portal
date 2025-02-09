@@ -1,10 +1,10 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 // Pages
 import Stu_login from "./pages/Login";
-import MCQExamPage from "./pages/student/MCQExamPage";
+import MCQExamPage from "./pages/student/Stu_MCQExamPage";
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
 import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
@@ -19,7 +19,7 @@ import TestInstruction from "./pages/student/Stu_TestInstruction";
 import ResetPassword from "./pages/student/Stu_ResetPassword";
 import TestStudentList from "./pages/admin/Adm_TestStudentList";
 import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
-import Stu_PastTest from "./pages/student/Stu_PastTest";
+// import Stu_PastTest from "./pages/student/Stu_PastTest";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -63,14 +63,14 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route
+      {/* <Route
         path="/past-test"
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <Stu_PastTest />
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       {/* Admin Routes */}
       <Route

@@ -1,23 +1,63 @@
-import React from 'react';
+import React, { useEffect ,useState} from 'react';
 import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import { useSelector , useDispatch} from 'react-redux';
+import axios from 'axios';
+import {setDuration} from "../../../redux/ExamSlice"
+
 
 const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, status }) => {
-
+  const [submit,setSubmit]= useState(false)
+const dispatch = useDispatch()
   const navigate = useNavigate();
 
-  let  submit = useSelector((state) => state.exam.submittedExamIds );
+  // let  submit = useSelector((state) => state.exam.submittedExamIds );
+  // console.log('submit',submit);
+  
   // console.log("Status:", status, "ExamId:", examId, "Submit:", submit);
-  let isExamSubmitted = submit.includes(String(examId));
+  // let isExamSubmitted = submit.includes((examId));
+  
+ 
   // console.log('isExamSubmitted',isExamSubmitted);
   
-  const isDisabled = status === "scheduled" || status === "past" || isExamSubmitted === true;
+  const isDisabled = status === "scheduled" || status === "past" || submit === true;
 
     // console.log("Button Disabled:", isDisabled, "For ExamId:", examId)
 
+    useEffect(() => {
+      let isMounted = true; // Flag to track if the component is mounted
   
+      const fetchResponseExamIds = async () => {
+        try {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          const response = await axios.get(
+            `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+            { withCredentials: true }
+          );
+  
+          // if (isMounted) {
+          //   setResponseExamIds(response.data); // Store fetched data in state
+          // }
+  
+          // Check if examId is present in the response data
+          if (response.data.includes(examId)) {
+        setSubmit(true)
+          }
+        } catch (error) {
+          console.error('Error fetching response exam IDs:', error);
+        }
+      };
+  
+      fetchResponseExamIds();
+  
+      // Cleanup function
+      return () => {
+        isMounted = false; // Set flag to false when component unmounts
+      };
+    }, [examId, dispatch]);
+
 
   const handleChange = async () => {
+   
     navigate("/test-instruction", { state: { examId: examId, Duration: duration } , replace:true})
 
   }

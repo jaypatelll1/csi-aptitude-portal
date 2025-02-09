@@ -2,11 +2,18 @@ const pool = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
 const createExam = async (exam) => {
-  const { name, duration, created_by } = exam;
-  const query = `INSERT INTO exams (exam_name, duration, created_by, status) VALUES ($1, $2, $3, $4) RETURNING *`;
-  const values = [name, duration, created_by, 'draft'];
-  const result = await pool.query(query, values);
-  return result.rows[0];
+
+  try {
+    const { name, duration, created_by, formattedTargetYears, formattedTargetBranches } = exam;
+    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches) VALUES ($1, $2, $3, $4,$5,$6) RETURNING  *`;
+    const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  } catch (err) {
+    console.error(err.name); // Output: RangeError
+  console.error(err.message); // Output: Value must be a non-negative number.
+  }
+ 
 };
 
 const getExams = async () => {
@@ -23,7 +30,7 @@ const getExamById = async (exam_id) => {
 };
 
 const updateExam = async (exam) => {
-  const { exam_id, name, duration, start_time, end_time, created_by ,status } = exam;
+  const { exam_id, name, duration, start_time, end_time, created_by, status } = exam;
   const query = `UPDATE exams SET exam_name=$1, duration=$2, start_time=$3, end_time=$4, created_by=$5, status=$6 WHERE exam_id=$7 RETURNING *`;
   const values = [
     name,
@@ -58,10 +65,18 @@ const markLiveExam = async (exam_id) => {
   return result.rows[0];
 };
 
-const deleteExam = async (exam) => {
-  const { exam_id } = exam;
+const deleteExam = async (exam_id) => {
+
+
+  // Step 1: Delete all related questions
+  const deleteQuestionsQuery = `DELETE FROM questions WHERE exam_id=$1`;
+  await pool.query(deleteQuestionsQuery, [exam_id]);
+
+  // Step 2: Now delete the exam
   const query = `DELETE FROM exams WHERE exam_id=$1 RETURNING *`;
   const result = await pool.query(query, [exam_id]);
+
+  // Return the deleted exam data
   return result.rows[0];
 };
 
@@ -71,12 +86,47 @@ const getAllPaginatedExams = async (page, limit) => {
   const query = 'SELECT * FROM exams ORDER BY exam_id ASC';
   const paginatedQuery = paginate(query, page, limit);
   const result = await pool.query(paginatedQuery);
-
-  return {
-    totalExams,
-    exams: result.rows
-  };
+  return result;
 };
+// count of differnt type of exams
+
+const ExamCount = async (status) => {
+  const queryTEXT = 'SELECT * FROM exams WHERE status=$1';
+  let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
+
+  try {
+    // Query for each status
+    if (status === 'draft') {
+      const result = await pool.query(queryTEXT, [status]);
+      draft_count = result.rowCount || 0;
+    }
+    if (status === 'scheduled') {
+      const result = await pool.query(queryTEXT, [status]);
+      scheduled_count = result.rowCount || 0;
+    }
+    if (status === 'past') {
+      const result = await pool.query(queryTEXT, [status]);
+      past_count = result.rowCount || 0;
+    }
+    if (status === 'live') {
+      const result = await pool.query(queryTEXT, [status]);
+      live_count = result.rowCount || 0;
+    }
+
+    // Return the counts for each status
+    return {
+      draft: draft_count,
+      scheduled: scheduled_count,
+      past: past_count,
+      live: live_count
+    };
+  } catch (error) {
+    console.error("Error retrieving exam counts:", error);
+    throw new Error("Failed to retrieve exam counts");
+  }
+};
+
+
 
 const getAllScheduledExams = async () => {
   const query = 'SELECT * FROM exams WHERE status = $1';
@@ -217,13 +267,13 @@ module.exports = {
   updateExam,
   deleteExam,
   getAllPaginatedExams,
-  getPaginatedDraftededExams,
+  getPaginatedExams,
+  getExamsForUser,
   getAllScheduledExams,
-  getPaginatedScheduledExams,
-  getPaginatedPastExams,
-  getPaginatedLiveExams,
   scheduleExam,
   markLiveExam,
   markPastExam,
-  getLastExam
-};
+  getLastExam,
+  getExamsByStatus,
+  ExamCount
+};  

@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+
+
 const AddStudent = ({ closeModal }) => {
+
+    var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -32,7 +36,13 @@ const AddStudent = ({ closeModal }) => {
         };
 
         try {
-            const response = await axios.post("/api/users/register", newStudent);
+            const response = await axios.post(
+                `${API_BASE_URL}/api/users/register`, 
+                newStudent,
+                {
+                    withCredentials: true
+                }
+            );
             console.log("Student registered successfully:", response.data);
             alert("Student registered successfully!");
             closeModal(); // Close modal after successful registration

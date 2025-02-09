@@ -14,15 +14,19 @@
  * }
  */
 
-const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logActivity');
-const { hashPassword , verifyPassword } = require('../utils/hashUtil');
+const { hashPassword, verifyPassword } = require('../utils/hashUtil');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
-
+const { token } = require('morgan');
+const {generateRandomPassword} = require("../utils/randomPassword")
+const { sendBulkEmailToUsers } = require('../utils/emailSender');
+const dotenv = require('dotenv');
+dotenv.config();
 // Function to create a new user/register
 const registerUser = async (req, res) => {
   const { name, email, password, role, year, department, rollno, phone } =
@@ -30,7 +34,6 @@ const registerUser = async (req, res) => {
   if (
     !name ||
     !email ||
-    !password ||
     !role ||
     !year ||
     !department ||
@@ -41,15 +44,20 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
   try {
+
     const existingUser = await userModel.findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
-    const hashedPassword = await hashPassword(password, 10);
+
+    const password = generateRandomPassword(8, true)
+    // Ensure password is a string
+    const passwordHash = await hashPassword(password.toString());
+
     const newUser = await userModel.createUser(
       name,
       email,
-      hashedPassword,
+      passwordHash,
       role,
       year,
       department,
@@ -64,6 +72,8 @@ const registerUser = async (req, res) => {
         status: 'success',
         details: 'User registered successfully',
       });
+
+      await sendBulkEmailToUsers(email, password);
       return res.status(201).json(newUser);
     }
   } catch (err) {
@@ -88,7 +98,10 @@ const loginUser = async (req, res) => {
       });
       return res.status(404).json({ error: 'User not found' });
     }
-    const isPasswordMatch = await bcrypt.compare( password,result.password_hash);
+    const isPasswordMatch = await verifyPassword(
+      password,
+      result.password_hash
+    );
     if (!isPasswordMatch) {
       await logActivity({
         user_id: result.user_id,
@@ -118,17 +131,17 @@ const loginUser = async (req, res) => {
     });
 
     res.cookie('jwttoken', token, {
+      expires: new Date(Date.now() + 86400000),
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'None',
       secure: true,
     });
 
     if (result.status === 'NOTACTIVE') {
-      res.cookie('resettoken', resetToken, {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: true,
-      });
+
+      res.set('Access-Control-Expose-Headers', 'resettoken');
+      res.set('resettoken', resettoken);
+
     }
 
     return res.status(200).json({
@@ -153,7 +166,11 @@ const loginUser = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  const { resettoken, password: newPassword } = req.body;
+
+  const newPassword = req.body.password;
+  const resettoken = req.body.resettoken;
+
+  console.log('Reset password request:', req.body);
 
   if (!resettoken) {
     return res.status(400).json({ error: 'Reset token is required' });
@@ -162,11 +179,9 @@ const resetPassword = async (req, res) => {
   try {
     // Decode the reset token to get the user ID
     const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
-    const userId = decoded.id;
 
-    if (!userId) {
-      return res.status(400).json({ error: 'Invalid reset token' });
-    }
+    console.log(decoded);
+    const userId = decoded.id;
 
     // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
@@ -187,20 +202,34 @@ const resetPassword = async (req, res) => {
 
     res.json({ message: 'Password reset successfully' });
   } catch (err) {
-    console.error('Error resetting password:', err); // Log the error for debugging
+
+    console.error('Error resetting password:', err);
+    await logActivity({
+      user_id: null,
+      activity: 'Password reset',
+      status: 'failure',
+      details: `Error: ${err.message}`,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 // logout 
-const logout = async (req,res) => {
-  res.clearCookie('jwttoken', { path: '/' }); // Ensure path matches the one used for setting the cookie
-  res.status(200).json({message : "Logged out" })
+
+const logout = async (req, res) => {
+  res.clearCookie('jwttoken', {
+    expires: new Date(Date.now() + 86400000),
+    httpOnly: true,
+    sameSite: 'None',
+    secure: true,
+  }); // Ensure path matches the one used for setting the cookie
+  res.status(200).json({ message: "Logged out" })
 
 }
+
 // Function to update details of user
 const updateUser = async (req, res) => {
-  const { name, email, year,password, department, role, rollno, phone } =
+  const { name, email, year, password, department, role, rollno, phone } =
     req.body;
   const id = req.params.user_id;
 
@@ -311,25 +340,48 @@ const getAllPaginatedUsers = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
+
   }
 };
 
+
 const verifyResetToken = async (req, res) => {
-    const resettoken = req.headers['resettoken'];
-    console.log(req.headers);
-    if (!resettoken) {
-      return res.status(400).json({ error: 'Reset token is required' });
-    }
-  
-    try {
-      const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
-      res.json({ message: 'Token is valid', userId: decoded.user_id });
-    } catch (err) {
-      console.error('Error verifying reset token:', err); // Log the error for debugging
-      res.status(400).json({ error: 'Invalid or expired reset token' });
-    }
-  };
-  
+  const resettoken = req.headers['resettoken'];
+  console.log(req.headers);
+  if (!resettoken) {
+    return res.status(400).json({ error: 'Reset token is required' });
+  }
+
+  try {
+    const decoded = jwt.verify(resettoken, process.env.RESET_SECRET);
+    res.json({ message: 'Token is valid', userId: decoded.user_id });
+  } catch (err) {
+    console.error('Error verifying reset token:', err); // Log the error for debugging
+    res.status(400).json({ error: 'Invalid or expired reset token' });
+  }
+};
+
+
+const sendResetEmail = async (req, res) => {
+  const student = req.body.student;
+  console.log(student);
+
+  if (!student.user_id) {
+    return res.status(400).json({ error: 'ID is required' });
+  }
+
+  try {
+    const resettoken = await generateResetToken({
+      id: student.user_id,
+      email: student.email,
+      name: student.name,
+      role: student.role,
+    });
+
+    const resetLink =
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:3000/reset-password/${resettoken}`
+        : `${process.env.FRONTEND_ORIGIN}/reset-password/${resettoken}`;
 
 
 const sendResetEmail = async (req, res) => {
@@ -382,5 +434,6 @@ module.exports = {
   getAllPaginatedUsers,
   verifyResetToken,
   resetPassword,
+  logout,
   sendResetEmail,
 };

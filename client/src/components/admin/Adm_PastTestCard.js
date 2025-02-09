@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_PastTestCard = ({ test, onClick }) => {
-  // console.log('test is ',test);
-
+  console.log("test", test);
   const [result, setResult] = useState([]);
   const navigate = useNavigate();
 
@@ -15,11 +15,12 @@ const Adm_PastTestCard = ({ test, onClick }) => {
       }
 
       // Log the ID
-      console.log("Clicked test ID:", test.exam_id);
-      console.log("Clicked test duration:");
-
+      // console.log("Clicked test ID:", test.exam_id);
+      // console.log("Clicked test duration:");
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
-        `/api/exams/results/all/${test.exam_id}?page=1&limit=3`
+        `${API_BASE_URL}/api/exams/results/all/${test.exam_id}?page=1&limit=3`,
+        { withCredentials: true }
       );
       const fetchedResult = response.data.results;
       setResult(fetchedResult);
@@ -46,16 +47,24 @@ const Adm_PastTestCard = ({ test, onClick }) => {
         <span className="bg-green-200 text-green-900 text-sm px-2 py-1 rounded font-sans border border-green-700 opacity-100">
           Finished
         </span>
-        
+
         <div className="text-right">
-        <div className="flex flex-col items-center">
-        <span className="text-black-500 text-sm font-sans">
-          Conducted on: {test.date}
-        </span>
-        <span className="text-black-500 text-xs">Branch: {test.target_year.replace(/[{}]/g, '')} - {test.target_branch.replace(/[{}]/g, '')}</span>
-</div>
-    </div>
-        
+          <div className="flex flex-col items-center">
+            <span className="text-black-500 text-sm font-sans">
+              Conducted on: {test.date}
+            </span>
+            <span className="text-black-500 text-xs">
+              Branch:{" "}
+              {test.target_years
+                ? test.target_years.replace(/[{}]/g, "")
+                : "N/A"}{" "}
+              -{" "}
+              {test.target_branches
+                ? test.target_branches.replace(/[{}]/g, "")
+                : "N/A"}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Test Info */}
@@ -152,9 +161,6 @@ const Adm_PastTestCard = ({ test, onClick }) => {
           }
         >
           View Results
-        </button>
-        <button className="bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">
-          Archive
         </button>
       </div>
     </div>
