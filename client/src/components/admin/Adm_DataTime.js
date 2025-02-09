@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 
-const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
+const Adm_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -162,4 +162,4 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
   );
 };
 
-export default DataTime;
+export default Adm_DataTime;
