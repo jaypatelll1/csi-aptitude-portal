@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import Filter from "../../components/admin/Adm_Filter";
-import AddStudent from "../../components/admin/Adm_AddStudent";
-import EditStudent from "../../components/admin/Adm_EditStudent";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar";
+import Filter from "../../components/department/Dep_Filter";
+import AddStudent from "../../components/department/Dep_AddStudent";
+import EditStudent from "../../components/department/Dep_EditStudent";
 import UploadModal from "../../upload/UploadModal";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const StudentList = () => {
@@ -249,11 +249,11 @@ const StudentList = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <Dep_Sidebar />
       </div>
       <div id="main-section" className=" flex-grow bg-gray-100 h-max">
         <div className="bg-white h-14 border-b border-gray-300 items-end">
-          <Adm_Navbar />
+          <Dep_Navbar />
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"

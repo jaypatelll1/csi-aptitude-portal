@@ -1,10 +1,10 @@
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Dep_Navbar from "../../components/department/Dep_Navbar";
 
 const CreateTestPage = () => {
   const [testName, setTestName] = useState("");
@@ -111,11 +111,11 @@ const CreateTestPage = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <Dep_Sidebar />
       </div>
 
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar />
+        <Dep_Navbar />
         <div className="flex items-center">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}

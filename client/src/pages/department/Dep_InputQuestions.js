@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const InputQuestions = () => {
@@ -222,11 +222,11 @@ const InputQuestions = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <Dep_Sidebar />
       </div>
       <div className="flex-1">
         <div>
-          <Adm_Navbar />
+          <Dep_Navbar />
         </div>
         <div className="flex-grow w-full p-9 bg-gray-100 overflow-y-auto m-0 ">
           <div className="flex items-center justify-between mb-4 sm:mb-6">

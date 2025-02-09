@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
-import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"; // Drafted Test Card component
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar"; // Sidebar component
+import Dep_LiveTestCard from "../../components/department/Dep_LiveTestCard"; // Drafted Test Card component
+import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_DraftTest = () => {
+const Dep_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -100,12 +100,12 @@ const Adm_DraftTest = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <Dep_Sidebar />
       </div>
 
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar />
+        <Dep_Navbar />
         <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           {/* Burger Icon Button */}
           <button
@@ -146,7 +146,7 @@ const Adm_DraftTest = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2  gap-y-5 mt-6">
               {/* Display only current items */}
               {currentItems.map((test, index) => (
-                <Adm_LiveTestCard key={index} test={test} />
+                <Dep_LiveTestCard key={index} test={test} />
               ))}
             </div>
 
@@ -226,4 +226,4 @@ const Adm_DraftTest = () => {
   );
 };
 
-export default Adm_DraftTest;
+export default Dep_DraftTest;

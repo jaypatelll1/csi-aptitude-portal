@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Import the Sidebar
-import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard"; // Import the PastTestCard
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar"; // Import the Sidebar
+import Dep_PastTestCard from "../../components/department/Dep_PastTestCard"; // Import the PastTestCard
+import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_PastTest = () => {
+const Dep_PastTest = () => {
   const [pastTests, setPastTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,11 +89,11 @@ const Adm_PastTest = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <Dep_Sidebar />
       </div>
 
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar />
+        <Dep_Navbar />
         <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -131,7 +131,7 @@ const Adm_PastTest = () => {
             {/* Grid Layout for Paginated Past Test Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
-                <Adm_PastTestCard key={index} test={test} />
+                <Dep_PastTestCard key={index} test={test} />
               ))}
             </div>
 
@@ -180,4 +180,4 @@ const Adm_PastTest = () => {
   );
 };
 
-export default Adm_PastTest;
+export default Dep_PastTest;
