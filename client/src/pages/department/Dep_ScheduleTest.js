@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar";
+import Dep_ScheduledTestCard from "../../components/department/Dep_ScheduleTestCard";
+import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_ScheduledTest = () => {
+const Dep_ScheduledTest = () => {
   const [scheduledTests, setScheduledTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -88,12 +88,12 @@ const Adm_ScheduledTest = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <Dep_Sidebar />
       </div>
 
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar/>
+        <Dep_Navbar/>
         <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -131,7 +131,7 @@ const Adm_ScheduledTest = () => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
-                <Adm_ScheduledTestCard key={index} test={test} />
+                <Dep_ScheduledTestCard key={index} test={test} />
               ))}
             </div>
 
@@ -180,4 +180,4 @@ const Adm_ScheduledTest = () => {
   );
 };
 
-export default Adm_ScheduledTest;
+export default Dep_ScheduledTest;

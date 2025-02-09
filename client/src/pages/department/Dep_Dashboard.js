@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
-import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
-import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
-import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
-import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard";
-import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar";
+import Dep_DashboardTiles from "../../components/department/Dep_DashboardTiles";
+import Dep_DraftedTestCard from "../../components/department/Dep_DraftedTestCard";
+import Dep_ScheduledTestCard from "../../components/department/Dep_ScheduleTestCard";
+import Dep_PastTestCard from "../../components/department/Dep_PastTestCard";
+import Dep_LiveTestCard from "../../components/department/Dep_LiveTestCard";
+import Dep_Navbar from "../../components/department/Dep_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
@@ -171,11 +171,11 @@ const Dashboard = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar testsData={testsData} />
+        <Dep_Sidebar testsData={testsData} />
       </div>
 
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar />
+        <Dep_Navbar />
 
         <div className="flex items-center justify-between mt-5">
           <button
@@ -214,7 +214,7 @@ const Dashboard = () => {
         </div>
 
         <div className="p-0 w-full flex justify-center">
-          <Adm_DashboardTiles tileData={tileData} />
+          <Dep_DashboardTiles tileData={tileData} />
         </div>
 
         <div className="p-4 w-[97%] xl:w-[98%] mt-8 ml-4 rounded-xl bg-white">
@@ -245,13 +245,13 @@ const Dashboard = () => {
                 console.log(test);
 
                 if (activeTab === "live") {
-                  return <Adm_LiveTestCard key={key} test={test} />;
+                  return <Dep_LiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
-                  return <Adm_ScheduledTestCard key={key} test={test} />;
+                  return <Dep_ScheduledTestCard key={key} test={test} />;
                 } else if (activeTab === "past") {
-                  return <Adm_PastTestCard key={key} test={test} />;
+                  return <Dep_PastTestCard key={key} test={test} />;
                 } else if (activeTab === "drafted") {
-                  return <Adm_DraftedTestCard key={key} test={test} />;
+                  return <Dep_DraftedTestCard key={key} test={test} />;
                 }
                 return null;
               })

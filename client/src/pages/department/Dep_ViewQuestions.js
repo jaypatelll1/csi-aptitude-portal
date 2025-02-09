@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import Adm_ViewQuestionCard from "../../components/admin/Adm_ViewQuestionCard";
-import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import DataTime from "../../components/admin/Adm_DataTime";
+import Dep_ViewQuestionCard from "../../components/department/Dep_ViewQuestionCard";
+import Dep_Sidebar from "../../components/department/Dep_Sidebar";
+import DataTime from "../../components/department/Dep_DataTime";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { clearExamId } from "../../redux/ExamSlice";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_ViewQuestions = () => {
+const Dep_ViewQuestions = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -159,7 +159,7 @@ const Adm_ViewQuestions = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <Adm_Sidebar />
+        <Dep_Sidebar />
       </div>
 
       <div className="flex-1 p-4 sm:p-6">
@@ -242,7 +242,7 @@ const Adm_ViewQuestions = () => {
             <p className="text-red-500">{error}</p>
           ) : (
             questions.map((question, index) => (
-              <Adm_ViewQuestionCard
+              <Dep_ViewQuestionCard
                 key={question.question_id}
                 id={question.question_id}
                 index={index}
@@ -268,4 +268,4 @@ const Adm_ViewQuestions = () => {
   );
 };
 
-export default Adm_ViewQuestions;
+export default Dep_ViewQuestions;
