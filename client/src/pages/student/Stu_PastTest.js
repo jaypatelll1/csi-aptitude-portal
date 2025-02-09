@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import MSidebar from "../../components/student/home/MSidebar"; // Sidebar component
+import Stu_Sidebar from "../../components/student/home/Stu_Sidebar"; // Sidebar component
 import Stu_PastCard from "../../components/student/home/Stu_PastCard";
 import { useSelector, useDispatch } from "react-redux";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
@@ -99,7 +99,7 @@ const Adm_DraftTest = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
-        <MSidebar />
+        <Stu_Sidebar />
       </div>
 
       {/* Main Content Section */}

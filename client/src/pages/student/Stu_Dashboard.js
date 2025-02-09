@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import MSidebar from "../../components/student/home/MSidebar";
+import Stu_Sidebar from "../../components/student/home/Stu_Sidebar";
 import StuTestCard from "../../components/student/home/Stu_TestCard";
 import StuPastTestCard from "../../components/student/home/Stu_PastTestCard";
 import Details from "../../components/student/home/Stu_Details";
@@ -168,7 +168,7 @@ setResult(pastPaper.data.results)
           sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
         } transition-transform duration-300 w-64 xl:block`}
       >
-        <MSidebar />
+        <Stu_Sidebar />
       </div>
 
       {/* Main Section */}

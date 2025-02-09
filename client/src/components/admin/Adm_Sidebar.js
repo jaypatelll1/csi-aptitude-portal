@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-const Msidebar = () => {
+const Adm_Sidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
   // console.log('testdata is ', testsData);
   
@@ -117,4 +117,4 @@ const Msidebar = () => {
   );
 };
 
-export default Msidebar;
+export default Adm_Sidebar;
