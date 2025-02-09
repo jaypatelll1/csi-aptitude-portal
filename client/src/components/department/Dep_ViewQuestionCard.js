@@ -13,7 +13,7 @@ const Dep_ViewQuestionCard = ({ id, text, options, index, correct_option }) => {
   
 
   const handleEditQuestion = () => {
-    navigate("/admin/input", {
+    navigate("/department/input", {
       state: {
         questionId: id,
         questionText: text,

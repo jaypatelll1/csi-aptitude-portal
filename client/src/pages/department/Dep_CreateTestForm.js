@@ -44,7 +44,7 @@ const Dep_CreateTestPage = () => {
       const response = await axios.post(`${API_BASE_URL}/api/exams`, payload, { withCredentials: true });
       const examId = response.data.newExam.exam_id;
       dispatch(setExamId(examId));
-      navigate("/admin/input");
+      navigate("/department/input");
     } catch (error) {
       alert("Invalid Input");
       console.error("Error creating test:", error.response?.data || error.message);

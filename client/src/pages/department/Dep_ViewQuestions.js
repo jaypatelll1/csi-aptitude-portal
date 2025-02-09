@@ -78,7 +78,7 @@ const Dep_ViewQuestions = () => {
   };
 
   const handleGoBack = () => {
-    navigate("/admin/input");
+    navigate("/department/input");
   };
 
   const handleSchedulePost = () => {
@@ -90,7 +90,7 @@ const Dep_ViewQuestions = () => {
   };
 
   const handleSaveDraft = () => {
-    navigate("/admin");
+    navigate("/department");
     dispatch(clearExamId());
   };
 
@@ -118,7 +118,7 @@ const Dep_ViewQuestions = () => {
         closeScheduleModal();
         console.log(startTime, endTime);
         dispatch(clearExamId()); // Dispatch clearing examId here to ensure it runs after successful API call
-        navigate("/admin"); // Navigate to /admin after successful test scheduling
+        navigate("/department"); // Navigate to /department after successful test scheduling
       })
       .catch((err) =>
         alert(
@@ -135,7 +135,7 @@ const Dep_ViewQuestions = () => {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
     console.log("response is ", response);
-    navigate("/admin/createtest");
+    navigate("/department/createtest");
   };
 
   useEffect(() => {
