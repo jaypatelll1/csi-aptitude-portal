@@ -18,7 +18,6 @@ const insertQuestion = async (
   exam_id,
   question_text,
   options,
-
   correct_option,
   category_type
 ) => {
@@ -37,6 +36,7 @@ const insertQuestion = async (
     throw err;
   }
 };
+
 
 // Function to get all questions for a given exam_id
 const getQuestionsByExamId = async (exam_id) => {
@@ -69,7 +69,6 @@ const UpdateQuestions = async (
   exam_id,
   question_text,
   options,
-
   correct_option,
   category_type
 ) => {

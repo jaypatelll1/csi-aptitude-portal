@@ -28,7 +28,6 @@ const Login = () => {
     setLoading(true);
 
     try {
-
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       const response = await axios.post(
@@ -38,7 +37,6 @@ const Login = () => {
           password,
         },
         {
-
           withCredentials: true,
         }
       );

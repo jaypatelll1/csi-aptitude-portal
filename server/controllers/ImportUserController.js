@@ -1,6 +1,5 @@
 const path = require("path");
 const { parseExcelUsers, parseCSVusers, } = require("../models/UserFileModels");
-
 const fs = require("fs/promises");
 const { Worker } = require("worker_threads");
 
@@ -12,7 +11,6 @@ const uploadFile = async (req, res) => {
     if (fileExtension === ".xlsx" || fileExtension === ".xls") {
         // Parse Excel file
         try {
-
             const worker = new Worker("./workers/fileParser.js", {workerData: {
                 filePath : filePath,
                 fileExtension : fileExtension
@@ -84,7 +82,6 @@ const uploadFile = async (req, res) => {
     } else if (fileExtension === ".csv") {
         // Parse CSV file
         try {
-
             const worker = new Worker("./workers/fileParser.js", {workerData: {
                 filePath : filePath,
                 fileExtension : fileExtension
