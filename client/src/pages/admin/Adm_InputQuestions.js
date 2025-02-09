@@ -6,7 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-// const API_BASE_URL = process.env.BACKEND_BASE_URL;
+
+const validCategories = [
+  "quantitative aptitude",
+  "logical reasoning",
+  "verbal ability",
+  "technical",
+  "general knowledge",
+];
 
 const InputQuestions = () => {
   const [question, setQuestion] = useState("");
@@ -19,6 +26,7 @@ const InputQuestions = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
+  const [category, setCategory] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,7 +66,7 @@ const InputQuestions = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true, // Make sure the cookie is sent with the request
+          withCredentials: true,
         }
       );
       alert("File uploaded successfully!");
@@ -138,6 +146,11 @@ const InputQuestions = () => {
         return;
       }
 
+      if (!category) {
+        alert("Please select a category.");
+        return;
+      }
+
       const findTrueIndex = () => {
         var a = toggles.findIndex((toggle) => toggle === true);
         return a !== -1 ? a : "No true value found";
@@ -155,6 +168,7 @@ const InputQuestions = () => {
           d: `${options[3]}`,
         },
         correct_option: `${correctOption}`,
+        category: category,
       };
 
       try {
@@ -164,7 +178,7 @@ const InputQuestions = () => {
             `${API_BASE_URL}/api/exams/questions/${examId}`,
             payload,
             {
-              withCredentials: true, // Make sure the cookie is sent with the request
+              withCredentials: true,
             }
           );
           setQuestion("");
@@ -177,7 +191,7 @@ const InputQuestions = () => {
             `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
             payload,
             {
-              withCredentials: true, // Make sure the cookie is sent with the request
+              withCredentials: true,
             }
           );
           setQuestion("");
@@ -313,6 +327,25 @@ const InputQuestions = () => {
                 placeholder="Enter question description..."
                 className="w-full p-4 h-24 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+            <div className="mb-4">
+              <label className="text-xl block text-gray-700 font-medium mb-2">
+                Select Category:
+              </label>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="" hidden disabled className="text-gray-400">
+                  Enter a category
+                </option>
+                {validCategories.map((cat, index) => (
+                  <option key={index} value={cat} className="text-gray-800">
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-xl block text-gray-700 font-medium mb-2">
