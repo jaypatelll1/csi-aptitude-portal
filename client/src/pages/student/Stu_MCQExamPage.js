@@ -12,16 +12,10 @@ import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponen
 import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-
 import { clearQuestions } from "../../redux/questionSlice";
 // import Adm_Navbar from "../../components/admin/Adm_Navbar";
-import { clearExamId } from "../../redux/ExamSlice"
-
-
-
-
-
-
+import { clearExamId } from "../../redux/ExamSlice";
+import "./MCQExamPage.css";
 const MCQExamPage = () => {
   // const socket = io('/exams/start-exam');
 
@@ -30,7 +24,7 @@ const MCQExamPage = () => {
   const dispatch = useDispatch();
   const { examId } = useParams();
   const navigate = useNavigate();
-  const exam = useSelector((state) => state.exam.exam)
+  const exam = useSelector((state) => state.exam.exam);
   // console.log('exam',exam);
 
   // console.log('examid is ',examId);
@@ -41,6 +35,7 @@ const MCQExamPage = () => {
 
   const userId = useSelector((state) => state.user.user.id);
   const userName = useSelector((state) => state.user.user.name);
+  const userEmail = useSelector((state) => state.user.user.email);
 
   // console.log('usesr id is ',userId);
 
@@ -64,7 +59,27 @@ const MCQExamPage = () => {
       .toString()
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-
+  const Watermark = ({ text }) => {
+    return (
+      <div
+        className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
+        style={{
+          zIndex: 1,
+          transform: "rotate(-45deg)",
+          opacity: 0.1,
+        }}
+      >
+        <span
+          className="text-6xl font-bold text-gray-500 whitespace-nowrap"
+          style={{
+            userSelect: "none",
+          }}
+        >
+          {text}
+        </span>
+      </div>
+    );
+  };
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
     if (rootElement.requestFullscreen) {
@@ -86,16 +101,14 @@ const MCQExamPage = () => {
     // console.log("response is submit final", response.data);
   };
 
-
   useEffect(() => {
     const currentQuestion = questions[currentQuestionIndex];
 
     // Mark as visited if it hasn't been visited yet
     if (currentQuestion && !currentQuestion.visited) {
-      dispatch(visitQuestion(currentQuestionIndex));  // Mark as visited
+      dispatch(visitQuestion(currentQuestionIndex)); // Mark as visited
     }
   }, [dispatch, questions, currentQuestionIndex]);
-
 
   useEffect(() => {
     const socketConnect = async () => {
@@ -111,20 +124,16 @@ const MCQExamPage = () => {
         const socket = socketRef.current;
 
         // Handle socket connection
-        socket.on("connect", () => {
-
-        });
+        socket.on("connect", () => {});
 
         // Emit the start_exam event
         socket.emit("start_exam", {
-
           exam_id: examId,
           duration: Duration * 60,
         });
 
         // Listen for timer updates
         socket.on("timer_update", (data) => {
-          // console.log("Timer update received:", data.remainingTime);
           setRemainingTime(data.remainingTime);
         });
 
@@ -134,10 +143,6 @@ const MCQExamPage = () => {
           submitFinalResponse();
           setTimeUp(true);
         });
-
-        // if(timeUp === true || testSubmitted === true){
-        //   socket.emit("submit_responses")
-        // }
 
         socket.on("disconnect", (data) => {
           console.log(data);
@@ -169,26 +174,6 @@ const MCQExamPage = () => {
     }
   }, [timeUp]);
 
-  // useEffect(() => {
-  //   // Make sure socketRef is initialized
-  //   const socket = socketRef.current;
-  //   if (!socket) return; // Return if socket is not initialized yet
-
-  //   // Emit "submit_responses" when either condition is met
-  //   if (timeUp === true || testSubmitted === true) {
-  //     socket.emit("submit_responses");
-  //   }
-
-  //   // Cleanup function to disconnect socket on component unmount
-  //   return () => {
-  //     // Any necessary cleanup, like closing socket connection or removing listeners
-  //     if (socket) {
-  //       socket.off("exam_ended");
-  //       socket.off("disconnect");
-  //     }
-  //   };
-  // }, [timeUp, testSubmitted]);
-
   useEffect(() => {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement && !testSubmitted) {
@@ -216,35 +201,15 @@ const MCQExamPage = () => {
       selected_option: option,
       response_status: "draft",
     };
-    // console.log("payload is ", payload);
 
     const response = await axios.put(url, payload, { withCredentials: true });
-    // console.log("response single is ", response.data);
   };
 
   const handleOptionSelect = (option, id) => {
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
     singleResponse(option, id);
-    // socketRef.current.emit("submit_temp_response", {
-    //   exam_id: examId,
-    //   question_id: id,
-    //   selected_option: option,
-    // });
   };
 
-  // useEffect(() => {
-  //   window.history.pushState(null, null, window.location.href = `/exam/${examId}`);
-  //   const preventBack = () => {
-  //     window.history.pushState(null, null, window.location.href = `/exam/${examId}`);
-  //   };
-  //   window.addEventListener('popstate', preventBack);
-
-  //   return () => {
-  //     window.removeEventListener('popstate', preventBack);
-  //   };
-  // }, [navigate,examId]);
-
-  // Handler when the network goes offline
   const handleOffline = () => {
     const socket = socketRef.current;
     if (!socket) {
@@ -256,27 +221,21 @@ const MCQExamPage = () => {
         console.log(data);
       });
 
-      alert('You are offline. Some features may not be available.');
-      navigate("/home", { replace: true })
-
-
+      alert("You are offline. Some features may not be available.");
+      navigate("/home", { replace: true });
     } catch (error) {
-      console.log(`timer couldonot stop`)
+      console.log(`timer couldonot stop`);
     }
-
-
   };
-
 
   useEffect(() => {
     // Add event listeners for online and offline events
 
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("offline", handleOffline);
 
     // Cleanup the event listeners when the component unmounts
     return () => {
-
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -319,12 +278,11 @@ const MCQExamPage = () => {
     });
   };
 
-
   return (
-    <div className="flex-1">
-      {/* <Adm_Navbar /> */}
-      <div className="flex h-screen bg-[#F5F6F8] ">
-        <NoCopyComponent onPermissionGranted={handlePermissionGranted} />
+    <div className="relative flex-1">
+      {/* Main Content */}
+      <div className="flex h-screen bg-[#F5F6F8]">
+        <NoCopyComponent onPermissionGranted={enableFullscreen} />
         {fullscreenError && !testSubmitted && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
@@ -349,75 +307,86 @@ const MCQExamPage = () => {
         )}
 
         <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8]">
-          {exam?.filter((examItem) => examItem.exam_id === Number(examId)) // Filter exams matching examId
+          {exam
+            ?.filter((examItem) => examItem.exam_id === Number(examId))
             .map((examItem) => (
-              <h1 key={examItem.exam_id} className="text-xl font-bold text-gray-800 mb-4">
+              <h1
+                key={examItem.exam_id}
+                className="text-xl font-bold text-gray-800 mb-4"
+              >
                 {examItem.exam_name}
               </h1>
             ))}
 
+<div className="relative bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8 overflow-hidden">
+  {/* Watermark Overlay */}
+  <div className="watermark-overlay">
+    {Array.from({ length: 300 }).map((_, index) => (
+      <div key={index} className="watermark-text">
+        {userEmail}
+      </div>
+    ))}
+  </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-black">
-                {currentQuestionIndex + 1}.{" "}
-                {questions[currentQuestionIndex]?.question_text || "Loading..."}
-              </h2>
-              <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
-                {formatTimeFromSeconds(remainingTime)}
-              </span>
-            </div>
+  {/* Main Content */}
+  <div className="flex items-center justify-between mb-6">
+    <h2 className="text-2xl font-semibold text-black select-none">
+      {currentQuestionIndex + 1}.{" "}
+      {questions[currentQuestionIndex]?.question_text || "Loading..."}
+    </h2>
+    <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
+      {formatTimeFromSeconds(remainingTime)}
+    </span>
+  </div>
 
-            <div className="space-y-4">
-              {Object.entries(
-                questions[currentQuestionIndex]?.options || {}
-              ).map(([key, value]) => (
-                <label
-                  key={key}
-                  className="block p-2 rounded-lg hover:bg-gray-100 transition"
-                >
-                  <input
-                    type="radio"
-                    name={`question-${currentQuestionIndex}`}
-                    className="mr-2"
-                    checked={
-                      questions[currentQuestionIndex]?.selectedOption === key
-                    }
-                    onChange={() =>
-                      handleOptionSelect(
-                        key,
-                        questions[currentQuestionIndex]?.question_id
-                      )
-                    }
-                  />
-                  {value}
-                </label>
-              ))}
-            </div>
+  <div className="space-y-4">
+    {Object.entries(questions[currentQuestionIndex]?.options || {}).map(
+      ([key, value]) => (
+        <label
+          key={key}
+          className="block p-2 rounded-lg hover:bg-gray-100 transition"
+        >
+          <input
+            type="radio"
+            name={`question-${currentQuestionIndex}`}
+            className="mr-2"
+            checked={
+              questions[currentQuestionIndex]?.selectedOption === key
+            }
+            onChange={() =>
+              handleOptionSelect(
+                key,
+                questions[currentQuestionIndex]?.question_id
+              )
+            }
+          />
+          {value}
+        </label>
+      )
+    )}
+  </div>
 
-            <div className="mt-56 flex justify-between">
-              <button
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
-                disabled={currentQuestionIndex === 0}
-                onClick={handlePreviousQuestion}
-              >
-                Previous
-              </button>
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
-                disabled={currentQuestionIndex === questions.length - 1}
-                onClick={handleNextQuestion}
-              >
-                Next
-              </button>
-            </div>
-          </div>
+  <div className="absolute bottom-5 w-full flex justify-between">
+    <button
+      className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
+      disabled={currentQuestionIndex === 0}
+      onClick={handlePreviousQuestion}
+    >
+      Previous
+    </button>
+    <button
+      className="px-4 py-2 mr-10 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
+      disabled={currentQuestionIndex === questions.length - 1}
+      onClick={handleNextQuestion}
+    >
+      Next
+    </button>
+  </div>
+</div>
+
+
         </div>
-        <Sidebar
-          name={userName}
-          onSubmitTest={handleSubmitTest}
-
-        />
+        <Sidebar name={userName} onSubmitTest={handleSubmitTest} />
       </div>
     </div>
   );
