@@ -37,7 +37,6 @@ const sockettAuthMiddleware = (socket, next) => {
   });
 };
 
-
 const tokenMiddleware = async (req, res, next) => {
   const token = req.cookies.jwttoken;
   // console.log('token is ', token);
@@ -83,6 +82,7 @@ const tokenMiddleware = async (req, res, next) => {
   // next();
 
 };
+
 
 
 

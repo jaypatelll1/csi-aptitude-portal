@@ -9,6 +9,7 @@ const { jwtAuthMiddleware } = require('./middlewares/jwtAuthMiddleware');
 const { limiter } = require('./utils/rateLimitUtils');
 const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
+
 require('./utils/autoUpdateExamStatus'); // For auto-updating past exams status
 require('./utils/autoliveExamStatus'); // For auto-updating live status
 
@@ -20,10 +21,10 @@ const responseRoutes = require('./routes/responseRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const exportRoutes = require('./routes/exportRoutes');
+const statsRoutes = require('./routes/statsRoutes');
+const tokenRoutes = require("./routes/tokenRoutes");
 const logger = require('./utils/logger');
 const errorHandler = require('./middlewares/errorHandler');
-const statsRoutes = require('./routes/statsRoutes');
-const tokenRoutes = require("./routes/tokenRoutes")
 
 
 // Initialize the app
@@ -35,6 +36,7 @@ const FRONTEND_ORIGIN = process.env.NODE_ENV === 'production'
 ? ['https://csi-aptitude-portal-client.onrender.com', 'http://localhost:3000', 'https://aptitude.csiace.com']
 : ['http://localhost:3000']; // Development also returns an array
 // Local frontend URL
+
 
 const io = new Server(server, {
   cookie: true,
@@ -70,6 +72,7 @@ app.use('/api/exams', jwtAuthMiddleware, examRoutes, fileRoutes);
 app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
 app.use('/api/exams/results', jwtAuthMiddleware, resultRoutes);
+
 app.use('/api/export', exportRoutes);
 // app.use('/api/users', fileRoutes);
 // app.use('/api/exams', fileRoutes);

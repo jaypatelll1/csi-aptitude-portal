@@ -8,6 +8,7 @@ const parseExcelQuestion = async (filePath, examId) => {
     const workbook = XLSX.readFile(filePath);
     const sheetNames = workbook.SheetNames;
     const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+
     // console.log("Excel Data to insert:", jsonData);
     const warnings = []; // Collect all warnings here
     let index = 0; 
