@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const EditStudent = ({ closeEditModal, student, counter }) => {
   const firstname = student.name.split(" ")[0];
@@ -29,11 +30,14 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
     };
 
     try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.put(
-        "/api/users/update/${user_id}",
-        newStudent
+        `${API_BASE_URL}/api/users/update/${user_id}`,
+        newStudent,{
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
       );
-      console.log("Student registered successfully:", response.data);
+      console.log("Student updated successfully:", response.data);
       alert("Student registered successfully!");
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
@@ -44,7 +48,10 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
 
   const handleDelete = async (user_id) => {
     try {
-      const response = await axios.delete(`/api/users/delete/${user_id}`);
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`,{
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
       console.log("Student deleted successfully:", response.data);
       alert("Student deleted successfully!");
       counter();
@@ -57,7 +64,10 @@ const EditStudent = ({ closeEditModal, student, counter }) => {
 
   const handleReset = async (student) => {
     try {
-      const response = await axios.post('/api/users/send-reset-mail' , {student});
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student},{
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
       console.log("Student reset successfully:", response.data);
       alert("Student reset mail sent successfully!");
       closeEditModal(); // Close modal after successful registration

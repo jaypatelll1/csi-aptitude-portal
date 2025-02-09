@@ -3,6 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard"; // Drafted Test Card component
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -41,10 +42,12 @@ const Adm_DraftTest = () => {
       try {
         setLoading(true);
         setError(null);
-
-        const response = await axios.get("/api/exams/drafts", {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
           withCredentials: true,
         });
+
+        console.log("response", response);
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
@@ -53,6 +56,8 @@ const Adm_DraftTest = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
 
         setTests(fetchedTests);
@@ -94,7 +99,7 @@ const Adm_DraftTest = () => {
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar/>
-        <div className="flex items-center h-12 ml-4  ">
+        <div className="flex items-center h-16 ml-4  border-b border-black mr-3">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -131,7 +136,7 @@ const Adm_DraftTest = () => {
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-6">
               {paginatedTests.map((test, index) => (
                 <Adm_DraftedTestCard key={index} test={test} />
               ))}
@@ -141,7 +146,7 @@ const Adm_DraftTest = () => {
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 border rounded ${
+                className={`p-2 mx-1  rounded ${
                   currentPage === 1
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-200"
@@ -154,7 +159,7 @@ const Adm_DraftTest = () => {
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 border rounded ${
+                  className={`px-3 py-1 mx-1 rounded ${
                     currentPage === i + 1
                       ? "bg-blue-500 text-white"
                       : "hover:bg-gray-200"
@@ -165,7 +170,7 @@ const Adm_DraftTest = () => {
               ))}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 border rounded ${
+                className={`p-2 mx-1 rounded ${
                   currentPage === totalPages
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-200"

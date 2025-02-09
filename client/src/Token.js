@@ -1,42 +1,39 @@
-import React, { useEffect } from "react";
-import axios from "axios";
 
-import { useSelector } from "react-redux";
+import React, { useEffect } from 'react';
+import axios from 'axios'
+import { useSelector } from 'react-redux';
 
 const Token = () => {
-  const user = useSelector((state) => state.user);
-  // console.log('user is ', user);
+    const user = useSelector(state => state.user);
+    useEffect(() => {
+        const handleTokenRefresh = async () => {
+            let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+            try {
+                const response = await axios.post(`${API_BASE_URL}/api/token`, {
+                    "id": user.user.id,
+                    "email": user.user.email,
+                    "name": user.user.name,
+                    "role": user.user.role
+                }, {
+                    withCredentials: true,  // Make sure the cookie is sent with the request
+                });
+                // console.log("response token", response)
+            
+               
 
-  useEffect(() => {
-    // Function to refresh token
-    const handleTokenRefresh = async () => {
-      try {
-        const response = await axios.post("/api/token",
-          {
-            id: user.user.id,
-            email: user.user.email,
-            name: user.user.name,
-            role: user.user.role,
-          },
-          {
-            withCredentials: true,
-          }
-        );
-        // console.log('response is ', response.data);
-      } catch (error) {
-        console.error("Failed to refresh token", error);
-      }
-    };
+            } catch (error) {
+                console.error('Failed to refresh token', error);
+            }
+        };
 
-    // Refresh token immediately and then every 30 minutes (30 * 60 * 1000 ms)
-    handleTokenRefresh();
-    const intervalId = setInterval(handleTokenRefresh, 30 * 60 * 1000); // 30 minutes
+        handleTokenRefresh();
+        const intervalId = setInterval(handleTokenRefresh, 30 * 60 * 1000); // 30 minutes
+        return () => clearInterval(intervalId);
+    }, []);
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
+    return (
+        <div></div>
+    )
+}
 
-  return <div></div>;
-};
-
-export default Token;
+export default Token

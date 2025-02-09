@@ -8,14 +8,16 @@ const parseExcelQuestion = async (filePath, examId) => {
     const workbook = XLSX.readFile(filePath);
     const sheetNames = workbook.SheetNames;
     const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+
     // console.log("Excel Data to insert:", jsonData);
     const warnings = []; // Collect all warnings here
     let index = 0; 
     for (const row of jsonData) {
       // console.log(jsonData)
-      const { question_text, correct_option, options_a, options_b, options_c, options_d } = row;
 
-      if (!question_text || (!options_a && !options_b && !options_c && !options_d) || !correct_option) {
+      const { question_text, correct_option, options_a, options_b, options_c, options_d ,category} = row;
+
+      if (!question_text || (!options_a && !options_b && !options_c && !options_d) || !correct_option || !category) {
         warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
         // console.log(warnings)
     index++; // Increment index
@@ -29,15 +31,32 @@ const parseExcelQuestion = async (filePath, examId) => {
         c: options_c || "",
         d: options_d || "",
       };
+// Convert category to lowercase and validate it against ENUM values
+const category_type = category.toLowerCase();
+const validCategories = [
+  'quantitative aptitude',
+  'logical reasoning',
+  'verbal ability',
+  'technical',
+  'general knowledge',
+];
 
+
+if (!validCategories.includes(category_type)) {
+  warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
+  // console.log(warnings)
+index++; // Increment index
+continue;
+}
 
       const queryText = `
-        INSERT INTO questions (exam_id, question_text, options, correct_option)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO questions (exam_id, question_text, options, correct_option, category)
+VALUES ($1, $2, $3, $4, $5);
+
       `;
-      const values = [examId, question_text, JSON.stringify(optionsObject), correct_option];
+      const values = [examId, question_text, JSON.stringify(optionsObject), correct_option,category_type];
       await query(queryText, values);
-      index++; // Increment index after processin
+      
     }
 
     console.log("All Excel data inserted successfully.");

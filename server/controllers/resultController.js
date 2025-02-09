@@ -258,4 +258,5 @@ module.exports = {
   getPaginatedResultsByExam,
   pastResult,
   getResultsByUsers
+
 };

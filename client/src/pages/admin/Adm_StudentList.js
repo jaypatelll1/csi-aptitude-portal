@@ -3,9 +3,10 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from "../../components/admin/Adm_Filter";
 import AddStudent from "../../components/admin/Adm_AddStudent";
-import searchIcon from "../../assets/studentlist/Search.svg";
 import EditStudent from "../../components/admin/Adm_EditStudent";
 import UploadModal from "../../upload/UploadModal";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const StudentList = () => {
   const [showFilter, setShowFilter] = useState(false);
@@ -15,64 +16,92 @@ const StudentList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [numberofpages, setNumberofpages] = useState(14);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(50);
+  const [limit, setLimit] = useState(20);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [deletedUsers, setDeletedUsers] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
-    const [ModalOpen, setModalOpen] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [isUploading, setIsUploading] = useState(false);
+  const [ModalOpen, setModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-    //    Handle file change and validate file type
-    const handleFileChange = (event) => {
-      const file = event.target.files[0];
+  //    Handle file change and validate file type
+  const handleFileChange = (event) => {
+    const file = event.target.files ? event.target.files[0] : null;
 
-      // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
-      const allowedTypes = [
-          "application/vnd.ms-excel", // .xls
-          "text/csv",                 // .csv
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-        ];
-      if (!allowedTypes.includes(file.type)) {
-          alert("Invalid file type. Please upload a .csv or .xls file.");
-          return;
-      }
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
 
-      setSelectedFile(file);  // If valid, set the file
+    // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
+    const allowedTypes = [
+      "application/vnd.ms-excel", // .xls
+      "text/csv", // .csv
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload a .csv or .xls file.");
+      return;
+    }
+
+    setSelectedFile(file); // If valid, set the file
   };
 
   // Handle form submission (upload file)
   const handleUserSubmit = async (event) => {
-      event.preventDefault();
+    event.preventDefault();
 
-      if (!selectedFile) {
-          alert("Please select a file to upload.");
-          return;
-      }
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append("Files", selectedFile); // Appending the file to formData
+    if (!selectedFile) {
+      alert("Please select a file to upload.");
+      return;
+    }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("Files", selectedFile); // Appending the file to formData
 
-      try {
-          const response = await axios.post(`/api/users/upload`, formData, {
-              headers: {
-                  "Content-Type": "multipart/form-data",
-              },
-          });
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+     
+      let response = await axios.post(
+        `${API_BASE_URL}/api/users/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      );
 
-          console.log('Response:', response.data);  // You can inspect the response
-          alert('File uploaded successfully!');  // Notify the user of success
-          setModalOpen(false); // Close modal after successful upload
+      console.log("Response:", response.data); // You can inspect the response
 
-      } catch (error) {
-          console.error("Error uploading file:", error.response ? error.response.data : error.message);
-          alert("An error occurred while uploading the file.");
-      } finally {
-          setIsUploading(false); // Unlock the upload button after the process finishes
-      }
+      if (response.data.status === 'success') {
+        console.log("File processed successfully");
+
+        // If there are warnings, display them to the user
+        if (response.data.warnings && response.data.warnings.length > 0) {
+            alert(`Warnings:\n${response.data.warnings.join('\n')}`);
+        } else {
+            alert('No warnings, data processed successfully.');
+        }
+        
+    } else {
+        alert(`Error: ${response.data.message}`);
+    }
+      alert("File uploaded successfully!"); // Notify the user of success
+      setModalOpen(false); // Close modal after successful upload
+    } catch (error) {
+      console.error(
+        "Error uploading file:",
+        error.response ? error.response.data : error.message
+      );
+      alert("An error occurred while uploading the file.");
+    } finally {
+      setIsUploading(false); // Unlock the upload button after the process finishes
+    }
   };
 
   const deletedUsersCounter = () => {
@@ -107,7 +136,13 @@ const StudentList = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(`/api/users?role=Student`);
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(
+          `${API_BASE_URL}/api/users/?role=Student`,
+          {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }
+        );
         const studentData = response.data.users;
         setStudents(studentData);
       } catch (error) {
@@ -218,6 +253,7 @@ const StudentList = () => {
       </div>
       <div id="main-section" className=" flex-grow bg-gray-100 h-max">
         <div className="bg-white h-14 border-b border-gray-300 items-end">
+          <Adm_Navbar />
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="xl:hidden text-gray-800 focus:outline-none"
@@ -267,24 +303,21 @@ const StudentList = () => {
           </div>
           <div className="flex ml-auto mr-9">
             <div className="bg-[#533FCC] w-32 xl:w-40 h-14 rounded-xl flex items-center justify-center mr-5 hover:bg-[#2d2170] transition-all duration-200 cursor-pointer">
-              
-
               <button
-        className="text-white font-poppins text-lg font-medium leading-normal "
-        onClick={() => setModalOpen(true)} // Open modal
-      >
-      Import Excel
-      </button>
+                className="text-white font-poppins text-lg font-medium leading-normal "
+                onClick={() => setModalOpen(true)} // Open modal
+              >
+                Import Excel
+              </button>
 
-      <UploadModal
-        isOpen={ModalOpen}
-        check="Upload Students"
-        closeModal={() => setModalOpen(false)} // Close modal
-        onFileChange={handleFileChange}
-        onSubmit={handleUserSubmit}
-        isUploading={isUploading} // Pass isUploading state to the modal
-      />
-              
+              <UploadModal
+                isOpen={ModalOpen}
+                check="Upload Students"
+                closeModal={() => setModalOpen(false)} // Close modal
+                onFileChange={handleFileChange}
+                onSubmit={handleUserSubmit}
+                isUploading={isUploading} // Pass isUploading state to the modal
+              />
             </div>
             <div
               onClick={openModal}

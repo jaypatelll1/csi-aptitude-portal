@@ -5,9 +5,12 @@ import Adm_DashboardTiles from "../../components/admin/Adm_DashboardTiles";
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard";
 import Adm_ScheduledTestCard from "../../components/admin/Adm_ScheduleTestCard";
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
+import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
+// const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -41,7 +44,13 @@ const Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-      const response = await axios.get(endpoint);
+      // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      // console.log("endpoint",endpoint)
+      const response = await axios.get(endpoint, {
+        withCredentials: true,
+      });
+      console.log(response);
+      // console.log( "testsData", testsData)
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams.map((exam) => ({
@@ -52,6 +61,8 @@ const Dashboard = () => {
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years || "N/A",
+          target_branches: exam.target_branches || "N/A",
         })),
       }));
     } catch (err) {
@@ -65,10 +76,17 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
-          axios.get("/api/stats/all-students"),
-          axios.get("/api/stats/all-tests"),
-          axios.get("/api/stats/last-test"),
+          axios.get(`${API_BASE_URL}/api/stats/all-students`, {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }),
+          axios.get(`${API_BASE_URL}/api/stats/all-tests`, {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }),
+          axios.get(`${API_BASE_URL}/api/stats/last-test`, {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          }),
         ]);
 
         const studentsCount = studentsRes.data.totalStudentsCount;
@@ -90,9 +108,14 @@ const Dashboard = () => {
     const fetchAllTestsData = async () => {
       setLoading(true);
       try {
-        await fetchTestsData(`/api/exams/drafts`, "drafted");
-        await fetchTestsData(`/api/exams/scheduled`, "scheduled");
-        await fetchTestsData(`/api/exams/past`, "past");
+        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        await fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted");
+        await fetchTestsData(
+          `${API_BASE_URL}/api/exams/scheduled`,
+          "scheduled"
+        );
+        await fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past");
+        await fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live");
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");
@@ -127,22 +150,17 @@ const Dashboard = () => {
   const ITEMS_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
 
+  const totalPages = Math.ceil(
+    (testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE
+  );
   const paginatedData = testsData[activeTab]?.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  const totalPages = Math.ceil((testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
     }
   };
 
@@ -184,11 +202,13 @@ const Dashboard = () => {
               />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold text-gray-700 ml-5">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-700 ml-5">
+            Admin Dashboard
+          </h1>
 
           <button
             onClick={createTestHandler}
-            className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100 mr-4"
+            className="bg-[#1349C5] text-white px-4 py-2 rounded hover:bg-blue-300 hover:text-black border border-blue-700 opacity-90 hover:opacity-100 mr-4"
           >
             + Create Test
           </button>
@@ -198,9 +218,9 @@ const Dashboard = () => {
           <Adm_DashboardTiles tileData={tileData} />
         </div>
 
-        <div className="p-4">
+        <div className="p-4 w-[97%] xl:w-[98%] mt-8 ml-4 rounded-xl bg-white">
           <div className="flex space-x-4 border-b pb-2">
-            {["drafted", "scheduled", "past"].map((tab) => (
+            {["live", "drafted", "scheduled", "past"].map((tab) => (
               <button
                 key={tab}
                 className={`text-lg font-semibold ${
@@ -223,13 +243,16 @@ const Dashboard = () => {
             ) : (
               paginatedData?.map((test) => {
                 const key = test.exam_id || test.id || test.name;
+                console.log(test);
 
-                if (activeTab === "drafted") {
-                  return <Adm_DraftedTestCard key={key} test={test} />;
+                if (activeTab === "live") {
+                  return <Adm_LiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
                   return <Adm_ScheduledTestCard key={key} test={test} />;
                 } else if (activeTab === "past") {
                   return <Adm_PastTestCard key={key} test={test} />;
+                } else if (activeTab === "drafted") {
+                  return <Adm_DraftedTestCard key={key} test={test} />;
                 }
                 return null;
               })
@@ -237,42 +260,42 @@ const Dashboard = () => {
           </div>
 
           <div className="flex justify-center items-center mt-6">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={`p-2 mx-1  rounded ${
+                currentPage === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-200"
+              }`}
+              disabled={currentPage === 1}
+            >
+              &lt; {/* Left Arrow */}
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
               <button
-                onClick={() => handleNextPage(currentPage - 1)}
-                className={`p-2 mx-1  rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
+                key={i + 1}
+                onClick={() => handlePageChange(i + 1)}
+                className={`px-3 py-1 mx-1  rounded ${
+                  currentPage === i + 1
+                    ? "bg-blue-500 text-white"
                     : "hover:bg-gray-200"
                 }`}
-                disabled={currentPage === 1}
               >
-                &lt; {/* Left Arrow */}
+                {i + 1}
               </button>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => handleNextPage(i + 1)}
-                  className={`px-3 py-1 mx-1 rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-              <button
-                onClick={() => handleNextPage(currentPage + 1)}
-                className={`p-2 mx-1  rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === totalPages}
-              >
-                &gt; {/* Right Arrow */}
-              </button>
-            </div>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={`p-2 mx-1  rounded ${
+                currentPage === totalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-gray-200"
+              }`}
+              disabled={currentPage === totalPages}
+            >
+              &gt; {/* Right Arrow */}
+            </button>
+          </div>
         </div>
       </div>
     </div>

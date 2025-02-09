@@ -1,23 +1,63 @@
-import React from 'react';
+import React, { useEffect ,useState} from 'react';
 import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import { useSelector , useDispatch} from 'react-redux';
+import axios from 'axios';
+import {setDuration} from "../../../redux/ExamSlice"
+
 
 const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, status }) => {
-
+  const [submit,setSubmit]= useState(false)
+const dispatch = useDispatch()
   const navigate = useNavigate();
 
-  let  submit = useSelector((state) => state.exam.submittedExamIds );
+  // let  submit = useSelector((state) => state.exam.submittedExamIds );
+  // console.log('submit',submit);
+  
   // console.log("Status:", status, "ExamId:", examId, "Submit:", submit);
-  let isExamSubmitted = submit.includes(String(examId));
+  // let isExamSubmitted = submit.includes((examId));
+  
+ 
   // console.log('isExamSubmitted',isExamSubmitted);
   
-  const isDisabled = status === "scheduled" || status === "past" || isExamSubmitted === true;
+  const isDisabled = status === "scheduled" || status === "past" || submit === true;
 
     // console.log("Button Disabled:", isDisabled, "For ExamId:", examId)
 
+    useEffect(() => {
+      let isMounted = true; // Flag to track if the component is mounted
   
+      const fetchResponseExamIds = async () => {
+        try {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          const response = await axios.get(
+            `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+            { withCredentials: true }
+          );
+  
+          // if (isMounted) {
+          //   setResponseExamIds(response.data); // Store fetched data in state
+          // }
+  
+          // Check if examId is present in the response data
+          if (response.data.includes(examId)) {
+        setSubmit(true)
+          }
+        } catch (error) {
+          console.error('Error fetching response exam IDs:', error);
+        }
+      };
+  
+      fetchResponseExamIds();
+  
+      // Cleanup function
+      return () => {
+        isMounted = false; // Set flag to false when component unmounts
+      };
+    }, [examId, dispatch]);
+
 
   const handleChange = async () => {
+   
     navigate("/test-instruction", { state: { examId: examId, Duration: duration } , replace:true})
 
   }
@@ -55,7 +95,7 @@ const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, sta
           <path fill-rule="evenodd" clip-rule="evenodd" d="M11.0007 3.20703C6.70423 3.20703 3.20898 6.70228 3.20898 10.9987C3.20898 15.2951 6.70423 18.7904 11.0007 18.7904C15.2971 18.7904 18.7923 15.2951 18.7923 10.9987C18.7923 6.70228 15.2971 3.20703 11.0007 3.20703M11.0007 20.1654C5.94615 20.1654 1.83398 16.0532 1.83398 10.9987C1.83398 5.9442 5.94615 1.83203 11.0007 1.83203C16.0552 1.83203 20.1673 5.9442 20.1673 10.9987C20.1673 16.0532 16.0552 20.1654 11.0007 20.1654" fill="black" />
           <path fill-rule="evenodd" clip-rule="evenodd" d="M14.1453 14.3845C14.0252 14.3845 13.9042 14.3533 13.7933 14.2882L10.3375 12.2267C10.1303 12.102 10.002 11.8774 10.002 11.6354V7.19141C10.002 6.81191 10.31 6.50391 10.6895 6.50391C11.0699 6.50391 11.377 6.81191 11.377 7.19141V11.2449L14.4982 13.1057C14.8236 13.301 14.9309 13.7227 14.7365 14.049C14.6073 14.2644 14.379 14.3845 14.1453 14.3845" fill="black" />
         </svg>
-        <h1 className='font-medium text-sm ml-2'>{duration}</h1>
+        <h1 className='font-medium text-sm ml-2'>{duration} minutes</h1>
       </div>
 
       <button

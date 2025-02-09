@@ -9,7 +9,7 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
 
   const handleSchedule = () => {
     setFeedback("");
-  
+
     if (!selectedDate || !/^\d{2}:\d{2}$/.test(selectedTime)) {
       setFeedback("Please select a valid date and time!");
       return;
@@ -17,9 +17,9 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
     // console.log("Selected Date:", selectedDate);
     // console.log("Selected Time:", selectedTime);
     // console.log("Duration:", duration);
-    
+
     const [hours, minutes] = selectedTime.split(":").map(Number);
-  
+
     // Combine selectedDate and time without offset
     const startDateTime = new Date(
       selectedDate.getFullYear(),
@@ -33,8 +33,15 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
 
     const currentDateTime = new Date();
     if (startDateTime < currentDateTime) {
-      setFeedback("The selected start time is in the past. Please choose a future time.");
-      console.error("Invalid startDateTime:", startDateTime, "Current DateTime:", currentDateTime);
+      setFeedback(
+        "The selected start time is in the past. Please choose a future time."
+      );
+      console.error(
+        "Invalid startDateTime:",
+        startDateTime,
+        "Current DateTime:",
+        currentDateTime
+      );
       return;
     }
     if (isNaN(startDateTime.getTime())) {
@@ -44,29 +51,30 @@ const DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
     }
 
     // Parse and validate duration
-const numericDuration = parseInt(duration, 10);
-if (isNaN(numericDuration)) {
-  setFeedback("Duration must be a valid number!");
-  console.error("Invalid numeric duration:", duration);
-  return;
-}
+    const numericDuration = parseInt(duration, 10);
+    if (isNaN(numericDuration)) {
+      setFeedback("Duration must be a valid number!");
+      console.error("Invalid numeric duration:", duration);
+      return;
+    }
 
-    // Manually adjust for the 6:30 hours discrepancy
-    startDateTime.setHours(startDateTime.getHours() - 6);
-    startDateTime.setMinutes(startDateTime.getMinutes() - 30);
-  
+    // // Manually adjust for the 6:30 hours discrepancy
+    // startDateTime.setHours(startDateTime.getHours() - 6);
+    // startDateTime.setMinutes(startDateTime.getMinutes() - 30);
+
     // Calculate endDateTime
-const endTimestamp = startDateTime.getTime() +( numericDuration * 60000 + 30 * 60000); // Add duration in ms
-const endDateTime = new Date(endTimestamp);
+    const endTimestamp =
+      startDateTime.getTime() + (numericDuration * 60000 + 30 * 60000); // Add duration in ms
+    const endDateTime = new Date(endTimestamp);
 
     if (isNaN(endDateTime.getTime())) {
       setFeedback("Failed to calculate end date and time!");
       console.error("Invalid endDateTime:", endDateTime);
       return;
     }
-    
-  // console.log('startDateTime   endDateTime',startDateTime, endDateTime);
-  
+
+    // console.log('startDateTime   endDateTime',startDateTime, endDateTime);
+
     if (onSchedule) {
       onSchedule(startDateTime.toISOString(), endDateTime.toISOString());
       setFeedback(
@@ -75,10 +83,10 @@ const endDateTime = new Date(endTimestamp);
         )}\nEnd: ${formatDateTime(endDateTime)}`
       );
     }
-  
+
     resetInputs();
   };
-  
+
   const formatDateTime = (date) =>
     date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 

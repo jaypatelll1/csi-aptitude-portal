@@ -1,24 +1,24 @@
 const express = require("express");
 const multer = require("multer");
-const fs = require("fs")
-
+const fs = require("fs").promises; // Use promises API for async FS operations
 const path = require("path");
 
-// to check if directory upload exist or not 
 const UPLOADS_DIR = path.resolve("./uploads");
 
-if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR);
-    console.log('directory created successfully ');
-    
-} else {
-    console.log('error creating directory');
-    
+// Create directory asynchronously
+async function createUploadsDir() {
+    try {
+        await fs.mkdir(UPLOADS_DIR, { recursive: true });
+        console.log("Directory created successfully");
+    } catch (error) {
+        console.error("Error creating directory:", error);
+    }
 }
 
+// Call the async function
+createUploadsDir();
 
 // Multer setup
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, UPLOADS_DIR);
@@ -27,9 +27,7 @@ const storage = multer.diskStorage({
         cb(null, `${Date.now()}-${file.originalname}`);
     },
 });
+
 const upload = multer({ storage: storage });
 
-
-
-
-module.exports ={upload}
+module.exports = { upload };

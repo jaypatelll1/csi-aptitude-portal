@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "../../../components/admin/Adm_DataTime";
 import axios from "axios";
+const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
 const Adm_PastCard = ({ test }) => {
@@ -40,7 +41,9 @@ const Adm_PastCard = ({ test }) => {
       // console.log('Clicked test ID:', test.exam_id);
 
 
-      const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
+      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,{
+        withCredentials: true,  // Make sure the cookie is sent with the request
+    });
 
       // console.log('Response from server:', response.data);
       window.location.reload();
@@ -53,10 +56,12 @@ const Adm_PastCard = ({ test }) => {
 
   const handleSchedule = (start, end) => {
     setScheduledTime({ start, end });
-    axios.put(`/api/exams/publish/${examId}`, {
+    axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
       start_time: start,
       end_time: end,
-    })
+    } ,{
+      withCredentials: true,  // Make sure the cookie is sent with the request
+  })
       .then(() => {
         setIsScheduling(false);
       })
@@ -181,7 +186,7 @@ const Adm_PastCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-[#e6e7ec] text-[#1349C5] px-3 lg:px-4 py-2 rounded hover:bg-[#4071e4] border border-[#1349C5] opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border  opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
         >
 
 

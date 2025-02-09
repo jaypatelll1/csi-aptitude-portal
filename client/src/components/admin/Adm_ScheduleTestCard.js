@@ -1,45 +1,50 @@
-import React, {  useState } from "react";
-import axios  from "axios";
+import React, { useState } from "react";
+import axios from "axios";
 import DataTime from "./Adm_DataTime";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_ScheduledTestCard = ({ test   }) => {
-
+const Adm_ScheduledTestCard = ({ test }) => {
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isSchedulingLoading, setIsSchedulingLoading] = useState(false);
 
   const examId = test.exam_id;
-  // console.log('examid is ',examId);
-  // console.log('test is', test);
-  
 
-  
-  
-
-  
-  const handlePublishClick = async (test ) => {
+  const handlePublishClick = async (test) => {
+    if (isPublishing) return; // Prevent multiple requests
+    setIsPublishing(true);
     try {
-      // Log the ID
-      console.log('Clicked test ID:', test.exam_id);
-  
-      
-      const response = await axios.put(`/api/exams/live-exam/${test.exam_id}`);
-  
-      // console.log('Response from server:', response.data);
+      console.log("Clicked test ID:", test.exam_id);
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.put(
+        `${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,
+        {},
+        { withCredentials: true }
+      );
+      console.log("Response from server:", response.data);
       window.location.reload();
-     
-  
-      
     } catch (error) {
-      console.error('Error during POST request:', error);
+      console.error("Error during POST request:", error);
+    } finally {
+      setIsPublishing(false); // Re-enable the button
     }
   };
 
   const handleSchedule = (start, end) => {
+    if (isSchedulingLoading) return; // Prevent multiple requests
+    setIsSchedulingLoading(true);
     setScheduledTime({ start, end });
-    axios.put(`/api/exams/publish/${examId}`, {
-        start_time: start,
-        end_time: end,
-      })
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    axios
+      .put(
+        `${API_BASE_URL}/api/exams/publish/${examId}`,
+        {
+          start_time: start,
+          end_time: end,
+        },
+        { withCredentials: true }
+      )
       .then(() => {
         setIsScheduling(false);
       })
@@ -47,7 +52,10 @@ const Adm_ScheduledTestCard = ({ test   }) => {
         alert(
           `Error scheduling test: ${err.response?.data?.message || err.message}`
         )
-      );
+      )
+      .finally(() => {
+        setIsSchedulingLoading(false); // Re-enable the scheduling
+      });
   };
 
   const handleCancel = () => {
@@ -55,7 +63,7 @@ const Adm_ScheduledTestCard = ({ test   }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 border border-gray-400 flex flex-col">
+    <div className="bg-white rounded-lg w-[96%] p-4 ml-4 border border-gray-400 flex flex-col">
       {/* Card Header */}
       <div className="flex justify-between items-center mb-4">
         <span className="flex items-center bg-gray-100 text-gray-900 border border-gray-700 opacity-90 text-sm px-2 py-1 rounded space-x-2">
@@ -72,11 +80,20 @@ const Adm_ScheduledTestCard = ({ test   }) => {
               fill="#797979"
             />
           </svg>
-          <span>Draft test</span>
+          <span>Schedule test</span>
         </span>
-        <span className="text-black-500 text-sm">
-          Scheduled for: {test.date}
-        </span>
+
+        <div className="text-right">
+          <div className="flex flex-col items-center">
+            <span className="text-black-500 text-sm">
+              Scheduled for: {test.date}
+            </span>
+            <span className="text-black-500 text-xs">
+              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
+              {test.target_branches.replace(/[{}]/g, "")}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Test Info */}
@@ -134,7 +151,7 @@ const Adm_ScheduledTestCard = ({ test   }) => {
               />
             </g>
           </svg>
-          <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
+          <h4>Number of Questions: {test ? test.questions : "Loading..."}</h4>
         </p>
         <p className="font-bold flex items-center">
           <svg
@@ -164,33 +181,43 @@ const Adm_ScheduledTestCard = ({ test   }) => {
       <br />
       {/* Buttons */}
       <div className="flex justify-end space-x-2 -mt-5">
-        <button 
-         onClick={() => setIsScheduling(true)}
-        className="bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100">
+        <button
+          onClick={() => setIsScheduling(true)}
+          className={`bg-gray-200 text-gray-900 px-4 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100 ${
+            isSchedulingLoading ? "cursor-not-allowed" : ""
+          }`}
+          disabled={isSchedulingLoading}
+        >
           Edit Schedule
         </button>
         <div className="relative">
-        {/* Conditionally render the DataTime component for scheduling */}
-        {isScheduling && (
-          <DataTime
-            onSchedule={handleSchedule}
-            onCancel={handleCancel}
-            duration={test.duration}
-          />
-        )}
+          {/* Conditionally render the DataTime component for scheduling */}
+          {isScheduling && (
+            <DataTime
+              onSchedule={handleSchedule}
+              onCancel={handleCancel}
+              duration={test.duration}
+            />
+          )}
 
-        {/* Display scheduled time */}
-        {scheduledTime.start && scheduledTime.end && (
-          <div className="mt-4 text-sm text-gray-600">
-            <p>
-              Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
-              to {new Date(scheduledTime.end).toLocaleString()}
-            </p>
-          </div>
-        )}
-      </div>
-        <button className="bg-green-200 text-green-900 px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}>
-          Publish
+          {/* Display scheduled time */}
+          {scheduledTime.start && scheduledTime.end && (
+            <div className="mt-4 text-sm text-gray-600">
+              <p>
+                Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
+                to {new Date(scheduledTime.end).toLocaleString()}
+              </p>
+            </div>
+          )}
+        </div>
+        <button
+          className={` text-[#1aab07] px-4 py-2 rounded hover:bg-green-300 border border-[#1AAB07] opacity-90 hover:opacity-100 ${
+            isPublishing ? "cursor-not-allowed" : ""
+          }`}
+          onClick={() => handlePublishClick(test)}
+          disabled={isPublishing}
+        >
+          {isPublishing ? "Publishing..." : "Publish"}
         </button>
       </div>
     </div>

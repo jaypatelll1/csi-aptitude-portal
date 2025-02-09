@@ -3,6 +3,7 @@ import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar component
 import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"; // Drafted Test Card component
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+// const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -46,11 +47,15 @@ const Adm_DraftTest = () => {
       try {
         setLoading(true); // Set loading to true before fetching
         setError(null); // Clear any existing errors
-
-        const response = await axios.get("/api/exams/live", {
-          withCredentials: true,
-        },{params:{page:currentPage,limit:itemsPerPage}});
-console.log("resdfghj,",response)
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/live`,
+          {
+            withCredentials: true,
+          },
+          { params: { page: currentPage, limit: itemsPerPage } }
+        );
+        console.log("resdfghj,", response);
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
@@ -59,6 +64,8 @@ console.log("resdfghj,",response)
           questions: exam.question_count || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          target_years: exam.target_years,
+          target_branches: exam.target_branches,
         }));
 
         setTests(fetchedTests);
@@ -98,8 +105,8 @@ console.log("resdfghj,",response)
 
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar/>
-        <div className="flex items-center h-12 ml-4 ">
+        <Adm_Navbar />
+        <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -136,7 +143,7 @@ console.log("resdfghj,",response)
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2  gap-y-5 mt-6">
               {/* Display only current items */}
               {currentItems.map((test, index) => (
                 <Adm_LiveTestCard key={index} test={test} />
@@ -145,72 +152,73 @@ console.log("resdfghj,",response)
 
             {/* Pagination Controls */}
             <div className="flex justify-center mt-6">
-  {/* Left Arrow Button */}
-  <button
-    onClick={() => handlePageChange(currentPage - 1)}
-    className={`p-2 mx-1 border rounded ${
-      currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-    }`}
-    disabled={currentPage === 1}
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 19l-7-7 7-7"
-      />
-    </svg>
-  </button>
+              {/* Left Arrow Button */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === 1}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
 
-  {/* Page Number Buttons */}
-  {Array.from({ length: totalPages }, (_, i) => (
-    <button
-      key={i + 1}
-      onClick={() => handlePageChange(i + 1)}
-      className={`px-3 py-1 mx-1 text-sm border rounded ${
-        currentPage === i + 1
-          ? "bg-blue-500 text-white"
-          : "hover:bg-gray-200"
-      }`}
-    >
-      {i + 1}
-    </button>
-  ))}
+              {/* Page Number Buttons */}
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 mx-1 text-sm border rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
 
-  {/* Right Arrow Button */}
-  <button
-    onClick={() => handlePageChange(currentPage + 1)}
-    className={`p-2 mx-1 border rounded ${
-      currentPage === totalPages
-        ? "opacity-50 cursor-not-allowed"
-        : "hover:bg-gray-200"
-    }`}
-    disabled={currentPage === totalPages}
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 5l7 7-7 7"
-      />
-    </svg>
-  </button>
-</div>
-
+              {/* Right Arrow Button */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`p-2 mx-1 border rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
           </>
         )}
       </div>

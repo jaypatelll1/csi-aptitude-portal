@@ -18,17 +18,6 @@ const pool = new Pool({
 },
 });
 
-// Log when the connection is made to the database
-pool.on('connect', () => {
-  console.log('Connected to the PostgreSQL database.');
-});
-
-// Log any errors that occur with the idle client
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(1);
-});
-
 const query = async (text, params) => {
   const client = await pool.connect();
   try {

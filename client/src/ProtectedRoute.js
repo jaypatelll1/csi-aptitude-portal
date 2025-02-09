@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate,  } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = useSelector((state) => state.user.user); // Get the user from Redux
-  const location = useLocation();
   const [isVerified, setIsVerified] = useState(null);
 
   useEffect(() => {
     const verifyResetToken = async () => {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       try {
-        const response = await axios.get('/api/users/verify-reset-token');
+        const response = await axios.get(
+          `${API_BASE_URL}/api/users/verify-reset-token`,
+          {
+            withCredentials: true
+          }
+        );
         if (response.data.message === 'Token is valid') {
           setIsVerified(true);
         }

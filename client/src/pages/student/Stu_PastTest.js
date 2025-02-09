@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import MSidebar from "../../components/student/home/MSidebar"; // Sidebar component
-import Stu_PastCard from "../../components/student/home/Stu_PastCard"; 
-import { useSelector , useDispatch } from 'react-redux';
+import Stu_PastCard from "../../components/student/home/Stu_PastCard";
+import { useSelector, useDispatch } from "react-redux";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
 // Drafted Test Card component
 
 const Adm_DraftTest = () => {
@@ -13,7 +14,7 @@ const Adm_DraftTest = () => {
   const sidebarRef = useRef(null);
 
   const userData = useSelector((state) => state.user.user);
-    console.log('uers data is',userData );
+  console.log("uers data is", userData);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,12 +48,12 @@ const Adm_DraftTest = () => {
         setError(null);
         let url = "api/exams/student";
         let payload = {
-            status: "past",
-            target_branches: `{${userData.department}}`,
-            target_years: `{${userData.year}}`
-          }
+          status: "past",
+          target_branches: `{${userData.department}}`,
+          target_years: `{${userData.year}}`,
+        };
 
-        const response = await axios.post(url,payload, {
+        const response = await axios.post(url, payload, {
           withCredentials: true,
         });
         const fetchedTests = response.data.exams.map((exam) => ({
@@ -102,90 +103,91 @@ const Adm_DraftTest = () => {
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-1 p-4 sm:p-6">
-        <div className="flex items-center  mb-4 sm:mb-6">
-          {/* Burger Icon Button */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="xl:hidden text-gray-800 focus:outline-none"
-          >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+      <div className="flex-1">
+        <Adm_Navbar />
+        <div className="flex-1 p-4 sm:p-6">
+          <div className="flex items-center  mb-4 sm:mb-6">
+            {/* Burger Icon Button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="xl:hidden text-gray-800 focus:outline-none"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
-              />
-            </svg>
-          </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
-            Past Tests
-          </h1>
-        </div>
-
-        <hr className="mb-4" />
-        {loading ? (
-          <p>Loading past tests...</p> // Show loading indicator
-        ) : error ? (
-          <p className="text-red-500">{error}</p> // Show error message
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
-              {paginatedTests.map((test, index) => (
-                <Stu_PastCard key={index} test={test} />
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex justify-center items-center mt-6">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === 1}
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                &lt; {/* Left Arrow */}
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d={
+                    sidebarOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
+                />
+              </svg>
+            </button>
+            <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+              Past Tests
+            </h1>
+          </div>
+          {loading ? (
+            <p>Loading past tests...</p> // Show loading indicator
+          ) : error ? (
+            <p className="text-red-500">{error}</p> // Show error message
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+                {paginatedTests.map((test, index) => (
+                  <Stu_PastCard key={index} test={test} />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex justify-center items-center mt-6">
                 <button
-                  key={i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 border rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === 1
+                      ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-gray-200"
                   }`}
+                  disabled={currentPage === 1}
                 >
-                  {i + 1}
+                  &lt; {/* Left Arrow */}
                 </button>
-              ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === totalPages}
-              >
-                &gt; {/* Right Arrow */}
-              </button>
-            </div>
-          </>
-        )}
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`px-3 py-1 mx-1 border rounded ${
+                      currentPage === i + 1
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-gray-200"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === totalPages
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-200"
+                  }`}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt; {/* Right Arrow */}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -10,6 +10,10 @@ const userPersistConfig = {
   key: "user",
   storage,
 };
+const QuestionPersistConfig = {
+  key: "questions",
+  storage,
+};
 const examPersistConfig = {
   key: "exam",
 
@@ -19,10 +23,11 @@ const examPersistConfig = {
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
 
 const persistedExamReducer = persistReducer(examPersistConfig, examReducer);
+const persistedQuestionReducer = persistReducer(QuestionPersistConfig, questionReducer);
 
 const store = configureStore({
   reducer: {
-    questions: questionReducer, // Existing reducer for questions
+    questions: persistedQuestionReducer, // Persisted for questions
     user: persistedUserReducer, // Persisted user reducer
     exam: persistedExamReducer, 
   },
