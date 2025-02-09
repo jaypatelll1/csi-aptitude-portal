@@ -11,7 +11,7 @@ import { clearUser } from "../../redux/userSlice";
 import { clearQuestions } from "../../redux/questionSlice";
 
 
-function StudentDashboard() {
+function Stu_Dashboard() {
   const userData = useSelector((state) => state.user.user);
   // console.log("uers data is", userData);
     let examId = useSelector((state)=>state.exam.examId)
@@ -283,4 +283,4 @@ setResult(pastPaper.data.results)
   );
 }
 
-export default StudentDashboard;
+export default Stu_Dashboard;

@@ -4,12 +4,15 @@ import { Route, Routes } from "react-router-dom";
 
 // Pages
 import Login from "./pages/Login";
+
 import MCQExamPage from "./pages/student/Stu_MCQExamPage";
-import StudentDashboard from "./pages/student/Stu_Dashboard";
 import ResetPassword from "./pages/student/Stu_ResetPassword";
+import Stu_Dashboard from "./pages/student/Stu_Dashboard";
 import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
-import TestInstruction from "./pages/student/Stu_TestInstruction";
+import Stu_TestInstruction from "./pages/student/Stu_TestInstruction";
 import Stu_Analytics from "./pages/student/Stu_Analytics";
+
+
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
 import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
@@ -19,7 +22,7 @@ import Adm_LiveTest from "./pages/admin/Adm_LiveTest";
 import Adm_InputQuestions from "./pages/admin/Adm_InputQuestions";
 import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import Adm_StudentList from "./pages/admin/Adm_StudentList";
-import TestStudentList from "./pages/admin/Adm_TestStudentList";
+import Adm_TestStudentList from "./pages/admin/TestStudentList";
 
 import Dep_Dashboard from "./pages/department/Dep_Dashboard";
 import Dep_CreateTestForm from "./pages/department/Dep_CreateTestForm";
@@ -46,7 +49,7 @@ const AppRoutes = () => {
         path="/home"
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
-            <StudentDashboard />
+            <Stu_Dashboard />
           </ProtectedRoute>
         }
       />
@@ -54,7 +57,7 @@ const AppRoutes = () => {
         path="/test-instruction"
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
-            <TestInstruction />
+            <Stu_TestInstruction />
           </ProtectedRoute>
         }
       />
@@ -128,7 +131,7 @@ const AppRoutes = () => {
         path="/admin/teststudentlist"
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
-            <TestStudentList />
+            <Adm_TestStudentList />
           </ProtectedRoute>
         }
       />
