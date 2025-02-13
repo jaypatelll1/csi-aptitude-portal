@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import axios from "axios";
-// const API_BASE_URL = process.env.BACKEND_BASE_URL;
+import { useSelector } from "react-redux";
 
 const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
+  const { role: userRole, department: userDepartment } = useSelector(
+    (state) => state.user.user
+  );
   const firstname = student.name.split(" ")[0];
   const lastname = student.name.split(" ")[1];
-
   const user_id = student.user_id;
-  console.log("Student ID:", user_id);
 
   const [firstName, setFirstName] = useState(firstname);
   const [lastName, setLastName] = useState(lastname);
   const [email, setEmail] = useState(student.email);
   const [mobile, setMobile] = useState(student.phone);
-  const [department, setDepartment] = useState(student.department);
   const [year, setYear] = useState(student.year);
   const [rollno, setRollno] = useState(student.rollno);
   const [claass, setClaass] = useState(student.class);
@@ -23,7 +23,7 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
       name: `${firstName} ${lastName}`,
       email: `${email}`,
       phone: `${mobile}`,
-      department: `${department}`,
+      department: userRole === "Department" ? userDepartment : student.department,
       rollno: Number(rollno),
       role: "Student",
       year: `${year}`,
@@ -33,29 +33,29 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.put(
         `${API_BASE_URL}/api/users/update/${user_id}`,
-        newStudent,{
-          withCredentials: true, // Make sure the cookie is sent with the request
-        }
+        newStudent,
+        { withCredentials: true }
       );
       console.log("Student updated successfully:", response.data);
-      alert("Student registered successfully!");
-      closeEditModal(); // Close modal after successful registration
+      alert("Student updated successfully!");
+      closeEditModal();
     } catch (error) {
-      console.error("Error registering student:", error);
-      alert("Failed to register student. Please try again.");
+      console.error("Error updating student:", error);
+      alert("Failed to update student. Please try again.");
     }
   };
 
   const handleDelete = async (user_id) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`,{
-        withCredentials: true, // Make sure the cookie is sent with the request
-      });
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/users/delete/${user_id}`,
+        { withCredentials: true }
+      );
       console.log("Student deleted successfully:", response.data);
       alert("Student deleted successfully!");
       counter();
-      closeEditModal(); // Close modal after successful registration
+      closeEditModal();
     } catch (error) {
       console.error("Error deleting student:", error);
       alert("Failed to delete student. Please try again.");
@@ -65,17 +65,20 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
   const handleReset = async (student) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student},{
-        withCredentials: true, // Make sure the cookie is sent with the request
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/api/users/send-reset-mail`,
+        { student },
+        { withCredentials: true }
+      );
       console.log("Student reset successfully:", response.data);
-      alert("Student reset mail sent successfully!");
-      closeEditModal(); // Close modal after successful registration
+      alert("Password reset email sent successfully!");
+      closeEditModal();
     } catch (error) {
       console.error("Error resetting student:", error);
-      alert("Failed to reset student. Please try again.");
+      alert("Failed to send reset email. Please try again.");
     }
   };
+
   return (
     <div className="bg-white rounded-lg border w-[554px] px-6 py-6 mb-10 ml-10">
       <h1 className="text-xl font-medium">Edit Student</h1>
@@ -120,31 +123,34 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
       </div>
 
       <div id="Department" className="mb-4">
-        <h1 className="mb-2">Department</h1>
+        <h1 className="mb-2">Department and Year</h1>
         <div className="flex space-x-4">
-          <select
-            className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-          >
-            <option value="INFT">INFT</option>
-            <option value="CMPN">CMPN</option>
-            <option value="ECS">ECS</option>
-            <option value="EXTC">EXTC</option>
-            <option value="ELEC">ELEC</option>
-          </select>
+          {userRole === "Department" ? (
+            <div className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2 flex items-center">
+              {userDepartment}
+            </div>
+          ) : (
+            <select
+              className="h-10 w-full border border-gray-300 bg-gray-100 rounded-lg pl-2"
+              value={student.department}
+              disabled
+            >
+              <option value={student.department}>{student.department}</option>
+            </select>
+          )}
           <select
             className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
             value={year}
             onChange={(e) => setYear(e.target.value)}
           >
             <option value="FE">FE</option>
-            <option value="BE">BE</option>
+            <option value="SE">SE</option>
             <option value="TE">TE</option>
             <option value="BE">BE</option>
           </select>
         </div>
       </div>
+
       <div id="ClassBoxes" className="mb-7">
         <h1 className="mb-2">Class and Roll Number</h1>
         <div className="flex space-x-4">
