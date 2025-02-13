@@ -28,7 +28,7 @@ const Dep_PastTestCard = ({ test, onClick }) => {
       console.log("Response from server:", fetchedResult);
 
       // Navigate to the new route and pass the fetched result
-      navigate("/department/teststudentlist", {
+      navigate("/department/test-students", {
         state: {
           name: test.title,
           duration: test.duration,
