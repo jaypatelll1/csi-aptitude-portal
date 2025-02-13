@@ -6,10 +6,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { clearExamId } from "../redux/ExamSlice";
 import { clearQuestions } from "../redux/questionSlice";
 
-
 const NavbarDetails = () => {
   let user = useSelector((state) => state.user.user);
-  let examId = useSelector((state)=>state.exam.examId)
+  let examId = useSelector((state) => state.exam.examId);
   // console.log("user is ", user);
 
   const navigate = useNavigate();
@@ -17,30 +16,34 @@ const NavbarDetails = () => {
 
   const handleLogout = async () => {
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const response = await axios.post(`${API_BASE_URL}/api/users/logout`,{
-      withCredentials: true,  // Make sure the cookie is sent with the request
-  });
+    const response = await axios.post(`${API_BASE_URL}/api/users/logout`, {
+      withCredentials: true, // Make sure the cookie is sent with the request
+    });
     dispatch(clearUser());
-    dispatch(clearExamId(examId))
-    dispatch(clearQuestions())
-  
+    dispatch(clearExamId(examId));
+    dispatch(clearQuestions());
+
     navigate("/", { replace: true });
   };
 
-  const isDisabled = user.role === "TPO"
+  const isDisabled = user.role === "TPO";
+  const Disabled = user.role === "Department";
 
   return (
     <div className="w-80 border border-gray-200 rounded-lg bg-white p-4 absolute z-50 right-5 top-12 shadow-lg">
       <h1 className="font-semibold text-xl text-gray-700">Name: {user.name}</h1>
       <div className="text-sm text-gray-500 mt-3 space-y-1">
-        <p >Email: {user.email}</p>
-        {user.role !== "TPO" && (
-  <>
-    <p disabled={isDisabled}>Mobile: {user.phone}</p>
-    <p disabled={isDisabled}>Branch: {user.department}</p>
-    <p disabled={isDisabled}>Year: {user.year}</p>
-  </>
-)}
+        <p>Email: {user.email}</p>
+        {user.role === "Department" && (
+          <p disabled={isDisabled}>Branch: {user.department}</p>
+        )}
+        {user.role !== "TPO" && user.role !== "Department" && (
+          <>
+            <p disabled={isDisabled}>Mobile: {user.phone}</p>
+            <p disabled={isDisabled}>Branch: {user.department}</p>
+            <p disabled={isDisabled}>Year: {user.year}</p>
+          </>
+        )}
       </div>
       <div className="flex justify-end mt-4">
         <button
