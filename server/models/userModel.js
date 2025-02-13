@@ -110,6 +110,16 @@ const getAllPaginatedRoleUsers = async (page, limit, role) => {
   return result.rows;
 };
 
+const getDepartmentUsers = async (role ,department) => {
+  const query =
+    `SELECT user_id, name, email, role,year,department,rollno, phone FROM users where role =$1 AND 
+    department = $2  ORDER BY user_id ASC  `;
+
+  const result = await pool.query(query, [role ,department]);
+  return result.rows;
+}
+
+
 const getAllRoleUsers = async (role) => {
   const query =
     'SELECT user_id, name, email, role,year,department,rollno,phone FROM users where role =$1 ORDER BY user_id ASC';
@@ -153,6 +163,7 @@ module.exports = {
   deleteUser,
   getAllPaginatedUsers,
   getAllPaginatedRoleUsers,
+  getDepartmentUsers,
   getUserCount,
   getAllStudents,
   getUserById,
