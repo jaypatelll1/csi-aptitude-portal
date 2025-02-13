@@ -1,10 +1,10 @@
 const { query } = require("../config/db");
 require("dotenv").config();
-const {getResultById} = require("../models/resultModel")
-const {getUserById} = require("../models/userModel")
-const {getExamById} = require("../models/examModel")
-const {getResponsesByStudent} = require("../models/responseModel")
-const {checkStudentAnalysis,insertStudentAnalysis} = require("../models/analysisModel")
+const { getResultById } = require("../models/resultModel")
+const { getUserById } = require("../models/userModel")
+const { getExamById } = require("../models/examModel")
+const { getResponsesByStudent } = require("../models/responseModel")
+const { checkStudentAnalysis, insertStudentAnalysis } = require("../models/analysisModel")
 
 
 const category_score = async (exam_id, student_id) => {
@@ -52,25 +52,32 @@ async function student_analysis(exam_id, student_id) {
 
         // Fetch student and exam details
         const student = await getUserById(student_id);
+
+        if (!student) {
+            throw new Error(`Student with ID ${student_id} not found.`);
+
+        }
+
         const exam = await getExamById(exam_id);
+
+        if (!exam) {
+            throw new Error(`Student with ID ${student_id} not found.`);
+
+        }
+
         const result = await getResultById(exam_id, student_id);
 
-        if (!result) {
-            console.log("No result found for student.");
-            return;
-        }
-
-        // Fetch student responses
-        const responses = await getResponsesByStudent(exam_id, student_id);
-
-        // If no responses, stop processing
-        if (!responses || responses.length === 0) {
-            console.log(`No responses found for student ${student_id} in exam ${exam_id}. Skipping analysis.`);
-            return;
-        }
+        let attempted = false;
+        let categoryScores = null;
+        let total_score = 0;
+        let max_score = result?.max_score || 0;
 
         // Calculate category-wise scores
-        const categoryScores = await category_score(exam_id, student_id);
+        if (result.length > 0) {
+            attempted = result.total_score > 0;
+            total_score = result.total_score || 0;
+            categoryScores = await category_score(exam_id, student_id);
+        }
 
         // Prepare data for insertion
         const analysisData = {
@@ -78,21 +85,21 @@ async function student_analysis(exam_id, student_id) {
             department_name: student.department,
             student_id,
             student_name: student.name,
-            exam_name: exam.name,
-            category: JSON.stringify(categoryScores),
-            total_score: result.total_score,
-            max_score: result.max_score,
-            attempted: result.total_score > 0
+            exam_name: exam.exam_name,
+            category: categoryScores ? JSON.stringify(categoryScores) : null, // Null if no responses
+            total_score,
+            max_score,
+            attempted
         };
 
         console.log('analysisData:', analysisData);
 
-       await insertStudentAnalysis(analysisData)
-       console.log('data inserted ',analysisData);
-       
+        await insertStudentAnalysis(analysisData)
+        console.log('data inserted ', analysisData);
+
     } catch (error) {
         console.error("Error in student_analysis:", error);
     }
 }
-
-module.exports = {student_analysis}
+// student_analysis(14,103)
+module.exports = { student_analysis }
