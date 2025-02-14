@@ -203,7 +203,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/department/past_tests"
+        path="/department/past-tests"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
           < Dep_PastTest/>

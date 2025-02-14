@@ -97,7 +97,7 @@ const Dep_InputQuestions = () => {
   }, [questionText, questionOptions]);
 
   const viewquestions = () => {
-    navigate("/admin/viewquestions");
+    navigate("/department/viewquestions");
   };
 
   const handleAddAnswer = () => {
@@ -183,7 +183,7 @@ const Dep_InputQuestions = () => {
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
-          navigate("/admin/viewquestions");
+          navigate("/department/viewquestions");
         }
       } catch (error) {
         console.error(

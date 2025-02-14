@@ -46,7 +46,7 @@ const Dep_DraftedTestCard = ({ test }) => {
 
    dispatch(setExamId(examId))
 
-   navigate("/admin/input", {replace:true} )
+   navigate("/department/input", {replace:true} )
 
       // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       // await axios.put(

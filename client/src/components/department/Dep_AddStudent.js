@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 
 
@@ -10,10 +11,10 @@ const Dep_AddStudent = ({ closeModal }) => {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
-    const [department, setDepartment] = useState('INFT');
     const [year, setYear] = useState('FE');
     const [rollno, setRollno] = useState();
     const [claass, setClaass] = useState("");
+    const { department: userDepartment } = useSelector((state) => state.user.user);
 
     // Generate a random password
     const generatePassword = () => {
@@ -28,7 +29,7 @@ const Dep_AddStudent = ({ closeModal }) => {
             name: `${firstName} ${lastName}`,
             email: `${email}`,
             phone: `${mobile}`,
-            department: `${department}`,
+            department: userDepartment,
             rollno: Number(rollno),
             role: "Student",
             password: password,
@@ -96,26 +97,19 @@ const Dep_AddStudent = ({ closeModal }) => {
             </div>
 
             <div id="Department" className="mb-4">
-                <h1 className="mb-2">Department</h1>
+                <h1 className="mb-2">Department and Year</h1>
                 <div className="flex space-x-4">
-                    <select
-                        className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
-                        value={department}
-                        onChange={(e) => setDepartment(e.target.value)}
-                    >
-                        <option value="INFT">INFT</option>
-                        <option value="CMPN">CMPN</option>
-                        <option value="ECS">ECS</option>
-                        <option value="EXTC">EXTC</option>
-                        <option value="ELEC">ELEC</option>
-                    </select>
+                    {/* Show department name instead of dropdown */}
+                    <div className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2 flex items-center">
+                        {userDepartment}
+                    </div>
                     <select
                         className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
                         value={year}
                         onChange={(e) => setYear(e.target.value)}
                     >
                         <option value="FE">FE</option>
-                        <option value="BE">BE</option>
+                        <option value="SE">SE</option>
                         <option value="TE">TE</option>
                         <option value="BE">BE</option>
                     </select>

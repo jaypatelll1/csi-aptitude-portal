@@ -288,11 +288,13 @@ const deleteUser = async (req, res) => {
 
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
-  const { page, limit, role } = req.query;
+  const { page, limit, role , department } = req.query;
+  // console.log("Query Parameters:", req.query);
+
   let users;
   try {
     const numeberOfUsers = await userModel.getUserCount();
-    if (!page && !limit) {
+    if (!page && !limit && !department) {
       users = await userModel.getAllStudents(role);
       await logActivity({
         user_id: user_id,
@@ -310,7 +312,13 @@ const getAllPaginatedUsers = async (req, res) => {
           parseInt(page),
           parseInt(limit)
         );
-      } else {
+      }
+      else if (role || department) {
+          users = await userModel.getDepartmentUsers(
+            role,
+            department
+          );
+         } else {
         users = await userModel.getAllPaginatedRoleUsers(
           parseInt(page),
           parseInt(limit),

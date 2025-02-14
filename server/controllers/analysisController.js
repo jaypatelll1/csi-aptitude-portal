@@ -31,7 +31,10 @@ const getResultOfAParticularExam = async (req, res) => {
   const { student_id, exam_id } = req.params;
 
   try {
-    const results = await analysisModel.getResultOfAParticularExam(student_id, exam_id);
+    const results = await analysisModel.getResultOfAParticularExam(
+      student_id,
+      exam_id
+    );
     if (!results) {
       await logActivity({
         user_id: student_id,
@@ -81,6 +84,8 @@ const testCompletion = async (req, res) => {
   }
 };
 
-
-
-module.exports = { getOverallResultsOfAStudent, getResultOfAParticularExam, testCompletion };
+module.exports = {
+  getOverallResultsOfAStudent,
+  getResultOfAParticularExam,
+  testCompletion,
+};

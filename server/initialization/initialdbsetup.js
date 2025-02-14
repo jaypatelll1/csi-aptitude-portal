@@ -78,8 +78,7 @@ CREATE TABLE student_analysis (
     student_id INT REFERENCES users(user_id) ON DELETE CASCADE,
     student_name VARCHAR(255),
     exam_name VARCHAR(255),
-    category category_enum NOT NULL, -- Using ENUM type
-    category_score FLOAT NOT NULL,
+    category JSONB, 
     total_score FLOAT NOT NULL,
     max_score FLOAT NOT NULL,
     attempted BOOLEAN DEFAULT FALSE,

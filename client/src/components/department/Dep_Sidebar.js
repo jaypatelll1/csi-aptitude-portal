@@ -34,7 +34,7 @@ const Dep_sidebar = () => {
               />
             </svg>
           </span>
-          <Link to="/admin">Home</Link>
+          <Link to="/department">Home</Link>
         </li>
         <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 ">
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
@@ -53,7 +53,7 @@ const Dep_sidebar = () => {
               />
             </svg>
           </span>
-          <Link to="/admin/studentlist">Student</Link>
+          <Link to="/department/studentlist">Student</Link>
         </li>
 
         <li
@@ -99,16 +99,16 @@ const Dep_sidebar = () => {
         {showSubmenu && (
           <ul className="pl-5 mt-1">
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/drafted-tests">Drafted Tests</Link>
+              <Link to="/department/drafted-tests">Drafted Tests</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/scheduled-tests">Schedule Tests</Link>
+              <Link to="/department/scheduled-tests">Schedule Tests</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/past-tests"> Past Test</Link>
+              <Link to="/department/past-tests"> Past Test</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/live-tests"> Live Test</Link>
+              <Link to="/department/live-tests"> Live Test</Link>
             </li>
           </ul>
         )}

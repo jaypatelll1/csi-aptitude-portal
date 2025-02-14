@@ -126,7 +126,7 @@ const Dep_Dashboard = () => {
   }, []);
 
   const createTestHandler = () => {
-    navigate("/admin/createtest");
+    navigate("/department/createtest");
   };
 
   const openDetails = () => setIsDetailsOpen(true);
