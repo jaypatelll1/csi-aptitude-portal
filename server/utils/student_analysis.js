@@ -64,22 +64,21 @@ async function student_analysis(exam_id, student_id) {
     const exam = await getExamById(exam_id);
 
     if (!exam) {
-      throw new Error(`Student with ID ${student_id} not found.`);
+      throw new Error(`exam with ID ${exam_id} not found.`);
     }
 
     const result = await getResultById(exam_id, student_id);
 
-    let attempted = false;
-    let categoryScores = null;
-    let total_score = 0;
-    let max_score = result?.max_score || 0;
+  
+     let  attempted = result.max_score > 0;
+      let total_score = result.total_score || 0;
+    let  categoryScores = await category_score(exam_id, student_id);
 
-    // Calculate category-wise scores
-    if (result.length > 0) {
-      attempted = result.total_score > 0;
-      total_score = result.total_score || 0;
-      categoryScores = await category_score(exam_id, student_id);
+    if(attempted == false ){
+      console.log('no results is there ');
+      return ;
     }
+ 
 
     // Prepare data for insertion
     const analysisData = {
@@ -90,7 +89,7 @@ async function student_analysis(exam_id, student_id) {
       exam_name: exam.exam_name,
       category: categoryScores ? JSON.stringify(categoryScores) : null, // Null if no responses
       total_score,
-      max_score,
+      max_score :result.max_score,
       attempted,
     };
 
@@ -102,5 +101,5 @@ async function student_analysis(exam_id, student_id) {
     console.error('Error in student_analysis:', error);
   }
 }
-// student_analysis(14,103)
+student_analysis(27,2)
 module.exports = { student_analysis };
