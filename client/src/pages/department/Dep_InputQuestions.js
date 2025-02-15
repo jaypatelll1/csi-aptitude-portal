@@ -166,6 +166,7 @@ const Dep_InputQuestions = () => {
           d: `${options[3]}`,
         },
         correct_option: `${correctOption}`,
+        category: category,
       };
 
       try {
@@ -327,9 +328,9 @@ const Dep_InputQuestions = () => {
                 className="w-full p-4 h-24 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
+            <div className="mb-4">
               <label className="text-xl block text-gray-700 font-medium mb-2">
-              Select Category:
+                Select Category:
               </label>
               <select
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -337,8 +338,9 @@ const Dep_InputQuestions = () => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="" hidden disabled className="text-gray-400">
-          {initialCategory || "Select a category"} {/* Show the existing category if editing */}
-        </option>
+                  {initialCategory || "Select a category"}{" "}
+                  {/* Show the existing category if editing */}
+                </option>
                 {validCategories.map((cat, index) => (
                   <option key={index} value={cat} className="text-gray-800">
                     {cat}
