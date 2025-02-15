@@ -1,43 +1,42 @@
-import React, { useState, useRef, useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Details from "../../components/NavbarDetails";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import RadialChartComponent from "../../components/analytics/RadialChartComponent ";
 import { useSelector } from "react-redux";
-import axios from "axios"
+import axios from "axios";
+import LineChartComponent from "../../components/analytics/LineChartComponent";
 
 function Stu_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // const sidebarRef = useRef(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const user_id = useSelector((state) => state.user.user.id);
-  console.log(user_id)
+  console.log(user_id);
   const [data, setData] = useState(null);
-  
+
   const fetchData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
-      
+
       const response = await axios.get(url, { withCredentials: true });
-     
-      
+
       setData(response.data); // Store data in state
-      console.log(data)
+      console.log(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-  
+
   useEffect(() => {
     if (user_id) {
       fetchData();
     }
   }, [user_id]); // Re-run if user_id changes
-  
-  
 
   const accuracyData = {
     title: "Accuracy Rate",
@@ -50,7 +49,7 @@ function Stu_Analytics() {
       { name: "Computer", accuracy: 95, fill: "#1349C5" },
     ],
   };
-  
+
   const rankData = {
     title: "Rank Progression",
     dataKey: "name",
@@ -61,7 +60,7 @@ function Stu_Analytics() {
       { name: "Semester 4", rank: 1 },
     ],
   };
-    
+
   const testCompletionData = {
     title: "Test Completion Rate",
     chartData: [
@@ -69,19 +68,37 @@ function Stu_Analytics() {
       { name: "Remaining", value: 2, fill: "#6F91F0" },
     ],
   };
-  
 
   const attemptData = {
     title: "Attempted vs Unattempted Questions",
     chartData: [
-      { name: "Attempted", value: 35, fill: "#1349C5" },  // Dark Blue
+      { name: "Attempted", value: 35, fill: "#1349C5" }, // Dark Blue
       { name: "Unattempted", value: 15, fill: "#6F91F0" }, // Lighter Blue
     ],
   };
 
+  const openDetails = () => setIsDetailsOpen(true);
+  const closeDetails = () => setIsDetailsOpen(false);
+
+  // Dummy data
+  const chartData = [
+    { name: "Jan", value: 400 },
+    { name: "Feb", value: 300 },
+    { name: "Mar", value: 200 },
+    { name: "Apr", value: 278 },
+    { name: "May", value: 189 },
+    { name: "Jun", value: 239 },
+    { name: "Jul", value: 349 },
+    { name: "Aug", value: 480 },
+    { name: "Sep", value: 380 },
+    { name: "Oct", value: 430 },
+    { name: "Nov", value: 290 },
+    { name: "Dec", value: 500 },
+  ];
 
   return (
     <div className="min-h-screen flex ml-20">
+      {/* Sidebar */}
       <div
         ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
@@ -90,6 +107,8 @@ function Stu_Analytics() {
       >
         <Stu_Sidebar />
       </div>
+
+      {/* Main Content */}
       <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -107,9 +126,7 @@ function Stu_Analytics() {
               strokeLinecap="round"
               strokeLinejoin="round"
               d={
-                sidebarOpen
-                  ? "M6 18L18 6M6 6l12 12"
-                  : "M4 6h16M4 12h16M4 18h16"
+                sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"
               }
             />
           </svg>
@@ -126,34 +143,29 @@ function Stu_Analytics() {
         <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
       </div>
       <div className="grid grid-cols-3 gap-11 justify-center mt-4 mr-4 ">
-  
-      <div className="border border-gray-600 rounded-md px-4 py-4">
-       <RadialChartComponent data={accuracyData} />
-       </div>
-       <div className="border border-gray-600 rounded-md px-4 py-4">
-       <BarChartComponent data={rankData} />
-       </div>
-       <div className="border border-gray-600 rounded-md px-4 py-4">
-       <PieChartComponent data={testCompletionData} />
-       </div>
-       <div className="border border-gray-600 rounded-md px-4 py-4">
-       <PieChartComponent data={attemptData} />
-       </div>
-       
-       
-
-       
-
-       
-    
-
-
-</div>
-
+        <div className="border border-gray-600 rounded-md px-4 py-4">
+          <RadialChartComponent data={accuracyData} />
+        </div>
+        <div className="border border-gray-600 rounded-md px-4 py-4">
+          <BarChartComponent data={rankData} />
+        </div>
+        <div className="border border-gray-600 rounded-md px-4 py-4">
+          <PieChartComponent data={testCompletionData} />
+        </div>
+        <div className="border border-gray-600 rounded-md px-4 py-4">
+          <PieChartComponent data={attemptData} />
+        </div>
+        <div className="bg-white rounded-lg shadow-md max-w-xl">
+          <LineChartComponent
+            data={chartData}
+            xAxisKey="name"
+            lineDataKey="value"
+            lineColor="#0703fc"
+          />
+        </div>
+      </div>
     </div>
   );
 }
-
-
 
 export default Stu_Analytics;
