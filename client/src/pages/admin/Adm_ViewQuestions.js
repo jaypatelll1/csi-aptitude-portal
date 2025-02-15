@@ -34,7 +34,7 @@ const Adm_ViewQuestions = () => {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
         );
-        console.log("repnse is ", response);
+        console.log("Fetched Questions:", response.data);
 
         setQuestions(response.data || []);
       } catch (err) {
@@ -249,6 +249,7 @@ const Adm_ViewQuestions = () => {
                 text={question.question_text}
                 options={question.options}
                 correct_option={question.correct_option}
+                category={question.category}
               />
             ))
           )}

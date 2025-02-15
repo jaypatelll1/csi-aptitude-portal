@@ -26,10 +26,12 @@ const Adm_InputQuestions = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
-  const [category, setCategory] = useState("");
+  
 
   const navigate = useNavigate();
   const location = useLocation();
+  const questionData = location.state || {};
+  const [category, setCategory] = useState(questionData.category || "");
 
   const examId = useSelector((state) => state.exam.examId);
 
@@ -84,6 +86,7 @@ const Adm_InputQuestions = () => {
     questionOptions = {},
     exam_id,
     correct_option,
+    category: initialCategory,
   } = location.state || {};
 
   useEffect(() => {
@@ -184,7 +187,9 @@ const Adm_InputQuestions = () => {
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
+          setCategory("");
           setQuestionCount((prevCount) => prevCount + 1);
+          navigate("/admin/input?category=");
         } else {
           let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           await axios.put(
@@ -338,8 +343,8 @@ const Adm_InputQuestions = () => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="" hidden disabled className="text-gray-400">
-                  Enter a category
-                </option>
+          {initialCategory || "Select a category"} {/* Show the existing category if editing */}
+        </option>
                 {validCategories.map((cat, index) => (
                   <option key={index} value={cat} className="text-gray-800">
                     {cat}

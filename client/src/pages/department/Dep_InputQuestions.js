@@ -8,6 +8,14 @@ import UploadModal from "../../upload/UploadModal";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
+const validCategories = [
+  "quantitative aptitude",
+  "logical reasoning",
+  "verbal ability",
+  "technical",
+  "general knowledge",
+];
+
 const Dep_InputQuestions = () => {
   const [question, setQuestion] = useState("");
   const [questionType, setQuestionType] = useState("single");
@@ -22,6 +30,8 @@ const Dep_InputQuestions = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const questionData = location.state || {};
+  const [category, setCategory] = useState(questionData.category || "");
 
   const examId = useSelector((state) => state.exam.examId);
 
@@ -76,6 +86,7 @@ const Dep_InputQuestions = () => {
     questionOptions = {},
     exam_id,
     correct_option,
+    category: initialCategory,
   } = location.state || {};
 
   useEffect(() => {
@@ -170,7 +181,9 @@ const Dep_InputQuestions = () => {
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
+          setCategory("");
           setQuestionCount((prevCount) => prevCount + 1);
+          navigate("/department/input?category=");
         } else {
           let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           await axios.put(
@@ -313,6 +326,25 @@ const Dep_InputQuestions = () => {
                 placeholder="Enter question description..."
                 className="w-full p-4 h-24 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+            <div>
+              <label className="text-xl block text-gray-700 font-medium mb-2">
+              Select Category:
+              </label>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="" hidden disabled className="text-gray-400">
+          {initialCategory || "Select a category"} {/* Show the existing category if editing */}
+        </option>
+                {validCategories.map((cat, index) => (
+                  <option key={index} value={cat} className="text-gray-800">
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-xl block text-gray-700 font-medium mb-2">
