@@ -1,13 +1,13 @@
-const {query} = require('../config/db');
-const { paginate} = require('../utils/pagination');
-const {calculateAndStoreTotalScore}= require('../utils/scoreUtils');
+const { query } = require('../config/db');
+const { paginate } = require('../utils/pagination');
+const { calculateAndStoreTotalScore } = require('../utils/scoreUtils');
 
 // CREATE: Insert a new result
 async function createResult() {
   try {
     // Get the calculated results
     const results = await calculateAndStoreTotalScore();
-  
+
 
     for (const resultRow of results) {
       const { student_id, exam_id, correct_responses, max_score } = resultRow;
@@ -24,8 +24,8 @@ async function createResult() {
       try {
         // Insert into the database
         let res = await query(queryText, values);
-     // Log each inserted row
-         } catch (err) {
+        // Log each inserted row
+      } catch (err) {
         // Log errors for specific rows and continue
         console.error('Error inserting row:', err);
       }
@@ -35,7 +35,7 @@ async function createResult() {
   } catch (err) {
     console.error('Error creating result:', err);
   }
-  return 1 ;
+  return 1;
 
 }
 
@@ -110,10 +110,10 @@ async function deleteResult(exam_id) {
 const getPaginatedResultsByExam = async (exam_id, page, limit) => {
   const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
   const paginatedqueryText = paginate(queryText, page, limit);
-  const result = await query(paginatedqueryText);  
+  const result = await query(paginatedqueryText);
   return result.rows;
   // console.log('rresult is ',result.rows);
-  
+
 };
 
 const getResultsByUsers = async (user_id) => {
@@ -138,39 +138,63 @@ order by e.end_time desc
 
 
 
-const result = await query(queryText, [user_id]);
-//  console.log('result is ', result);
+  const result = await query(queryText, [user_id]);
+  //  console.log('result is ', result);
 
-// Helper function to format date to readable format
-const formatToReadableDate = (isoString) => {
-  const date = new Date(isoString);
-  const options = { day: "2-digit", month: "short", year: "numeric" };
-  return date.toLocaleDateString("en-IN", options);
-};
-
-// Calculate status for each result
-const resultsWithStatus = result.rows.map((row) => {
-  const percentage = ((row.total_score / row.max_score) * 100); // Up to 3 decimal places
-  const status = percentage >= 35 ? "Passed" : "Failed"; // Pass/Fail based on 35%
-  return {
-   
-    exam_name: row.exam_name,
-   
-    total_score : row.total_score,
-    max_score : row.max_score,
-    duration : row.duration,
-    exam_name : row.exam_name,
-   Date: formatToReadableDate(row.end_time), // Format date
-    percentage: Number(percentage), // Include calculated percentage
-    status :status, // Pass or Fail
-    
+  // Helper function to format date to readable format
+  const formatToReadableDate = (isoString) => {
+    const date = new Date(isoString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-IN", options);
   };
-});
 
-return resultsWithStatus;
- 
+  // Calculate status for each result
+  const resultsWithStatus = result.rows.map((row) => {
+    const percentage = ((row.total_score / row.max_score) * 100); // Up to 3 decimal places
+    const status = percentage >= 35 ? "Passed" : "Failed"; // Pass/Fail based on 35%
+    return {
+
+      exam_name: row.exam_name,
+
+      total_score: row.total_score,
+      max_score: row.max_score,
+      duration: row.duration,
+      exam_name: row.exam_name,
+      Date: formatToReadableDate(row.end_time), // Format date
+      percentage: Number(percentage), // Include calculated percentage
+      status: status, // Pass or Fail
+
+    };
+  });
+
+  return resultsWithStatus;
+
 
 }
+
+
+async function getCorrectIncorrect(student_id, exam_id) {
+  const queryText = `SELECT 
+  r.student_id,
+  r.exam_id,
+  r.selected_option,
+  q.correct_option,
+  CASE 
+      WHEN r.selected_option = q.correct_option THEN 'true'
+      ELSE 'false'
+  END AS result_status
+FROM responses r
+JOIN questions q ON r.question_id = q.question_id
+WHERE r.student_id = $1 AND r.exam_id = $2;`;
+
+  try {
+    const res = await query(queryText, [student_id, exam_id]);
+    return res.rows;
+  } catch (err) {
+    console.error('Error fetching results:', err);
+  }
+}
+
 
 module.exports = {
   createResult,
@@ -179,5 +203,6 @@ module.exports = {
   updateResult,
   deleteResult,
   getPaginatedResultsByExam,
-  getResultsByUsers
+  getResultsByUsers,
+  getCorrectIncorrect
 };

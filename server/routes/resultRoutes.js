@@ -7,7 +7,8 @@ const {
   deleteResult,
   getPaginatedResultsByExam,
   pastResult,
-  getResultsByUsers
+  getResultsByUsers,
+  getCorrectIncorrect
 } = require('../controllers/resultController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
@@ -34,5 +35,8 @@ router.put('/:exam_id', authorizeRoles, UpdateResult);
 
 // DELETE: Delete a result
 router.delete('/:exam_id', authorizeRoles, deleteResult);
+
+//Get Detailed Result:
+router.get('/correct-incorrect/:exam_id', getCorrectIncorrect);
 
 module.exports = router;

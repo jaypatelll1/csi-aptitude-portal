@@ -186,7 +186,7 @@ const getResultsByUsers = async (req, res) => {
 
   const id = req.user.id;
   try {
-    const results = await resultModel.getResultsByUsers( user_id   );
+    const results = await resultModel.getResultsByUsers(user_id);
     if (!results) {
       await logActivity({
         user_id: id,
@@ -204,7 +204,8 @@ const getResultsByUsers = async (req, res) => {
     });
     res
       .status(200)
-      .json({ results
+      .json({
+        results
       });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -217,36 +218,63 @@ const pastResult = async (req, res) => {
     const { exam_id } = req.params;  // Extract the exam_id from the request parameters
     // console.log('examId is ', exam_id);
     const { page = 1, limit = 10 } = req.query;
-  
+
     const id = req.user.id;
-   
-      const response = await viewResult(
-        exam_id,
-        parseInt(page),
-        parseInt(limit)
-      );
-       // console.log('response is ', response);
-      if (!response) {
-        await logActivity({
-          user_id: id,
-          activity: 'View Results',
-          status: 'failure',
-          details: 'Results not found',
-        });
-        return res.status(404).json({ message: 'Results not found.' });
-      }
+
+    const response = await viewResult(
+      exam_id,
+      parseInt(page),
+      parseInt(limit)
+    );
+    // console.log('response is ', response);
+    if (!response) {
       await logActivity({
         user_id: id,
         activity: 'View Results',
-        status: 'success',
-        details: 'Results found',
+        status: 'failure',
+        details: 'Results not found',
       });
-      res
-        .status(200)
-        .json({ page: parseInt(page), limit: parseInt(limit), response });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+      return res.status(404).json({ message: 'Results not found.' });
     }
+    await logActivity({
+      user_id: id,
+      activity: 'View Results',
+      status: 'success',
+      details: 'Results found',
+    });
+    res
+      .status(200)
+      .json({ page: parseInt(page), limit: parseInt(limit), response });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getCorrectIncorrect = async (req, res) => {
+  const student_id = req.user.id;
+  const { exam_id } = req.params
+  try {
+    const results = await resultModel.getCorrectIncorrect(student_id, exam_id);
+    if (results.length === 0) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View Correct Incorrect',
+        status: 'failure',
+        details: 'No results found',
+      });
+      return res.status(404).json({ error: 'No results found' });
+    }
+    await logActivity({
+      user_id: student_id,
+      activity: 'View Correct Incorrect',
+      status: 'success',
+      details: 'Results fetched successfully',
+    });
+    return res.status(200).json(results);
+  } catch (err) {
+    console.error('Error fetching results:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 module.exports = {
@@ -257,5 +285,6 @@ module.exports = {
   deleteResult,
   getPaginatedResultsByExam,
   pastResult,
-  getResultsByUsers
+  getResultsByUsers,
+  getCorrectIncorrect
 };
