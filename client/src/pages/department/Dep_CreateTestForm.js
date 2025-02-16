@@ -29,7 +29,7 @@ const Dep_CreateTestPage = () => {
   const handleCreateQuestions = async (e) => {
     e.preventDefault();
 
-    if (!testName || !duration || branch.length === 0 || year.length === 0) {
+    if (!testName || !duration ||  year.length === 0) {
       alert("Please fill in all the fields.");
       return;
     }
