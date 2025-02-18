@@ -23,6 +23,7 @@ import Adm_InputQuestions from "./pages/admin/Adm_InputQuestions";
 import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import Adm_StudentList from "./pages/admin/Adm_StudentList";
 import Adm_TestStudentList from "./pages/admin/Adm_TestStudentList";
+import Adm_Analytics from "./pages/admin/Adm_Analytics";
 
 import Dep_Dashboard from "./pages/department/Dep_Dashboard";
 import Dep_CreateTestForm from "./pages/department/Dep_CreateTestForm";
@@ -34,9 +35,12 @@ import Dep_InputQuestions from "./pages/department/Dep_InputQuestions";
 import Dep_StudentList from "./pages/department/Dep_StudentList";
 import Dep_ViewQuestions from "./pages/department/Dep_ViewQuestions";
 import Dep_TestStudentList from "./pages/department/Dep_TestStudentList";
+import Dep_Analytics from "./components/department/Dep_Analytics";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
+
+
 
 const AppRoutes = () => {
   return (
@@ -167,6 +171,14 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/analytics"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_Analytics />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Department Routes */}
       <Route
@@ -247,6 +259,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
           < Dep_ViewQuestions/>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/analytics"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+            <Dep_Analytics />
           </ProtectedRoute>
         }
       />
