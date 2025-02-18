@@ -1,5 +1,6 @@
 const analysisModel = require('../models/analysisModel');
 const { logActivity } = require('../utils/logActivity');
+const { student_analysis } = require('../utils/student_analysis');
 
 const getOverallResultsOfAStudent = async (req, res) => {
   const { student_id } = req.params;
@@ -84,8 +85,22 @@ const testCompletion = async (req, res) => {
   }
 };
 
+const generateStudentAnalysis = async (req, res) => {
+  const result = await analysisModel.generateStudentAnalysis()
+
+  result.map((res) => {
+    const {exam_id, student_id} = res
+    student_analysis(exam_id, student_id)
+  })
+  // console.log(result)
+  res.json({
+    message: "Data added successfully in student_analysis table."
+  })
+}
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
   testCompletion,
+  generateStudentAnalysis
 };

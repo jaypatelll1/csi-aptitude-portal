@@ -101,5 +101,5 @@ async function student_analysis(exam_id, student_id) {
     console.error('Error in student_analysis:', error);
   }
 }
-student_analysis(27,2)
+// student_analysis(5,78)
 module.exports = { student_analysis };
