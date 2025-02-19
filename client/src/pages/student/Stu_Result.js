@@ -234,13 +234,13 @@ const Stu_Result = () => {
 
           <div className="relative bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8 overflow-hidden">
             {/* Watermark Overlay */}
-            <div className="watermark-overlay">
+            {/* <div className="watermark-overlay">
               {Array.from({ length: 300 }).map((_, index) => (
                 <div key={index} className="watermark-text">
                   {userEmail}
                 </div>
               ))}
-            </div>
+            </div> */}
 
             {/* Main Content */}
             <div className="flex items-center justify-between mb-6">
