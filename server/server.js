@@ -25,6 +25,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const statsRoutes = require('./routes/statsRoutes');
 const tokenRoutes = require("./routes/tokenRoutes")
 const analysisRoutes = require("./routes/analysisRoutes")
+const deptRoutes = require("./routes/deptAnalysisRoutes");
 
 
 // Initialize the app
@@ -77,6 +78,7 @@ app.use('/api/export', exportRoutes);
 app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 app.use('/api/analysis', jwtAuthMiddleware, analysisRoutes);
 const start_exam = io.of('/exams/start-exam')
+app.use("/api/department-analysis", jwtAuthMiddleware, deptRoutes);
 
 // Initialize Socket.IO handlers
 initSocketHandlers(start_exam);
