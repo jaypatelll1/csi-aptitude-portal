@@ -9,6 +9,7 @@ import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import HorizontalBarChartComponent from "../../components/analytics/HorizontalBarChartComponent";
+import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 
 function Stu_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +22,7 @@ function Stu_Analytics() {
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const user_id = useSelector((state) => state.user.user.id);
+  
 
   const fetchData = async () => {
     try {
@@ -29,7 +31,6 @@ function Stu_Analytics() {
       const response = await axios.get(url, { withCredentials: true });
       console.log(response.data);
       setData(response.data.results);
-      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -62,9 +63,7 @@ function Stu_Analytics() {
           { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
         ],
       });
-      // if(testCompletionData){
-      // accuracyCalculation()
-      // }
+      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -113,8 +112,9 @@ function Stu_Analytics() {
     data.map((exam) => {
       setTotal((prev) => prev + exam.max_score);
     });
-    if(data[0]){
-    console.log("categories", Object.keys(data[0]?.category).score)}
+    if (data[0]) {
+      console.log("categories", Object.keys(data[0]?.category).score);
+    }
   }, [data]);
 
   const accuracyData = {
@@ -133,38 +133,33 @@ function Stu_Analytics() {
     ],
   };
 
-  const studentParticipationData = {
-    title: "Student Participation",
-    chartData: [
-      { category: "Total Students", count: 1000 },
-      { category: "Participated Students", count: 754 },
-      { category: "Not Participated Students", count: 246 },
-    ],
-    xKey: ["count"],
-    yKey: "category",
-    colors: {
-      count: "#1349C5",
-    },
-  };
-
   const subjectPerformanceData = {
     title: "Subject-wise Performance",
-    // chartData: [
-    //   { subject: "Maths", yourScore: 70, average: 80, maxMarks: 100 },
-    //   { subject: "Mechanics", yourScore: 60, average: 75, maxMarks: 100 },
-    //   { subject: "DSA", yourScore: 40, average: 65, maxMarks: 100 },
-    // ],
+
     chartData: (() => {
       // Get a unique set of all subjects across all exams
-      const allSubjects = [...new Set(data.flatMap(exam => Object.keys(exam.category)))];
-  
+      const allSubjects = [
+        ...new Set(data.flatMap((exam) => Object.keys(exam.category))),
+      ];
+
       return allSubjects.map((subject) => {
         // Calculate total and average scores for this subject across all exams
-        const totalScore = data.reduce((sum, exam) => sum + Number(exam.category[subject]?.score || 0), 0);
-        const totalMaxScore = data.reduce((sum, exam) => sum + Number(exam.category[subject]?.max_score || 0), 0);
-        const attemptedExams = data.filter(exam => subject in exam.category).length;
-        const averageScore = attemptedExams > 0 ? ((totalScore / totalMaxScore)*100).toFixed(2) : 0;
-  
+        const totalScore = data.reduce(
+          (sum, exam) => sum + Number(exam.category[subject]?.score || 0),
+          0
+        );
+        const totalMaxScore = data.reduce(
+          (sum, exam) => sum + Number(exam.category[subject]?.max_score || 0),
+          0
+        );
+        const attemptedExams = data.filter(
+          (exam) => subject in exam.category
+        ).length;
+        const averageScore =
+          attemptedExams > 0
+            ? ((totalScore / totalMaxScore) * 100).toFixed(2)
+            : 0;
+
         return {
           subject, // Subject name
           yourScore: totalScore, // Total score for this subject across exams
@@ -183,16 +178,20 @@ function Stu_Analytics() {
   };
 
   return (
-    <div className="min-h-screen flex ml-20">
-      <div
-        ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-        } transition-transform duration-300 w-64 xl:block`}
-      >
-        <Stu_Sidebar />
-      </div>
-      <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
+    <div className="min-h-screen flex bg-gray-100">
+    {/* Sidebar */}
+    <div
+      ref={sidebarRef}
+      className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+      } transition-transform duration-300 w-64 xl:block shadow-lg`}
+    >
+      <Stu_Sidebar />
+    </div>
+
+    <div className="flex flex-col flex-1">
+      {/* Header */}
+      <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="xl:hidden text-gray-800 focus:outline-none"
@@ -214,19 +213,29 @@ function Stu_Analytics() {
             />
           </svg>
         </button>
-        <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
-          Dashboard
-        </h1>
+        <h1 className="text-xl font-semibold text-gray-800 ml-5">Dashboard</h1>
         <div
-          className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
+          className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
           onClick={() => setIsDetailsOpen(!isDetailsOpen)}
         >
           AM
         </div>
         <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
       </div>
-      <div className="grid grid-cols-3 gap-11 justify-center mt-4 mr-4 ">
-        <div className="bg-white rounded-lg shadow-md max-w-xl">
+
+      {/* Dashboard Content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6 ml-72">
+        {/* Rank Display */}
+        <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
+          <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
+          <span className="text-5xl font-bold text-gray-900">
+            25<sup className="text-xl">th</sup>
+          </span>
+        </div>
+
+        {/* Line Chart - Overall Score */}
+        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 col-span-2">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Overall Score</h3>
           <LineChartComponent
             data={chartData}
             xAxisKey="name"
@@ -234,38 +243,32 @@ function Stu_Analytics() {
             lineColor="#0703fc"
           />
         </div>
-        <div className="border border-gray-600 rounded-md px-4 py-4">
-          {/* <RadarChartComponent data={accuracyData} /> */}
+
+        {/* Accuracy Rate - Donut Chart */}
+        <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center border border-gray-200">
+          
+          <DonutChartComponent data={accuracyData} />
+          <p className="text-2xl font-bold mt-2">{Math.round((correct / total) * 100)}%</p>
         </div>
-        <div className="border border-gray-600 rounded-md px-4 py-4">
-          <BarChartComponent data={rankData} />
+
+        {/* Subject-wise Performance - Radar Chart */}
+        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+     
+          <RadarChartComponent data={accuracyData} />
         </div>
-        <div>
+
+        {/* Test Completion Rate - Pie Chart */}
+        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+          
           {testCompletionData ? (
             <PieChartComponent data={testCompletionData} />
           ) : (
-            <p>Loading Test Completion Data...</p>
+            <p className="text-center text-gray-500">Loading Test Completion Data...</p>
           )}
-        </div>
-        <div className="bg-white rounded-lg shadow-md max-w-xl">
-          <LineChartComponent data={chartData} />
-        </div>
-
-        <div>
-          <HorizontalBarChartComponent data={studentParticipationData} />
-          <HorizontalBarChartComponent data={subjectPerformanceData} />
-        </div>
-
-        <div>
-          <DonutChartComponent data={accuracyData} />
-          <DisplayComponent title="Your Rank" value={25} />
-          <DisplayComponent
-            title="Average Score"
-            value={avgData.average_score}
-          />
         </div>
       </div>
     </div>
+  </div>
   );
 }
 
