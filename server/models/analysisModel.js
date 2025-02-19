@@ -147,10 +147,21 @@ async function insertStudentAnalysis(data) {
   }
 }
 
+const generateStudentAnalysis = async () => {
+  try {
+    const queryText = `SELECT exam_id, student_id FROM results`;
+    const result = await query(queryText);
+    return result.rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
   testCompletion,
   insertStudentAnalysis,
   checkStudentAnalysis,
+  generateStudentAnalysis
 };

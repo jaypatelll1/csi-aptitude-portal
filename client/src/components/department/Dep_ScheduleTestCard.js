@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import DataTime from "./Dep_DataTime";
+import { useSelector } from "react-redux";
+
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_ScheduledTestCard = ({ test }) => {
@@ -8,6 +10,7 @@ const Dep_ScheduledTestCard = ({ test }) => {
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSchedulingLoading, setIsSchedulingLoading] = useState(false);
+  let user = useSelector((state) => state.user.user);
 
   const examId = test.exam_id;
 
@@ -88,9 +91,12 @@ const Dep_ScheduledTestCard = ({ test }) => {
             <span className="text-black-500 text-sm">
               Scheduled for: {test.date}
             </span>
-            <span className="text-black-500 text-xs">
+            <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
-              {test.target_branches.replace(/[{}]/g, "")}
+              {test.target_branches
+                .replace(/[{}]/g, "")
+                .split(",")
+                .find((branch) => branch.trim() === user.department) || "N/A"}
             </span>
           </div>
         </div>

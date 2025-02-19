@@ -1,42 +1,74 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
+import axios from "axios";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Details from "../../components/NavbarDetails";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
-import RadialChartComponent from "../../components/analytics/RadialChartComponent ";
-import { useSelector } from "react-redux";
-import axios from "axios";
+import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
+
 
 function Stu_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // const sidebarRef = useRef(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [testCompletionData, setTestCompletionData] = useState(null);
+  const [data , setData] = useState([])
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const user_id = useSelector((state) => state.user.user.id);
-  console.log(user_id);
-  const [data, setData] = useState(null);
+
 
   const fetchData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
-
       const response = await axios.get(url, { withCredentials: true });
-
-      setData(response.data); // Store data in state
-      console.log(data);
+      setData(response.data.results);
+      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
+  const fetchCompletionData = async () => {
+
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/analysis/tests-completed/${user_id}`;
+      const response = await axios.get(url, { withCredentials: true });
+
+      const { attempted, total } = response.data.exams;
+
+      setTestCompletionData({
+        title: "Test Completion Rate",
+        chartData: [
+          { name: "Completed", value: attempted, fill: "#1349C5 " },
+          { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
+        ],
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  
+
+
+ 
+
+ console.log(data);
+
   useEffect(() => {
     if (user_id) {
       fetchData();
+      fetchCompletionData();
+      
     }
-  }, [user_id]); // Re-run if user_id changes
+  }, [user_id]);
+
+  
 
   const accuracyData = {
     title: "Accuracy Rate",
@@ -61,44 +93,35 @@ function Stu_Analytics() {
     ],
   };
 
-  const testCompletionData = {
-    title: "Test Completion Rate",
+  const chartData = {
+    title: "Performance Over Time",
+    color: "#0703fc",
     chartData: [
-      { name: "Completed", value: 8, fill: "#1349C5" },
-      { name: "Remaining", value: 2, fill: "#6F91F0" },
+      { name: "Test 1", value: 80 },
+      { name: "Test 2", value: 90 },
+      { name: "Test 3", value: 85 },
+      { name: "Test 4", value: 70 },
+      { name: "Test 5", value: 95 },
+      { name: "Test 6", value: 88 },
+      { name: "Test 7", value: 76 },
+      { name: "Test 8", value: 92 },
+      { name: "Test 9", value: 85 },
+      { name: "Test 10", value: 79 },
+      { name: "Test 11", value: 90 },
+      { name: "Test 12", value: 84 },
+      { name: "Test 13", value: 72 },
+      { name: "Test 14", value: 96 },
+      { name: "Test 15", value: 78 },
     ],
   };
+  
 
-  const attemptData = {
-    title: "Attempted vs Unattempted Questions",
-    chartData: [
-      { name: "Attempted", value: 35, fill: "#1349C5" }, // Dark Blue
-      { name: "Unattempted", value: 15, fill: "#6F91F0" }, // Lighter Blue
-    ],
-  };
 
-  const openDetails = () => setIsDetailsOpen(true);
-  const closeDetails = () => setIsDetailsOpen(false);
-
-  // Dummy data
-  const chartData = [
-    { name: "Jan", value: 400 },
-    { name: "Feb", value: 300 },
-    { name: "Mar", value: 200 },
-    { name: "Apr", value: 278 },
-    { name: "May", value: 189 },
-    { name: "Jun", value: 239 },
-    { name: "Jul", value: 349 },
-    { name: "Aug", value: 480 },
-    { name: "Sep", value: 380 },
-    { name: "Oct", value: 430 },
-    { name: "Nov", value: 290 },
-    { name: "Dec", value: 500 },
-  ];
+  
+  
 
   return (
     <div className="min-h-screen flex ml-20">
-      {/* Sidebar */}
       <div
         ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
@@ -107,8 +130,6 @@ function Stu_Analytics() {
       >
         <Stu_Sidebar />
       </div>
-
-      {/* Main Content */}
       <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -142,27 +163,29 @@ function Stu_Analytics() {
         </div>
         <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
       </div>
-      <div className="grid grid-cols-3 gap-11 justify-center mt-4 mr-4 ">
-        <div className="border border-gray-600 rounded-md px-4 py-4">
-          <RadialChartComponent data={accuracyData} />
-        </div>
-        <div className="border border-gray-600 rounded-md px-4 py-4">
+      <div className="grid grid-cols- gap-11 justify-center mt-4 mr-4">
+        <div>
           <BarChartComponent data={rankData} />
         </div>
-        <div className="border border-gray-600 rounded-md px-4 py-4">
-          <PieChartComponent data={testCompletionData} />
-        </div>
-        <div className="border border-gray-600 rounded-md px-4 py-4">
-          <PieChartComponent data={attemptData} />
+        <div>
+          {testCompletionData ? (
+            <PieChartComponent data={testCompletionData} />
+          ) : (
+            <p>Loading Test Completion Data...</p>
+          )}
         </div>
         <div className="bg-white rounded-lg shadow-md max-w-xl">
-          <LineChartComponent
-            data={chartData}
-            xAxisKey="name"
-            lineDataKey="value"
-            lineColor="#0703fc"
-          />
+            <LineChartComponent data={chartData} />
         </div>
+      
+       
+        <div>
+        
+        <DisplayComponent title="Your Rank" value={25} />
+        <DisplayComponent title="Your Overall " value={69} />
+        </div>
+
+
       </div>
     </div>
   );

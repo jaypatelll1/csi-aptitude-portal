@@ -8,12 +8,17 @@ async function createResult() {
     // Get the calculated results
     const results = await calculateAndStoreTotalScore();
 
-
     for (const resultRow of results) {
       const { student_id, exam_id, correct_responses, max_score } = resultRow;
       const completed_at = new Date().toISOString();
 
-      const values = [student_id, exam_id, correct_responses, max_score, completed_at];
+      const values = [
+        student_id,
+        exam_id,
+        correct_responses,
+        max_score,
+        completed_at,
+      ];
 
       const queryText = `
         INSERT INTO results (student_id, exam_id, total_score, max_score, completed_at)
@@ -36,11 +41,7 @@ async function createResult() {
     console.error('Error creating result:', err);
   }
   return 1;
-
 }
-
-
-
 
 // READ: Fetch all results
 async function getAllResults(student_id) {
@@ -113,7 +114,6 @@ const getPaginatedResultsByExam = async (exam_id, page, limit) => {
   const result = await query(paginatedqueryText);
   return result.rows;
   // console.log('rresult is ',result.rows);
-
 };
 
 const getResultsByUsers = async (user_id) => {
@@ -136,24 +136,21 @@ order by e.end_time desc
 
 `;
 
-
-
   const result = await query(queryText, [user_id]);
   //  console.log('result is ', result);
 
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
-    const options = { day: "2-digit", month: "short", year: "numeric" };
-    return date.toLocaleDateString("en-IN", options);
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-IN', options);
   };
 
   // Calculate status for each result
   const resultsWithStatus = result.rows.map((row) => {
-    const percentage = ((row.total_score / row.max_score) * 100); // Up to 3 decimal places
-    const status = percentage >= 35 ? "Passed" : "Failed"; // Pass/Fail based on 35%
+    const percentage = (row.total_score / row.max_score) * 100; // Up to 3 decimal places
+    const status = percentage >= 35 ? 'Passed' : 'Failed'; // Pass/Fail based on 35%
     return {
-
       exam_name: row.exam_name,
 
       total_score: row.total_score,
@@ -163,29 +160,30 @@ order by e.end_time desc
       Date: formatToReadableDate(row.end_time), // Format date
       percentage: Number(percentage), // Include calculated percentage
       status: status, // Pass or Fail
-
     };
   });
 
   return resultsWithStatus;
+};
 
-
-}
-
-
+// question_ext, options, question_id
 async function getCorrectIncorrect(student_id, exam_id) {
   const queryText = `SELECT 
   r.student_id,
-  r.exam_id,
+  q.question_id,
+  q.question_text,
+  q.options,
+  q.category,
   r.selected_option,
   q.correct_option,
-  CASE 
-      WHEN r.selected_option = q.correct_option THEN 'true'
-      ELSE 'false'
-  END AS result_status
-FROM responses r
-JOIN questions q ON r.question_id = q.question_id
-WHERE r.student_id = $1 AND r.exam_id = $2;`;
+
+    CASE 
+        WHEN r.selected_option = q.correct_option THEN 'true'
+        ELSE 'false'
+    END AS result_status
+    FROM responses r
+    JOIN questions q ON r.question_id = q.question_id
+    WHERE r.student_id = $1 AND r.exam_id = $2;`;
 
   try {
     const res = await query(queryText, [student_id, exam_id]);
@@ -195,7 +193,6 @@ WHERE r.student_id = $1 AND r.exam_id = $2;`;
   }
 }
 
-
 module.exports = {
   createResult,
   getAllResults,
@@ -204,5 +201,5 @@ module.exports = {
   deleteResult,
   getPaginatedResultsByExam,
   getResultsByUsers,
-  getCorrectIncorrect
+  getCorrectIncorrect,
 };

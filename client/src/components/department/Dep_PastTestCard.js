@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PastTestCard = ({ test, onClick }) => {
   console.log("test", test);
   const [result, setResult] = useState([]);
   const navigate = useNavigate();
+  let user = useSelector((state) => state.user.user);
 
   const handleSubmit = async () => {
     try {
@@ -53,15 +56,12 @@ const Dep_PastTestCard = ({ test, onClick }) => {
             <span className="text-black-500 text-sm font-sans">
               Conducted on: {test.date}
             </span>
-            <span className="text-black-500 text-xs">
-              Branch:{" "}
-              {test.target_years
-                ? test.target_years.replace(/[{}]/g, "")
-                : "N/A"}{" "}
-              -{" "}
+            <span className="text-black-500 text-xs mr-5">
+              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
               {test.target_branches
-                ? test.target_branches.replace(/[{}]/g, "")
-                : "N/A"}
+                .replace(/[{}]/g, "")
+                .split(",")
+                .find((branch) => branch.trim() === user.department) || "N/A"}
             </span>
           </div>
         </div>

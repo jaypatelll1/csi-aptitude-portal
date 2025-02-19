@@ -1,31 +1,21 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-const LineChartComponent = ({ data, xAxisKey, lineDataKey, lineColor }) => {
+const LineChartComponent = ({ data }) => {
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <LineChart
-        data={data}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={xAxisKey} />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Line
-          type="monotone"
-          dataKey={lineDataKey}
-          stroke={lineColor || "#f71b1b"} // Default color if not provided
-          activeDot={{ r: 8 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="flex flex-col items-center ml-14 ">
+      <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
+      <ResponsiveContainer width={700} height={400}>
+        <LineChart data={data.chartData}>
+          <CartesianGrid strokeDasharray="4 4" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="value" stroke={data.color || "#1349C5"} activeDot={{ r: 8 }} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 

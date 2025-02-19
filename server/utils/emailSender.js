@@ -1,7 +1,11 @@
 const transporter = require('../config/email');
 const { query } = require('../config/db');
+require('dotenv').config();
 
 const sendEmail = async (email, password) => {
+  const portalLink = process.env.APTITUDE_PORTAL_LINK;
+  // console.log('portalLink',portalLink);
+  
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -34,7 +38,7 @@ const sendEmail = async (email, password) => {
       <p style="margin: 5px 0; font-weight: bold; text-align: justify;">Password: <span style="font-weight: bold;">${password}</span></p>
     </div>
   
-    <a href="https://csi-aptitude-portal-client.onrender.com" 
+    <a  href="${portalLink}"
       style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #28a745; 
              color: white; text-decoration: none; font-weight: bold; border-radius: 5px;">
       Access Your Portal

@@ -97,9 +97,10 @@ async function student_analysis(exam_id, student_id) {
 
     await insertStudentAnalysis(analysisData);
     console.log('data inserted ', analysisData);
+    return analysisData ;
   } catch (error) {
     console.error('Error in student_analysis:', error);
   }
 }
-// student_analysis(27,2)
+student_analysis(27,2)
 module.exports = { student_analysis };

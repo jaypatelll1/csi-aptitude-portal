@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DataTime from "./Dep_DataTime";
 import axios from "axios";
-import{setExamId} from "../.././redux/ExamSlice"
-import { useDispatch } from "react-redux";
+import { setExamId } from "../.././redux/ExamSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { replace, useNavigate } from "react-router-dom";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
@@ -18,9 +18,10 @@ const Dep_DraftedTestCard = ({ test }) => {
   const [loading, setLoading] = useState(false);
 
   const [requestInProgress, setRequestInProgress] = useState(false);
+  let user = useSelector((state) => state.user.user);
 
   const examId = test.exam_id;
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   // console.log('examid is ',test);
 
@@ -43,10 +44,9 @@ const Dep_DraftedTestCard = ({ test }) => {
     setRequestInProgress(true); // Set request state to true
 
     try {
+      dispatch(setExamId(examId));
 
-   dispatch(setExamId(examId))
-
-   navigate("/department/input", {replace:true} )
+      navigate("/department/input", { replace: true });
 
       // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       // await axios.put(
@@ -117,7 +117,10 @@ const Dep_DraftedTestCard = ({ test }) => {
             </span>
             <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
-              {test.target_branches.replace(/[{}]/g, "")}
+              {test.target_branches
+                .replace(/[{}]/g, "")
+                .split(",")
+                .find((branch) => branch.trim() === user.department) || "N/A"}
             </span>
           </div>
         </div>
