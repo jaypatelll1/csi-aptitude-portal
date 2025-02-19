@@ -8,6 +8,8 @@ import PieChartComponent from "../../components/analytics/PieChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
+import DonutChartComponent from "../../components/analytics/DonutChartComponent";
+import HorizontalBarChartComponent from "../../components/analytics/HorizontalBarChartComponent";
 
 
 function Stu_Analytics() {
@@ -70,17 +72,7 @@ function Stu_Analytics() {
 
   
 
-  const accuracyData = {
-    title: "Accuracy Rate",
-    dataKey: "accuracy",
-    chartData: [
-      { name: "Math", accuracy: 80, fill: "#1349C5" },
-      { name: "Science", accuracy: 75, fill: "#6F91F0" },
-      { name: "English", accuracy: 90, fill: "#1349C5" },
-      { name: "History", accuracy: 60, fill: "#6F91F0" },
-      { name: "Computer", accuracy: 95, fill: "#1349C5" },
-    ],
-  };
+
 
   const rankData = {
     title: "Rank Progression",
@@ -115,11 +107,45 @@ function Stu_Analytics() {
     ],
   };
   
+  const accuracyData = {
+    title: "Accuracy Rate",
+    chartData: [
+      { name: "Correct", value: 65, fill: "#28A745" },
+      { name: "Wrong", value: 35, fill: "#DC3545" },
+    ],
+  };
 
 
+  const studentParticipationData = {
+    title: "Student Participation",
+    chartData: [
+      { category: "Total Students", count: 1000 },
+      { category: "Participated Students", count: 754 },
+      { category: "Not Participated Students", count: 246 },
+    ],
+    xKey: ["count"],
+    yKey: "category",
+    colors: {
+      count: "#1349C5",
+    },
+  };
   
+  const subjectPerformanceData = {
+    title: "Subject-wise Performance",
+    chartData: [
+      { subject: "Maths", yourScore: 70, average: 80, maxMarks: 100 },
+      { subject: "Mechanics", yourScore: 60, average: 75, maxMarks: 100 },
+      { subject: "DSA", yourScore: 40, average: 65, maxMarks: 100 },
+    ],
+    xKey: ["yourScore", "average", "maxMarks"],
+    yKey: "subject",
+    colors: {
+      yourScore: "#1349C5",
+      average: "#6A88F7",
+      maxMarks: "#D3D3D3",
+    },
+  };
   
-
   return (
     <div className="min-h-screen flex ml-20">
       <div
@@ -164,6 +190,8 @@ function Stu_Analytics() {
         <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
       </div>
       <div className="grid grid-cols- gap-11 justify-center mt-4 mr-4">
+
+
         <div>
           <BarChartComponent data={rankData} />
         </div>
@@ -177,10 +205,17 @@ function Stu_Analytics() {
         <div className="bg-white rounded-lg shadow-md max-w-xl">
             <LineChartComponent data={chartData} />
         </div>
+       
+    
       
+     <div >
+     <HorizontalBarChartComponent data={studentParticipationData} />
+     <HorizontalBarChartComponent data={subjectPerformanceData} />
+   
+    </div>
        
         <div>
-        
+        <DonutChartComponent data={accuracyData} />
         <DisplayComponent title="Your Rank" value={25} />
         <DisplayComponent title="Your Overall " value={69} />
         </div>
