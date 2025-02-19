@@ -1,9 +1,13 @@
-import React from 'react'
+import React from "react";
+import DepartmentRanking from "../../components/analytics/DepartmentRanking"; 
 
 function Dep_Analytics() {
   return (
-    <div>Dep_Analytics</div>
-  )
+    <div>
+      <h1 className="text-xl font-bold mb-4">Department Analytics</h1>
+      <DepartmentRanking />
+    </div>
+  );
 }
 
-export default Dep_Analytics
+export default Dep_Analytics;
