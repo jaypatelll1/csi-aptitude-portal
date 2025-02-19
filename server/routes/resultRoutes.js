@@ -1,6 +1,6 @@
 const express = require('express');
 const {
-  createResult,
+  createResultforStudents,
   getAllresult,
   getResultById,
   UpdateResult,
@@ -11,7 +11,7 @@ const {
   getCorrectIncorrect
 } = require('../controllers/resultController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
-const { jwtAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
+
 
 const router = express.Router();
 
@@ -20,6 +20,7 @@ const router = express.Router();
 
 // READ: Get all results for a particular student
 router.get('/student-all', getAllresult);
+router.post('/create-result/:student_id/:exam_id',createResultforStudents)
 
 // READ: Get all results
 router.get('/all/:exam_id', authorizeRoles, getPaginatedResultsByExam); // pagination

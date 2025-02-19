@@ -84,6 +84,33 @@ const testCompletion = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const generateStudentAnalysisUsingId = async (req, res) => {
+  const { student_id ,exam_id} = req.params;
+  
+
+  try {
+    const anlaysis = await student_analysis(exam_id,student_id);
+    if (!anlaysis) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View anlaysis',
+        status: 'failure',
+        details: 'anlaysis not found',
+      });
+      return res.status(404).json({ message: 'anlaysis not found.' });
+    }
+
+    await logActivity({
+      user_id: student_id,
+      activity: 'View anlaysis',
+      status: 'success',
+      details: 'Results found',
+    });
+    res.status(200).json({ anlaysis });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const generateStudentAnalysis = async (req, res) => {
   const result = await analysisModel.generateStudentAnalysis()
@@ -102,5 +129,6 @@ module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
   testCompletion,
-  generateStudentAnalysis
+  generateStudentAnalysis,
+  generateStudentAnalysisUsingId
 };

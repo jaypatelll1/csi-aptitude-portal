@@ -1,6 +1,7 @@
 const resultModel = require('../models/resultModel');
 const { logActivity } = require('../utils/logActivity');
 const { viewResult } = require("../utils/viewResult")
+const { calculateScore } = require('../utils/scoreUtils');
 
 const createResult = async (req, res) => {
   const student_id = req.user.id;
@@ -29,6 +30,38 @@ const createResult = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+const createResultforStudents = async (req, res) => {
+  const { exam_id, student_id } = req.params;
+
+  try {
+    const response = await resultModel.getResultById(exam_id, student_id);
+    console.log('response',response);
+    
+
+     // Check if response is a valid object with result_id
+     if (response && typeof response === "object" && response.result_id) {
+      return res.status(201).json({ message: "user exists", data: response });
+    }
+
+    // Declare result before using it
+    let result = await calculateScore(exam_id, student_id);
+    await logActivity({
+      user_id: student_id,
+      activity: 'View Result',
+      status: 'success',
+      details: 'Result fetched successfully',
+    });
+
+    return res.status(200);
+  } catch (err) {
+    console.error('Error fetching result:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+// 531 75
 
 // Get all results
 const getAllresult = async (req, res) => {
@@ -286,5 +319,6 @@ module.exports = {
   getPaginatedResultsByExam,
   pastResult,
   getResultsByUsers,
-  getCorrectIncorrect
+  getCorrectIncorrect,
+  createResultforStudents
 };

@@ -68,4 +68,64 @@ async function calculateAndStoreTotalScore(examId) {
   }
 }
 
-module.exports = { calculateAndStoreTotalScore };
+
+async function calculateScore(examId, studentId) {
+  try {
+    // Step 1: Calculate the max score for the exam
+    const maxScoreQuery = `
+      SELECT COUNT(question_id) AS max_score
+      FROM questions
+      WHERE exam_id = $1;
+    `;
+    const maxScoreResult = await query(maxScoreQuery, [examId]);
+    const max_score = maxScoreResult.rows[0]?.max_score || 0;
+
+    if (max_score === 0) {
+      console.error(`No questions found for exam_id ${examId}`);
+      return;
+    }
+
+    // Step 2: Calculate correct responses for the given student
+    const correctResponsesQuery = `
+      SELECT 
+        COUNT(CASE WHEN r.selected_option = q.correct_option THEN 1 END) AS correct_responses
+      FROM 
+        responses AS r
+      LEFT JOIN 
+        questions AS q 
+      ON 
+        r.question_id = q.question_id
+      WHERE 
+        r.exam_id = $1 AND r.student_id = $2;
+    `;
+    const correctResponsesResult = await query(correctResponsesQuery, [examId, studentId]);
+    const total_score = correctResponsesResult.rows[0]?.correct_responses || 0;
+    const completed_at = new Date().toISOString();
+
+    // Step 3: Insert or update score using ON CONFLICT
+    const insertQuery = `
+      INSERT INTO results (student_id, exam_id, total_score, max_score, completed_at)
+      VALUES ($1, $2, $3, $4, $5)
+    `;
+    
+    const result = await query(insertQuery, [studentId, examId, total_score, max_score, completed_at]);
+
+    console.log(`Score for student ${studentId} in exam ${examId} has been inserted/updated.`);
+   
+    
+
+    
+
+  } catch (err) {
+    console.error("Error calculating and storing total score:", {
+      examId,
+      studentId,
+      error: err.stack,
+    });
+  }
+}
+
+
+
+
+module.exports = { calculateAndStoreTotalScore ,calculateScore};
