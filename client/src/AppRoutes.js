@@ -36,9 +36,13 @@ import Dep_StudentList from "./pages/department/Dep_StudentList";
 import Dep_ViewQuestions from "./pages/department/Dep_ViewQuestions";
 import Dep_TestStudentList from "./pages/department/Dep_TestStudentList";
 import Dep_Analytics from "./pages/department/Dep_Analytics";
+import Dep_StudentAnalysis from "./pages/department/Dep_StudentAnalysis";
+import Stu_Result from "./pages/student/Stu_Result";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
+
+
 
 
 
@@ -89,6 +93,15 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/results"
+        element={
+          <ProtectedRoute allowedRoles={["Student"]}>
+            <Stu_Result />
+          </ProtectedRoute>
+        }
+      />
+
 
       {/* Admin Routes */}
       <Route
@@ -267,6 +280,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
             <Dep_Analytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/student-analytics"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+            <Dep_StudentAnalysis />
           </ProtectedRoute>
         }
       />
