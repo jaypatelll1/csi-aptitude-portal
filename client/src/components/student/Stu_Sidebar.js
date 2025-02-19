@@ -2,18 +2,13 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Stu_Sidebar = () => {
-  const [showSubmenu, setShowSubmenu] = useState(false);
-
-  const toggleSubmenu = () => {
-    setShowSubmenu(!showSubmenu);
-  };
-
   return (
-    <div className="fixed left-0 top-0 w-64 h-full  p-5 font-sans z-50">
+    <div className="fixed left-0 top-0 w-64 h-full p-5 font-sans z-50">
       <h2 className="text-blue-700 text-2xl font-bold mb-12">Aptitude</h2>
       <ul className="list-none p-0 m-0">
+        {/* Dashboard */}
         <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-          <span className="mr-2 flex items-center justify-center w-6 h-6">
+        <span className="mr-2 flex items-center justify-center w-6 h-6">
             <svg
               width="24"
               height="24"
@@ -31,6 +26,14 @@ const Stu_Sidebar = () => {
             </svg>
           </span>
           <Link to="/home">Dashboard</Link>
+        </li>
+
+        {/* Analytics */}
+        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
+          <span className="mr-2 flex items-center justify-center w-6 h-6">
+            📈
+          </span>
+          <Link to="/analytics">Analytics</Link>
         </li>
       </ul>
     </div>

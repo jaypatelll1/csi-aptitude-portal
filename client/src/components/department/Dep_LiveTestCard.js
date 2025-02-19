@@ -1,6 +1,10 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 const Dep_LiveTestCard = ({ test }) => {
+  let user = useSelector((state) => state.user.user);
+
+
   return (
     <div className="bg-white ml-4 w-[96%] rounded-lg p-4 border border-gray-400 flex flex-col">
       {/* Card Header */}
@@ -22,11 +26,19 @@ const Dep_LiveTestCard = ({ test }) => {
           <span>Live</span>
         </span>
         <div className="text-right">
-        <div className="flex flex-col items-center">
-    <span className="text-black-500 text-sm">Created on: {test.date}</span>
-    <span className="text-black-500 text-xs">Branch: {test.target_years.replace(/[{}]/g, '')} - {test.target_branches.replace(/[{}]/g, '')}</span>
-</div>
-    </div>
+          <div className="flex flex-col items-center">
+            <span className="text-black-500 text-sm">
+              Created on: {test.date}
+            </span>
+            <span className="text-black-500 text-xs mr-5">
+              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
+              {test.target_branches
+                .replace(/[{}]/g, "")
+                .split(",")
+                .find((branch) => branch.trim() === user.department) || "N/A"}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Test Info */}

@@ -251,8 +251,8 @@ const pastResult = async (req, res) => {
 };
 
 const getCorrectIncorrect = async (req, res) => {
-  const student_id = req.user.id;
-  const { exam_id } = req.params
+  const { exam_id, student_id } = req.params
+
   try {
     const results = await resultModel.getCorrectIncorrect(student_id, exam_id);
     if (results.length === 0) {

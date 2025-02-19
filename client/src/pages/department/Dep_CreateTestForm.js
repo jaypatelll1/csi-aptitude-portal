@@ -29,7 +29,7 @@ const Dep_CreateTestPage = () => {
   const handleCreateQuestions = async (e) => {
     e.preventDefault();
 
-    if (!testName || !duration ||  year.length === 0) {
+    if (!testName || !duration || year.length === 0) {
       alert("Please fill in all the fields.");
       return;
     }
@@ -38,9 +38,8 @@ const Dep_CreateTestPage = () => {
       name: testName,
       duration: duration,
       target_years: year,
-      target_branches: branch,
+      target_branches: branch ? [branch] : [],
     };
-
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(`${API_BASE_URL}/api/exams`, payload, {
@@ -57,6 +56,7 @@ const Dep_CreateTestPage = () => {
       );
     }
   };
+  
 
   useEffect(() => {
     const fetchUserBranch = async () => {
@@ -111,6 +111,10 @@ const Dep_CreateTestPage = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    setBranch(user.department);
+  }, [user.department]);
 
   return (
     <div className="min-h-screen flex">
@@ -186,8 +190,8 @@ const Dep_CreateTestPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Branch
                 </label>
-                <div className="border border-gray-300 rounded-lg p-2 bg-white text-gray-700">
-                  {user.department || "Your department branch"}
+                <div className="border border-gray-300 rounded-lg p-2 bg-gray-100 text-gray-800">
+                  {branch}
                 </div>
               </div>
 

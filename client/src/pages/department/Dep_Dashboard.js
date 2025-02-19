@@ -10,10 +10,10 @@ import Dep_Navbar from "../../components/department/Dep_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
-
 const Dep_Dashboard = () => {
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
+  console.log(userData);
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [tileData, setTileData] = useState([]);
@@ -43,34 +43,48 @@ const Dep_Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-      // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      // console.log("endpoint",endpoint)
-      const response = await axios.get(endpoint, {
-        withCredentials: true,
-      });
-      console.log(response);
-      // console.log( "testsData", testsData)
-      setTestsData((prevData) => ({
-        ...prevData,
-        [key]: response.data.exams.map((exam) => ({
-          exam_id: exam.exam_id,
-          end_time: exam.end_time,
-          Start_time: exam.start_time,
-          title: exam.exam_name || "Untitled Exam",
-          questions: exam.question_count || "N/A",
-          duration: exam.duration ? `${exam.duration} min` : "N/A",
-          date: formatToReadableDate(exam.created_at),
-          target_years: exam.target_years || "N/A",
-          target_branches: exam.target_branches || "N/A",
-        })),
-      }));
+        const response = await axios.get(endpoint, {
+            withCredentials: true,
+        });
+
+        console.log(response);
+
+        setTestsData((prevData) => ({
+            ...prevData,
+            [key]: response.data.exams
+                .filter((exam) => {
+                    let targetBranches = exam.target_branches;
+
+                    if (!targetBranches || targetBranches.includes("All")) {
+                        return true; // Show if target_branches is undefined or includes "All"
+                    }
+
+                    // Convert "{CMPN,INFT,EXTC,ELEC,ECS}" -> ["CMPN", "INFT", "EXTC", "ELEC", "ECS"]
+                    targetBranches = targetBranches.replace(/[{}]/g, "").split(",").map(branch => branch.trim());
+
+                    return targetBranches.includes(userData.department); // Check if the user's department is included
+                })
+                .map((exam) => ({
+                    exam_id: exam.exam_id,
+                    end_time: exam.end_time,
+                    Start_time: exam.start_time,
+                    title: exam.exam_name || "Untitled Exam",
+                    questions: exam.question_count || "N/A",
+                    duration: exam.duration ? `${exam.duration} min` : "N/A",
+                    date: formatToReadableDate(exam.created_at),
+                    target_years: exam.target_years || "N/A",
+                    target_branches: exam.target_branches || "N/A",
+                })),
+        }));
     } catch (err) {
-      console.error(`Error fetching ${key} tests:`, err);
-      setError(`Failed to fetch ${key} tests. Please try again later.`);
+        console.error(`Error fetching ${key} tests:`, err);
+        setError(`Failed to fetch ${key} tests. Please try again later.`);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+  
 
   useEffect(() => {
     const fetchDashboardData = async () => {

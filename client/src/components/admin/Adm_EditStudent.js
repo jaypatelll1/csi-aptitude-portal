@@ -139,7 +139,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
             onChange={(e) => setYear(e.target.value)}
           >
             <option value="FE">FE</option>
-            <option value="BE">BE</option>
+            <option value="BE">SE</option>
             <option value="TE">TE</option>
             <option value="BE">BE</option>
           </select>
