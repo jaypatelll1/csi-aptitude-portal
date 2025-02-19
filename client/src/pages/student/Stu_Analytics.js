@@ -5,7 +5,6 @@ import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Details from "../../components/NavbarDetails";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
-import RadialChartComponent from "../../components/analytics/RadialChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
@@ -165,9 +164,6 @@ function Stu_Analytics() {
         <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
       </div>
       <div className="grid grid-cols- gap-11 justify-center mt-4 mr-4">
-        <div>
-          <RadialChartComponent data={accuracyData} />
-        </div>
         <div>
           <BarChartComponent data={rankData} />
         </div>
