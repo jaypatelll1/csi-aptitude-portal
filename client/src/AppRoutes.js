@@ -35,7 +35,7 @@ import Dep_InputQuestions from "./pages/department/Dep_InputQuestions";
 import Dep_StudentList from "./pages/department/Dep_StudentList";
 import Dep_ViewQuestions from "./pages/department/Dep_ViewQuestions";
 import Dep_TestStudentList from "./pages/department/Dep_TestStudentList";
-import Dep_Analytics from "./components/department/Dep_Analytics";
+import Dep_Analytics from "./pages/department/Dep_Analytics";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
