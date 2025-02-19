@@ -3,12 +3,9 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Details from "../../components/NavbarDetails";
-import BarChartComponent from "../../components/analytics/BarChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
-import DisplayComponent from "../../components/analytics/DisplayComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
-import HorizontalBarChartComponent from "../../components/analytics/HorizontalBarChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 
 function Stu_Analytics() {
@@ -22,14 +19,14 @@ function Stu_Analytics() {
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const user_id = useSelector((state) => state.user.user.id);
-  
+
 
   const fetchData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
-      console.log(response.data);
+      // console.log(response.data);
       setData(response.data.results);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -41,7 +38,7 @@ function Stu_Analytics() {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       let url = `${API_BASE_URL}/api/analysis/avg-results/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
-      console.log("avg data", response.data.result);
+      // console.log("avg data", response.data.result);
       setAvgData(response.data.result);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -63,15 +60,15 @@ function Stu_Analytics() {
           { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
         ],
       });
-      
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  console.log(data);
-  console.log("testData", testCompletionData);
-  console.log("avgData", avgData);
+  // console.log(data);
+  // console.log("testData", testCompletionData);
+  // console.log("avgData", avgData);
 
   useEffect(() => {
     if (user_id) {
@@ -113,7 +110,7 @@ function Stu_Analytics() {
       setTotal((prev) => prev + exam.max_score);
     });
     if (data[0]) {
-      console.log("categories", Object.keys(data[0]?.category).score);
+      // console.log("categories", Object.keys(data[0]?.category).score);
     }
   }, [data]);
 
@@ -134,42 +131,49 @@ function Stu_Analytics() {
   };
 
   const subjectPerformanceData = {
-    title: "Subject-wise Performance",
+    title: "Topic-wise Performance",
 
     chartData: (() => {
-      // Get a unique set of all subjects across all exams
+      // Filter out exams with null/undefined category
+      const validData = data.filter((exam) => exam.category !== null && exam.category !== undefined);
+
+      // Get a unique set of all subjects across valid exams, ignoring "null" key
       const allSubjects = [
-        ...new Set(data.flatMap((exam) => Object.keys(exam.category))),
+        ...new Set(
+          validData.flatMap((exam) =>
+            Object.keys(exam.category).filter((subject) => subject !== "null")
+          )
+        ),
       ];
 
       return allSubjects.map((subject) => {
-        // Calculate total and average scores for this subject across all exams
-        const totalScore = data.reduce(
-          (sum, exam) => sum + Number(exam.category[subject]?.score || 0),
+        // Calculate total and average scores for this subject across valid exams
+        const totalScore = validData.reduce(
+          (sum, exam) => sum + (parseFloat(exam.category[subject]?.score) || 0),
           0
         );
-        const totalMaxScore = data.reduce(
-          (sum, exam) => sum + Number(exam.category[subject]?.max_score || 0),
+        const totalMaxScore = validData.reduce(
+          (sum, exam) =>
+            sum + (parseFloat(exam.category[subject]?.max_score) || 0),
           0
         );
-        const attemptedExams = data.filter(
+
+        const attemptedExams = validData.filter(
           (exam) => subject in exam.category
         ).length;
+
         const averageScore =
-          attemptedExams > 0
-            ? ((totalScore / totalMaxScore) * 100).toFixed(2)
-            : 0;
+          totalMaxScore > 0 ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2)) : 0;
 
         return {
-          subject, // Subject name
+          name: subject, // Renamed from "subject" to "name" for RadarChart
           yourScore: totalScore, // Total score for this subject across exams
-          average: averageScore, // Average score across exams
+          average: averageScore, // Converted back to number
           maxMarks: totalMaxScore, // Total max marks possible
         };
       });
     })(),
-    xKey: ["yourScore", "average", "maxMarks"],
-    yKey: "subject",
+
     colors: {
       yourScore: "#1349C5",
       average: "#6A88F7",
@@ -177,98 +181,107 @@ function Stu_Analytics() {
     },
   };
 
+
+
+
+
   return (
     <div className="min-h-screen flex bg-gray-100">
-    {/* Sidebar */}
-    <div
-      ref={sidebarRef}
-      className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-      } transition-transform duration-300 w-64 xl:block shadow-lg`}
-    >
-      <Stu_Sidebar />
-    </div>
+      {/* Sidebar */}
+      <div
+        ref={sidebarRef}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+          } transition-transform duration-300 w-64 xl:block shadow-lg`}
+      >
+        <Stu_Sidebar />
+      </div>
 
-    <div className="flex flex-col flex-1">
-      {/* Header */}
-      <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="xl:hidden text-gray-800 focus:outline-none"
-        >
-          <svg
-            className="w-8 h-8"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+      <div className="flex flex-col flex-1">
+        {/* Header */}
+        <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="xl:hidden text-gray-800 focus:outline-none"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d={
-                sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"
-              }
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={
+                  sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"
+                }
+              />
+            </svg>
+          </button>
+          <h1 className="text-xl font-semibold text-gray-800 ml-5">Dashboard</h1>
+          <div
+            className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
+            onClick={() => setIsDetailsOpen(!isDetailsOpen)}
+          >
+            AM
+          </div>
+          <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
+        </div>
+
+        {/* Dashboard Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6 ml-72">
+          {/* Rank Display */}
+          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
+            <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
+            <span className="text-5xl font-bold text-gray-900 ">
+              25<sup className="text-xl">th</sup>
+            </span>
+          </div>
+
+          {/* Line Chart - Overall Score */}
+          <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 col-span-2">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Overall Score</h3>
+            <LineChartComponent
+              data={chartData}
+              xAxisKey="name"
+              lineDataKey="value"
+              lineColor="#0703fc"
             />
-          </svg>
-        </button>
-        <h1 className="text-xl font-semibold text-gray-800 ml-5">Dashboard</h1>
-        <div
-          className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
-          onClick={() => setIsDetailsOpen(!isDetailsOpen)}
-        >
-          AM
-        </div>
-        <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
-      </div>
+          </div>
+          <div className="flex flex-row gap-4">
+            {/* Accuracy Rate - Donut Chart */}
 
-      {/* Dashboard Content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6 ml-72">
-        {/* Rank Display */}
-        <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
-          <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
-          <span className="text-5xl font-bold text-gray-900">
-            25<sup className="text-xl">th</sup>
-          </span>
-        </div>
+            <div className="bg-white shadow-lg rounded-lg p-6 px-[5vh] flex flex-col items-center border border-gray-200">
 
-        {/* Line Chart - Overall Score */}
-        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 col-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Overall Score</h3>
-          <LineChartComponent
-            data={chartData}
-            xAxisKey="name"
-            lineDataKey="value"
-            lineColor="#0703fc"
-          />
-        </div>
+              <DonutChartComponent data={accuracyData} />
+              <p className="text-2xl font-bold mt-2">{Math.round((correct / total) * 100)}%</p>
+            </div >
 
-        {/* Accuracy Rate - Donut Chart */}
-        <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center border border-gray-200">
-          
-          <DonutChartComponent data={accuracyData} />
-          <p className="text-2xl font-bold mt-2">{Math.round((correct / total) * 100)}%</p>
-        </div>
+            {/* Subject-wise Performance - Radar Chart */}
+            <div className="bg-white shadow-lg rounded-lg p-6 w-[37vw] border border-gray-200">
+              {subjectPerformanceData.chartData.length > 0 ? (
+                <RadarChartComponent data={subjectPerformanceData} />
+              ) : (
+                <p className="text-center text-gray-500">No Data Available</p>
+              )}
+            </div>
 
-        {/* Subject-wise Performance - Radar Chart */}
-        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-     
-          <RadarChartComponent data={accuracyData} />
-        </div>
+            {/* Test Completion Rate - Pie Chart */}
+            <div className="bg-white shadow-lg rounded-lg p-6 border w-[23vw] border-gray-200">
 
-        {/* Test Completion Rate - Pie Chart */}
-        <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-          
-          {testCompletionData ? (
-            <PieChartComponent data={testCompletionData} />
-          ) : (
-            <p className="text-center text-gray-500">Loading Test Completion Data...</p>
-          )}
+              {testCompletionData ? (
+                <PieChartComponent data={testCompletionData} />
+              ) : (
+                <p className="text-center text-gray-500">Loading Test Completion Data...</p>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
-  </div>
   );
 }
 
