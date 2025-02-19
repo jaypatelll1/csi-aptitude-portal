@@ -189,10 +189,19 @@ function Stu_Analytics() {
         </div>
         <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
       </div>
-      <div className="grid grid-cols- gap-11 justify-center mt-4 mr-4">
-
-
-        <div>
+      <div className="grid grid-cols-3 gap-11 justify-center mt-4 mr-4 ">
+        <div className="bg-white rounded-lg shadow-md max-w-xl">
+          <LineChartComponent
+            data={chartData}
+            xAxisKey="name"
+            lineDataKey="value"
+            lineColor="#0703fc"
+          />
+        </div>
+        <div className="border border-gray-600 rounded-md px-4 py-4">
+          <RadarChartComponent data={accuracyData} />
+        </div>
+        <div className="border border-gray-600 rounded-md px-4 py-4">
           <BarChartComponent data={rankData} />
         </div>
         <div>
