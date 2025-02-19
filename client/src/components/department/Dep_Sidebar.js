@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 
 const Dep_sidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
+  const [showAnalyticsSubmenu, setShowAnalyticsSubmenu] = useState(false);
   // console.log('testdata is ', testsData);
 
   const toggleSubmenu = () => {
     setShowSubmenu(!showSubmenu);
   };
+  const toggleAnalyticsSubmenu = () =>
+    setShowAnalyticsSubmenu(!showAnalyticsSubmenu);
 
   return (
     <div className="fixed left-0 top-0 w-64 h-full   p-5 font-sans z-50">
@@ -111,8 +114,11 @@ const Dep_sidebar = () => {
             </li>
           </ul>
         )}
-        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 ">
-          <span className="mr-2 flex items-center justify-center w-6 h-6 ">
+        <li
+          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500"
+          onClick={toggleAnalyticsSubmenu}
+        >
+          <span className="mr-2 flex items-center justify-center w-6 h-6">
             <svg
               width="24"
               height="24"
@@ -126,8 +132,38 @@ const Dep_sidebar = () => {
               />
             </svg>
           </span>
-          <Link to="/department/analytics">Analytics</Link>
+          Analytics
+          <span
+            className={`ml-auto ${showAnalyticsSubmenu ? "rotate-180" : ""}`}
+          >
+            <svg
+              width="10"
+              height="6"
+              viewBox="0 0 10 6"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1 1L5 5L9 1"
+                stroke="black"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
         </li>
+
+        {showAnalyticsSubmenu && (
+          <ul className="pl-5 mt-1">
+            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
+              <Link to="/department/analytics">Branch Analytics</Link>
+            </li>
+            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
+              <Link to="/department/student-analytics">Student Analysis</Link>
+            </li>
+          </ul>
+        )}
       </ul>
     </div>
   );
