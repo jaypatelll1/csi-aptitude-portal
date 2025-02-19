@@ -84,12 +84,12 @@ const testCompletion = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const generateStudentAnalysisUsingId = async (req, res) => {
-  const { student_id ,exam_id} = req.params;
-  
+  const { student_id, exam_id } = req.params;
 
   try {
-    const anlaysis = await student_analysis(exam_id,student_id);
+    const anlaysis = await student_analysis(exam_id, student_id);
     if (!anlaysis) {
       await logActivity({
         user_id: student_id,
@@ -113,22 +113,50 @@ const generateStudentAnalysisUsingId = async (req, res) => {
 };
 
 const generateStudentAnalysis = async (req, res) => {
-  const result = await analysisModel.generateStudentAnalysis()
+  const result = await analysisModel.generateStudentAnalysis();
 
   result.map((res) => {
-    const {exam_id, student_id} = res
-    student_analysis(exam_id, student_id)
-  })
+    const { exam_id, student_id } = res;
+    student_analysis(exam_id, student_id);
+  });
   // console.log(result)
   res.json({
-    message: "Data added successfully in student_analysis table."
-  })
-}
+    message: 'Data added successfully in student_analysis table.',
+  });
+};
+
+const avgResults = async (req, res) => {
+  const { student_id } = req.params;
+
+  try {
+    const result = await analysisModel.avgResults(student_id);
+    if (!result) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View No. of Exam Attempted',
+        status: 'failure',
+        details: 'Results not found',
+      });
+      return res.status(404).json({ message: 'Results not found.' });
+    }
+
+    await logActivity({
+      user_id: student_id,
+      activity: 'View No. of Exam Attempted',
+      status: 'success',
+      details: 'Results found',
+    });
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
   testCompletion,
   generateStudentAnalysis,
-  generateStudentAnalysisUsingId
+  generateStudentAnalysisUsingId,
+  avgResults
 };

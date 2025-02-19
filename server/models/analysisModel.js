@@ -2,7 +2,7 @@ const { query } = require('../config/db');
 
 const getOverallResultsOfAStudent = async (student_id) => {
   try {
-    const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1;`;
+    const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 ORDER BY created_at DESC;`;
     const result = await query(queryText, [student_id]);
 
     // Helper function to format date to readable format
@@ -14,7 +14,7 @@ const getOverallResultsOfAStudent = async (student_id) => {
 
     // Calculate status for each result
     const resultsWithPercentage = result.rows.map((row) => {
-      const percentage = (row.total_score / row.max_score) * 100; // Up to 3 decimal places
+      const percentage = ((row.total_score / row.max_score) * 100).toFixed(2); // Up to 3 decimal places
       return {
         analysis_id: row.analysis_id,
         department: row.department_name,
@@ -50,7 +50,7 @@ const getResultOfAParticularExam = async (student_id, exam_id) => {
 
     // Calculate status for each result
     const resultsWithPercentage = result.rows.map((row) => {
-      const percentage = (row.total_score / row.max_score) * 100; // Up to 3 decimal places
+      const percentage = ((row.total_score / row.max_score) * 100).toFixed(2); // Up to 3 decimal places
       return {
         analysis_id: row.analysis_id,
         department: row.department_name,
@@ -157,11 +157,30 @@ const generateStudentAnalysis = async () => {
   }
 };
 
+const avgResults = async (student_id) => {
+  try {
+    const queryText = `
+      SELECT 
+          student_id, 
+          ROUND(AVG(total_score), 2) AS average_score,
+          MAX(max_score) AS max_possible_score
+      FROM results
+      WHERE student_id = $1
+      GROUP BY student_id;
+    `;
+    const result = await query(queryText, [student_id])
+    return result.rows[0];
+  } catch (error) {
+    console.log(error)
+  }
+};
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
   testCompletion,
   insertStudentAnalysis,
   checkStudentAnalysis,
-  generateStudentAnalysis
+  generateStudentAnalysis,
+  avgResults
 };

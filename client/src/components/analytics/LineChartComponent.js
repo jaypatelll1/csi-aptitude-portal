@@ -12,7 +12,7 @@ const LineChartComponent = ({ data }) => {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="value" stroke={data.color || "#1349C5"} activeDot={{ r: 8 }} />
+          <Line type="monotone" dataKey="Percentage" stroke={data.color || "#1349C5"} activeDot={{ r: 8 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>
