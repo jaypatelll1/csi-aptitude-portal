@@ -3,9 +3,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 const LineChartComponent = ({ data }) => {
   return (
-    <div className="flex flex-col items-center ml-14 ">
+    <div className="flex flex-col items-center  ">
       <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
-      <ResponsiveContainer width={700} height={400}>
+      <ResponsiveContainer  width={750} height={200}>
         <LineChart data={data.chartData}>
           <CartesianGrid strokeDasharray="4 4" />
           <XAxis dataKey="name" />

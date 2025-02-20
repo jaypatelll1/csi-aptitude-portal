@@ -231,7 +231,7 @@ function Stu_Analytics() {
         </div>
 
         {/* Dashboard Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6 ml-72">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 p-6 lg:ml-64">
           {/* Rank Display */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
             <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
@@ -241,7 +241,7 @@ function Stu_Analytics() {
           </div>
 
           {/* Line Chart - Overall Score */}
-          <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 col-span-2">
+          <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 col-span-2">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Overall Score</h3>
             <LineChartComponent
               data={chartData}
@@ -260,7 +260,7 @@ function Stu_Analytics() {
             </div >
 
             {/* Subject-wise Performance - Radar Chart */}
-            <div className="bg-white shadow-lg rounded-lg p-6 w-[37vw] border border-gray-200">
+            <div className="bg-white shadow-lg rounded-lg p-6 w-[32vw] border border-gray-200">
               {subjectPerformanceData.chartData.length > 0 ? (
                 <RadarChartComponent data={subjectPerformanceData} />
               ) : (

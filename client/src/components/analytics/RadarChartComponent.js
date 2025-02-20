@@ -9,7 +9,7 @@ const RadarChartComponent = ({ data }) => {
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
-      <ResponsiveContainer width={700} height={400}>
+      <ResponsiveContainer width={700} height={300}>
         <RadarChart cx="50%" cy="50%" outerRadius="90%" data={data.chartData}>
           <PolarGrid />
           <PolarAngleAxis dataKey="name" />
