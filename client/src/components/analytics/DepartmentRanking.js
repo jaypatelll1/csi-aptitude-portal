@@ -3,10 +3,10 @@ import React from "react";
 const DepartmentRanking = () => {
   //  Dummy data added inside the component itself
   const departmentData = [
-    { rank: "1st", name: "Computer Science" },
-    { rank: "2nd", name: "Information Technology" },
-    { rank: "3rd", name: "Electronics and Telecommunication" },
-    { rank: "4th", name: "Electronics and Computer Science" },
+    { rank: "1st", name: "CMPN" },
+    { rank: "2nd", name: "IT" },
+    { rank: "3rd", name: "EXTC" },
+    { rank: "4th", name: "ECS" },
     { rank: "5th", name: "Electrical" },
   ];
 

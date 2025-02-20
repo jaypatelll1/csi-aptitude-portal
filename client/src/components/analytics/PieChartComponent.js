@@ -5,7 +5,7 @@ const PieChartComponent = ({ data }) => {
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
-      <ResponsiveContainer width={400} height={400}>
+      <ResponsiveContainer width={400} height={320}>
         <PieChart>
           <Pie
             data={data.chartData}
