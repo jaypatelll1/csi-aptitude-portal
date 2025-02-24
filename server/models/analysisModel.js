@@ -175,6 +175,16 @@ const avgResults = async (student_id) => {
   }
 };
 
+async function getStudentRank(student_id) {
+  try {
+    const result = await query(`SELECT * FROM student_rank WHERE student_id=$1;`, [student_id]);
+    return result.rows[0]; 
+  } catch (error) {
+    console.error('Error returning student rank:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
@@ -182,5 +192,6 @@ module.exports = {
   insertStudentAnalysis,
   checkStudentAnalysis,
   generateStudentAnalysis,
-  avgResults
+  avgResults,
+  getStudentRank
 };

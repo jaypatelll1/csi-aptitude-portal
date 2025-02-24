@@ -27,6 +27,7 @@ const tokenRoutes = require('./routes/tokenRoutes');
 const analysisRoutes = require('./routes/analysisRoutes');
 const deptRoutes = require('./routes/deptAnalysisRoutes');
 const tpoRoutes = require('./routes/tpoAnalysisRoutes');
+const rankRoutes = require('./routes/rankRoutes');
 
 // Initialize the app
 const app = express();
@@ -85,6 +86,7 @@ app.use('/api/analysis', jwtAuthMiddleware, analysisRoutes);
 const start_exam = io.of('/exams/start-exam');
 app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
+app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
 
 // Initialize Socket.IO handlers
 initSocketHandlers(start_exam);

@@ -152,11 +152,39 @@ const avgResults = async (req, res) => {
   }
 };
 
+const getStudentRank = async (req, res) => {
+  const student_id = req.user.id;
+
+  try {
+    const result = await analysisModel.getStudentRank(student_id);
+    if (!result) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View Student Rank',
+        status: 'failure',
+        details: 'Student not found',
+      });
+      return res.status(404).json({ message: 'Student not found.' });
+    }
+
+    await logActivity({
+      user_id: student_id,
+      activity: 'View Student Rank',
+      status: 'success',
+      details: 'Rank viewed successfully',
+    });
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
   testCompletion,
   generateStudentAnalysis,
   generateStudentAnalysisUsingId,
-  avgResults
+  avgResults,
+  getStudentRank
 };

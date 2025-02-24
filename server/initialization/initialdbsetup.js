@@ -89,7 +89,6 @@ CREATE TABLE student_rank (
     student_id INT REFERENCES users(user_id) ON DELETE CASCADE,
     department_name branch_enum NOT NULL,
     rank INT NOT NULL,
-    total_students INT NOT NULL, -- Total students in the department
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `;
