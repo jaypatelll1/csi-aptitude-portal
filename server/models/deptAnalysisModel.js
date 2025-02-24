@@ -28,7 +28,7 @@ const getDepartmentAvgScorePerExam = async (department) => {
     [department]
   );
 
-  return result.rows[0];
+  return result.rows;
 };
 
 const getCategoryPerformance = async (department) => {
