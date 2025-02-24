@@ -14,12 +14,13 @@ function Stu_Analytics() {
   const [testCompletionData, setTestCompletionData] = useState(null);
   const [data, setData] = useState([]);
   const [avgData, setAvgData] = useState([]);
+  const [sup, setSup] = useState("");
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
+  const [rankData, setRankData] = useState([]);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const user_id = useSelector((state) => state.user.user.id);
-
 
   const fetchData = async () => {
     try {
@@ -45,6 +46,19 @@ function Stu_Analytics() {
     }
   };
 
+  const fetchRankData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/analysis/rank`;
+      const response = await axios.get(url, { withCredentials: true });
+      // console.log("avg data", response.data.result);
+      setRankData(response.data.result);
+      superscript(response.data.result.rank);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   const fetchCompletionData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
@@ -60,7 +74,6 @@ function Stu_Analytics() {
           { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
         ],
       });
-
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -75,19 +88,20 @@ function Stu_Analytics() {
       fetchData();
       fetchCompletionData();
       fetchAvgData();
+      fetchRankData();
     }
   }, [user_id]);
 
-  const rankData = {
-    title: "Rank Progression",
-    dataKey: "name",
-    chartData: [
-      { name: "Semester 1", rank: 5 },
-      { name: "Semester 2", rank: 3 },
-      { name: "Semester 3", rank: 2 },
-      { name: "Semester 4", rank: 1 },
-    ],
-  };
+  // const rankData = {
+  //   title: "Rank Progression",
+  //   dataKey: "name",
+  //   chartData: [
+  //     { name: "Semester 1", rank: 5 },
+  //     { name: "Semester 2", rank: 3 },
+  //     { name: "Semester 3", rank: 2 },
+  //     { name: "Semester 4", rank: 1 },
+  //   ],
+  // };
 
   const chartData = {
     title: "Performance Over Time",
@@ -96,6 +110,15 @@ function Stu_Analytics() {
       name: exam?.exam_name,
       Percentage: exam?.percentage,
     })),
+  };
+
+  const superscript = (rank) => {
+      const condition = rank % 10;
+      if (condition === 1) setSup("st");
+      else if (condition === 2) setSup("nd");
+      else if (condition === 3) setSup("rd");
+      else setSup("th");
+    
   };
 
   useEffect(() => {
@@ -135,7 +158,9 @@ function Stu_Analytics() {
 
     chartData: (() => {
       // Filter out exams with null/undefined category
-      const validData = data.filter((exam) => exam.category !== null && exam.category !== undefined);
+      const validData = data.filter(
+        (exam) => exam.category !== null && exam.category !== undefined
+      );
 
       // Get a unique set of all subjects across valid exams, ignoring "null" key
       const allSubjects = [
@@ -163,7 +188,9 @@ function Stu_Analytics() {
         ).length;
 
         const averageScore =
-          totalMaxScore > 0 ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2)) : 0;
+          totalMaxScore > 0
+            ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2))
+            : 0;
 
         return {
           name: subject, // Renamed from "subject" to "name" for RadarChart
@@ -181,17 +208,14 @@ function Stu_Analytics() {
     },
   };
 
-
-
-
-
   return (
     <div className="min-h-screen flex bg-gray-100">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-          } transition-transform duration-300 w-64 xl:block shadow-lg`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+        } transition-transform duration-300 w-64 xl:block shadow-lg`}
       >
         <Stu_Sidebar />
       </div>
@@ -215,12 +239,16 @@ function Stu_Analytics() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d={
-                  sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"
+                  sidebarOpen
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
                 }
               />
             </svg>
           </button>
-          <h1 className="text-xl font-semibold text-gray-800 ml-5">Dashboard</h1>
+          <h1 className="text-xl font-semibold text-gray-800 ml-5">
+            Dashboard
+          </h1>
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
@@ -236,13 +264,16 @@ function Stu_Analytics() {
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
             <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
             <span className="text-5xl font-bold text-gray-900 ">
-              25<sup className="text-xl">th</sup>
+              {rankData.rank}
+              <sup className="text-xl">{sup}</sup>
             </span>
           </div>
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 col-span-2">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Overall Score</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Overall Score
+            </h3>
             <LineChartComponent
               data={chartData}
               xAxisKey="name"
@@ -254,10 +285,11 @@ function Stu_Analytics() {
             {/* Accuracy Rate - Donut Chart */}
 
             <div className="bg-white shadow-lg rounded-lg p-6 px-[5vh] flex flex-col items-center border border-gray-200">
-
               <DonutChartComponent data={accuracyData} />
-              <p className="text-2xl font-bold mt-2">{Math.round((correct / total) * 100)}%</p>
-            </div >
+              <p className="text-2xl font-bold mt-2">
+                {Math.round((correct / total) * 100)}%
+              </p>
+            </div>
 
             {/* Subject-wise Performance - Radar Chart */}
             <div className="bg-white shadow-lg rounded-lg p-6 w-[32vw] border border-gray-200">
@@ -270,15 +302,15 @@ function Stu_Analytics() {
 
             {/* Test Completion Rate - Pie Chart */}
             <div className="bg-white shadow-lg rounded-lg p-6 border w-[23vw] border-gray-200">
-
               {testCompletionData ? (
                 <PieChartComponent data={testCompletionData} />
               ) : (
-                <p className="text-center text-gray-500">Loading Test Completion Data...</p>
+                <p className="text-center text-gray-500">
+                  Loading Test Completion Data...
+                </p>
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>
