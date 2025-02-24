@@ -2,13 +2,14 @@ const express = require('express');
 const { registerUser, loginUser, updateUser, deleteUser, getAllPaginatedUsers, verifyResetToken ,resetPassword, sendResetEmail , logout } = require('../controllers/userController');
 const { jwtAuthMiddleware, } = require('../middlewares/jwtAuthMiddleware');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
+const {blockMobileMiddleware}= require ("../middlewares/blockMoblieMiddleware")
 
 const router = express.Router();
 
 
 router.post('/register', jwtAuthMiddleware, authorizeRoles, registerUser);
 
-router.post('/login', loginUser);
+router.post('/login', blockMobileMiddleware,loginUser);
 
 router.get('/', jwtAuthMiddleware, authorizeRoles, getAllPaginatedUsers); 
 router.put('/update/:user_id', jwtAuthMiddleware, authorizeRoles, updateUser);
