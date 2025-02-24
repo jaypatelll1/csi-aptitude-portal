@@ -23,19 +23,24 @@ const exportRoutes = require('./routes/exportRoutes');
 const logger = require('./utils/logger');
 const errorHandler = require('./middlewares/errorHandler');
 const statsRoutes = require('./routes/statsRoutes');
-const tokenRoutes = require("./routes/tokenRoutes")
-const analysisRoutes = require("./routes/analysisRoutes")
-const deptRoutes = require("./routes/deptAnalysisRoutes");
-
+const tokenRoutes = require('./routes/tokenRoutes');
+const analysisRoutes = require('./routes/analysisRoutes');
+const deptRoutes = require('./routes/deptAnalysisRoutes');
+const tpoRoutes = require('./routes/tpoAnalysisRoutes');
 
 // Initialize the app
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-const FRONTEND_ORIGIN = process.env.NODE_ENV === 'production'
-? ['https://csi-aptitude-portal-client.onrender.com', 'http://localhost:3000', 'https://aptitude.csiace.com']
-: ['http://localhost:3000']; // Development also returns an array
+const FRONTEND_ORIGIN =
+  process.env.NODE_ENV === 'production'
+    ? [
+        'https://csi-aptitude-portal-client.onrender.com',
+        'http://localhost:3000',
+        'https://aptitude.csiace.com',
+      ]
+    : ['http://localhost:3000']; // Development also returns an array
 // Local frontend URL
 
 const io = new Server(server, {
@@ -67,7 +72,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/api/users', userRoutes, fileRoutes);
-app.use("/api/token", tokenRoutes)
+app.use('/api/token', tokenRoutes);
 app.use('/api/exams', jwtAuthMiddleware, examRoutes, fileRoutes);
 app.use('/api/exams/questions', jwtAuthMiddleware, questionsRoutes);
 app.use('/api/exams/responses', jwtAuthMiddleware, responseRoutes);
@@ -77,8 +82,9 @@ app.use('/api/export', exportRoutes);
 // app.use('/api/exams', fileRoutes);
 app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 app.use('/api/analysis', jwtAuthMiddleware, analysisRoutes);
-const start_exam = io.of('/exams/start-exam')
-app.use("/api/department-analysis", jwtAuthMiddleware, deptRoutes);
+const start_exam = io.of('/exams/start-exam');
+app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
+app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
 
 // Initialize Socket.IO handlers
 initSocketHandlers(start_exam);
@@ -98,7 +104,7 @@ app.get('/', (req, res) => {
 // Centralized error handling middleware
 app.use(errorHandler);
 
-server.listen(PORT, HOST ,() => {
+server.listen(PORT, HOST, () => {
   console.log(`Server is running at http://${HOST}:${PORT}`);
 });
 

@@ -23,10 +23,12 @@ const fetchDepartmentData = async (req, res, fetchFunction) => {
 
 module.exports = {
   getDepartmentAvgScore: (req, res) => fetchDepartmentData(req, res, deptModel.getDepartmentAvgScore),
+  getDepartmentAvgScorePerExam: (req, res) => fetchDepartmentData(req, res, deptModel.getDepartmentAvgScorePerExam),
   getCategoryPerformance: (req, res) => fetchDepartmentData(req, res, deptModel.getCategoryPerformance),
   getTopPerformer: (req, res) => fetchDepartmentData(req, res, deptModel.getTopPerformer),
   getBottomPerformer: (req, res) => fetchDepartmentData(req, res, deptModel.getBottomPerformer),
   getParticipationRate: (req, res) => fetchDepartmentData(req, res, deptModel.getParticipationRate),
+  getParticipationRatePerExam: (req, res) => fetchDepartmentData(req, res, deptModel.getParticipationRatePerExam),
   getAccuracyRate: (req, res) => fetchDepartmentData(req, res, deptModel.getAccuracyRate),
   // getTimeSpentAnalysis: (req, res) => fetchDepartmentData(req, res, deptModel.getTimeSpentAnalysis),
   getWeakAreas: (req, res) => fetchDepartmentData(req, res, deptModel.getWeakAreas),
