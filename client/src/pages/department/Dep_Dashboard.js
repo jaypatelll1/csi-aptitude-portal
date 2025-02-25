@@ -189,10 +189,10 @@ const Dep_Dashboard = () => {
       </div>
 
       <div className="flex-1 bg-gray-100">
-        <Dep_Navbar />
+      <Dep_Navbar setSidebarOpen={setSidebarOpen} />
 
         <div className="flex items-center justify-between mt-5">
-          <button
+          {/* <button
             className="xl:hidden text-gray-800"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
@@ -214,7 +214,7 @@ const Dep_Dashboard = () => {
                 }
               />
             </svg>
-          </button>
+          </button> */}
           <h1 className="text-2xl font-bold text-gray-700 ml-5">
             Department Dashboard
           </h1>
