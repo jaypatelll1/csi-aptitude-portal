@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import DepartmentRanking from "../../components/analytics/DepartmentRanking";
+
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import Dep_sidebar from "../../components/department/Dep_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import HorizontalBarChartComponent from "../../components/analytics/HorizontalBarChartComponent";
-import AdmLineChartComponent from "../../components/analytics/AdmLineChartComponent";
+import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -18,24 +18,26 @@ function Adm_Analytics() {
     setSelectedDepartment(dept);
   };
 
-  const lineChartData = {
-    title: "Performance Over Time",
+  const departmentPerformanceData = {
+    title: "Department Performance Over Time",
     chartData: [
-      { month: "Jan", score: 70 },
-      { month: "Feb", score: 75 },
-      { month: "Mar", score: 78 },
-      { month: "Apr", score: 80 },
-      { month: "May", score: 85 },
-      { month: "Jun", score: 82 },
-      { month: "Jul", score: 88 },
-      { month: "Aug", score: 90 },
-      { month: "Sep", score: 87 },
-      { month: "Oct", score: 92 },
-      { month: "Nov", score: 95 },
-      { month: "Dec", score: 98 },
+      { date: "2024-01-05", CMPN: 72, EXTC: 58, ECS: 62, ELEC: 49, IT: 80 },
+      { date: "2024-01-10", CMPN: 65, EXTC: 63, ECS: 48, ELEC: 60, IT: 77 },
+      { date: "2024-01-15", CMPN: 78, EXTC: 70, ECS: 55, ELEC: 65, IT: 85 },
+      { date: "2024-01-20", CMPN: 83, EXTC: 66, ECS: 60, ELEC: 55, IT: 78 },
+      { date: "2024-01-25", CMPN: 91, EXTC: 75, ECS: 70, ELEC: 67, IT: 95 },
+      { date: "2024-01-30", CMPN: 88, EXTC: 80, ECS: 52, ELEC: 74, IT: 90 },
+      { date: "2024-02-01", CMPN: 75, EXTC: 82, ECS: 68, ELEC: 58, IT: 88 },
+      { date: "2024-02-05", CMPN: 79, EXTC: 78, ECS: 61, ELEC: 72, IT: 84 },
+      { date: "2024-02-10", CMPN: 93, EXTC: 85, ECS: 66, ELEC: 79, IT: 98 },
+      { date: "2024-02-15", CMPN: 85, EXTC: 70, ECS: 57, ELEC: 68, IT: 90 },
+      { date: "2024-02-20", CMPN: 95, EXTC: 81, ECS: 73, ELEC: 64, IT: 91 },
+      { date: "2024-02-25", CMPN: 89, EXTC: 79, ECS: 60, ELEC: 69, IT: 85 },
+      { date: "2024-03-01", CMPN: 97, EXTC: 88, ECS: 76, ELEC: 82, IT: 99 },
+      { date: "2024-03-05", CMPN: 90, EXTC: 76, ECS: 72, ELEC: 70, IT: 94 },
+      { date: "2024-03-10", CMPN: 99, EXTC: 89, ECS: 65, ELEC: 75, IT: 100 },
     ],
   };
-
   const barChartData = {
     title: "Department Average Score",
     dataKey: "department",
@@ -114,7 +116,7 @@ function Adm_Analytics() {
     <div className="flex-1 w-full bg-gray-100">
       <Dep_Navbar />
 
-      <div className="flex items-center justify-between mt-4">
+      <div className="flex items-center justify-between mt-8">
         <button
           className="xl:hidden text-gray-800"
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -138,10 +140,10 @@ function Adm_Analytics() {
             />
           </svg>
         </button>
-        <h1 className="text-3xl font-bold text-gray-800 ml-60 xl:ml-5">
+        <h1 className="text-3xl font-bold text-gray-800  xl:ml-7 md ">
           Analytics Dashboard
         </h1>
-        <div className="flex justify-center  mt-5 space-x-4 mr-10">
+        <div className="flex justify-center space-x-4 mr-10">
         {departments.map((dept) => (
           <button
             key={dept}
@@ -162,18 +164,18 @@ function Adm_Analytics() {
      
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6 ml-5">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-5 mb-5 ml-5 mr-5">
         {/* Department Average Score */}
         <div className="bg-white p-6 rounded-xl shadow-md col-span-2">
           <BarChartComponent data={barChartData} />
         </div>
         <div className="bg-white p-6 rounded-xl shadow-md col-span-3">
-          <AdmLineChartComponent data={lineChartData} />
+        <MultiLineChartComponent data={departmentPerformanceData} />
         </div>
       </div>
 
       {/* Rankings & Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 mt-6 ml-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5  ml-5 mr-5 ">
         <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
           <DonutChartComponent data={donutChartData} />
         </div>
@@ -183,7 +185,7 @@ function Adm_Analytics() {
       </div>
 
       {/* Performers Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 ml-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h2 className="text-lg font-semibold mb-3">Top Performers</h2>
           <ul>
