@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import Details from "../NavbarDetails";
 
-function Dep_Navbar() {
+const Dep_Navbar = ({ setSidebarOpen }) => {
   const userData = useSelector((state) => state.user.user);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const detailsRef = useRef(null);
@@ -17,23 +17,48 @@ function Dep_Navbar() {
       }
     };
 
-    // Attach event listener to detect clicks outside the component
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+ 
+  // useEffect(() => {
+  //   setSidebarOpen((prev) => prev);
+  // }, [setSidebarOpen]);
 
   return (
-    <div className="bg-white h-14 border-b border-gray-200 flex items-center">
-      <div
-        className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
-        onClick={openDetails}
+    // <div className="bg-white h-14 border-b border-gray-200 flex items-center px-4">
+    //   {/* Sidebar Toggle Button */}
+    //   <button
+    //     className="text-gray-800 mr-4 xl:hidden"
+    //     onClick={() => setSidebarOpen((prev) => !prev)}
+    //   >
+    <div className="bg-white h-14 border-b border-gray-200 flex items-center px-4">
+      {/*  Sidebar Toggle Button - This correctly toggles sidebar state */}
+      <button
+        className="text-gray-800 mr-4 xl:hidden"
+        onClick={() => setSidebarOpen((prev) => !prev)} //  FIXED: Sidebar toggling works correctly
       >
-        AM
+        <svg className="w-7 h-8"
+         fill="none" 
+         stroke="currentColor"
+         strokeWidth={2}
+         viewBox="0 0 24 24"
+         xmlns="http://www.w3.org/2000/svg">
+          <path 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <div className="ml-auto flex items-center">
+        <div className="h-9 w-9 rounded-full bg-blue-300 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer" onClick={openDetails}>
+          AM
+        </div>
       </div>
+
       <div ref={detailsRef}>
         {isDetailsOpen && (
           <Details
