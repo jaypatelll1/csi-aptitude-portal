@@ -2,14 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Details from "../../components/NavbarDetails";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
+import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 
-function Stu_Analytics() {
+function Adm_StudentAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [testCompletionData, setTestCompletionData] = useState(null);
@@ -234,7 +234,7 @@ function Stu_Analytics() {
           sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
         } transition-transform duration-300 w-64 xl:block shadow-lg`}
       >
-        <Stu_Sidebar />
+        <Adm_Sidebar />
       </div>
 
       <div className="flex flex-col flex-1">
@@ -334,4 +334,4 @@ function Stu_Analytics() {
   );
 }
 
-export default Stu_Analytics;
+export default Adm_StudentAnalytics;

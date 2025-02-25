@@ -24,6 +24,8 @@ import Adm_ViewQuestions from "./pages/admin/Adm_ViewQuestions";
 import Adm_StudentList from "./pages/admin/Adm_StudentList";
 import Adm_TestStudentList from "./pages/admin/Adm_TestStudentList";
 import Adm_Analytics from "./pages/admin/Adm_Analytics";
+import Adm_StudentAnalysis from "./pages/admin/Adm_StudentAnalysis";
+import Adm_StudentAnalytics from "./pages/admin/Adm_StudentAnalytics";
 
 import Dep_Dashboard from "./pages/department/Dep_Dashboard";
 import Dep_CreateTestForm from "./pages/department/Dep_CreateTestForm";
@@ -41,6 +43,7 @@ import Stu_Result from "./pages/student/Stu_Result";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
+
 
 
 
@@ -86,7 +89,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/analytics"
+        path="/analytics/:user_id"
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <Stu_Analytics />
@@ -189,6 +192,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_Analytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/student-analysis"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_StudentAnalysis />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/student-analytics/:user_id"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_StudentAnalytics />
           </ProtectedRoute>
         }
       />

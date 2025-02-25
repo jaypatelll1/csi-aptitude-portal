@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-
-import Dep_Navbar from "../../components/department/Dep_Navbar";
-import Dep_sidebar from "../../components/department/Dep_Sidebar";
+import DepartmentRanking from "../../components/analytics/DepartmentRanking";
+import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
@@ -109,12 +109,12 @@ function Adm_Analytics() {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
     >
-      <Dep_sidebar />
+      <Adm_Sidebar />
     </div>
 
     {/* Main Content */}
     <div className="flex-1 w-full bg-gray-100">
-      <Dep_Navbar />
+      <Adm_Navbar />
 
       <div className="flex items-center justify-between mt-8">
         <button
