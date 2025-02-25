@@ -153,7 +153,8 @@ const avgResults = async (req, res) => {
 };
 
 const getStudentRank = async (req, res) => {
-  const student_id = req.user.id;
+  const {student_id} = req.params;
+
 
   try {
     const result = await analysisModel.getStudentRank(student_id);
