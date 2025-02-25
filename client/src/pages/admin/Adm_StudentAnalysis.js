@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from "../../components/admin/Adm_Filter";
-import AddStudent from "../../components/admin/Adm_AddStudent";
-import EditStudent from "../../components/admin/Adm_EditStudent";
-import UploadModal from "../../upload/UploadModal";
+
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import { useNavigate } from "react-router-dom";
 
@@ -434,21 +432,6 @@ const Adm_StudentAnalysis = () => {
             </svg>
           </div>
         </div>
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <AddStudent closeModal={closeModal} />
-          </div>
-        )}
-        {isEditModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <EditStudent
-              isEditModalOpen={isEditModalOpen}
-              closeEditModal={closeEditModal}
-              student={selectedStudent}
-              counter={deletedUsersCounter}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

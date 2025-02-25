@@ -160,7 +160,7 @@ const Dep_sidebar = () => {
               <Link to="/department/analytics">Branch Analytics</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/department/student-analytics">Student Analysis</Link>
+              <Link to="/department/student-analysis">Student Analysis</Link>
             </li>
           </ul>
         )}

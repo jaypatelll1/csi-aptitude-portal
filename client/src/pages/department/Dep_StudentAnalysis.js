@@ -3,6 +3,8 @@ import axios from "axios";
 import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 
 const Dep_StudentAnalysis = () => {
   const [students, setStudents] = useState([]);
@@ -13,6 +15,13 @@ const Dep_StudentAnalysis = () => {
   const [limit] = useState(20);
   const [numberofpages, setNumberofpages] = useState(1);
   const currentUser = useSelector((state) => state.user.user);
+  const navigate = useNavigate();
+
+
+
+  const handleAnalyticsClick = (user_id) => {
+    navigate(`/department/student-analytics/${user_id}`);
+  };
 
   const handleSearch = (e) => {
     setPage(1);
@@ -144,8 +153,15 @@ const Dep_StudentAnalysis = () => {
                     <td className="py-4 px-4">{student.name}</td>
                     <td className="py-4 px-4">{student.department || "N/A"}</td>
                     <td className="py-4 px-4 text-center">
-                      <button className="hover:scale-110 transition-transform">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <button onClick={ (e) => handleAnalyticsClick(student.user_id)} className="p-2">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
                           <path d="M7 17l9.2-9.2M17 17V8h-9" />
                         </svg>
                       </button>
