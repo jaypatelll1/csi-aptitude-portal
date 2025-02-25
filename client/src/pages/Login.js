@@ -72,6 +72,9 @@ const Login = () => {
       else if(err.response.data.error === 'User not found'){
         setError("User Not Found!")
       }
+      else if (err.response.status === 403) {
+        setError("Login through desktop");
+      }
       else{
       setError("An error occurred during login. Please try again.");
       }
@@ -81,7 +84,7 @@ const Login = () => {
   };
 
   return (
-    <div className="hidden md:block">
+    <div className="block">
       <div className="flex sm:flex-row  h-screen relative">
         <img
           src={ace}

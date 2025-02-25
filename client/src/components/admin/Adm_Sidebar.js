@@ -161,7 +161,7 @@ const Adm_Sidebar = () => {
               <Link to="/admin/analytics">Branch Analytics</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/admin/student-analytics">Student Analysis</Link>
+              <Link to="/admin/student-analysis">Student Analysis</Link>
             </li>
           </ul>
         )}

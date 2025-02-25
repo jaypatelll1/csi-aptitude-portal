@@ -6,6 +6,9 @@ import AddStudent from "../../components/admin/Adm_AddStudent";
 import EditStudent from "../../components/admin/Adm_EditStudent";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import { useNavigate } from "react-router-dom";
+
+
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_StudentAnalysis = () => {
@@ -26,6 +29,14 @@ const Adm_StudentAnalysis = () => {
   const [ModalOpen, setModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const navigate = useNavigate();
+
+  
+
+
+  const handleAnalyticsClick = (user_id) => {
+    navigate(`/admin/student-analytics/${user_id}`);
+  };
 
   //    Handle file change and validate file type
   const handleFileChange = (event) => {
@@ -64,7 +75,7 @@ const Adm_StudentAnalysis = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-     
+
       let response = await axios.post(
         `${API_BASE_URL}/api/users/upload`,
         formData,
@@ -78,19 +89,18 @@ const Adm_StudentAnalysis = () => {
 
       console.log("Response:", response.data); // You can inspect the response
 
-      if (response.data.status === 'success') {
+      if (response.data.status === "success") {
         console.log("File processed successfully");
 
         // If there are warnings, display them to the user
         if (response.data.warnings && response.data.warnings.length > 0) {
-            alert(`Warnings:\n${response.data.warnings.join('\n')}`);
+          alert(`Warnings:\n${response.data.warnings.join("\n")}`);
         } else {
-            alert('No warnings, data processed successfully.');
+          alert("No warnings, data processed successfully.");
         }
-        
-    } else {
+      } else {
         alert(`Error: ${response.data.message}`);
-    }
+      }
       alert("File uploaded successfully!"); // Notify the user of success
       setModalOpen(false); // Close modal after successful upload
     } catch (error) {
@@ -216,13 +226,6 @@ const Adm_StudentAnalysis = () => {
   const openEditModal = () => setIsEditModalOpen(true);
   const closeEditModal = () => setIsEditModalOpen(false);
 
-  const handleEditOpen = (student) => {
-    return () => {
-      console.log("hehe", student);
-      setSelectedStudent(student);
-      openEditModal();
-    };
-  };
   useEffect(() => {
     // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {
@@ -290,22 +293,29 @@ const Adm_StudentAnalysis = () => {
               Students Wise Analysis
             </h1>
             <div className="flex ml-auto">
-            <div className="flex items-center gap-4 mr-5">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  placeholder="Search here"
-                  className="pl-10 pr-4 py-2 border rounded-lg w-64"
-                />
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
+              <div className="flex items-center gap-4 mr-5">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    placeholder="Search here"
+                    className="pl-10 pr-4 py-2 border rounded-lg w-64"
+                  />
+                  <svg
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </div>
               </div>
-              
-            </div>
               <div className="relative">
                 <div
                   id="filterButton"
@@ -351,19 +361,29 @@ const Adm_StudentAnalysis = () => {
               {filteredStudents
                 .slice((page - 1) * limit, page * limit)
                 .map((student) => (
-                  <tr key={student.user_id} className="border-b hover:bg-gray-50">
+                  <tr
+                    key={student.user_id}
+                    className="border-b hover:bg-gray-50"
+                  >
                     <td className="py-4 px-4">{student.user_id}</td>
                     <td className="py-4 px-4">{student.name}</td>
                     <td className="py-4 px-4">{student.department || "N/A"}</td>
                     <td className="py-4 px-4 text-center">
-                      <button className="hover:scale-110 transition-transform">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <button onClick={ (e) => handleAnalyticsClick(student.user_id)} className="p-2">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
                           <path d="M7 17l9.2-9.2M17 17V8h-9" />
                         </svg>
                       </button>
                     </td>
                   </tr>
-              ))}
+                ))}
             </tbody>
           </table>
           <div className="flex justify-center items-center mt-5">
