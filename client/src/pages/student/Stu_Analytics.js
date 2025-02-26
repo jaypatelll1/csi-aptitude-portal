@@ -109,17 +109,6 @@ function Stu_Analytics() {
     }
   }, [user_id]);
 
-  // const rankData = {
-  //   title: "Rank Progression",
-  //   dataKey: "name",
-  //   chartData: [
-  //     { name: "Semester 1", rank: 5 },
-  //     { name: "Semester 2", rank: 3 },
-  //     { name: "Semester 3", rank: 2 },
-  //     { name: "Semester 4", rank: 1 },
-  //   ],
-  // };
-
   const chartData = {
     title: "Performance Over Time",
     color: "#0703fc",
@@ -199,11 +188,6 @@ function Stu_Analytics() {
             sum + (parseFloat(exam.category[subject]?.max_score) || 0),
           0
         );
-
-        const attemptedExams = validData.filter(
-          (exam) => subject in exam.category
-        ).length;
-
         const averageScore =
           totalMaxScore > 0
             ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2))

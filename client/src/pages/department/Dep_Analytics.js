@@ -1,78 +1,186 @@
-import React, { useState, useRef,useEffect } from "react";
-import DepartmentRanking from "../../components/analytics/DepartmentRanking";
+import React, { useState, useRef, useEffect } from "react";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import Dep_sidebar from "../../components/department/Dep_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
-import HorizontalBarChartComponent from "../../components/analytics/HorizontalBarChartComponent";
+import axios from "axios";
+import PieChartComponent from "../../components/analytics/PieChartComponent";
+import { useSelector } from "react-redux";
 
 function Dep_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
+  const [avgData, setAvgData] = useState([]);
+  const [accuracyData, setAccuracyData] = useState([]);
+  const [categoryWiseData, setCategoryWiseData] = useState([]);
+  const [topPerformers, setTopPerformers] = useState([]);
+  const [bottomPerformers, setBottomPerformers] = useState([]);
+  const [participationRate, setParticipationRate] = useState([]);
+  const user_department = useSelector((state) => state.user.user.department);
+
+  const fetchAvgData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/department-analysis/average-score-per-exam/${user_department}`;
+      const response = await axios.get(url, { withCredentials: true });
+      setAvgData(response.data.slice(0, 5));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchAccuracyData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/tpo-analysis/accuracy-per-dept`;
+      const response = await axios.get(url, { withCredentials: true });
+      setAccuracyData(response.data.results);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchCategoryWiseData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/department-analysis/category-performance/${user_department}`;
+      const response = await axios.get(url, { withCredentials: true });
+      setCategoryWiseData(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchTopPerformersData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/department-analysis/top-performer/${user_department}`;
+      const response = await axios.get(url, { withCredentials: true });
+      setTopPerformers(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchBottomPerformersData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/department-analysis/bottom-performer/${user_department}`;
+      const response = await axios.get(url, { withCredentials: true });
+      setBottomPerformers(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchParticipationRateData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/department-analysis/participation-rate/${user_department}`;
+      const response = await axios.get(url, { withCredentials: true });
+      setParticipationRate(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  // console.log(user_department);
+  // console.log("avgData", avgData);
+  // console.log("accuracyData", accuracyData);
+  // console.log("categoryWiseData", categoryWiseData);
+  // console.log("topPerformers", topPerformers);
+  // console.log("bottomPerformers", bottomPerformers);
+  // console.log("participationRate", participationRate);
+
+  useEffect(() => {
+    fetchAvgData();
+    fetchAccuracyData();
+    fetchCategoryWiseData();
+    fetchTopPerformersData();
+    fetchBottomPerformersData();
+    fetchParticipationRateData();
+  }, [user_department]);
 
   const barChartData = {
-    title: "Department Average Score",
+    title: "Department Exam  Average Score",
     dataKey: "department",
-    chartData: [
-      { department: "CMPN", rank: 75 },
-      { department: "INFT", rank: 85 },
-      { department: "EXTC", rank: 90 },
-      { department: "ECS", rank: 65 },
-      { department: "ELEC", rank: 50 },
-    ],
+    chartData: avgData.map((department) => ({
+      department: department?.exam_name,
+      score: department?.average_score,
+    })),
   };
 
+  const filteredAccuracyData = accuracyData
+    .filter((department) => department?.department_name === user_department)
+    .flatMap((department) => [
+      {
+        name: "Correct",
+        value: Number(department?.accuracy_rate),
+        fill: "#4CAF50",
+      },
+      {
+        name: "Wrong",
+        value: 100 - Number(department?.accuracy_rate),
+        fill: "#F44336",
+      },
+    ]);
+
+  // If filteredData is empty, use default values
   const donutChartData = {
     title: "Accuracy Rate",
-    chartData: [
-      { name: "Correct", value: 65, fill: "#4CAF50" },
-      { name: "Wrong", value: 35, fill: "#F44336" },
-    ],
+    chartData:
+      filteredAccuracyData.length > 0
+        ? filteredAccuracyData
+        : [
+            { name: "Correct", value: 0, fill: "#4CAF50" },
+            { name: "Wrong", value: 100, fill: "#F44336" },
+          ],
   };
 
-  const horizontalBarChartData = {
+  const participationRateData = {
     title: "Participation Rate",
-    yKey: "category",
-    xKey: ["value"],
-    colors: { value: "#1349C5" },
     chartData: [
-      { category: "Total Students", value: 1000 },
-      { category: "Participated Students", value: 754 },
-      { category: "Not Participated Students", value: 246 },
+      {
+        name: "Participated",
+        value: Number(participationRate[0]?.participation_rate) || 0,
+        fill: "#1349C5",
+      },
+      {
+        name: "Not Participated",
+        value: 100 - Number(participationRate[0]?.participation_rate) || 100,
+        fill: "#6F91F0",
+      },
     ],
   };
 
   const radarChartData = {
     title: "Subject-wise Performance",
-    chartData: [
-      { name: "Technical", yourScore: 70, average: 65, maxMarks: 100 },
-      { name: "General Aptitude", yourScore: 80, average: 72, maxMarks: 100 },
-      { name: "Logical Reasoning", yourScore: 60, average: 68, maxMarks: 100 },
-      {
-        name: "Quantitative Analysis",
-        yourScore: 75,
-        average: 70,
-        maxMarks: 100,
-      },
-      { name: "Verbal Analysis", yourScore: 85, average: 78, maxMarks: 100 },
-    ],
+    chartData: categoryWiseData
+      .filter(
+        (category) =>
+          category?.category != null && category?.category !== "null"
+      )
+      .map((category) => ({
+        name: category?.category,
+        yourScore: Number(category?.average_category_score),
+        maxMarks: Number(category?.max_category_score) || 0,
+      })),
   };
 
-   useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-          setSidebarOpen(false);
-        }
-      };
-  
-      document.addEventListener("mousedown", handleClickOutside);
-  
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, []);
-  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex overflow-x-hidden bg-white">
@@ -134,10 +242,6 @@ function Dep_Analytics() {
 
         {/* Rankings & Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-6 ml-5">
-          {/* Department Ranking */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <DepartmentRanking data={["CMPN", "INFT", "EXTC", "ECS", "ELEC"]} />
-          </div>
 
           {/* Accuracy Rate */}
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
@@ -146,7 +250,7 @@ function Dep_Analytics() {
 
           {/* Participation Rate */}
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <HorizontalBarChartComponent data={horizontalBarChartData} />
+            <PieChartComponent data={participationRateData} />
           </div>
         </div>
 
@@ -155,15 +259,9 @@ function Dep_Analytics() {
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-lg font-semibold mb-3">Top Performers</h2>
             <ul>
-              {[
-                "Jaydeep Joshi",
-                "Rohan Mehta",
-                "Aditi Sharma",
-                "Nikhil Patel",
-                "Sanya Singh",
-              ].map((name, index) => (
+              {topPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">
-                  {index + 1}. {name}
+                  {name?.rank}. {name?.student_name}
                 </li>
               ))}
             </ul>
@@ -172,13 +270,11 @@ function Dep_Analytics() {
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-lg font-semibold mb-3">Bottom Performers</h2>
             <ul>
-              {["Student A", "Student B", "Student C", "Student D", "Student E"].map(
-                (name, index) => (
-                  <li key={index} className="border-b py-2 text-gray-700">
-                    {index + 96}. {name}
-                  </li>
-                )
-              )}
+              {bottomPerformers.map((name, index) => (
+                <li key={index} className="border-b py-2 text-gray-700">
+                  {name?.rank}. {name?.student_name}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

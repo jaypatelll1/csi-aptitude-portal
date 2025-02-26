@@ -3,9 +3,17 @@ const { query } = require('../config/db');
 const getDeptAvgScores = async () => {
   try {
     const result = await query(`
-        SELECT department_name, ROUND(AVG(total_score)::NUMERIC, 2) AS avg_score
-        FROM student_analysis
-        GROUP BY department_name
+        WITH all_departments AS (
+            SELECT unnest(enum_range(NULL::branch_enum)) AS department_name
+        )
+        SELECT 
+            department_name,
+            COALESCE((
+                SELECT ROUND(AVG(total_score)::NUMERIC, 2) 
+                FROM student_analysis 
+                WHERE student_analysis.department_name = d.department_name
+            ), 0) AS avg_score
+        FROM all_departments d
         ORDER BY avg_score DESC;
         `);
     return result.rows;

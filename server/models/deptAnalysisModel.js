@@ -23,7 +23,8 @@ const getDepartmentAvgScorePerExam = async (department) => {
            ROUND(AVG(total_score)::NUMERIC, 2) AS average_score
     FROM student_analysis
     WHERE department_name = $1
-    GROUP BY exam_id, exam_name, department_name;
+    GROUP BY exam_id, exam_name, department_name
+    ORDER BY average_score DESC;
   `,
     [department]
   );
@@ -35,32 +36,53 @@ const getCategoryPerformance = async (department) => {
   const result = await pool.query(
     `
     SELECT 
-    department_name AS department,
-    jsonb_each.key AS category,
-    ROUND(AVG((jsonb_each.value->>'score')::FLOAT)::NUMERIC, 2) AS average_category_score
-FROM student_analysis,
-LATERAL jsonb_each(category::jsonb)  
-WHERE department_name = $1
-GROUP BY department_name, jsonb_each.key;
+        department_name AS department,
+        jsonb_each.key AS category,
+        ROUND(AVG((jsonb_each.value->>'score')::FLOAT)::NUMERIC, 2) AS average_category_score,
+        MAX((jsonb_each.value->>'score')::FLOAT)::NUMERIC AS max_category_score
+    FROM student_analysis,
+    LATERAL jsonb_each(category::jsonb)  
+    WHERE department_name = $1
+    GROUP BY department_name, jsonb_each.key;
   `,
     [department]
   );
-
+  if (result.rows.length === 0) {
+    return [
+      {
+        department: department,
+        category: 'general knowledge',
+        average_category_score: '0',
+      },
+      {
+        department: department,
+        category: 'quantitative aptitude',
+        average_category_score: '0',
+      },
+      {
+        department: department,
+        category: 'logical reasoning',
+        average_category_score: '0',
+      },
+      {
+        department: department,
+        category: 'technical',
+        average_category_score: '0',
+      },
+      {
+        department: department,
+        category: 'verbal ability',
+        average_category_score: '0',
+      },
+    ];
+  }
   return result.rows;
 };
 
 // 3. Top Performer (Overall Best in Department)
 const getTopPerformer = async (department) => {
   const result = await pool.query(
-    `
-    SELECT student_id, student_name, department_name AS department, 
-           AVG(total_score) AS overall_average_score
-    FROM student_analysis
-    WHERE department_name = $1
-    GROUP BY student_id, student_name, department_name
-    ORDER BY overall_average_score DESC
-    LIMIT 5;
-  `,
+    `SELECT * FROM public.student_rank WHERE department_name=$1 ORDER BY rank ASC LIMIT 5`,
     [department]
   );
 
@@ -70,15 +92,13 @@ const getTopPerformer = async (department) => {
 // 4. Bottom Performer (Overall Weakest in Department)
 const getBottomPerformer = async (department) => {
   const result = await pool.query(
-    `
-    SELECT student_id, student_name, department_name AS department, 
-           AVG(total_score) AS overall_average_score
-    FROM student_analysis
-    WHERE department_name = $1
-    GROUP BY student_id, student_name, department_name
-    ORDER BY overall_average_score ASC
-    LIMIT 5;
-  `,
+    `SELECT * FROM (
+        SELECT * FROM public.student_rank 
+        WHERE department_name = $1
+        ORDER BY rank DESC 
+        LIMIT 5
+    ) AS subquery
+    ORDER BY rank ASC;`,
     [department]
   );
 
@@ -102,8 +122,17 @@ const getParticipationRate = async (department) => {
   `,
     [department]
   );
-
-  return result.rows[0];
+  if (result.rows.length === 0) {
+    return [
+      {
+        department: department,
+        students_attempted: '0',
+        total_students: null,
+        participation_rate: '0',
+      },
+    ];
+  }
+  return result.rows;
 };
 const getParticipationRatePerExam = async (department) => {
   const result = await pool.query(
@@ -124,7 +153,6 @@ const getParticipationRatePerExam = async (department) => {
   `,
     [department]
   );
-
   return result.rows;
 };
 
