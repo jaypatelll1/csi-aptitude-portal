@@ -185,6 +185,27 @@ async function getStudentRank(student_id) {
   }
 }
 
+async function getPerformanceOverTime(student_id) {
+  try {
+    const result = await query(` SELECT 
+ 		sa.student_id,
+          sa.exam_id, 
+          sa.exam_name, 
+          sa.department_name AS department, 
+          ROUND(AVG(sa.total_score)::NUMERIC, 2) AS average_score,
+          TO_CHAR(e.created_at, 'YYYY-MM-DD') AS created_on
+      FROM student_analysis sa
+      JOIN exams e ON sa.exam_id = e.exam_id
+    WHERE student_id = $1
+      GROUP BY sa.student_id, sa.exam_id, sa.exam_name, sa.department_name, e.created_at
+      ORDER BY sa.student_id, e.created_at ASC;  -- Order by exam creation date to analyze trends`, [student_id]);
+    return result.rows; 
+  } catch (error) {
+    console.error('Error returning student rank:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
@@ -193,5 +214,6 @@ module.exports = {
   checkStudentAnalysis,
   generateStudentAnalysis,
   avgResults,
-  getStudentRank
+  getStudentRank,
+  getPerformanceOverTime
 };

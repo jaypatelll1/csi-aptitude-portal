@@ -155,7 +155,6 @@ const avgResults = async (req, res) => {
 const getStudentRank = async (req, res) => {
   const {student_id} = req.params;
 
-
   try {
     const result = await analysisModel.getStudentRank(student_id);
     if (!result) {
@@ -180,6 +179,33 @@ const getStudentRank = async (req, res) => {
   }
 };
 
+const getPerformanceOverTime = async (req, res) => {
+  const {student_id} = req.params;
+
+  try {
+    const result = await analysisModel.getPerformanceOverTime(student_id);
+    if (!result) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View Student Performance',
+        status: 'failure',
+        details: 'Student Performance not found',
+      });
+      return res.status(404).json({ message: 'Student Performance not found.' });
+    }
+
+    await logActivity({
+      user_id: student_id,
+      activity: 'View Student Performance',
+      status: 'success',
+      details: 'Student Performance viewed successfully',
+    });
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
@@ -187,5 +213,6 @@ module.exports = {
   generateStudentAnalysis,
   generateStudentAnalysisUsingId,
   avgResults,
-  getStudentRank
+  getStudentRank,
+  getPerformanceOverTime
 };

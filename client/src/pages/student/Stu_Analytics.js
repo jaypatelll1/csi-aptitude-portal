@@ -15,6 +15,7 @@ function Stu_Analytics() {
   const [testCompletionData, setTestCompletionData] = useState(null);
   const [data, setData] = useState([]);
   const [avgData, setAvgData] = useState([]);
+  const [performanceData, setPerformanceData] = useState([]);
   const [sup, setSup] = useState("");
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
@@ -22,7 +23,7 @@ function Stu_Analytics() {
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   // const user_id = useSelector((state) => state.user.user.id);
-    const { user_id } = useParams();
+  const { user_id } = useParams();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,14 +38,14 @@ function Stu_Analytics() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   const fetchData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
       // console.log(response.data);
-      setData(response.data.results);
+      setData(response.data.results.slice(0, 5));
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -96,6 +97,17 @@ function Stu_Analytics() {
     }
   };
 
+  const fetchPerformanceOverTimeData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/analysis/performance-over-time/${user_id}`;
+      const response = await axios.get(url, { withCredentials: true });
+      setPerformanceData(response.data.result)
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   // console.log(data);
   // console.log("testData", testCompletionData);
   // console.log("avgData", avgData);
@@ -106,25 +118,38 @@ function Stu_Analytics() {
       fetchCompletionData();
       fetchAvgData();
       fetchRankData();
+      fetchPerformanceOverTimeData();
     }
   }, [user_id]);
+
+  // Step 1: Extract unique dates & filter out undefined values
+  const uniqueDates = [
+    ...new Set(performanceData.map((entry) => entry.created_on).filter(Boolean)),
+  ];
+
+  // Step 2: Sort dates in ascending order
+  uniqueDates.sort((a, b) => new Date(a) - new Date(b));
+
+  // Step 3: Merge data while ensuring missing dates have a default value
+  const studentData = uniqueDates.map((date) => ({
+    date,
+    score:
+      performanceData.find((entry) => entry.created_on === date)?.average_score || 0, // Default 0 if missing
+  }));
+  console.log(studentData)
 
   const chartData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: data.map((exam) => ({
-      name: exam?.exam_name,
-      Percentage: exam?.percentage,
-    })),
+    chartData: studentData
   };
 
   const superscript = (rank) => {
-      const condition = rank % 10;
-      if (condition === 1) setSup("st");
-      else if (condition === 2) setSup("nd");
-      else if (condition === 3) setSup("rd");
-      else setSup("th");
-    
+    const condition = rank % 10;
+    if (condition === 1) setSup("st");
+    else if (condition === 2) setSup("nd");
+    else if (condition === 3) setSup("rd");
+    else setSup("th");
   };
 
   useEffect(() => {
@@ -196,7 +221,7 @@ function Stu_Analytics() {
         return {
           name: subject, // Renamed from "subject" to "name" for RadarChart
           yourScore: totalScore, // Total score for this subject across exams
-          average: averageScore, // Converted back to number
+          averagePercentage: averageScore, // Converted back to number
           maxMarks: totalMaxScore, // Total max marks possible
         };
       });
@@ -247,7 +272,7 @@ function Stu_Analytics() {
               />
             </svg>
           </button>
-          
+
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
@@ -256,12 +281,16 @@ function Stu_Analytics() {
           </div>
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">Analytics</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">
+          Analytics
+        </h1>
         {/* Dashboard Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
           {/* Rank Display */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
-            <h2 className="text-gray-700 mt-24 text-lg font-medium">Your Rank</h2>
+            <h2 className="text-gray-700 mt-24 text-lg font-medium">
+              Your Rank
+            </h2>
             <span className="text-5xl  font-bold text-gray-900">
               {rankData.rank}
               <sup className="text-xl">{sup}</sup>
@@ -270,9 +299,6 @@ function Stu_Analytics() {
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-              Overall Score
-            </h3>
             <div className="w-full">
               <LineChartComponent
                 data={chartData}
@@ -308,7 +334,9 @@ function Stu_Analytics() {
             {testCompletionData ? (
               <PieChartComponent data={testCompletionData} />
             ) : (
-              <p className="text-center text-gray-500">Loading Test Completion Data...</p>
+              <p className="text-center text-gray-500">
+                Loading Test Completion Data...
+              </p>
             )}
           </div>
         </div>

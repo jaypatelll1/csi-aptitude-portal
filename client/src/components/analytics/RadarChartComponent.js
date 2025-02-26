@@ -17,7 +17,7 @@ const RadarChartComponent = ({ data }) => {
           <Tooltip />
           {/* Multiple Radar components to display all values */}
           <Radar dataKey="yourScore" stroke="#1349C5" fill="#1349C5" fillOpacity={0.6} />
-          <Radar dataKey="average" stroke="#6A88F7" fill="#6A88F7" fillOpacity={0.4} />
+          <Radar dataKey="averagePercentage" stroke="#6A88F7" fill="#6A88F7" fillOpacity={0.4} />
           <Radar dataKey="maxMarks" stroke="#D3D3D3" fill="#D3D3D3" fillOpacity={0.3} />
         </RadarChart>
       </ResponsiveContainer>
