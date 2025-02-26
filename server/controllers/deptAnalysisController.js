@@ -1,7 +1,7 @@
 const deptModel = require("../models/deptAnalysisModel");
 
 const fetchDepartmentData = async (req, res, fetchFunction) => {
-  const { department } = req.body;
+  const { department } = req.params;
   if (!department) {
     return res.status(400).json({ error: "Department is required" });
   }

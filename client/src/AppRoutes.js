@@ -43,6 +43,7 @@ import Stu_Result from "./pages/student/Stu_Result";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
+import Dep_StudentAnalytics from "./pages/department/Dep_StudentAnalytics";
 
 
 
@@ -303,10 +304,18 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/department/student-analytics"
+        path="/department/student-analysis"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
             <Dep_StudentAnalysis />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/student-analytics/:user_id"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+            <Dep_StudentAnalytics />
           </ProtectedRoute>
         }
       />
