@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const Dep_sidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
   const [showAnalyticsSubmenu, setShowAnalyticsSubmenu] = useState(false);
-  // console.log('testdata is ', testsData);
+
 
   const toggleSubmenu = () => {
     setShowSubmenu(!showSubmenu);

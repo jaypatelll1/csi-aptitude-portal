@@ -44,7 +44,7 @@ const Dep_AddStudent = ({ closeModal }) => {
                     withCredentials: true
                 }
             );
-            console.log("Student registered successfully:", response.data);
+            
             alert("Student registered successfully!");
             closeModal(); // Close modal after successful registration
         } catch (error) {

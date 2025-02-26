@@ -18,14 +18,14 @@ const Dep_ScheduledTestCard = ({ test }) => {
     if (isPublishing) return; // Prevent multiple requests
     setIsPublishing(true);
     try {
-      console.log("Clicked test ID:", test.exam_id);
+    
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.put(
         `${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,
         {},
         { withCredentials: true }
       );
-      console.log("Response from server:", response.data);
+     
       window.location.reload();
     } catch (error) {
       console.error("Error during POST request:", error);

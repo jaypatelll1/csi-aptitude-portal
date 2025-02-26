@@ -78,11 +78,10 @@ const Dep_StudentList = () => {
         }
       );
 
-      console.log("Response:", response.data); // You can inspect the response
+      
 
       if (response.data.status === 'success') {
-        console.log("File processed successfully");
-
+        
         // If there are warnings, display them to the user
         if (response.data.warnings && response.data.warnings.length > 0) {
             alert(`Warnings:\n${response.data.warnings.join('\n')}`);
@@ -227,8 +226,7 @@ const Dep_StudentList = () => {
 
   const handleEditOpen = (student) => {
     return () => {
-      console.log("hehe", student);
-      setSelectedStudent(student);
+     setSelectedStudent(student);
       openEditModal();
     };
   };

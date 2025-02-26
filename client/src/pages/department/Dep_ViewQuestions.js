@@ -17,7 +17,7 @@ const Dep_ViewQuestions = () => {
   const [testDuration, setTestDuration] = useState();
   const sidebarRef = useRef(null);
   let examId = useSelector((state) => state.exam.examId);
-  // console.log("exam_id is ", examId);
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -34,8 +34,7 @@ const Dep_ViewQuestions = () => {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
         );
-        console.log("Fetched Questions:", response.data);
-
+        
         setQuestions(response.data || []);
       } catch (err) {
         setError(err.message || "Error fetching questions");
@@ -55,8 +54,7 @@ const Dep_ViewQuestions = () => {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
         );
-        console.log("respnose is ", response);
-
+       
         setTestDuration(response.data.exam.duration);
       } catch (err) {
         console.error("Error fetching test duration:", err.message);
@@ -128,13 +126,13 @@ const Dep_ViewQuestions = () => {
   };
 
   const handleDelete = async () => {
-    console.log("exam id is ", examId);
+   
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
     const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
-    console.log("response is ", response);
+    
     navigate("/department/createtest");
   };
 

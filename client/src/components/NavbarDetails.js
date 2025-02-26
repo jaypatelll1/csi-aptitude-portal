@@ -9,7 +9,7 @@ import { clearQuestions } from "../redux/questionSlice";
 const NavbarDetails = () => {
   let user = useSelector((state) => state.user.user);
   let examId = useSelector((state) => state.exam.examId);
-  // console.log("user is ", user);
+  
 
   const navigate = useNavigate();
   const dispatch = useDispatch();

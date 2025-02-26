@@ -22,8 +22,7 @@ const Dep_TestStudentList = () => {
   const duration = location.state?.duration;
   const examId = location.state?.examId;
 
-  console.log("Initial userData:", name);
-  //   console.log("Exam Duration:", duration);
+ 
 
   // Function to handle CSV download
   const handleExportCSV = async () => {
@@ -83,7 +82,7 @@ const Dep_TestStudentList = () => {
     setPage(1);
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    console.log("search is ", searchTerm);
+    
 
     const searchResults = term
       ? students.filter(
@@ -118,7 +117,7 @@ const Dep_TestStudentList = () => {
          
         );
         const data = response.data.response;
-        console.log("data ", data);
+        
 
         // Ensure data is an array
         const normalizedData = Array.isArray(data) ? data : data ? [data] : [];

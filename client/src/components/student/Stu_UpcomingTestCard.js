@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
 const Stu_UpcomingTestCard = ({ test }) => {
-  // console.log('test is ',test);
+
 
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
@@ -17,8 +17,7 @@ const Stu_UpcomingTestCard = ({ test }) => {
 
 
   const examId = test.exam_id;
-  // console.log('examid is ',test);
-
+ 
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -36,16 +35,13 @@ const Stu_UpcomingTestCard = ({ test }) => {
 
   const handlePublishClick = async (test) => {
     try {
-
       // Log the ID
-      // console.log('Clicked test ID:', test.exam_id);
-
-
+     
       const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,{
         withCredentials: true,  // Make sure the cookie is sent with the request
     });
 
-      // console.log('Response from server:', response.data);
+     
       window.location.reload();
 
 

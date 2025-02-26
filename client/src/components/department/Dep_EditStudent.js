@@ -36,7 +36,7 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
         newStudent,
         { withCredentials: true }
       );
-      console.log("Student updated successfully:", response.data);
+      
       alert("Student updated successfully!");
       closeEditModal();
     } catch (error) {
@@ -52,7 +52,7 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
         `${API_BASE_URL}/api/users/delete/${user_id}`,
         { withCredentials: true }
       );
-      console.log("Student deleted successfully:", response.data);
+     
       alert("Student deleted successfully!");
       counter();
       closeEditModal();
@@ -70,7 +70,7 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
         { student },
         { withCredentials: true }
       );
-      console.log("Student reset successfully:", response.data);
+     
       alert("Password reset email sent successfully!");
       closeEditModal();
     } catch (error) {

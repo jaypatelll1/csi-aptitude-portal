@@ -11,17 +11,14 @@ const dispatch = useDispatch()
   const navigate = useNavigate();
 
   // let  submit = useSelector((state) => state.exam.submittedExamIds );
-  // console.log('submit',submit);
   
-  // console.log("Status:", status, "ExamId:", examId, "Submit:", submit);
+  
   // let isExamSubmitted = submit.includes((examId));
   
  
-  // console.log('isExamSubmitted',isExamSubmitted);
   
   const isDisabled = status === "scheduled" || status === "past" || submit === true;
 
-    // console.log("Button Disabled:", isDisabled, "For ExamId:", examId)
 
     useEffect(() => {
       let isMounted = true; // Flag to track if the component is mounted

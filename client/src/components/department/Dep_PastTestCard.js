@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PastTestCard = ({ test, onClick }) => {
-  console.log("test", test);
+
   const [result, setResult] = useState([]);
   const navigate = useNavigate();
   let user = useSelector((state) => state.user.user);
@@ -27,9 +27,7 @@ const Dep_PastTestCard = ({ test, onClick }) => {
       );
       const fetchedResult = response.data.results;
       setResult(fetchedResult);
-
-      console.log("Response from server:", fetchedResult);
-
+      
       // Navigate to the new route and pass the fetched result
       navigate("/department/test-students", {
         state: {

@@ -43,7 +43,7 @@ function Dep_StudentAnalytics() {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
-      // console.log(response.data);
+      
       setData(response.data.results);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -55,7 +55,7 @@ function Dep_StudentAnalytics() {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       let url = `${API_BASE_URL}/api/analysis/avg-results/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
-      // console.log("avg data", response.data.result);
+      
       setAvgData(response.data.result);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -96,9 +96,7 @@ function Dep_StudentAnalytics() {
     }
   };
 
-  // console.log(data);
-  // console.log("testData", testCompletionData);
-  // console.log("avgData", avgData);
+  
 
   useEffect(() => {
     if (user_id) {
@@ -150,7 +148,7 @@ function Dep_StudentAnalytics() {
       setTotal((prev) => prev + exam.max_score);
     });
     if (data[0]) {
-      // console.log("categories", Object.keys(data[0]?.category).score);
+      
     }
   }, [data]);
 

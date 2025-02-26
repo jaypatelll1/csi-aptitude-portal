@@ -7,8 +7,7 @@ import { replace, useNavigate } from "react-router-dom";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_DraftedTestCard = ({ test }) => {
-  // console.log('test is ',test);
-
+ 
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
   const [questions, setQuestions] = useState([]);
@@ -23,15 +22,12 @@ const Dep_DraftedTestCard = ({ test }) => {
   const examId = test.exam_id;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // console.log('examid is ',test);
-
-  // console.log("Test details",{branch: test.target_branch , year : test.target_year})
+ 
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
 
-  console.log(test);
 
   // Handle limit change (optional)
   const handleLimitChange = (newLimit) => {

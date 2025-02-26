@@ -14,9 +14,7 @@ const Dep_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
       setFeedback("Please select a valid date and time!");
       return;
     }
-    // console.log("Selected Date:", selectedDate);
-    // console.log("Selected Time:", selectedTime);
-    // console.log("Duration:", duration);
+  
 
     const [hours, minutes] = selectedTime.split(":").map(Number);
 
@@ -73,7 +71,7 @@ const Dep_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
       return;
     }
 
-    // console.log('startDateTime   endDateTime',startDateTime, endDateTime);
+    
 
     if (onSchedule) {
       onSchedule(startDateTime.toISOString(), endDateTime.toISOString());
