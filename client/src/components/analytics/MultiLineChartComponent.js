@@ -12,7 +12,7 @@ import {
 
 const MultiLineChart = ({ data }) => {
   const { title, chartData } = data;
-  const departments = ["CMPN", "EXTC", "ECS", "ELEC", "IT"];
+  const departments = ["CMPN", "EXTC", "ECS", "ELEC", "INFT"];
   const [selected, setSelected] = useState([]);
 
   const handleLegendClick = (dept) => {
@@ -23,7 +23,7 @@ const MultiLineChart = ({ data }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+    return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" });
   };
 
   return (
@@ -38,7 +38,7 @@ const MultiLineChart = ({ data }) => {
               tickFormatter={formatDate}
               tick={{ fontSize: 12 }}
             />
-            <YAxis domain={[40, 100]} tick={{ fontSize: 12 }} />
+            <YAxis domain={[0, 50]} tick={{ fontSize: 12 }} />
             <Tooltip labelFormatter={(label) => formatDate(label)} />
             <Legend
               onClick={(e) => handleLegendClick(e.value)}

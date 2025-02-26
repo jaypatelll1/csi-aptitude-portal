@@ -12,7 +12,7 @@ const getDeptAvgScores = async () => {
                 SELECT ROUND(AVG(total_score)::NUMERIC, 2) 
                 FROM student_analysis 
                 WHERE student_analysis.department_name = d.department_name
-            ), 0) AS avg_score
+            ), 0.00) AS avg_score
         FROM all_departments d
         ORDER BY avg_score DESC;
         `);

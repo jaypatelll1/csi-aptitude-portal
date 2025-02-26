@@ -11,5 +11,6 @@ router.get("/participation-rate/:department", deptController.getParticipationRat
 router.get("/participation-rate-per-exam/:department", deptController.getParticipationRatePerExam);
 router.get("/accuracy-rate/:department", deptController.getAccuracyRate);
 router.get("/weak-areas/:department", deptController.getWeakAreas);
+router.get("/performance-over-time/:department", deptController.getPerformanceOverTime);
 
 module.exports = router;

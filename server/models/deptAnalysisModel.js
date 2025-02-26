@@ -196,6 +196,31 @@ const getWeakAreas = async (department) => {
   return result.rows;
 };
 
+const getPerformanceOverTime = async (department) => {
+  const result = await pool.query(
+    `
+    SELECT 
+        sa.exam_id, 
+        sa.exam_name, 
+        sa.department_name AS department, 
+        ROUND(AVG(sa.total_score)::NUMERIC, 2) AS average_score,
+        TO_CHAR(e.created_at, 'YYYY-MM-DD') AS created_on
+    FROM student_analysis sa
+    JOIN exams e ON sa.exam_id = e.exam_id
+    WHERE sa.department_name = $1
+    GROUP BY sa.exam_id, sa.exam_name, sa.department_name, e.created_at
+    ORDER BY e.created_at ASC;  -- Order by exam creation date to analyze trends
+  `,
+    [department]
+  );
+
+  if(result.rows.length === 0){
+    return [{}]
+  }
+
+  return result.rows;
+};
+
 module.exports = {
   getDepartmentAvgScore,
   getDepartmentAvgScorePerExam,
@@ -206,4 +231,5 @@ module.exports = {
   getParticipationRatePerExam,
   getAccuracyRate,
   getWeakAreas,
+  getPerformanceOverTime
 };

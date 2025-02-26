@@ -12,8 +12,6 @@ const fetchDepartmentData = async (req, res, fetchFunction) => {
       return res.status(404).json({ error: "No data found for this department" });
     }
 
-    // const formattedResponse = { department, ...data[0] }; // Flatten the response
-
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -30,6 +28,6 @@ module.exports = {
   getParticipationRate: (req, res) => fetchDepartmentData(req, res, deptModel.getParticipationRate),
   getParticipationRatePerExam: (req, res) => fetchDepartmentData(req, res, deptModel.getParticipationRatePerExam),
   getAccuracyRate: (req, res) => fetchDepartmentData(req, res, deptModel.getAccuracyRate),
-  // getTimeSpentAnalysis: (req, res) => fetchDepartmentData(req, res, deptModel.getTimeSpentAnalysis),
   getWeakAreas: (req, res) => fetchDepartmentData(req, res, deptModel.getWeakAreas),
+  getPerformanceOverTime: (req, res) => fetchDepartmentData(req, res, deptModel.getPerformanceOverTime),
 };
