@@ -4,4 +4,8 @@ dist
 uploads
 exports
 work.txt
-logs
+
+index.js
+logs/app.log
+error.log
+logs/*.log

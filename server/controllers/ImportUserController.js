@@ -1,6 +1,7 @@
 const path = require("path");
 const { parseExcelUsers, parseCSVusers, } = require("../models/UserFileModels");
 const fs = require("fs/promises");
+const xlsx = require("xlsx");
 const { Worker } = require("worker_threads");
 
 const uploadFile = async (req, res) => {
@@ -11,17 +12,37 @@ const uploadFile = async (req, res) => {
     if (fileExtension === ".xlsx" || fileExtension === ".xls") {
         // Parse Excel file
         try {
-            const worker = new Worker("./workers/fileParser.js", {workerData: {
-                filePath : filePath,
-                fileExtension : fileExtension
-            }});
+
+            const workbook = xlsx.readFile(filePath);
+            const sheetNames = workbook.SheetNames;
+            const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+
+            const userCount = jsonData.length; // Exclude header row
+            console.log(`Parsed user count from Excel: ${userCount}`);
+
+
+            const worker = new Worker("./workers/fileParser.js", {
+                workerData: {
+                    // filePath : filePath,
+                    jsonData,
+                    fileExtension: fileExtension
+                }
+            });
             let hasResponded = false;
-        
+
             res.on('close', () => {
                 worker.terminate();
             });
-        
-            // Add timeout handling
+
+
+
+            // const userCount = 20; // Replace with actual user count
+            const baseTime = 30000; // 30 seconds base time
+            const extraTimePerUser = 5000; // 5 seconds extra per user above 10
+
+            // Calculate dynamic timeout
+            const timeoutDuration = userCount > 10 ? baseTime + (userCount) * extraTimePerUser : baseTime;
+
             const timeout = setTimeout(() => {
                 if (!hasResponded) {
                     hasResponded = true;
@@ -31,17 +52,27 @@ const uploadFile = async (req, res) => {
                         message: 'Worker timeout'
                     });
                 }
-            }, 30000); // 30 second timeout
-        
+            }, timeoutDuration);
+
+            console.log(`Timeout set for ${timeoutDuration / 1000} seconds`);
+
+
             worker.on("message", async (message) => {
                 if (hasResponded) return;
                 hasResponded = true;
                 clearTimeout(timeout);
-        
+
                 try {
                     console.log("Worker message:", message);
                     if (message.status === 'success') {
-                        await fs.unlink(filePath); // Delete file after successful processing
+                        const fileExists = await fs.access(filePath).then(() => true).catch(() => false);
+
+                        if (fileExists) {
+                            await fs.unlink(filePath); // Delete the file
+                            console.log(` File deleted: ${filePath}`);
+                        } else {
+                            console.log(` File not found: ${filePath}`);
+                        }
                         res.json({
                             status: 'success',
                             message: message.message,
@@ -59,12 +90,12 @@ const uploadFile = async (req, res) => {
                     worker.terminate();
                 }
             });
-            
+
             worker.on("error", (error) => {
                 if (hasResponded) return;
                 hasResponded = true;
                 clearTimeout(timeout);
-        
+
                 console.error("Worker error:", error);
                 res.status(500).json({
                     status: 'error',
@@ -82,16 +113,18 @@ const uploadFile = async (req, res) => {
     } else if (fileExtension === ".csv") {
         // Parse CSV file
         try {
-            const worker = new Worker("./workers/fileParser.js", {workerData: {
-                filePath : filePath,
-                fileExtension : fileExtension
-            }});
+            const worker = new Worker("./workers/fileParser.js", {
+                workerData: {
+                    filePath: filePath,
+                    fileExtension: fileExtension
+                }
+            });
             let hasResponded = false;
-        
+
             res.on('close', () => {
                 worker.terminate();
             });
-        
+
             // Add timeout handling
             const timeout = setTimeout(() => {
                 if (!hasResponded) {
@@ -103,12 +136,12 @@ const uploadFile = async (req, res) => {
                     });
                 }
             }, 30000); // 30 second timeout
-        
+
             worker.on("message", async (message) => {
                 if (hasResponded) return;
                 hasResponded = true;
-                clearTimeout(timeout);
-        
+                // clearTimeout(timeout);
+
                 try {
                     console.log("Worker message:", message);
                     if (message.status === 'success') {
@@ -130,12 +163,12 @@ const uploadFile = async (req, res) => {
                     worker.terminate();
                 }
             });
-            
+
             worker.on("error", (error) => {
                 if (hasResponded) return;
                 hasResponded = true;
-                clearTimeout(timeout);
-        
+                // clearTimeout(timeout);
+
                 console.error("Worker error:", error);
                 res.status(500).json({
                     status: 'error',

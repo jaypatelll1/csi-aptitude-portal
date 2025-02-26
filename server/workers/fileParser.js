@@ -7,7 +7,7 @@ const { generateRandomPassword } = require('../utils/randomPassword');
 const { hashPassword } = require('../utils/hashUtil');
 const { sendBulkEmailToUsers } = require('../utils/emailSender');
 
-if (!workerData || !workerData.filePath || !workerData.fileExtension) {
+if (!workerData || !workerData.jsonData || !workerData.fileExtension) {
     parentPort.postMessage({
         status: 'error',
         message: 'Invalid worker data provided'
@@ -17,13 +17,13 @@ if (!workerData || !workerData.filePath || !workerData.fileExtension) {
 
 async function main() {
     try {
-        console.log('Starting file processing...', workerData);
+        // console.log('Starting file processing...', workerData);
         
         let result;
         if (workerData.fileExtension === '.xlsx') {
-            result = await parseExcelUsers(workerData.filePath);
+            result = await parseExcelUsers(workerData.jsonData);
         } else {
-            result = await parseCSVusers(workerData.filePath);
+            result = await parseCSVusers(workerData.jsonData);
         }
         
         console.log('Processing complete, sending result:', result);
@@ -45,11 +45,11 @@ main().catch(error => {
     });
 });
 
-async function parseExcelUsers(filePath) {
+async function parseExcelUsers(jsonData) {
     try {
-        const workbook = XLSX.readFile(filePath);
-        const sheetNames = workbook.SheetNames;
-        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+        // const workbook = XLSX.readFile(filePath);
+        // const sheetNames = workbook.SheetNames;
+        // const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
         const warnings = [];
         let index = 0;
 
