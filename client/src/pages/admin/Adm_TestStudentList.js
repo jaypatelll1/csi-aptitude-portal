@@ -22,8 +22,6 @@ const Adm_TestStudentList = () => {
   const duration = location.state?.duration;
   const examId = location.state?.examId;
 
-  console.log("Initial userData:", name);
-  //   console.log("Exam Duration:", duration);
 
   // Function to handle CSV download
   const handleExportCSV = async () => {
@@ -83,7 +81,7 @@ const Adm_TestStudentList = () => {
     setPage(1);
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    console.log("search is ", searchTerm);
+
 
     const searchResults = term
       ? students.filter(
@@ -118,7 +116,7 @@ const Adm_TestStudentList = () => {
          
         );
         const data = response.data.response;
-        console.log("data ", data);
+
 
         // Ensure data is an array
         const normalizedData = Array.isArray(data) ? data : data ? [data] : [];
@@ -127,9 +125,8 @@ const Adm_TestStudentList = () => {
         setStudents(normalizedData);
         setFilteredStudents(normalizedData);
 
-        console.log("Normalized Data:", normalizedData);
 
-        console.log("student is ", students);
+       
       } catch (error) {
         console.error("Error fetching data:", error);
 

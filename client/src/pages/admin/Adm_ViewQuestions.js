@@ -34,7 +34,7 @@ const Adm_ViewQuestions = () => {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
         );
-        console.log("Fetched Questions:", response.data);
+      
 
         setQuestions(response.data || []);
       } catch (err) {
@@ -47,7 +47,7 @@ const Adm_ViewQuestions = () => {
     const fetchDuration = async () => {
       try {
         const id = examId;
-        console.log("id is1  ", id);
+       
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(
           `${API_BASE_URL}/api/exams/find/${id}`,
@@ -55,7 +55,7 @@ const Adm_ViewQuestions = () => {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
         );
-        console.log("respnose is ", response);
+      
 
         setTestDuration(response.data.exam.duration);
       } catch (err) {
@@ -96,7 +96,7 @@ const Adm_ViewQuestions = () => {
 
   const handleScheduleTest = (startTime, endTime) => {
     const id = examId;
-    console.log("id is ", id);
+  
 
     if (!id) {
       alert("Exam ID is not available.");
@@ -116,7 +116,7 @@ const Adm_ViewQuestions = () => {
       )
       .then(() => {
         closeScheduleModal();
-        console.log(startTime, endTime);
+      
         dispatch(clearExamId()); // Dispatch clearing examId here to ensure it runs after successful API call
         navigate("/admin"); // Navigate to /admin after successful test scheduling
       })
@@ -128,13 +128,13 @@ const Adm_ViewQuestions = () => {
   };
 
   const handleDelete = async () => {
-    console.log("exam id is ", examId);
+
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
     const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
-    console.log("response is ", response);
+ 
     navigate("/admin/createtest");
   };
 
