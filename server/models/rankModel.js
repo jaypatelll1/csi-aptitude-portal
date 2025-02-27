@@ -26,7 +26,7 @@ const generateRank = async () => {
 
       await query(queryText, [student_id, student_name, department, rank, total_score]);
     });
-    return results;
+    return results.rows;
   } catch (error) {
     console.log(error);
   }

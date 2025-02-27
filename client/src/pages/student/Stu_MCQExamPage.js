@@ -164,27 +164,10 @@ const Stu_MCQExamPage = () => {
     }
   };
 
-
-   // Function to create results and student analysis after test submission
-   const createResultsAndAnalysis = async () => {
-    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    try {
-      await axios.post(`${API_BASE_URL}/api/exams/results/create-result/${userId}/${examId}`,{},{
-        withCredentials: true,
-      });
-      await axios.post(`${API_BASE_URL}/api/analysis/student-analysis/${userId}/${examId}`,{},{
-        withCredentials: true,
-      });
-    } catch (error) {
-      console.error("Error fetching results and analysis:", error);
-    }
-  };
-
   const handleSubmitTest = async () => {
     setTestSubmitted(true);
     await submitFinalResponse();
     socketRef.current.emit("submit_responses");
-    await createResultsAndAnalysis();
     dispatch(clearExamId(examId));
     dispatch(clearQuestions());
     alert("Test submitted successfully!");

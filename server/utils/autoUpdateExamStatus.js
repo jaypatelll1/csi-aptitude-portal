@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const pool = require('../config/db');
 const { calculateAndStoreTotalScore } = require('./scoreUtils');
 const { student_analysis } = require('./student_analysis');
+const { generateRank } = require('../models/rankModel');
 
 // Run this job every minute (adjust schedule as needed)
 const autoUpdate = cron.schedule('*/5 * * * *', async () => {
@@ -32,6 +33,7 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
           await student_analysis(examId, studentId);
         }
       }
+      await generateRank();
     } else {
       console.log('No exams were updated.');
     }
