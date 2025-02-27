@@ -286,9 +286,6 @@ function Dep_StudentAnalytics() {
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 col-span-2">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Overall Score
-            </h3>
             <LineChartComponent
               data={chartData}
               xAxisKey="name"
