@@ -85,10 +85,10 @@ const Adm_StudentAnalysis = () => {
         }
       );
 
-      console.log("Response:", response.data); // You can inspect the response
+     
 
       if (response.data.status === "success") {
-        console.log("File processed successfully");
+      
 
         // If there are warnings, display them to the user
         if (response.data.warnings && response.data.warnings.length > 0) {

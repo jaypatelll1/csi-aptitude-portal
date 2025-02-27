@@ -55,7 +55,7 @@ const Adm_LiveTest = () => {
           },
           { params: { page: currentPage, limit: itemsPerPage } }
         );
-        console.log("resdfghj,", response);
+        
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,

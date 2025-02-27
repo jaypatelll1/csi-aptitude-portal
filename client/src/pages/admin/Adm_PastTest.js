@@ -54,7 +54,7 @@ const Adm_PastTest = () => {
           target_years: exam.target_years,
           target_branches: exam.target_branches,
         }));
-        console.log("formattedTests",formattedTests)
+   
         setPastTests(formattedTests);
       } catch (err) {
         console.error("Error fetching past tests:", err);
@@ -74,7 +74,7 @@ const Adm_PastTest = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  console.log("paginatedTests",paginatedTests)
+ 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);

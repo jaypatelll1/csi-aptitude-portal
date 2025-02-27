@@ -49,7 +49,7 @@ const Adm_Dashboard = () => {
       const response = await axios.get(endpoint, {
         withCredentials: true,
       });
-      console.log(response);
+      
       // console.log( "testsData", testsData)
       setTestsData((prevData) => ({
         ...prevData,
@@ -243,7 +243,7 @@ const Adm_Dashboard = () => {
             ) : (
               paginatedData?.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-                console.log(test);
+            
 
                 if (activeTab === "live") {
                   return <Adm_LiveTestCard key={key} test={test} />;

@@ -30,7 +30,7 @@ const Adm_DraftedTestCard = ({ test }) => {
     setPage(newPage);
   };
 
-  console.log(test);
+
 
   // Handle limit change (optional)
   const handleLimitChange = (newLimit) => {

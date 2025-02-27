@@ -47,7 +47,7 @@ const Adm_DraftTest = () => {
           withCredentials: true,
         });
 
-        console.log("response", response);
+       
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,

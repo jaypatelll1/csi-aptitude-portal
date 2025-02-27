@@ -7,7 +7,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
   const lastname = student.name.split(" ")[1];
 
   const user_id = student.user_id;
-  console.log("Student ID:", user_id);
+
 
   const [firstName, setFirstName] = useState(firstname);
   const [lastName, setLastName] = useState(lastname);
@@ -37,7 +37,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
           withCredentials: true, // Make sure the cookie is sent with the request
         }
       );
-      console.log("Student updated successfully:", response.data);
+    
       alert("Student registered successfully!");
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
@@ -52,7 +52,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
       const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`,{
         withCredentials: true, // Make sure the cookie is sent with the request
       });
-      console.log("Student deleted successfully:", response.data);
+
       alert("Student deleted successfully!");
       counter();
       closeEditModal(); // Close modal after successful registration
@@ -68,7 +68,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
       const response = await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student},{
         withCredentials: true, // Make sure the cookie is sent with the request
       });
-      console.log("Student reset successfully:", response.data);
+
       alert("Student reset mail sent successfully!");
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
