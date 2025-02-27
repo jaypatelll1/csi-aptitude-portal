@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import DataTime from "./Adm_DataTime";
 import axios from "axios";
 import{setExamId} from "../.././redux/ExamSlice"
 import { useDispatch } from "react-redux";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftedTestCard = ({ test }) => {
@@ -11,11 +11,11 @@ const Adm_DraftedTestCard = ({ test }) => {
 
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
-  const [questions, setQuestions] = useState([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
-  const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
-  const [loading, setLoading] = useState(false);
+  // const [questions, setQuestions] = useState([]);
+  // const [setPage] = useState(1);
+  // const [setLimit] = useState(10); // You can set the default limit to 10 or any number
+  // const [setTotalPages] = useState(1); // Total number of pages from the backend
+  // const [loading, setLoading] = useState(false);
 
   const [requestInProgress, setRequestInProgress] = useState(false);
 
@@ -26,17 +26,17 @@ const Adm_DraftedTestCard = ({ test }) => {
 
   // console.log("Test details",{branch: test.target_branch , year : test.target_year})
   // Handle page change
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
+  // const handlePageChange = (newPage) => {
+  //   setPage(newPage);
+  // };
 
 
 
   // Handle limit change (optional)
-  const handleLimitChange = (newLimit) => {
-    setLimit(newLimit);
-    setPage(1); // Reset to first page whenever the limit changes
-  };
+  // const handleLimitChange = (newLimit) => {
+  //   setLimit(newLimit);
+  //   setPage(1); // Reset to first page whenever the limit changes
+  // };
 
   const handlePublishClick = async () => {
     if (requestInProgress) return; // Prevent multiple requests
