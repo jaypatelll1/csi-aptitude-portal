@@ -13,8 +13,8 @@ const {
   scheduleExam,
   markPastExam,
   markLiveExam,
-  getExamsForUser
- 
+  getExamsForUser,
+  getExamStatus
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
@@ -38,5 +38,6 @@ router.put('/past-exam/:exam_id',authorizeRoles, markPastExam); // to mark an ex
 router.put('/live-exam/:exam_id',authorizeRoles, markLiveExam); // to mark an exam as past
 
 router.delete('/:exam_id',authorizeRoles, deleteExam);
+router.get("/status/:exam_id", getExamStatus);
 
 module.exports = router;

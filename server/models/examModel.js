@@ -260,6 +260,27 @@ const getLastExam = async () => {
   return result.rows[0];
 };
 
+// Get Exam Status by ID
+const getExamStatusById = async (exam_id) => {
+    try {
+        // Fetch exam start and end time
+    const result = await pool.query(
+      "SELECT exam_id, start_time, end_time, status FROM exams WHERE exam_id = $1",
+      [exam_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Exam not found" });
+    }
+
+    return result.rows[0];
+
+    } catch (error) {
+        console.error("Database Error in getExamStatusById:", error);
+        throw error;
+    }
+};
+
 module.exports = {
   createExam,
   getExams,
@@ -275,5 +296,6 @@ module.exports = {
   markPastExam,
   getLastExam,
   getExamsByStatus,
-  ExamCount
+  ExamCount,
+  getExamStatusById
 };  
