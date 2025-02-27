@@ -45,7 +45,7 @@ function Stu_Analytics() {
       let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
       // console.log(response.data);
-      setData(response.data.results.slice(0, 5));
+      setData(response.data.results);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -122,28 +122,15 @@ function Stu_Analytics() {
     }
   }, [user_id]);
 
-  // Step 1: Extract unique dates & filter out undefined values
-  const uniqueDates = [
-    ...new Set(performanceData.map((entry) => entry.created_on).filter(Boolean)),
-  ];
-
-  // Step 2: Sort dates in ascending order
-  uniqueDates.sort((a, b) => new Date(a) - new Date(b));
-
-  // Step 3: Merge data while ensuring missing dates have a default value
-  const studentData = uniqueDates.map((date) => ({
-    date,
-    score:
-      performanceData.find((entry) => entry.created_on === date)?.average_score || 0, // Default 0 if missing
-  }));
-  console.log(studentData)
-
   const chartData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: studentData
+    chartData: data.map((exam) => ({
+      name: exam?.exam_name,
+      Percentage: exam?.percentage,
+    })),
   };
-
+  
   const superscript = (rank) => {
     const condition = rank % 10;
     if (condition === 1) setSup("st");

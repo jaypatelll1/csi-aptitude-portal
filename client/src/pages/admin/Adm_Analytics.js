@@ -150,7 +150,7 @@ function Adm_Analytics() {
     performance_inft,
     performance_extc,
     performance_ecs,
-    [performance_elec],
+    performance_elec,
   ];
 
   // Extract all unique dates

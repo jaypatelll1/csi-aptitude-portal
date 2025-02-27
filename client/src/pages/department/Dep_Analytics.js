@@ -22,9 +22,9 @@ function Dep_Analytics() {
   const fetchAvgData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/average-score-per-exam/${user_department}`;
+      let url = `${API_BASE_URL}/api/tpo-analysis/dept-avg`;
       const response = await axios.get(url, { withCredentials: true });
-      setAvgData(response.data.slice(0, 5));
+      setAvgData(response.data.results);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -103,11 +103,11 @@ function Dep_Analytics() {
   }, [user_department]);
 
   const barChartData = {
-    title: "Department Exam  Average Score",
+    title: "Department Average Score",
     dataKey: "department",
     chartData: avgData.map((department) => ({
-      department: department?.exam_name,
-      score: department?.average_score,
+      department: department?.department_name,
+      score: department?.avg_score,
     })),
   };
 
