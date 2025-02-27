@@ -6,9 +6,7 @@ import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
-  setQuestions,
-  setSelectedOption
-} from "../../redux/questionSlice";
+  setQuestions } from "../../redux/questionSlice";
 
 
 // import { useSelector } from "react-redux";

@@ -4,7 +4,6 @@ import axios from "axios";
 import io from "socket.io-client";
 import Sidebar from "../../components/student/mcqexampage/Sidebar";
 import {
-  setQuestions,
   setSelectedOption,
   visitQuestion,
   clearQuestions,

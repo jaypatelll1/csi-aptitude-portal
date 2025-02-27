@@ -14,8 +14,8 @@ function Stu_Analytics() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [testCompletionData, setTestCompletionData] = useState(null);
   const [data, setData] = useState([]);
-  const [avgData, setAvgData] = useState([]);
-  const [performanceData, setPerformanceData] = useState([]);
+  const [setAvgData] = useState([]);
+  const [setPerformanceData] = useState([]);
   const [sup, setSup] = useState("");
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
