@@ -13,10 +13,10 @@ const Adm_TestStudentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const [userDetails, setUserDetails] = useState([]); // Store fetched user details
-  const [examName, setExamName] = useState(""); // Store the exam name
+  const [ setUserDetails] = useState([]); // Store fetched user details
+  // const [examName, setExamName] = useState(""); // Store the exam name
   const location = useLocation();
-  const [status, setStatus] = useState("");
+  // const [status, setStatus] = useState("");
 
   const name = location.state?.name;
   const duration = location.state?.duration;
@@ -24,31 +24,31 @@ const Adm_TestStudentList = () => {
 
 
   // Function to handle CSV download
-  const handleExportCSV = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(
-        `${API_BASE_URL}/api/export/result/csv/${examId}`,
-        {
-          responseType: "blob", // Important for downloading files
-          withCredentials: true, // Make sure the cookie is sent with the request
-        }
-      );
+  // const handleExportCSV = async () => {
+  //   try {
+  //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+  //     const response = await axios.get(
+  //       `${API_BASE_URL}/api/export/result/csv/${examId}`,
+  //       {
+  //         responseType: "blob", // Important for downloading files
+  //         withCredentials: true, // Make sure the cookie is sent with the request
+  //       }
+  //     );
 
-      // Create a URL for the file blob and trigger download
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "result.csv"); // Specify file name
-      document.body.appendChild(link);
-      link.click();
+  //     // Create a URL for the file blob and trigger download
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", "result.csv"); // Specify file name
+  //     document.body.appendChild(link);
+  //     link.click();
 
-      // Clean up the URL object after download
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading CSV:", error);
-    }
-  };
+  //     // Clean up the URL object after download
+  //     window.URL.revokeObjectURL(url);
+  //   } catch (error) {
+  //     console.error("Error downloading CSV:", error);
+  //   }
+  // };
 
   // Function to handle Excel download
   const handleExportExcel = async () => {
@@ -137,7 +137,7 @@ const Adm_TestStudentList = () => {
       }
     };
     fetchUserDetails();
-  }, [examId]);
+  }, [examId, setUserDetails]);
 
   // useEffect(() => {
   //     const fetchStudents = async () => {

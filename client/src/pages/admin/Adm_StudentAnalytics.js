@@ -200,9 +200,9 @@ function Adm_StudentAnalytics() {
           0
         );
 
-        const attemptedExams = validData.filter(
-          (exam) => subject in exam.category
-        ).length;
+        // const attemptedExams = validData.filter(
+        //   (exam) => subject in exam.category
+        // ).length;
 
         const averageScore =
           totalMaxScore > 0

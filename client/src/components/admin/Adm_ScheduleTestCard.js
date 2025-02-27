@@ -38,7 +38,7 @@ const Adm_ScheduledTestCard = ({ test }) => {
     try {
       
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.put(
+      await axios.put(
         `${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,
         {},
         { withCredentials: true }

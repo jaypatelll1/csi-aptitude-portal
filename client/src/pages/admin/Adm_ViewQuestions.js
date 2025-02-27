@@ -67,15 +67,15 @@ const Adm_ViewQuestions = () => {
     fetchDuration();
   }, [examId]);
 
-  const updateQuestionText = (questionId, newText) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((question) =>
-        question.question_id === questionId
-          ? { ...question, question_text: newText }
-          : question
-      )
-    );
-  };
+  // const updateQuestionText = (questionId, newText) => {
+  //   setQuestions((prevQuestions) =>
+  //     prevQuestions.map((question) =>
+  //       question.question_id === questionId
+  //         ? { ...question, question_text: newText }
+  //         : question
+  //     )
+  //   );
+  // };
 
   const handleGoBack = () => {
     navigate("/admin/input");
@@ -131,7 +131,7 @@ const Adm_ViewQuestions = () => {
 
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
-    const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
+    await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
  

@@ -16,7 +16,7 @@ const Adm_StudentList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [numberofpages, setNumberofpages] = useState(14);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit] = useState(20);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -150,7 +150,7 @@ const Adm_StudentList = () => {
       }
     };
     fetchStudents();
-  }, [limit, deletedUsers]);
+  }, [ deletedUsers]);
 
   useEffect(() => {
     let filtered = students;

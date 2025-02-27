@@ -11,7 +11,7 @@ import {
 } from "recharts";
 
 const MultiLineChart = ({ data }) => {
-  const { title, chartData } = data;
+  const { chartData } = data;
   const departments = ["CMPN", "EXTC", "ECS", "ELEC", "INFT"];
   const [selected, setSelected] = useState([]);
 

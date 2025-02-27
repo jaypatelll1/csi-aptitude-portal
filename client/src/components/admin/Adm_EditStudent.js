@@ -31,7 +31,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
 
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.put(
+      await axios.put(
         `${API_BASE_URL}/api/users/update/${user_id}`,
         newStudent,{
           withCredentials: true, // Make sure the cookie is sent with the request
@@ -49,7 +49,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
   const handleDelete = async (user_id) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`,{
+      await axios.delete(`${API_BASE_URL}/api/users/delete/${user_id}`,{
         withCredentials: true, // Make sure the cookie is sent with the request
       });
 
@@ -65,7 +65,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
   const handleReset = async (student) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student},{
+      await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` , {student},{
         withCredentials: true, // Make sure the cookie is sent with the request
       });
 

@@ -34,7 +34,7 @@ const Adm_AddStudent = ({ closeModal }) => {
         };
 
         try {
-            const response = await axios.post(
+           await axios.post(
                 `${API_BASE_URL}/api/users/register`, 
                 newStudent,
                 {

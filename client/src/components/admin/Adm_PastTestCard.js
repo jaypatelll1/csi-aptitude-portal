@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const Adm_PastTestCard = ({ test, onClick }) => {
 
-  const [result, setResult] = useState([]);
+  const [setResult] = useState([]);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {

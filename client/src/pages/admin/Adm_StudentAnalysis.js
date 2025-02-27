@@ -14,19 +14,19 @@ const Adm_StudentAnalysis = () => {
   const [selectedDepartment, setSelectedDepartment] = useState(undefined);
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [numberofpages, setNumberofpages] = useState(14);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  // const [selectedStudent, setSelectedStudent] = useState(null);
   const [deletedUsers, setDeletedUsers] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
-  const [ModalOpen, setModalOpen] = useState(false);
+  const [setModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [setIsUploading] = useState(false);
   const navigate = useNavigate();
 
   
@@ -112,9 +112,9 @@ const Adm_StudentAnalysis = () => {
     }
   };
 
-  const deletedUsersCounter = () => {
-    setDeletedUsers(deletedUsers + 1);
-  };
+  // const deletedUsersCounter = () => {
+  //   setDeletedUsers(deletedUsers + 1);
+  // };
 
   const handleSearch = (e) => {
     setPage(1);
@@ -218,11 +218,11 @@ const Adm_StudentAnalysis = () => {
     setSelectedDepartment(department);
   };
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  // const openModal = () => setIsModalOpen(true);
+  // const closeModal = () => setIsModalOpen(false);
 
-  const openEditModal = () => setIsEditModalOpen(true);
-  const closeEditModal = () => setIsEditModalOpen(false);
+  // const openEditModal = () => setIsEditModalOpen(true);
+  // const closeEditModal = () => setIsEditModalOpen(false);
 
   useEffect(() => {
     // Close the sidebar if clicked outside
