@@ -68,7 +68,7 @@ function Stu_Analytics() {
       let url = `${API_BASE_URL}/api/analysis/rank/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
 
-      console.log("avg data", response.data.result);
+    
       setRankData(response.data.result);
       superscript(response.data.result.rank);
     } catch (error) {
