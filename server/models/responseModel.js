@@ -151,21 +151,21 @@ const updateResponse = async (response_id, selected_option) => {
   return result.rows[0]; // Return the updated response if found
 };
 
-const getExamIdByResponse = async (status,user_id) => {
+const getExamIdByResponse = async (status, user_id) => {
   try {
     const result = await pool.query(
-        `SELECT DISTINCT exam_id FROM responses 
-         WHERE student_id = $1 AND status = $2`, 
-        [user_id,status]  
+      `SELECT DISTINCT exam_id FROM responses 
+         WHERE student_id = $1 AND status = $2`,
+      [user_id, status]
     );
 
     // Return only the exam_id array
     return result.rows.map(row => row.exam_id)
 
-} catch (error) {
+  } catch (error) {
     console.error(error);
-   return error 
-}
+    return error
+  }
 }
 
 
@@ -201,6 +201,19 @@ const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
   return result.rows;
 };
 
+// Function to clear a user's response for a specific question
+const clearResponse = async (studentId, examId, questionId) => {
+    try {
+    const result = await pool.query(
+      "UPDATE responses SET selected_option = NULL WHERE student_id = $1 AND exam_id = $2 AND question_id = $3 AND status='draft' RETURNING *",
+      [studentId, examId, questionId]
+    );
+    return result.rows;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
 
 module.exports = {
   submitResponse,
@@ -213,5 +226,6 @@ module.exports = {
   submittedUnansweredQuestions,
   submitFinalResponsesAndChangeStatus,
   deleteExistingResponses,
-  getExamIdByResponse
+  getExamIdByResponse,
+  clearResponse
 };

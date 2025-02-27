@@ -1,6 +1,7 @@
 const responseModel = require('../models/responseModel');
 const { logActivity } = require('../utils/logActivity');
 
+
 // Delete Exististing responses and initialize responses
 const deleteExistingResponses = async (req, res) => {
   const { exam_id } = req.params;
@@ -9,19 +10,19 @@ const deleteExistingResponses = async (req, res) => {
   if (!student_id || !exam_id) {
     return res.status(400).json({ message: 'All fields are required' });
   }
-  
+
   try {
     // Delete existing responses
     // const deleteResult = await responseModel.deleteExistingResponses(exam_id, student_id);
     // console.log('deleteResult:', deleteResult);
-  
+
     // Initialize unanswered questions
     const response = await responseModel.submittedUnansweredQuestions(exam_id, student_id);
     // console.log('Initialized unanswered questions:', response);
-  
+
     return res.status(201).json({
       message: 'Responses initialized successfully',
-     
+
       response,
     });
   } catch (error) {
@@ -84,7 +85,7 @@ const submitFinalResponsesAndChangeStatus = async (req, res) => {
       student_id,
       exam_id
     );
-    
+
     res
       .status(201)
       .json({ message: 'Responses submitted successfully', response });
@@ -176,9 +177,9 @@ const getResponsesByStudent = async (req, res) => {
 };
 // getResponsesForUsers
 const getResponsesForUsers = async (req, res) => {
-  const {status}= req.query ;
-  console.log('status',status);
-  
+  const { status } = req.query;
+  console.log('status', status);
+
   const user_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
@@ -338,7 +339,7 @@ const getPaginatedResponsesForExam = async (req, res) => {
     // Convert query params to integers and handle missing values
     page = parseInt(page);
     limit = parseInt(limit);
-    
+
     if (isNaN(page) || page < 1) page = null;
     if (isNaN(limit) || limit < 1) limit = null;
 
@@ -374,6 +375,23 @@ const getPaginatedResponsesForExam = async (req, res) => {
   }
 };
 
+const resetUserResponse = async (req, res) => {
+  try {
+    const { studentId, examId, questionId } = req.body;
+
+    if (!studentId || !examId || !questionId) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const result = await responseModel.clearResponse(studentId, examId, questionId);
+    res.json({ message: "Response cleared successfully", result });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 module.exports = {
   submitResponse,
   getResponsesByStudent,
@@ -384,5 +402,6 @@ module.exports = {
   getPaginatedResponsesForExam,
   deleteExistingResponses,
   submitFinalResponsesAndChangeStatus,
-  getResponsesForUsers
+  getResponsesForUsers,
+  resetUserResponse
 };

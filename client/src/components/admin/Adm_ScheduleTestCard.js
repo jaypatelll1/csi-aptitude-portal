@@ -14,6 +14,27 @@ const Adm_ScheduledTestCard = ({ test }) => {
   const handlePublishClick = async (test) => {
     if (isPublishing) return; // Prevent multiple requests
     setIsPublishing(true);
+    
+    const start = new Date(Date.now());
+    const start_time = String(start).split(" ")[4]
+    const [hours, minutes] = start_time.split(":").map(Number);
+    console.log(hours, minutes, typeof(hours))
+    const startDateTime = new Date(
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate(),
+      hours,
+      minutes,
+      0,
+      0
+    );
+
+    const duration = parseInt(test.duration.split(" ")[0]);
+
+    const end = new Date(startDateTime.getTime() + duration * 60000 + 30 * 60000).toISOString();
+    const endDateTime = new Date(end);
+    handleSchedule(startDateTime.toISOString(), endDateTime.toISOString());
+
     try {
       
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
