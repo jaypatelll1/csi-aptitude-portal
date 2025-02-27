@@ -18,14 +18,13 @@ const Dep_ScheduledTestCard = ({ test }) => {
     if (isPublishing) return; // Prevent multiple requests
     setIsPublishing(true);
     try {
-    
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.put(
         `${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,
         {},
         { withCredentials: true }
       );
-     
+
       window.location.reload();
     } catch (error) {
       console.error("Error during POST request:", error);
@@ -210,8 +209,28 @@ const Dep_ScheduledTestCard = ({ test }) => {
           {scheduledTime.start && scheduledTime.end && (
             <div className="mt-4 text-sm text-gray-600">
               <p>
-                Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
-                to {new Date(scheduledTime.end).toLocaleString()}
+                Scheduled from:{" "}
+                {new Date(scheduledTime.start)
+                  .toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })
+                  .replace(",", "")}{" "}
+                to{" "}
+                {new Date(scheduledTime.end)
+                  .toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })
+                  .replace(",", "")}
               </p>
             </div>
           )}

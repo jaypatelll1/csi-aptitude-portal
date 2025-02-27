@@ -14,11 +14,11 @@ const Adm_ScheduledTestCard = ({ test }) => {
   const handlePublishClick = async (test) => {
     if (isPublishing) return; // Prevent multiple requests
     setIsPublishing(true);
-    
+
     const start = new Date(Date.now());
-    const start_time = String(start).split(" ")[4]
+    const start_time = String(start).split(" ")[4];
     const [hours, minutes] = start_time.split(":").map(Number);
-    console.log(hours, minutes, typeof(hours))
+    // console.log(hours, minutes, typeof hours);
     const startDateTime = new Date(
       start.getFullYear(),
       start.getMonth(),
@@ -31,19 +31,20 @@ const Adm_ScheduledTestCard = ({ test }) => {
 
     const duration = parseInt(test.duration.split(" ")[0]);
 
-    const end = new Date(startDateTime.getTime() + duration * 60000 + 30 * 60000).toISOString();
+    const end = new Date(
+      startDateTime.getTime() + duration * 60000 + 30 * 60000
+    ).toISOString();
     const endDateTime = new Date(end);
     handleSchedule(startDateTime.toISOString(), endDateTime.toISOString());
 
     try {
-      
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       await axios.put(
         `${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,
         {},
         { withCredentials: true }
       );
-   
+
       window.location.reload();
     } catch (error) {
       console.error("Error during POST request:", error);
@@ -225,8 +226,28 @@ const Adm_ScheduledTestCard = ({ test }) => {
           {scheduledTime.start && scheduledTime.end && (
             <div className="mt-4 text-sm text-gray-600">
               <p>
-                Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
-                to {new Date(scheduledTime.end).toLocaleString()}
+                Scheduled from:{" "}
+                {new Date(scheduledTime.start)
+                  .toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })
+                  .replace(",", "")}{" "}
+                to{" "}
+                {new Date(scheduledTime.end)
+                  .toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })
+                  .replace(",", "")}
               </p>
             </div>
           )}
