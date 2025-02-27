@@ -376,8 +376,10 @@ const getPaginatedResponsesForExam = async (req, res) => {
 };
 
 const resetUserResponse = async (req, res) => {
+
+  const { studentId, examId, questionId } = req.body;
+
   try {
-    const { studentId, examId, questionId } = req.body;
 
     if (!studentId || !examId || !questionId) {
       return res.status(400).json({ error: "All fields are required" });

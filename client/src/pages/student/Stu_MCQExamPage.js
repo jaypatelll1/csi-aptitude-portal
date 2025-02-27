@@ -174,6 +174,20 @@ const Stu_MCQExamPage = () => {
     navigate("/home", { replace: true });
   };
 
+  const handleClearResponse = async (id) => {
+    // const questionId = questions[currentQuestionIndex]?.question_id;
+    // if (!questionId) return;
+
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const url = `${API_BASE_URL}/api/exams/responses/exams/clear-response`;
+
+    try {
+      await axios.put(url, { studentId:userId,examId: Number(examId), questionId: id }, { withCredentials: true });
+      dispatch(setSelectedOption({ index: currentQuestionIndex, option: null }));
+    } catch (error) {
+      console.error("Error clearing response:", error);
+    }
+  };
   return (
     <div className="relative flex-1">
       {/* Main Content */}
@@ -270,6 +284,23 @@ const Stu_MCQExamPage = () => {
               >
                 Previous
               </button>
+              <button
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                  onClick= {  () => handleClearResponse(  questions[currentQuestionIndex]?.question_id)}
+                >
+                  Clear
+                </button>
+
+                {/* <button
+                  className={`px-4 py-2 rounded-lg ${
+                    questions[currentQuestionIndex]?.markedForReview
+                      ? "bg-purple-500 text-white"
+                      : "bg-gray-300 text-black"
+                  }`}
+                  onClick={handleMarkForReview}
+                >
+                  {questions[currentQuestionIndex]?.markedForReview ? "Unmark" : "Mark for Review"}
+                </button> */}
               <button
                 className="px-4 py-2 mr-10 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
                 disabled={currentQuestionIndex === questions.length - 1}
