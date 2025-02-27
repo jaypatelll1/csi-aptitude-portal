@@ -88,6 +88,7 @@ app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
 app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
 
+
 // Initialize Socket.IO handlers
 initSocketHandlers(start_exam);
 
@@ -105,6 +106,9 @@ app.get('/', (req, res) => {
 
 // Centralized error handling middleware
 app.use(errorHandler);
+
+// EXPORT APP FOR TESTING
+module.exports = app;
 
 server.listen(PORT, HOST, () => {
   console.log(`Server is running at http://${HOST}:${PORT}`);

@@ -490,6 +490,25 @@ const getExamsForUser = async (req, res) => {
   }
 };
 
+
+
+// Function to get exam status
+const getExamStatus = async (req, res) => {
+  try {
+    const { exam_id } = req.params;
+
+    const result = await examModel.getExamStatusById(exam_id);
+    
+    return res.status(200).json(result);
+
+  } catch (error) {
+    console.error("Error fetching exam status:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
 module.exports = {
   createExam,
   getExams,
@@ -505,4 +524,5 @@ module.exports = {
   markLiveExam,
   markPastExam,
   getExamsForUser,
+  getExamStatus
 };

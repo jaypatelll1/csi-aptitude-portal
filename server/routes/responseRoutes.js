@@ -9,7 +9,8 @@ const {
   getPaginatedResponsesForExam,
   deleteExistingResponses,
   submitFinalResponsesAndChangeStatus,
-  getResponsesForUsers
+  getResponsesForUsers,
+  resetUserResponse
 } = require('../controllers/responseController');
 
 
@@ -27,5 +28,6 @@ router.all('/')
 
   .put('/questions/:exam_id/:question_id/:response_id', updateResponse)
   .delete('/questions/:exam_id', deleteResponse);
+  router.post("/clear-response", resetUserResponse);
 
 module.exports = router;
