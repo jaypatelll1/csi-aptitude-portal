@@ -4,7 +4,6 @@ import axios from "axios";
 import io from "socket.io-client";
 import Sidebar from "../../components/student/mcqexampage/Sidebar";
 import {
-  setQuestions,
   setSelectedOption,
   visitQuestion,
   clearQuestions,
@@ -24,7 +23,7 @@ const Stu_Result = () => {
   const Duration = location.state?.Duration;
   const userId = useSelector((state) => state.user.user.id);
   const userName = useSelector((state) => state.user.user.name);
-  const userEmail = useSelector((state) => state.user.user.email);
+  // const userEmail = useSelector((state) => state.user.user.email);
   const { questions, currentQuestionIndex } = useSelector(
     (state) => state.questions
   );
