@@ -3,7 +3,7 @@ const pool = require('../config/db');
 // Initialize connection pool
 
 const query = ` 
-CREATE TYPE role_enum AS ENUM ('TPO','Student');
+CREATE TYPE role_enum AS ENUM ('TPO','Student', 'Teacher', 'Department');
 CREATE TYPE user_status AS ENUM ('NOTACTIVE', 'ACTIVE');
 CREATE TYPE branch_enum AS ENUM ('CMPM', 'INFT', 'ECS', 'EXTC', 'ELEC');
 CREATE TYPE year_enum AS ENUM ('FE', 'SE', 'TE', 'BE');
@@ -12,7 +12,6 @@ CREATE TYPE response_status AS ENUM ('draft', 'submitted');
 
 
 CREATE TABLE users(
-
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(50),
     email VARCHAR(50) UNIQUE,
@@ -26,38 +25,39 @@ CREATE TABLE users(
     phone VARCHAR(15) NULL
 );
 
-
 CREATE TABLE exams (
     exam_id SERIAL PRIMARY KEY,
     exam_name VARCHAR(30),
-    created_by INTEGER,
+    created_by INTEGER REFERENCES users(user_id),
     duration INTEGER,
     start_time TIMESTAMP,
     end_time TIMESTAMP,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP without time zone DEFAULT CURRENT_TIMESTAMP,
     status exam_status DEFAULT 'draft',
-    FOREIGN KEY (created_by) REFERENCES users (user_id)
+    exam_for role_enum NOT NULL DEFAULT 'Student' -- Defines if exam is for students or teachers
 );
 
 CREATE TABLE questions (
     question_id SERIAL PRIMARY KEY,
-    exam_id INTEGER,
+    exam_id INTEGER REFERENCES exams (exam_id),
     question_text TEXT,
-    options JSONB,
-    correct_option CHAR(1),
-    FOREIGN KEY (exam_id) REFERENCES exams (exam_id)
+    question_type question_type_enum NOT NULL DEFAULT 'single_choice',
+    options JSONB, -- Store options in JSON (for single/multiple-choice)
+    correct_option CHAR(1) NULL, -- For single-choice questions
+    correct_options JSONB NULL, -- For multiple-choice questions
+    image_url TEXT NULL -- For image-based questions
 );
 
 CREATE TABLE responses (
     response_id SERIAL PRIMARY KEY,
-    student_id INTEGER,
-    exam_id INTEGER,
-    question_id INTEGER,
-    selected_option CHAR(1),
+    student_id INTEGER REFERENCES users(user_id),
+    exam_id INTEGER REFERENCES exams (exam_id),
+    question_id INTEGER REFERENCES questions (question_id),
+    selected_option CHAR(1) NULL, -- For single-choice
+    selected_options JSONB NULL, -- For multiple-choice or text-based responses
+    text_response TEXT NULL, -- For text-based answers
     answered_at TIMESTAMP,
-    status response_status DEFAULT 'draft',
-    FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
-    FOREIGN KEY (student_id) REFERENCES users (user_id)
+    status response_status DEFAULT 'draft'
 );
 
 CREATE TABLE results (
