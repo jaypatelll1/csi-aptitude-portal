@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
         <ul className="list-none p-0 m-0">
           {/* Dashboard */}
           <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500"
-          onClick = {()=> navigate("/home")}>
+          onClick = {()=> navigate("/teacher")}>
             <span className="mr-2 flex items-center justify-center w-6 h-6">
               <svg
                 width="24"

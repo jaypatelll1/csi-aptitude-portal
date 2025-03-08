@@ -18,7 +18,7 @@ const Adm_Dashboard = () => {
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [tileData, setTileData] = useState([]);
-  const [activeTab, setActiveTab] = useState("drafted");
+  const [activeTab, setActiveTab] = useState("live");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [testsData, setTestsData] = useState({
     drafted: [],
