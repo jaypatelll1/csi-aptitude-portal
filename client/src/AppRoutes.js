@@ -44,6 +44,11 @@ import Stu_Result from "./pages/student/Stu_Result";
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
 import Dep_StudentAnalytics from "./pages/department/Dep_StudentAnalytics";
+import Teacher_Dashboard from "./pages/teacher/Teacher_Dashboard";
+import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
+import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
+import Teacher_UpcomingTest from "./pages/teacher/Teacher_UpcomingTest";
+import Teacher_Result from "./pages/teacher/Teacher_Result";
 
 
 
@@ -102,6 +107,56 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <Stu_Result />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Teacher Routes */}
+      <Route
+        path="/teacher"
+        element={
+          <ProtectedRoute allowedRoles={["Teacher"]}>
+            <Teacher_Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/test-instruction"
+        element={
+          <ProtectedRoute allowedRoles={["Teacher"]}>
+            <Teacher_TestInstruction />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exam/:examId"
+        element={
+          <ProtectedRoute allowedRoles={["Teacher"]}>
+            <Teacher_MCQExamPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upcoming-tests"
+        element={
+          <ProtectedRoute allowedRoles={["Teacher"]}>
+            <Teacher_UpcomingTest />
+          </ProtectedRoute>
+        }
+      />
+      {/* <Route
+        path="/analytics/:user_id"
+        element={
+          <ProtectedRoute allowedRoles={["Student"]}>
+            <Stu_Analytics />
+          </ProtectedRoute>
+        }
+      /> */}
+      <Route
+        path="/results"
+        element={
+          <ProtectedRoute allowedRoles={["Teacher"]}>
+            <Teacher_Result />
           </ProtectedRoute>
         }
       />

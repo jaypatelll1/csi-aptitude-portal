@@ -55,6 +55,9 @@ const Login = () => {
           }else if (userData.role === "Department") {
             navigate("/department", { replace: true });
           }  
+          else if (userData.role === "Teacher") {
+            navigate("/teacher", { replace: true });
+          }  
           else {
             setError("Unauthorized role");
           }
