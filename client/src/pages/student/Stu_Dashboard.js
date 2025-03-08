@@ -230,9 +230,7 @@ setResult(pastPaper.data.results)
               <option value="upcoming">Upcoming</option>
               <option value="past">Past</option>
             </select>
-            <h1 className="font-semibold text-blue-700 text-xs ml-auto mr-3 hover:cursor-pointer">
-              View All
-            </h1>
+            
           </div>
 
           {/* Test Cards */}
