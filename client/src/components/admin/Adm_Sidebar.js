@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Adm_Sidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
     const [showAnalyticsSubmenu, setShowAnalyticsSubmenu] = useState(false);
-  
-  // console.log('testdata is ', testsData);
+    const navigate = useNavigate();
+
+    const handleNavigation = (path) => {
+      navigate(path);
+    };
 
   const toggleSubmenu = () => {
     setShowSubmenu(!showSubmenu);
@@ -19,7 +23,9 @@ const Adm_Sidebar = () => {
         Aptitude
       </h2>
       <ul className="list-none p-0 m-0">
-        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 ">
+        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
+        onClick={() => handleNavigation("/admin")}
+        >
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
             <svg
               width="24"
@@ -39,7 +45,9 @@ const Adm_Sidebar = () => {
           </span>
           <Link to="/admin">Home</Link>
         </li>
-        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 ">
+        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
+        onClick={() => handleNavigation("/admin/studentlist")}
+        >
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
             <svg
               width="32"
