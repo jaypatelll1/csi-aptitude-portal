@@ -16,6 +16,31 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const encryptPassword = async (password) => {
+    const SECRET_KEY = process.env.REACT_APP_KEY.slice(0, 32); // 32 bytes
+    const IV = process.env.REACT_APP_IV.slice(0, 16); // 16 bytes
+
+    console.log(typeof KEY);
+    const encoder = new TextEncoder();
+    const encodedPassword = encoder.encode(password);
+
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(SECRET_KEY),
+      { name: "AES-CBC" },
+      false,
+      ["encrypt"]
+    );
+
+    const encryptedData = await crypto.subtle.encrypt(
+      { name: "AES-CBC", iv: new TextEncoder().encode(IV) },
+      cryptoKey,
+      encodedPassword
+    );
+
+    return btoa(String.fromCharCode(...new Uint8Array(encryptedData))); // Convert to Base64
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -28,13 +53,14 @@ const Login = () => {
     setLoading(true);
 
     try {
+      const encryptedPassword = await encryptPassword(password);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       const response = await axios.post(
         `${API_BASE_URL}/api/users/login`,
         {
           email,
-          password,
+          password: encryptedPassword,
         },
         {
           withCredentials: true,
@@ -52,13 +78,11 @@ const Login = () => {
             navigate("/home", { replace: true });
           } else if (userData.role === "TPO") {
             navigate("/admin", { replace: true });
-          }else if (userData.role === "Department") {
+          } else if (userData.role === "Department") {
             navigate("/department", { replace: true });
-          }  
-          else if (userData.role === "Teacher") {
+          } else if (userData.role === "Teacher") {
             navigate("/teacher", { replace: true });
-          }  
-          else {
+          } else {
             setError("Unauthorized role");
           }
         } else {
@@ -68,18 +92,15 @@ const Login = () => {
         setError("Invalid login credentials");
       }
     } catch (err) {
-      console.log(err)
-      if(err.response.data.error === 'Invalid email or password'){
-        setError("Invalid Email or Password!")
-      } 
-      else if(err.response.data.error === 'User not found'){
-        setError("User Not Found!")
-      }
-      else if (err.response.status === 403) {
+      console.log(err);
+      if (err.response.data.error === "Invalid email or password") {
+        setError("Invalid Email or Password!");
+      } else if (err.response.data.error === "User not found") {
+        setError("User Not Found!");
+      } else if (err.response.status === 403) {
         setError("Login through desktop");
-      }
-      else{
-      setError("An error occurred during login. Please try again.");
+      } else {
+        setError("An error occurred during login. Please try again.");
       }
     } finally {
       setLoading(false);

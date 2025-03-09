@@ -9,6 +9,7 @@ CREATE TYPE branch_enum AS ENUM ('CMPM', 'INFT', 'ECS', 'EXTC', 'ELEC');
 CREATE TYPE year_enum AS ENUM ('FE', 'SE', 'TE', 'BE');
 CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'live', 'past');
 CREATE TYPE response_status AS ENUM ('draft', 'submitted');
+CREATE TYPE question_type_enum AS ENUM ('single_choice', 'multiple_choice', 'text', 'image');
 
 
 CREATE TABLE users(
@@ -84,6 +85,7 @@ CREATE TABLE student_analysis (
     attempted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 CREATE TABLE student_rank (
     rank_id SERIAL PRIMARY KEY,
     student_id INT REFERENCES users(user_id) ON DELETE CASCADE,

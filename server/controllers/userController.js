@@ -26,6 +26,7 @@ const { token } = require('morgan');
 const {generateRandomPassword} = require("../utils/randomPassword")
 const { sendBulkEmailToUsers, sendResetPasswordEmail, } = require('../utils/emailSender');
 const dotenv = require('dotenv');
+const decryptPassword = require('../utils/decryptPassword');
 dotenv.config();
 // Function to create a new user/register
 const registerUser = async (req, res) => {
@@ -96,8 +97,9 @@ const loginUser = async (req, res) => {
       });
       return res.status(404).json({ error: 'User not found' });
     }
+    const decryptedPassword = await decryptPassword(password)
     const isPasswordMatch = await verifyPassword(
-      password,
+      decryptedPassword,
       result.password_hash
     );
     if (!isPasswordMatch) {
