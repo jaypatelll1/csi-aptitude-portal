@@ -26,7 +26,6 @@ const Adm_InputQuestions = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
-  
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -94,6 +93,7 @@ const Adm_InputQuestions = () => {
       setQuestion(questionText);
       const { a = "", b = "", c = "", d = "" } = questionOptions;
       setOptions([a, b, c, d]);
+
       const validOptions = ["a", "b", "c", "d"];
       const correctOptionIndex = validOptions.indexOf(
         questionOptions.correct_option
@@ -104,8 +104,12 @@ const Adm_InputQuestions = () => {
             index === (correctOptionIndex >= 0 ? correctOptionIndex : 0)
         )
       );
+
+      if (location.state?.questionNumber) {
+        setQuestionCount(location.state.questionNumber);
+      }
     }
-  }, [questionText, questionOptions]);
+  }, [questionText, questionOptions, location.state]);
 
   const viewquestions = () => {
     navigate("/admin/viewquestions");
@@ -161,7 +165,7 @@ const Adm_InputQuestions = () => {
 
       let b = findTrueIndex();
       const correctOption = String.fromCharCode(97 + b);
-  
+
       const payload = {
         question_text: `${question}`,
         options: {
@@ -343,8 +347,9 @@ const Adm_InputQuestions = () => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="" hidden disabled className="text-gray-400">
-          {initialCategory || "Select a category"} {/* Show the existing category if editing */}
-        </option>
+                  {initialCategory || "Select a category"}{" "}
+                  {/* Show the existing category if editing */}
+                </option>
                 {validCategories.map((cat, index) => (
                   <option key={index} value={cat} className="text-gray-800">
                     {cat}

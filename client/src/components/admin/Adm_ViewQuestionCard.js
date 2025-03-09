@@ -23,6 +23,7 @@ const Adm_ViewQuestionCard = ({
         exam_id: exam_id,
         correct_option: correct_option,
         category: category,
+        questionNumber: index + 1,
       },
     });
   };
