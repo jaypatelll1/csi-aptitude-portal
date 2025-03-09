@@ -37,6 +37,12 @@ const questionsSlice = createSlice({
       state.questions[index].visited = true;
       
     },
+    toggleMarkForReview: (state, action) => {
+      const index = action.payload;
+      if (state.questions[index]) {
+        state.questions[index].markedForReview = !state.questions[index].markedForReview;
+      }
+    },
     clearQuestions(state,action){
       state.questions =[];
       state.currentQuestionIndex = 0
@@ -44,6 +50,6 @@ const questionsSlice = createSlice({
   },
 });
 
-export const { setQuestions, markAnswered, visitQuestion, setSelectedOption ,clearQuestions} =
+export const { setQuestions, markAnswered, visitQuestion, setSelectedOption ,clearQuestions, toggleMarkForReview} =
   questionsSlice.actions;
 export default questionsSlice.reducer;

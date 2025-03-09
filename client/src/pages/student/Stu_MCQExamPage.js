@@ -7,6 +7,7 @@ import {
   setSelectedOption,
   visitQuestion,
   clearQuestions,
+  toggleMarkForReview,
 } from "../../redux/questionSlice";
 import { clearExamId } from "../../redux/ExamSlice";
 import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponent";
@@ -188,6 +189,9 @@ const Stu_MCQExamPage = () => {
       console.error("Error clearing response:", error);
     }
   };
+  const handleMarkForReview = () => {
+    dispatch(toggleMarkForReview(currentQuestionIndex));
+  };
   return (
     <div className="relative flex-1">
       {/* Main Content */}
@@ -216,7 +220,7 @@ const Stu_MCQExamPage = () => {
           </div>
         )}
 
-        <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8]">
+        <div className="w-9/12 2xl:w-11/12 h-screen px-8 py-6 bg-[#F5F6F8]">
           {exam
             ?.filter((examItem) => examItem.exam_id === Number(examId))
             .map((examItem) => (
@@ -291,16 +295,12 @@ const Stu_MCQExamPage = () => {
                   Clear
                 </button>
 
-                {/* <button
-                  className={`px-4 py-2 rounded-lg ${
-                    questions[currentQuestionIndex]?.markedForReview
-                      ? "bg-purple-500 text-white"
-                      : "bg-gray-300 text-black"
-                  }`}
+                <button
+                  className="px-4 py-2 rounded-lg bg-purple-500 text-white"
                   onClick={handleMarkForReview}
                 >
-                  {questions[currentQuestionIndex]?.markedForReview ? "Unmark" : "Mark for Review"}
-                </button> */}
+                  {questions[currentQuestionIndex]?.markedForReview ? "Mark for Review" : "Mark for Review"}
+                </button>
               <button
                 className="px-4 py-2 mr-10 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
                 disabled={currentQuestionIndex === questions.length - 1}
