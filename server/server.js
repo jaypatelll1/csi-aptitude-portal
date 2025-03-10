@@ -69,7 +69,7 @@ app.use(express.urlencoded({ extended: false }));
 // app.use("/uploads", express.static(path.resolve("./uploads")));
 
 // utils
-// app.use(limiter);
+app.use(limiter);
 
 // Routes
 app.use('/api/users', userRoutes, fileRoutes);
