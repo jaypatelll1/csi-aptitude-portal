@@ -323,6 +323,20 @@ const Adm_InputQuestions = () => {
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <div className="mb-4">
+              <label className="text-xl block text-gray-700 font-medium mb-2">
+                Question Type:
+              </label>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={questionType}
+                onChange={(e) => setQuestionType(e.target.value)}
+              >
+                <option value="single">Single Choice</option>
+                <option value="multiple">Multiple Choice</option>
+                <option value="text">Text</option>
+              </select>
+            </div>
+            <div className="mb-4">
               <label
                 htmlFor="question"
                 className="text-xl block text-gray-700 font-medium mb-2"
@@ -357,62 +371,69 @@ const Adm_InputQuestions = () => {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="text-xl block text-gray-700 font-medium mb-2">
-                Options:
-              </label>
-              {options.map((answer, index) => (
-                <div
-                  key={index}
-                  className="group flex items-center gap-4 mb-2 p-3 rounded-lg "
-                >
-                  <input
-                    type="text"
-                    value={answer}
-                    onChange={(e) => handleAnswerChange(index, e.target.value)}
-                    placeholder={`Enter option ${index + 1}`}
-                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    onClick={() => handleToggleChange(index)}
-                    className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                      toggles[index] ? "bg-[#449800]" : "bg-gray-300"
-                    }`}
+            {questionType !== "text" && (
+              <div>
+                <label className="text-xl block text-gray-700 font-medium mb-2">
+                  Options:
+                </label>
+                {options.map((answer, index) => (
+                  <div
+                    key={index}
+                    className="group flex items-center gap-4 mb-2 p-3 rounded-lg"
                   >
-                    <div
-                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
-                        toggles[index] ? "translate-x-6" : "translate-x-0"
-                      }`}
+                    <input
+                      type="text"
+                      value={answer}
+                      onChange={(e) =>
+                        handleAnswerChange(index, e.target.value)
+                      }
+                      placeholder={`Enter option ${index + 1}`}
+                      className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                  </button>
-                  <button
-                    onClick={() => handleRemoveAnswer(index)}
-                    className="text-red-500 hover:text-red-700 ml-2"
-                  >
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                    {/* Toggle Button */}
+                    <button
+                      onClick={() => handleToggleChange(index)}
+                      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
+                        toggles[index] ? "bg-[#449800]" : "bg-gray-300"
+                      }`}
                     >
-                      <path
-                        d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"
-                        fill="currentColor"
+                      <div
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
+                          toggles[index] ? "translate-x-6" : "translate-x-0"
+                        }`}
                       />
-                    </svg>
+                    </button>
+                    {/* Remove Option Button */}
+                    <button
+                      onClick={() => handleRemoveAnswer(index)}
+                      className="text-red-500 hover:text-red-700 ml-2"
+                    >
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {/* Add Answer Button */}
+                {options.length < 4 && (
+                  <button
+                    onClick={handleAddAnswer}
+                    className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
+                  >
+                    + Add Answer
                   </button>
-                </div>
-              ))}
-              {options.length < 4 && (
-                <button
-                  onClick={handleAddAnswer}
-                  className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
-                >
-                  + Add Answer
-                </button>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex gap-4 justify-between">
             <button
