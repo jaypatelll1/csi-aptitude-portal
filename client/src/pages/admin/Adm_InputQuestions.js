@@ -15,9 +15,11 @@ const validCategories = [
   "general knowledge",
 ];
 
+const validQusetionTypes = ["single_choice", "multiple_choice", "text"];
+
 const Adm_InputQuestions = () => {
   const [question, setQuestion] = useState("");
-  const [questionType, setQuestionType] = useState("single");
+  const [questionsType, setQuestionsType] = useState("single_choice");
   const [options, setOptions] = useState(["", "", "", ""]);
   const [toggles, setToggles] = useState([false, false, false, false]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -79,37 +81,54 @@ const Adm_InputQuestions = () => {
     }
   };
 
+
   const {
     questionId,
+    questionType,
     questionText,
     questionOptions = {},
     exam_id,
     correct_option,
+    correct_options,
+    image_url,
     category: initialCategory,
   } = location.state || {};
 
   useEffect(() => {
-    if (questionText && questionOptions) {
+    if (location.state) {
       setQuestion(questionText);
-      const { a = "", b = "", c = "", d = "" } = questionOptions;
-      setOptions([a, b, c, d]);
+      setQuestionsType(questionType);
 
-      const validOptions = ["a", "b", "c", "d"];
-      const correctOptionIndex = validOptions.indexOf(
-        questionOptions.correct_option
-      );
-      setToggles(
-        validOptions.map(
-          (option, index) =>
-            index === (correctOptionIndex >= 0 ? correctOptionIndex : 0)
-        )
-      );
+      if (questionType === "text") {
+        setOptions([]); // Clear options for text-based questions
+        setToggles([]); // No toggles needed for text questions
+
+      } else {
+        const { a = "", b = "", c = "", d = "" } = questionOptions;
+        setOptions([a, b, c, d]);
+
+        const validOptions = ["a", "b", "c", "d"];
+
+        let correctOptionIndexes = [];
+
+        if (correct_option) {
+          correctOptionIndexes = [validOptions.indexOf(correct_option)];
+        } else if (Array.isArray(correct_options)) {
+          correctOptionIndexes = correct_options
+            .map((opt) => validOptions.indexOf(opt))
+            .filter((index) => index >= 0);
+        }
+
+        setToggles(
+          validOptions.map((_, index) => correctOptionIndexes.includes(index))
+        );
+      }
 
       if (location.state?.questionNumber) {
         setQuestionCount(location.state.questionNumber);
       }
     }
-  }, [questionText, questionOptions, location.state]);
+  }, [questionText, questionOptions, questionType, location.state]);
 
   const viewquestions = () => {
     navigate("/admin/viewquestions");
@@ -137,7 +156,7 @@ const Adm_InputQuestions = () => {
 
   const handleToggleChange = (index) => {
     const newToggles = [...toggles];
-    if (questionType === "single") {
+    if (questionsType === "single_choice") {
       newToggles.fill(false);
       newToggles[index] = true;
     } else {
@@ -147,8 +166,11 @@ const Adm_InputQuestions = () => {
   };
 
   const handleSubmit = async () => {
-    if (question && options.every((option) => option.trim() !== "")) {
-      if (!toggles.includes(true)) {
+    if (
+      (question && options.every((option) => String(option).trim() !== "")) ||
+      questionType === "text"
+    ) {
+      if (!toggles.includes(true) && questionType !== "text") {
         alert("Please select at least one correct answer.");
         return;
       }
@@ -158,15 +180,22 @@ const Adm_InputQuestions = () => {
         return;
       }
 
-      const findTrueIndex = () => {
-        var a = toggles.findIndex((toggle) => toggle === true);
-        return a !== -1 ? a : "No true value found";
-      };
+      const findTrueIndices = () =>
+        toggles
+          .map((toggle, index) => (toggle ? index : -1))
+          .filter((index) => index !== -1);
 
-      let b = findTrueIndex();
-      const correctOption = String.fromCharCode(97 + b);
+      let b = findTrueIndices();
+
+      const correctOption =
+        b.length === 1 ? String.fromCharCode(97 + b[0]) : null;
+      const correctOptions =
+        b.length === 1
+          ? null
+          : b.map((index) => String.fromCharCode(97 + index));
 
       const payload = {
+        question_type: b.length === 1 ? "single_choice" : `${questionsType}`,
         question_text: `${question}`,
         options: {
           a: `${options[0]}`,
@@ -174,8 +203,10 @@ const Adm_InputQuestions = () => {
           c: `${options[2]}`,
           d: `${options[3]}`,
         },
-        correct_option: `${correctOption}`,
+        correct_option: correctOption ? `${correctOption}` : null,
+        correct_options: correctOptions ? new Array(...correctOptions) : null,
         category: category,
+        image_url: null,
       };
 
       try {
@@ -328,12 +359,14 @@ const Adm_InputQuestions = () => {
               </label>
               <select
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={questionType}
-                onChange={(e) => setQuestionType(e.target.value)}
+                value={questionsType}
+                onChange={(e) => setQuestionsType(e.target.value)}
               >
-                <option value="single">Single Choice</option>
-                <option value="multiple">Multiple Choice</option>
-                <option value="text">Text</option>
+                {validQusetionTypes.map((qtype, index) => (
+                  <option key={index} value={qtype}>
+                    {qtype.replace("_", " ")}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mb-4">
@@ -371,7 +404,7 @@ const Adm_InputQuestions = () => {
                 ))}
               </select>
             </div>
-            {questionType !== "text" && (
+            {questionsType !== "text" && (
               <div>
                 <label className="text-xl block text-gray-700 font-medium mb-2">
                   Options:

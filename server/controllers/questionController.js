@@ -2,36 +2,63 @@ const questionModel = require('../models/questionModel');
 const { logActivity } = require('../utils/logActivity');
 
 const createQuestions = async (req, res) => {
-  const { question_text, options, correct_option,category  } = req.body;
+  let {
+    question_type,
+    question_text,
+    options,
+    correct_option,
+    correct_options,
+    category,
+    image_url,
+  } = req.body;
   const { exam_id } = req.params;
   const id = req.user.id; // Get user_id from token
-  
 
-  if (!exam_id || !question_text || !options || !correct_option || !category) {
+  if (!exam_id || !question_type || !question_text || !options || !category) {
     return res.status(400).json({ error: 'All fields are required' });
   }
- // Convert category to lowercase and validate it against ENUM values
- const category_type = category.toLowerCase();
- const validCategories = [
-   'quantitative aptitude',
-   'logical reasoning',
-   'verbal ability',
-   'technical',
-   'general knowledge',
- ];
+  // Convert category to lowercase and validate it against ENUM values
+  const category_type = category.toLowerCase();
+  const validCategories = [
+    'quantitative aptitude',
+    'logical reasoning',
+    'verbal ability',
+    'technical',
+    'general knowledge',
+  ];
 
+  if (!validCategories.includes(category_type)) {
+    return res.status(400).json({ error: 'Invalid category value' });
+  }
 
- if (!validCategories.includes(category_type)) {
-  return res.status(400).json({ error: 'Invalid category value' });
-}
+  const validQuestionTypes = [
+    'single_choice',
+    'multiple_choice',
+    'text',
+    'image',
+  ];
+
+  if (!validQuestionTypes.includes(question_type)) {
+    return res.status(400).json({ error: 'Invalid question type value' });
+  }
+
+  if (correct_options) {
+    correct_options =
+      correct_options.length > 0 ? JSON.stringify(correct_options) : null;
+  }
+
+  if (question_type === 'text') options = null;
 
   try {
     const newQuestion = await questionModel.insertQuestion(
       exam_id,
+      question_type,
       question_text,
       options,
       correct_option,
-      category_type
+      correct_options,
+      category_type,
+      image_url
     );
     if (!newQuestion) {
       await logActivity({
@@ -120,35 +147,63 @@ const getStudentQuestion = async (req, res) => {
 
 const UpdateQuestion = async (req, res) => {
   const { question_id, exam_id } = req.params;
-  const { question_text, options, correct_option ,category} = req.body;
+  let {
+    question_type,
+    question_text,
+    options,
+    correct_option,
+    correct_options,
+    category,
+    image_url,
+  } = req.body;
   const id = req.user.id; // Get user_id from token
 
-  
-  if (!exam_id || !question_id|| !question_text || !options || !correct_option || !category) {
+  if (!exam_id || !question_id || !question_text || !options || !category) {
     return res.status(400).json({ error: 'All fields are required' });
   }
- // Convert category to lowercase and validate it against ENUM values
- const category_type = category.toLowerCase();
- const validCategories = [
-   'quantitative aptitude',
-   'logical reasoning',
-   'verbal ability',
-   'technical',
-   'general knowledge',
- ];
+  // Convert category to lowercase and validate it against ENUM values
+  const category_type = category.toLowerCase();
+  const validCategories = [
+    'quantitative aptitude',
+    'logical reasoning',
+    'verbal ability',
+    'technical',
+    'general knowledge',
+  ];
 
+  if (!validCategories.includes(category_type)) {
+    return res.status(400).json({ error: 'Invalid category value' });
+  }
 
- if (!validCategories.includes(category_type)) {
-  return res.status(400).json({ error: 'Invalid category value' });
-}
+  const validQuestionTypes = [
+    'single_choice',
+    'multiple_choice',
+    'text',
+    'image',
+  ];
+
+  if (!validQuestionTypes.includes(question_type)) {
+    return res.status(400).json({ error: 'Invalid question type value' });
+  }
+
+  if (correct_options) {
+    correct_options =
+      correct_options.length > 0 ? JSON.stringify(correct_options) : null;
+  }
+
+  if (question_type === 'text') options = null;
+
   try {
     const questions = await questionModel.UpdateQuestions(
       question_id,
       exam_id,
+      question_type,
       question_text,
       options,
       correct_option,
-      category_type
+      correct_options,
+      category_type,
+      image_url
     );
 
     if (!questions) {
@@ -236,5 +291,5 @@ module.exports = {
   UpdateQuestion,
   DeleteQuestion,
   getPaginatedQuestionsByExam,
-  getStudentQuestion
+  getStudentQuestion,
 };
