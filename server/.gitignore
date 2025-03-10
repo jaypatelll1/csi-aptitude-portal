@@ -6,6 +6,4 @@ exports
 work.txt
 
 index.js
-logs/app.log
-error.log
-logs/*.log
+logs/
