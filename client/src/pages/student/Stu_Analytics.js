@@ -178,7 +178,7 @@ function Stu_Analytics() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100 mb-4">
+    <div className="min-h-screen flex bg-gray-100 mb-4 overflow-x-hidden">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
@@ -265,7 +265,7 @@ function Stu_Analytics() {
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6 ">
           {/* Accuracy Rate - Donut Chart */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
             <DonutChartComponent data={accuracyData} />
