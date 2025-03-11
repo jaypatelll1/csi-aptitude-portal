@@ -14,7 +14,7 @@ const getOverallResultsOfAStudent = async (student_id) => {
 
     // Calculate status for each result
     const resultsWithPercentage = result.rows.map((row) => {
-      const percentage = ((row.total_score / row.max_score) * 100).toFixed(2); // Up to 3 decimal places
+      const percentage = Math.round((row.total_score / row.max_score) * 100); // Up to 3 decimal places
       return {
         analysis_id: row.analysis_id,
         department: row.department_name,
@@ -187,7 +187,7 @@ async function getStudentRank(student_id) {
 
 async function getPerformanceOverTime(student_id) {
   try {
-    const result = await query(` SELECT 
+    const result = await query(`SELECT 
  		sa.student_id,
           sa.exam_id, 
           sa.exam_name, 

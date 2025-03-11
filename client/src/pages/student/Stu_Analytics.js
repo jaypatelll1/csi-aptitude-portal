@@ -16,7 +16,8 @@ function Stu_Analytics() {
   const [data, setData] = useState([]);
   const [avgData, setAvgData] = useState([]);
   const [performanceData, setPerformanceData] = useState([]);
-  const [sup, setSup] = useState("");
+  const [dSup, setDSup] = useState(""); // superscript of department rank
+  const [oSup, setOSup] = useState(""); // superscript of overall rank
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
   const [rankData, setRankData] = useState([]);
@@ -50,7 +51,10 @@ function Stu_Analytics() {
       setAvgData(response.data.avg_results);
 
       setRankData(response.data.rank);
-      if (response.data.rank) superscript(response.data.rank.department_rank);
+      if (response.data.rank) {
+        superscript(setDSup, response.data.rank.department_rank); // set dept rank superscript
+        superscript(setOSup, response.data.rank.overall_rank); // // set overall rank superscript
+      }
 
       setPerformanceData(response.data.performance_over_time);
 
@@ -83,12 +87,12 @@ function Stu_Analytics() {
     })),
   };
 
-  const superscript = (rank) => {
+  const superscript = (changeUsestateValue, rank) => {
     const condition = rank % 10;
-    if (condition === 1) setSup("st");
-    else if (condition === 2) setSup("nd");
-    else if (condition === 3) setSup("rd");
-    else setSup("th");
+    if (condition === 1) changeUsestateValue("st");
+    else if (condition === 2) changeUsestateValue("nd");
+    else if (condition === 3) changeUsestateValue("rd");
+    else changeUsestateValue("th");
   };
 
   useEffect(() => {
@@ -227,28 +231,25 @@ function Stu_Analytics() {
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
           {/* Rank Display */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
-            <div>
-            <h2 className="text-gray-700 mt-12 text-lg font-medium">
-            Department
-            Rank
-            </h2>
-            <span className="text-5xl  font-bold text-gray-900">
-              {rankData.rank}
-              <sup className="text-xl">{sup}</sup>
-            </span>
+            <div className="flex flex-col items-center">
+              <h2 className="text-gray-700 mt-12 text-lg font-medium">
+                Department Rank
+              </h2>
+              <span className="text-5xl flex items-center font-bold text-gray-900">
+                {rankData.department_rank}
+                <sup className="text-xl">{dSup}</sup>
+              </span>
             </div>
-            <div>
-            <h2 className="text-gray-700 mt-12 text-lg font-medium">
-            Overall 
-            Rank
-            </h2>
-            <span className="text-5xl  font-bold text-gray-900">
-              {rankData && rankData.department_rank}
-              <sup className="text-xl">{sup}</sup>
-            </span>
+            <div className="flex flex-col items-center">
+              <h2 className="text-gray-700 mt-12 text-lg font-medium">
+                Overall Rank
+              </h2>
+              <span className="text-5xl flex items-center font-bold text-gray-900">
+                {rankData && rankData.overall_rank}
+                <sup className="text-xl">{oSup}</sup>
+              </span>
             </div>
           </div>
-          
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
@@ -268,7 +269,6 @@ function Stu_Analytics() {
           {/* Accuracy Rate - Donut Chart */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
             <DonutChartComponent data={accuracyData} />
-            
           </div>
 
           {/* Subject-wise Performance - Radar Chart */}

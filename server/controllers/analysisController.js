@@ -212,13 +212,11 @@ const generateAllAnalysis = async (req, res) => {
   const { student_id } = req.params;
 
   try {
-    const overall_resultS =
-      await analysisModel.getOverallResultsOfAStudent(student_id);
+    const overall_resultS = await analysisModel.getOverallResultsOfAStudent(student_id);
     const avg_results = await analysisModel.avgResults(student_id);
     const rank = await analysisModel.getStudentRank(student_id);
     const test_completion_data = await analysisModel.testCompletion(student_id);
-    const performance_over_time =
-      await analysisModel.getPerformanceOverTime(student_id);
+    const performance_over_time = await analysisModel.getPerformanceOverTime(student_id);
 
     res
       .status(200)
