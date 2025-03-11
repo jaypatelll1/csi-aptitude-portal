@@ -129,7 +129,6 @@ const loginUser = async (req, res) => {
       status: 'success',
       details: 'User logged in successfully',
     });
-
     res.cookie('jwttoken', token, {
       expires: new Date(Date.now() + 86400000),
       httpOnly: true,

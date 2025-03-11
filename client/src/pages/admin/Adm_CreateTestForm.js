@@ -46,6 +46,7 @@ const Adm_CreateTestPage = () => {
     };
 
     try {
+     if(userType === "Student"){
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(`${API_BASE_URL}/api/exams`, payload, {
         withCredentials: true,
@@ -53,6 +54,18 @@ const Adm_CreateTestPage = () => {
       const examId = response.data.newExam.exam_id;
       dispatch(setExamId(examId));
       navigate("/admin/input");
+     }
+     if(userType === "Teacher"){
+
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      // console.log(API_BASE_URL)
+      const response = await axios.post(`http://localhost:4000/api/exams/create/teacher`, payload, {
+        withCredentials: true,
+      });
+      const examId = response.data.newExam.exam_id;
+      dispatch(setExamId(examId));
+      navigate("/admin/input");
+     }
     } catch (error) {
       alert("Invalid Input");
       console.error(

@@ -6,14 +6,14 @@ import Details from "../../components/NavbarDetails";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setExam , clearExamId } from "../../redux/ExamSlice";
+import { setExam, clearExamId } from "../../redux/ExamSlice";
 import { clearUser } from "../../redux/userSlice";
 import { clearQuestions } from "../../redux/questionSlice";
 
 
 function Teacher_Dashboard() {
   const userData = useSelector((state) => state.user.user);
-    let examId = useSelector((state)=>state.exam.examId)
+  let examId = useSelector((state) => state.exam.examId)
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -23,64 +23,55 @@ function Teacher_Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    
+
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
     const options = { day: "2-digit", month: "short", year: "numeric" };
     return date.toLocaleDateString("en-IN", options);
   };
-  const fetchTests = async (filterType) => {
+
+  const fetchTestsMadeForTeachers = async (status) => {
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    let payload;
-    let url = `${API_BASE_URL}/api/exams/student`; // Default for "All"
-    if (filterType === "all") {
-      payload = {
-        status: "live",
-        target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`,
-      };
-    } else if (filterType === "upcoming") {
-      payload = {
-        status: "scheduled",
-        target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`,
-      };
-    } else if (filterType === "past") {
-      payload = {
-        status: "past",
-        target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`,
-      };
+    let url = `${API_BASE_URL}/api/exams/teacher`; // Default for "All"
+    console.log(status)
+    if (typeof status !== "string" || status.trim() === "") {
+      throw new Error("Status Invalid");
     }
 
     try {
-      const response = await axios.post(url, payload,{
+      const response = await axios.get(url, {
+        params: {
+          status
+        },
         withCredentials: true,  // Make sure the cookie is sent with the request
-    });
-      // console.log('response is ', response);
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/student/${userData.id}`,{
-  withCredentials: true,  // Make sure the cookie is sent with the request
-})
+      });
+      console.log('response is ', response);
+      // let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      // const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/teacher/${userData.id}`, {
+      //   withCredentials: true,  // Make sure the cookie is sent with the request
+      // })
 
-const responseExamId = await axios.get(
-  `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
-  { withCredentials: true }
-);
+      const responseExamId = await axios.get(
+        `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+        { withCredentials: true }
+      );
 
- dispatch(setExam(response.data.exams ));
-// console.log('past tests is ', pastPaper);
-setResult(pastPaper.data.results)
-// console.log('responseExamId.data',responseExamId.data);
-// dispatch(markSubmit(responseExamId.data))
-      setTests(response.data.exams || []);
+      dispatch(setExam(response.data.exams));
+      // console.log('past tests is ', pastPaper);
+      // setResult(pastPaper.data.results)
+      // console.log(result)
+      // console.log('responseExamId.data',responseExamId.data);
+      // dispatch(markSubmit(responseExamId.data))
+      const fetchedTests = response.data.exams || []
+      setTests((prevTests) => JSON.stringify(prevTests) !== JSON.stringify(fetchedTests) ? fetchedTests : prevTests);
     } catch (err) {
       console.error("error getting response ", err);
     }
-  };
+
+  }
 
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -100,7 +91,7 @@ setResult(pastPaper.data.results)
   }, []);
 
   useEffect(() => {
-    fetchTests(filter);
+    fetchTestsMadeForTeachers(filter)
   }, [filter]);
 
   const openDetails = () => setIsDetailsOpen(true);
@@ -122,35 +113,35 @@ setResult(pastPaper.data.results)
     };
   }, []);
 
-  
+
 
   const handleOnline = async () => {
     try {
       alert("You are online!");
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const response = await axios.post(`${API_BASE_URL}/api/users/logout`,{
-      withCredentials: true,  // Make sure the cookie is sent with the request
-  });
-    dispatch(clearUser());
-    dispatch(clearExamId(examId))
-    dispatch(clearQuestions())
-  
-    navigate("/", { replace: true });
+      const response = await axios.post(`${API_BASE_URL}/api/users/logout`, {
+        withCredentials: true,  // Make sure the cookie is sent with the request
+      });
+      dispatch(clearUser());
+      dispatch(clearExamId(examId))
+      dispatch(clearQuestions())
+
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Error handling online event:", error); // Log any potential errors
     }
   };
-  
+
   useEffect(() => {
     // Add the 'online' event listener when the component mounts
     window.addEventListener('online', handleOnline);
-  
+
     // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener('online', handleOnline);
     };
   }, []);
-  
+
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value); // Update filter
@@ -163,9 +154,8 @@ setResult(pastPaper.data.results)
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-        } transition-transform duration-300 w-64 xl:block`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+          } transition-transform duration-300 w-64 xl:block`}
       >
         <Teacher_Sidebar />
       </div>
@@ -227,10 +217,11 @@ setResult(pastPaper.data.results)
               onChange={handleFilterChange}
             >
               <option value="all">All tests</option>
-              <option value="upcoming">Upcoming</option>
+              <option value="live">Live</option>
+              <option value="scheduled">Upcoming</option>
               <option value="past">Past</option>
             </select>
-            
+
           </div>
 
           {/* Test Cards */}

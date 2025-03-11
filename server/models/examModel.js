@@ -11,10 +11,24 @@ const createExam = async (exam) => {
     return result.rows[0];
   } catch (err) {
     console.error(err.name); // Output: RangeError
-  console.error(err.message); // Output: Value must be a non-negative number.
+    console.error(err.message); // Output: Value must be a non-negative number.
   }
- 
+
 };
+
+const createExamForTeachersModel = async (exam) => {
+  try {
+    const { name, duration, created_by } = exam;
+    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches, exam_for) VALUES ($1, $2, $3, $4,$5,$6,$7) RETURNING  *`;
+    const values = [name, duration, created_by, 'draft', null, null, 'Teacher'];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  } catch (err) {
+    console.error(err.name); // Output: RangeError
+    console.error(err.message); // Output: Value must be a non-negative number.
+  }
+
+}
 
 const getExams = async () => {
   const query = `SELECT * FROM exams`;
@@ -185,11 +199,77 @@ GROUP BY e.exam_id, e.status, e.target_branches, e.target_years
 ORDER BY e.exam_id DESC;                  
     `;
 
-   
+
     const result = await pool.query(queryTEXT, [status, target_branches, target_years]);
 
-    
+
     return result;
+  } catch (error) {
+    console.error('Error fetching exams:', error.message);
+    throw error; // Re-throw the error for higher-level handling
+  }
+};
+
+const getExamsForTeachers = async (status) => {
+  console.log(status)
+  try {
+    if (status === "all") {
+      
+      const queryTEXT = `
+ SELECT DISTINCT
+  e.exam_id,
+  e.exam_name,
+  e.status,
+  e.target_branches,
+  e.target_years,
+  e.duration,
+  e.created_at,
+  e.start_time,
+  e.end_time,
+  COUNT(q.exam_id) AS total_questions  
+FROM exams AS e
+LEFT JOIN questions AS q ON q.exam_id = e.exam_id
+WHERE 
+      e.status IN ('live','past','scheduled')
+      AND 
+  e.exam_for = 'Teacher'                              
+GROUP BY e.exam_id, e.exam_name, e.status, e.target_branches, e.target_years, 
+         e.duration, e.created_at, e.start_time, e.end_time  
+ORDER BY e.exam_id DESC;`;
+
+
+      const result = await pool.query(queryTEXT);
+      
+      console.log(result)
+      return result;
+    } else {
+      const queryTEXT = `
+ SELECT DISTINCT
+  e.exam_id,
+  e.exam_name,
+  e.status,
+  e.target_branches,
+  e.target_years,
+  e.duration,
+  e.created_at,
+  e.start_time,
+  e.end_time,
+  COUNT(q.exam_id) AS total_questions  
+FROM exams AS e
+LEFT JOIN questions AS q ON q.exam_id = e.exam_id
+WHERE 
+  e.status = $1
+  AND e.exam_for = 'Teacher'                              
+GROUP BY e.exam_id, e.exam_name, e.status, e.target_branches, e.target_years, 
+         e.duration, e.created_at, e.start_time, e.end_time  
+ORDER BY e.exam_id DESC;`;
+
+
+      const result = await pool.query(queryTEXT, [status]);
+
+
+      return result;
+    }
   } catch (error) {
     console.error('Error fetching exams:', error.message);
     throw error; // Re-throw the error for higher-level handling
@@ -199,10 +279,9 @@ ORDER BY e.exam_id DESC;
 
 
 
-
 const getPaginatedExams = async (page, limit, status) => {
 
-    const query = `SELECT DISTINCT
+  const query = `SELECT DISTINCT
     e.exam_id, 
     e.exam_name, 
 e.duration,
@@ -229,7 +308,7 @@ GROUP BY
   return result.rows;
 
 }
-  
+
 // const getPaginatedLiveExams = async (page, limit) => {
 //   const query = `SELECT 
 //     e.exam_id, 
@@ -262,8 +341,8 @@ const getLastExam = async () => {
 
 // Get Exam Status by ID
 const getExamStatusById = async (exam_id) => {
-    try {
-        // Fetch exam start and end time
+  try {
+    // Fetch exam start and end time
     const result = await pool.query(
       "SELECT exam_id, start_time, end_time, status FROM exams WHERE exam_id = $1",
       [exam_id]
@@ -275,10 +354,10 @@ const getExamStatusById = async (exam_id) => {
 
     return result.rows[0];
 
-    } catch (error) {
-        console.error("Database Error in getExamStatusById:", error);
-        throw error;
-    }
+  } catch (error) {
+    console.error("Database Error in getExamStatusById:", error);
+    throw error;
+  }
 };
 
 module.exports = {
@@ -297,5 +376,7 @@ module.exports = {
   getLastExam,
   getExamsByStatus,
   ExamCount,
-  getExamStatusById
+  getExamStatusById,
+  createExamForTeachersModel,
+  getExamsForTeachers
 };  
