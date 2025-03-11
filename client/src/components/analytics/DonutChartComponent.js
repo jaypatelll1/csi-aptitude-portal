@@ -17,10 +17,10 @@ const DonutChartComponent = ({ data }) => {
     : percentageData["Correct"];
 
   return (
-    <div className="flex flex-col items-center relative">
-      <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
-      <div className="relative w-[250px] h-[250px] flex items-center justify-center">
-        <ResponsiveContainer width="100%" height="100%">
+    <div className="flex flex-col items-center relative ">
+      <h2 className="text-xl font-medium  text-[#1349C5]">{data.title}</h2>
+      <div className="relative w-[250px] h-[250px] mt-10 flex items-center justify-center">
+        <ResponsiveContainer className="" width="100%" height="100%">
           <PieChart>
             <Pie
               data={data.chartData}
@@ -28,7 +28,7 @@ const DonutChartComponent = ({ data }) => {
               nameKey="name"
               cx="50%"
               cy="50%"
-              innerRadius={70} 
+              innerRadius={75} 
               outerRadius={100}
               label={false} 
               onMouseEnter={(entry) => setHoveredValue(entry.name)} 
@@ -43,7 +43,7 @@ const DonutChartComponent = ({ data }) => {
           </PieChart>
         </ResponsiveContainer>
         {/* Properly Centered Percentage */}
-        <div className="absolute text-4xl font-bold text-gray-700">
+        <div className="absolute text-4xl font-bold mb-4 text-gray-700">
           {displayPercentage}%
         </div>
       </div>

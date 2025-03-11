@@ -174,7 +174,7 @@ function Stu_Analytics() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-gray-100 mb-4">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
@@ -227,14 +227,28 @@ function Stu_Analytics() {
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
           {/* Rank Display */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
-            <h2 className="text-gray-700 mt-24 text-lg font-medium">
-              Your Department Rank
+            <div>
+            <h2 className="text-gray-700 mt-12 text-lg font-medium">
+            Department
+            Rank
+            </h2>
+            <span className="text-5xl  font-bold text-gray-900">
+              {rankData.rank}
+              <sup className="text-xl">{sup}</sup>
+            </span>
+            </div>
+            <div>
+            <h2 className="text-gray-700 mt-12 text-lg font-medium">
+            Overall 
+            Rank
             </h2>
             <span className="text-5xl  font-bold text-gray-900">
               {rankData && rankData.department_rank}
               <sup className="text-xl">{sup}</sup>
             </span>
+            </div>
           </div>
+          
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
@@ -254,9 +268,7 @@ function Stu_Analytics() {
           {/* Accuracy Rate - Donut Chart */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
             <DonutChartComponent data={accuracyData} />
-            <p className="text-2xl font-bold mt-2">
-              {Math.round((correct / total) * 100)}%
-            </p>
+            
           </div>
 
           {/* Subject-wise Performance - Radar Chart */}
