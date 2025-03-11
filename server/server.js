@@ -29,6 +29,9 @@ const deptRoutes = require('./routes/deptAnalysisRoutes');
 const tpoRoutes = require('./routes/tpoAnalysisRoutes');
 const rankRoutes = require('./routes/rankRoutes');
 
+const uploadRoutes = require("./routes/uploadRoutes");
+
+
 // Initialize the app
 const app = express();
 const server = http.createServer(app);
@@ -64,12 +67,14 @@ app.use(
 app.use(express.json());
 app.use(bodyParser.json());
 
+app.use(express.urlencoded({ extended: true }));// Handle form-data requests properly
+
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 // app.use("/uploads", express.static(path.resolve("./uploads")));
 
 // utils
-app.use(limiter);
+// app.use(limiter);
 
 // Routes
 app.use('/api/users', userRoutes, fileRoutes);
@@ -87,6 +92,8 @@ const start_exam = io.of('/exams/start-exam');
 app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
 app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
+
+app.use("/api", uploadRoutes);
 
 
 // Initialize Socket.IO handlers

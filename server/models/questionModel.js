@@ -131,6 +131,14 @@ const getPaginatedQuestionsByExam = async (exam_id, page, limit) => {
   return result.rows;
 };
 
+// Update question with image URL
+async function updateQuestionImage(exam_id, question_id, image_url) {
+  const queryText = `UPDATE questions SET image_url = $1 WHERE exam_id = $2 AND question_id = $3 RETURNING *`;
+  const values = [image_url, exam_id, question_id];
+  const { rows } = await query(queryText, values);
+  return rows[0];
+}
+
 module.exports = {
   createQuestionsTable,
   insertQuestion,
@@ -139,4 +147,5 @@ module.exports = {
   DeleteQuestions,
   getPaginatedQuestionsByExam,
   getStudentQuestionsByExamId,
+  updateQuestionImage
 };
