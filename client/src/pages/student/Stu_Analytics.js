@@ -14,8 +14,8 @@ function Stu_Analytics() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [testCompletionData, setTestCompletionData] = useState(null);
   const [data, setData] = useState([]);
-  const [setAvgData] = useState([]);
-  const [setPerformanceData] = useState([]);
+  const [avgData, setAvgData] = useState([]);
+  const [performanceData, setPerformanceData] = useState([]);
   const [sup, setSup] = useState("");
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
@@ -39,52 +39,23 @@ function Stu_Analytics() {
     };
   }, []);
 
-  const fetchData = async () => {
+  const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
+      let url = `${API_BASE_URL}/api/analysis/all-analysis/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
-      // console.log(response.data);
-      setData(response.data.results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      console.log(response.data);
+      setData(response.data.overall_resultS);
 
-  const fetchAvgData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/avg-results/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      // console.log("avg data", response.data.result);
-      setAvgData(response.data.result);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      setAvgData(response.data.avg_results);
 
-  const fetchRankData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/rank/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
+      setRankData(response.data.rank);
+      if (response.data.rank) superscript(response.data.rank.department_rank);
 
-    
-      setRankData(response.data.result);
-      superscript(response.data.result.rank);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      setPerformanceData(response.data.performance_over_time);
 
-  const fetchCompletionData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/tests-completed/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-
-      const { attempted, total } = response.data.exams;
-
+      const { attempted, total } = response.data.test_completion_data;
+      console.log(response.data.test_completion_data);
       setTestCompletionData({
         title: "Test Completion Rate",
         chartData: [
@@ -97,28 +68,9 @@ function Stu_Analytics() {
     }
   };
 
-  const fetchPerformanceOverTimeData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/performance-over-time/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setPerformanceData(response.data.result)
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  // console.log(data);
-  // console.log("testData", testCompletionData);
-  // console.log("avgData", avgData);
-
   useEffect(() => {
     if (user_id) {
-      fetchData();
-      fetchCompletionData();
-      fetchAvgData();
-      fetchRankData();
-      fetchPerformanceOverTimeData();
+      fetchAllData();
     }
   }, [user_id]);
 
@@ -130,7 +82,7 @@ function Stu_Analytics() {
       Percentage: exam?.percentage,
     })),
   };
-  
+
   const superscript = (rank) => {
     const condition = rank % 10;
     if (condition === 1) setSup("st");
@@ -276,10 +228,10 @@ function Stu_Analytics() {
           {/* Rank Display */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
             <h2 className="text-gray-700 mt-24 text-lg font-medium">
-              Your Rank
+              Your Department Rank
             </h2>
             <span className="text-5xl  font-bold text-gray-900">
-              {rankData.rank}
+              {rankData && rankData.department_rank}
               <sup className="text-xl">{sup}</sup>
             </span>
           </div>
