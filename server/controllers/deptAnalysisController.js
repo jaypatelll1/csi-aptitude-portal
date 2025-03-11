@@ -19,6 +19,53 @@ const fetchDepartmentData = async (req, res, fetchFunction) => {
   }
 };
 
+
+const getAllDepartmentParams = async (req, res)=>{
+  try {
+    const {department} = req.params;
+
+    const [
+      departmentAvgScore,
+      departmentAvgScorePerExam,
+      categoryPerformance,
+      topPerformer,
+      bottomPerformer,
+      participationRate,
+      participationRatePerExam,
+      accuracyRate,
+      weakAreas,
+      performanceOverTime
+    ] = await Promise.all([
+      deptModel.getDepartmentAvgScore(department),
+      deptModel.getDepartmentAvgScorePerExam(department),
+      deptModel.getCategoryPerformance(department),
+      deptModel.getTopPerformer(department),
+      deptModel.getBottomPerformer(department),
+      deptModel.getParticipationRate(department),
+      deptModel.getParticipationRatePerExam(department),
+      deptModel.getAccuracyRate(department),
+      deptModel.getWeakAreas(department),
+      deptModel.getPerformanceOverTime(department)
+    ]);
+
+    res.status(200).json({
+      department:department,
+      departmentAvgScore,
+      departmentAvgScorePerExam,
+      categoryPerformance,
+      topPerformer,
+      bottomPerformer,
+      participationRate,
+      participationRatePerExam,
+      accuracyRate,
+      weakAreas,
+      performanceOverTime
+    });
+  } catch (error){
+    console.error('Error fetching student performance:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 module.exports = {
   getDepartmentAvgScore: (req, res) => fetchDepartmentData(req, res, deptModel.getDepartmentAvgScore),
   getDepartmentAvgScorePerExam: (req, res) => fetchDepartmentData(req, res, deptModel.getDepartmentAvgScorePerExam),
@@ -30,4 +77,5 @@ module.exports = {
   getAccuracyRate: (req, res) => fetchDepartmentData(req, res, deptModel.getAccuracyRate),
   getWeakAreas: (req, res) => fetchDepartmentData(req, res, deptModel.getWeakAreas),
   getPerformanceOverTime: (req, res) => fetchDepartmentData(req, res, deptModel.getPerformanceOverTime),
+  getAllDepartmentParams,
 };

@@ -82,7 +82,7 @@ const getCategoryPerformance = async (department) => {
 // 3. Top Performer (Overall Best in Department)
 const getTopPerformer = async (department) => {
   const result = await pool.query(
-    `SELECT * FROM public.student_rank WHERE department_name=$1 ORDER BY rank ASC LIMIT 5`,
+    `SELECT * FROM public.student_rank WHERE department_name=$1 ORDER BY department_rank ASC LIMIT 5`,
     [department]
   );
 
@@ -95,10 +95,10 @@ const getBottomPerformer = async (department) => {
     `SELECT * FROM (
         SELECT * FROM public.student_rank 
         WHERE department_name = $1
-        ORDER BY rank DESC 
+        ORDER BY department_rank DESC 
         LIMIT 5
     ) AS subquery
-    ORDER BY rank ASC;`,
+    ORDER BY department_rank ASC;`,
     [department]
   );
 
