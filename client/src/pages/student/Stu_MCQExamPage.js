@@ -192,6 +192,51 @@ const Stu_MCQExamPage = () => {
   const handleMarkForReview = () => {
     dispatch(toggleMarkForReview(currentQuestionIndex));
   };
+
+  //  Detect Screen Sharing
+  const detectScreenSharing = async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const isSharing = devices.some(device => device.kind === 'videoinput' && device.label.includes('Screen'));
+    if (isSharing) {
+      alert(" Screen sharing detected! Test will be auto-submitted.");
+      submitFinalResponse();
+    }
+  };
+
+   //  Detect Tab Switching
+   useEffect(() => {
+    let warningCount = 0; 
+  
+    const handleTabSwitch = () => {
+      if (document.hidden) {
+        warningCount++;
+  
+        if (warningCount < 5) {
+          alert(` Tab switching detected! Warning ${warningCount}/5. Stay on the exam page.`);
+        } else {
+          alert("You have switched tabs too many times. Your test is now being submitted.");
+          handleSubmitTest();
+        }
+      }
+    };
+  
+    document.addEventListener("visibilitychange", handleTabSwitch);
+  
+    return () => {
+      document.removeEventListener("visibilitychange", handleTabSwitch);
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(detectScreenSharing, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (timeUp) submitFinalResponse();
+  }, [timeUp]);
+ 
+
   return (
     <div className="relative flex-1">
       {/* Main Content */}
