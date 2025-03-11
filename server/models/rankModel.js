@@ -7,8 +7,8 @@ const generateRank = async () => {
           student_name,
           department_name AS department,
           SUM(total_score) AS total_score,
-          RANK() OVER (ORDER BY SUM(total_score) DESC) AS overall_rank
-          RANK() OVER (PARTITION BY department_name ORDER BY SUM(total_score) DESC) AS department_rank,
+          RANK() OVER (ORDER BY SUM(total_score) DESC) AS overall_rank,
+          RANK() OVER (PARTITION BY department_name ORDER BY SUM(total_score) DESC) AS department_rank
         FROM student_analysis
         GROUP BY student_id, student_name, department_name
         ORDER BY department_name, department_rank, overall_rank;

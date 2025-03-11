@@ -8,6 +8,7 @@ const {
   avgResults,
   getStudentRank,
   getPerformanceOverTime,
+  generateAllAnalysis,
 } = require('../controllers/analysisController');
 
 const router = express.Router();
@@ -18,6 +19,8 @@ router.get('/tests-completed/:student_id', testCompletion);
 router.get('/avg-results/:student_id', avgResults);
 router.get('/rank/:student_id', getStudentRank)
 router.get('/performance-over-time/:student_id', getPerformanceOverTime)
+
+router.get('/all-analysis/:student_id', generateAllAnalysis)
 
 router.post('/student-analysis', generateStudentAnalysis)
 router.post('/student-analysis/:student_id/:exam_id', generateStudentAnalysisUsingId)
