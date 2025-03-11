@@ -38,52 +38,20 @@ function Dep_StudentAnalytics() {
     };
   }, []);
   
-  const fetchData = async () => {
+  const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      
-      setData(response.data.results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchAvgData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/avg-results/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      
-      setAvgData(response.data.result);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchRankData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/rank/${user_id}`;
+      let url = `${API_BASE_URL}/api/analysis/all-analysis/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
 
-      console.log("avg data", response.data.result);
-      setRankData(response.data.result);
-      superscript(response.data.result.rank);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      setData(response.data.overall_resultS);
 
-  const fetchCompletionData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/tests-completed/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
+      setAvgData(response.data.avg_results);
 
-      const { attempted, total } = response.data.exams;
+      setRankData(response.data.rank);
+      if (response.data.rank) superscript(response.data.rank.department_rank);
 
+      const { attempted, total } = response.data.test_completion_data;
       setTestCompletionData({
         title: "Test Completion Rate",
         chartData: [
@@ -96,27 +64,11 @@ function Dep_StudentAnalytics() {
     }
   };
 
-  
-
   useEffect(() => {
     if (user_id) {
-      fetchData();
-      fetchCompletionData();
-      fetchAvgData();
-      fetchRankData();
+      fetchAllData();
     }
   }, [user_id]);
-
-  // const rankData = {
-  //   title: "Rank Progression",
-  //   dataKey: "name",
-  //   chartData: [
-  //     { name: "Semester 1", rank: 5 },
-  //     { name: "Semester 2", rank: 3 },
-  //     { name: "Semester 3", rank: 2 },
-  //     { name: "Semester 4", rank: 1 },
-  //   ],
-  // };
 
   const chartData = {
     title: "Performance Over Time",
@@ -279,7 +231,7 @@ function Dep_StudentAnalytics() {
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
             <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
             <span className="text-5xl font-bold text-gray-900 ">
-              {rankData.rank}
+              {rankData.department_rank}
               <sup className="text-xl">{sup}</sup>
             </span>
           </div>

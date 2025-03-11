@@ -19,112 +19,39 @@ function Dep_Analytics() {
   const [participationRate, setParticipationRate] = useState([]);
   const user_department = useSelector((state) => state.user.user.department);
 
-  const fetchAvgData = async () => {
+  const fetchAllDeptData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/tpo-analysis/dept-avg`;
+      let url = `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${user_department}`;
       const response = await axios.get(url, { withCredentials: true });
-      setAvgData(response.data.results);
+
+      setCategoryWiseData(response.data.category_performance);
+      setTopPerformers(response.data.top_performer);
+      setBottomPerformers(response.data.bottom_performer);
+      setParticipationRate(response.data.participation_rate);
+      setAccuracyData(response.data.accuracy_rate);
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
-  const fetchAccuracyData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/tpo-analysis/accuracy-per-dept`;
-      const response = await axios.get(url, { withCredentials: true });
-      setAccuracyData(response.data.results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchCategoryWiseData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/category-performance/${user_department}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setCategoryWiseData(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchTopPerformersData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/top-performer/${user_department}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setTopPerformers(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchBottomPerformersData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/bottom-performer/${user_department}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setBottomPerformers(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchParticipationRateData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/participation-rate/${user_department}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setParticipationRate(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  // console.log(user_department);
-  // console.log("avgData", avgData);
-  // console.log("accuracyData", accuracyData);
-  // console.log("categoryWiseData", categoryWiseData);
-  // console.log("topPerformers", topPerformers);
-  // console.log("bottomPerformers", bottomPerformers);
-  // console.log("participationRate", participationRate);
 
   useEffect(() => {
-    fetchAvgData();
-    fetchAccuracyData();
-    fetchCategoryWiseData();
-    fetchTopPerformersData();
-    fetchBottomPerformersData();
-    fetchParticipationRateData();
+    fetchAllDeptData();
   }, [user_department]);
 
-  const barChartData = {
-    title: "Department Average Score",
-    dataKey: "department",
-    chartData: avgData.map((department) => ({
-      department: department?.department_name,
-      score: department?.avg_score,
-    })),
-  };
-
-  const filteredAccuracyData = accuracyData
-    .filter((department) => department?.department_name === user_department)
-    .flatMap((department) => [
-      {
-        name: "Correct",
-        value: Number(department?.accuracy_rate),
-        fill: "#4CAF50",
-      },
-      {
-        name: "Wrong",
-        value: 100 - Number(department?.accuracy_rate),
-        fill: "#F44336",
-      },
-    ]);
+  const filteredAccuracyData = [
+    {
+      name: "Correct",
+      value: Number(accuracyData?.accuracy_rate),
+      fill: "#4CAF50",
+    },
+    {
+      name: "Wrong",
+      value: 100 - Number(accuracyData?.accuracy_rate),
+      fill: "#F44336",
+    },
+  ];
 
   // If filteredData is empty, use default values
   const donutChartData = {
@@ -229,10 +156,6 @@ function Dep_Analytics() {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 ml-5">
-          {/* Department Average Score */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <BarChartComponent data={barChartData} />
-          </div>
 
           {/* Subject-wise Performance */}
           <div className="bg-white p-6 rounded-xl shadow-md">
@@ -242,7 +165,6 @@ function Dep_Analytics() {
 
         {/* Rankings & Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-6 ml-5">
-
           {/* Accuracy Rate */}
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
             <DonutChartComponent data={donutChartData} />
@@ -261,7 +183,7 @@ function Dep_Analytics() {
             <ul>
               {topPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.rank}. {name?.student_name}
+                  {name?.department_rank}. {name?.student_name}
                 </li>
               ))}
             </ul>
@@ -272,7 +194,7 @@ function Dep_Analytics() {
             <ul>
               {bottomPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.rank}. {name?.student_name}
+                  {name?.department_rank}. {name?.student_name}
                 </li>
               ))}
             </ul>

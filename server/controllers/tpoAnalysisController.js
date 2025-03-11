@@ -151,11 +151,37 @@ const getCategoryWiseAccuracy = async (req, res) => {
   }
 };
 
+const getAllTpoAnalysis = async (req, res) => {
+  const user_id = req.user.id;
+  try {
+    const results = await tpoAnalysisModel.categoryWiseAccuracy();
+    if (!results) {
+      await logActivity({
+        user_id: user_id,
+        activity: 'View Accuracy Rate of Each Department for each Category',
+        status: 'failure',
+        details: 'Results not found',
+      });
+      return res.status(404).json({ message: 'Results not found.' });
+    }
+    await logActivity({
+      user_id: user_id,
+      activity: 'View Accuracy Rate of Each Department for each Category',
+      status: 'success',
+      details: 'Results found',
+    });
+    res.status(200).json({ results });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getDeptAvgScores,
   getTopScorers,
   getWeakScorers,
   getAccuracyRatePerDept,
   getDeptParticipationRate,
-  getCategoryWiseAccuracy
+  getCategoryWiseAccuracy,
+  getAllTpoAnalysis,
 };

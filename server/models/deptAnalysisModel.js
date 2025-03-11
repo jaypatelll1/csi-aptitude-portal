@@ -160,14 +160,13 @@ const getParticipationRatePerExam = async (department) => {
 const getAccuracyRate = async (department) => {
   const result = await pool.query(
     `
-    SELECT department_name AS department, 
-      CASE 
-        WHEN SUM(max_score) = 0 THEN 0 
-        ELSE (SUM(total_score) * 100.0) / SUM(max_score) 
-      END AS accuracy_rate
-    FROM student_analysis
-    WHERE department_name = $1
-    GROUP BY department_name;
+    SELECT 
+      sa.department_name,
+      ROUND((((SUM(sa.total_score) * 100.0) / NULLIF(SUM(sa.max_score), 0))::NUMERIC), 2) AS accuracy_rate
+    FROM student_analysis sa
+    WHERE department_name=$1
+    GROUP BY sa.department_name
+    ORDER BY accuracy_rate DESC;
   `,
     [department]
   );
@@ -214,8 +213,8 @@ const getPerformanceOverTime = async (department) => {
     [department]
   );
 
-  if(result.rows.length === 0){
-    return [{}]
+  if (result.rows.length === 0) {
+    return [{}];
   }
 
   return result.rows;
@@ -231,5 +230,5 @@ module.exports = {
   getParticipationRatePerExam,
   getAccuracyRate,
   getWeakAreas,
-  getPerformanceOverTime
+  getPerformanceOverTime,
 };
