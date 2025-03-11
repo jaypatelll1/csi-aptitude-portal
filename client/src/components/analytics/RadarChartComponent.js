@@ -43,7 +43,7 @@ const RadarChartComponent = ({ data }) => {
                   x={newX}
                   y={newY}
                   textAnchor={textAnchor}
-                  style={{ fontSize: "12px" }}
+                  style={{ fontSize: "14px" }}
                 >
                   {value.split("\n").map((line, i) => (
                     <tspan key={i} x={newX} dy={i * 12}>

@@ -7,6 +7,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList
 } from "recharts";
 
 const HorizontalBarChartComponent = ({ data }) => {
@@ -25,7 +26,20 @@ const HorizontalBarChartComponent = ({ data }) => {
           <Tooltip />
           <Legend />
           {data.xKey.map((key, index) => (
-            <Bar key={index} dataKey={key} fill={data.colors?.[key] || "#1349C5"} barSize={25} stackId="a" name={key} />
+            <Bar 
+              key={index} 
+              dataKey={key} 
+              fill={data.colors?.[key] || "#1349C5"} 
+              barSize={25} 
+              stackId="a" 
+              name={key}
+            >
+              <LabelList
+                dataKey={key}
+                position="right"  // Changed from "top" since it's horizontal
+                style={{ fill: '#000000', fontSize: '12px' }}
+              />
+            </Bar>
           ))}
         </BarChart>
       </ResponsiveContainer>
