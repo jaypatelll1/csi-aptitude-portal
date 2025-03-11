@@ -23,14 +23,13 @@ const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const router = express.Router();
 
 
-
 router.get('/', getAllPaginatedExams); // Pagination
 router.get('/drafts',authorizeRoles, getPaginatedDraftedExams)
 router.get('/scheduled', getPaginatedScheduledExams);
 router.get('/past', getPaginatedPastExams);
 router.get('/live', getPaginatedLiveExams);
 router.get('/find/:exam_id', getExamById);
-router.post("/student",getExamsForUser)
+router.get('/student',getExamsForUser)
 router.get("/teacher",getExamForTeachers)
 
 router.post('/', authorizeRoles, createExam);

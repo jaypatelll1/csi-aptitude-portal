@@ -369,7 +369,7 @@ const getPaginatedDraftedExams = async (req, res) => {
   let status = 'draft',
     Count,
     exams;
-  const { page, limit } = req.query;
+  const { page, limit } = req.query; 
   console.log('page is ', page, limit);
 
   try {
@@ -498,10 +498,11 @@ const getPaginatedPastExams = async (req, res) => {
 };
 
 const getExamsForUser = async (req, res) => {
+console.log(req.params);
   const user_id = req.user.id;
 
-  const { status, target_branches, target_years } = req.body;
-  // console.log('status, target_branches, target_year', status, target_branches, target_years, page , limit);
+  const { status, target_branches, target_years } = req.query; //
+  // console.log('status, target_branches, target_year', status, target_branches, target_years);
 
   try {
     const exams = await examModel.getExamsForUser(
