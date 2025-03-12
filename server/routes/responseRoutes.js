@@ -16,7 +16,7 @@ const {
 
 const router = express.Router();
 
-// Request rate limiter
+// Rate Limit
 // const {limiter} = require("../utils/rateLimitUtils");
 // router.use(limiter);
 

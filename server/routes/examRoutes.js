@@ -22,8 +22,9 @@ const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
 const router = express.Router();
 
+// Rate Limit
 const {limiter} = require("../utils/rateLimitUtils");
-router.use(limiter);
+// router.use(limiter);
 
 
 router.get('/', getAllPaginatedExams); // Pagination

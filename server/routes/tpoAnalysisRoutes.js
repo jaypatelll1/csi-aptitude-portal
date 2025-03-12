@@ -10,8 +10,10 @@ const {
 } = require('../controllers/tpoAnalysisController');
 
 const router = express.Router();
+
+// Rate Limit
 const {limiter} = require("../utils/rateLimitUtils");
-router.use(limiter);
+// router.use(limiter);
 
 router.get('/dept-avg', getDeptAvgScores); //
 router.get('/top-scorers', getTopScorers);
