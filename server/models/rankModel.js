@@ -20,7 +20,7 @@ const generateRank = async () => {
     await query(queryText);
 
     results.map(async (ranking) => {
-      let { student_id, student_name, department, total_score, overall_rank,  department_rank } = ranking;
+      let { student_id, student_name, department, total_score, overall_rank, department_rank } = ranking;
 
       queryText = `INSERT INTO student_rank (student_id, student_name, department_name, total_score, overall_rank, department_rank)
         VALUES ($1, $2, $3, $4, $5, $6);`;
@@ -33,4 +33,37 @@ const generateRank = async () => {
   }
 };
 
-module.exports = { generateRank };
+async function getStudentRanksInOrder(data) {
+  try {
+
+    let queryText = "SELECT * FROM student_rank";
+    let queryParams = [];
+
+    if (data.department) {
+      queryText += " WHERE department_name = $1";
+      queryParams.push(data.department);
+    }
+
+    if (data.filter === "top-performers") {
+      queryText += data.department ? " ORDER BY department_rank ASC" : " ORDER BY  overall_rank ASC";
+    } else if (data.filter === "bottom-performers") {
+      queryText += data.department ? " ORDER BY department_rank DESC" : " ORDER BY  overall_rank DESC";
+    } else {
+      queryText += data.department ? " ORDER BY department_rank ASC" : " ORDER BY  overall_rank ASC";
+    }
+    console.log(queryText,queryParams)
+    if(data.department){
+    const result = await query(queryText, queryParams);
+    return result.rows;
+    }else{
+      const result = await query(queryText);
+      return result.rows;
+    }
+    
+  } catch (error) {
+    console.log("Error fetching data", error);
+  }
+}
+
+
+module.exports = { generateRank, getStudentRanksInOrder };

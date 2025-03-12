@@ -97,7 +97,7 @@ const generateStudentAnalysisUsingId = async (req, res) => {
         status: 'failure',
         details: 'anlaysis not found',
       });
-      return res.status(404).json({ message: 'anlaysis not found.' });
+      return res.status(404).json({ message: 'analysis not found.' });
     }
 
     await logActivity({

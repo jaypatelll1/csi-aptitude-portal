@@ -32,7 +32,7 @@ const Adm_Filter = ({ toggleFilter, handleFilter }) => {
                 value={selectedDepartment}
                 onChange={handleDepartmentChange}
             >
-                <option value="">Set Department</option>
+                <option value="all">Set Department</option>
                 <option value="INFT">INFT</option>
                 <option value="CMPN">CMPN</option>
                 <option value="ECS">ECS</option>
@@ -46,9 +46,9 @@ const Adm_Filter = ({ toggleFilter, handleFilter }) => {
                 value={selectedRank}
                 onChange={handleRankChange}
             >
-                <option value="">Rank</option>
-                <option value="top">Top Performer</option>
-                <option value="bottom">Bottom Performer</option>
+                <option value="all">Rank</option>
+                <option value="top-performers">Top Performer</option>
+                <option value="bottom-performers">Bottom Performer</option>
             </select>
             
             <div className='flex'>

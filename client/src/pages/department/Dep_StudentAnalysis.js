@@ -13,6 +13,7 @@ const Dep_StudentAnalysis = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [filterPref, setfilterPref] = useState("")
   const [limit] = useState(20);
   const [numberofpages, setNumberofpages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -45,89 +46,84 @@ const Dep_StudentAnalysis = () => {
     setFilterOpen(!filterOpen);
   };
 
-  const handleFilter = (option) => {
-    setPage(1);
-    if (option) {
-      // Sort students based on their ranks
-      const sortedStudents = [...students].sort((a, b) => {
-        // Handle cases where rank is "N/A"
-        if (a.rank === "N/A") return 1;
-        if (b.rank === "N/A") return -1;
-        
-        // Extract numeric values from ranks
-        const rankA = parseInt(a.rank.replace(/\D/g, ''));
-        const rankB = parseInt(b.rank.replace(/\D/g, ''));
-        
-        if (option === "top_performers") {
-          // Ascending order for top performers (lower rank number is better)
-          return rankA - rankB;
-        } else {
-          // Descending order for bottom performers
-          return rankB - rankA;
+  const handleFilter = async (filter) => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
+        withCredentials: true,
+        params:{
+          filter : filter === "" ? "all" : filter,
+          department : currentUser?.department
         }
       });
-      
-      setFilteredStudents(sortedStudents);
-    } else {
-      // Reset to original order
-      setFilteredStudents(students);
+      if (response) {
+        setFilteredStudents(response.data)
+        setNumberofpages(Math.ceil(response.data.length / limit));
+      }
+    } catch (error) {
+      console.log("Error fetching student ranks in asc order", error)
+    }finally{
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    const fetchStudentsWithRanks = async () => {
-      setLoading(true);
-      try {
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        
-        // Step 1: Fetch all students
-        let studentsUrl = `${API_BASE_URL}/api/users?role=Student`;
-        if (currentUser?.role === "Department" && currentUser?.department) {
-          studentsUrl += `&department=${currentUser.department}`;
-        }
-        
-        const studentsResponse = await axios.get(studentsUrl, {
-          withCredentials: true,
-        });
-        
-        const studentData = studentsResponse.data.users;
-        
-        // Step 2: Create an array of promises to fetch rank data for each student
-        const rankPromises = studentData.map(async (student) => {
-          try {
-            const rankUrl = `${API_BASE_URL}/api/analysis/rank/${student.user_id}`;
-            const rankResponse = await axios.get(rankUrl, { withCredentials: true });
-            
-            // Return the student with rank information
-            return {
-              ...student,
-              rank: rankResponse.data.result?.rank || "N/A"
-            };
-          } catch (error) {
-            console.error(`Error fetching rank for student ${student.user_id}:`, error);
-            return {
-              ...student,
-              rank: "N/A"
-            };
-          }
-        });
-        console.log(rankPromises);
-        
-        // Step 3: Resolve all promises
-        const studentsWithRanks = await Promise.all(rankPromises);
-        
-        setStudents(studentsWithRanks);
-        setFilteredStudents(studentsWithRanks);
-        setNumberofpages(Math.ceil(studentsWithRanks.length / limit));
-      } catch (error) {
-        console.error("Error fetching students:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchStudentsWithRanks();
-  }, [currentUser, limit]);
+    // const fetchStudentsWithRanks = async () => {
+    //   setLoading(true);
+    //   try {
+    //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
+    //     // Step 1: Fetch all students
+    //     let studentsUrl = `${API_BASE_URL}/api/users?role=Student`;
+    //     if (currentUser?.role === "Department" && currentUser?.department) {
+    //       studentsUrl += `&department=${currentUser.department}`;
+    //     }
+    //     const studentsResponse = await axios.get(studentsUrl, {
+    //       withCredentials: true,
+    //     });
+    //     console.log(currentUser)
+    //     console.log(studentsResponse)
+
+    //     const studentData = studentsResponse.data.users;
+
+    //     // Step 2: Create an array of promises to fetch rank data for each student
+    //     const rankPromises = studentData.map(async (student) => {
+    //       try {
+    //         const rankUrl = `${API_BASE_URL}/api/analysis/rank/${student.user_id}`;
+    //         const rankResponse = await axios.get(rankUrl, { withCredentials: true });
+
+    //         // Return the student with rank information
+    //         return {
+    //           ...student,
+    //           rank: rankResponse.data.result?.rank || "N/A"
+    //         };
+    //       } catch (error) {
+    //         console.error(`Error fetching rank for student ${student.user_id}:`, error);
+    //         return {
+    //           ...student,
+    //           rank: "N/A"
+    //         };
+    //       }
+    //     });
+    //     console.log(rankPromises);
+
+    //     // Step 3: Resolve all promises
+    //     const studentsWithRanks = await Promise.all(rankPromises);
+
+    //     setStudents(studentsWithRanks);
+    //     // setFilteredStudents(studentsWithRanks);
+    //     setNumberofpages(Math.ceil(studentsWithRanks.length / limit));
+    //   } catch (error) {
+    //     console.error("Error fetching students:", error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
+
+    handleFilter(filterPref)
+
+    // fetchStudentsWithRanks();
+  }, [currentUser, limit, filterPref]);
 
   const handlePrevPage = () => {
     if (page > 1) {
@@ -154,12 +150,11 @@ const Dep_StudentAnalysis = () => {
 
   return (
     <div className="min-h-screen flex">
-      <div className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}>
+      <div className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}>
         <Dep_Sidebar />
       </div>
-      
+
       <div className="flex-grow bg-gray-100 h-max">
         <div className="bg-white h-14 border-b border-gray-300">
           <Dep_Navbar setSidebarOpen={setSidebarOpen} />
@@ -183,8 +178,8 @@ const Dep_StudentAnalysis = () => {
                 </svg>
               </div>
               <div className="relative">
-                <button 
-                  onClick={toggleFilter} 
+                <button
+                  onClick={toggleFilter}
                   className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -218,10 +213,10 @@ const Dep_StudentAnalysis = () => {
                     .slice((page - 1) * limit, page * limit)
                     .map((student) => (
                       <tr key={student.user_id} className="border-b hover:bg-gray-50">
-                        <td className="py-4 px-4">{student.user_id}</td>
-                        <td className="py-4 px-4">{student.name}</td>
-                        <td className="py-4 px-4">{student.department || "N/A"}</td>
-                        <td className="py-4 px-4">{student.rank}</td>
+                        <td className="py-4 px-4">{student.student_id}</td>
+                        <td className="py-4 px-4">{student.student_name}</td>
+                        <td className="py-4 px-4">{student.department_name || "N/A"}</td>
+                        <td className="py-4 px-4">{student.department_rank}</td>
                         <td className="py-4 px-4 text-center">
                           <button onClick={() => handleAnalyticsClick(student.user_id)} className="p-2">
                             <svg
@@ -237,7 +232,7 @@ const Dep_StudentAnalysis = () => {
                           </button>
                         </td>
                       </tr>
-                  ))}
+                    ))}
                 </tbody>
               </table>
 
@@ -262,9 +257,8 @@ const Dep_StudentAnalysis = () => {
                   {getPageNumbers().map((p) => (
                     <div
                       key={p}
-                      className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
-                        page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                      }`}
+                      className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                        }`}
                       onClick={() => setPage(p)}
                     >
                       {p}

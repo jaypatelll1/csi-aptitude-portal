@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 
 const Dep_Filter = ({ toggleFilter, handleFilter }) => {
@@ -18,6 +19,9 @@ const Dep_Filter = ({ toggleFilter, handleFilter }) => {
         toggleFilter();
     };
 
+    
+    
+
     return (
         <div className='absolute z-50 mt-4 w-80 p-5 border border-gray-300 rounded-xl bg-white shadow-lg right-0'>
             <h1 className='text-md text-[#877575] mb-2 ml-1'>Performance</h1>
@@ -26,9 +30,9 @@ const Dep_Filter = ({ toggleFilter, handleFilter }) => {
                 value={selectedOption}
                 onChange={handleSelectChange}
             >
-                <option value="">Select Option</option>
-                <option value="top_performers">Top Performers</option>
-                <option value="bottom_performers">Bottom Performers</option>
+                <option value="all">Select Option</option>
+                <option value="top-performers">Top Performers</option>
+                <option value="bottom-performers">Bottom Performers</option>
             </select>
             <div className='flex'>
             <button

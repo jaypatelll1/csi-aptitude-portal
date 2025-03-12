@@ -178,12 +178,17 @@ const avgResults = async (student_id) => {
 async function getStudentRank(student_id) {
   try {
     const result = await query(`SELECT * FROM student_rank WHERE student_id=$1;`, [student_id]);
-    return result.rows[0]; 
+    if(!result.rows === 0){
+      return
+    }
+    console.log(student_id)
+    return result.rows[0];
   } catch (error) {
     console.error('Error returning student rank:', error);
     throw error;
   }
 }
+
 
 async function getPerformanceOverTime(student_id) {
   try {
@@ -199,7 +204,7 @@ async function getPerformanceOverTime(student_id) {
     WHERE student_id = $1
       GROUP BY sa.student_id, sa.exam_id, sa.exam_name, sa.department_name, e.created_at
       ORDER BY sa.student_id, e.created_at ASC;  -- Order by exam creation date to analyze trends`, [student_id]);
-    return result.rows; 
+    return result.rows;
   } catch (error) {
     console.error('Error returning student rank:', error);
     throw error;
