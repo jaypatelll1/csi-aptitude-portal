@@ -4,6 +4,9 @@ const { getLastExamStats, getAllTestsStats, getAllStudentsStats } = require('../
 
 const router = express.Router();
 
+const {limiter} = require("../utils/rateLimitUtils");
+router.use(limiter);
+
 router.get('/last-test', jwtAuthMiddleware, getLastExamStats);
 router.get('/all-tests', jwtAuthMiddleware, getAllTestsStats);
 router.get('/all-students', jwtAuthMiddleware, getAllStudentsStats);

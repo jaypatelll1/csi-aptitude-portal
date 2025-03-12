@@ -5,6 +5,9 @@ const { authorizeRoles } = require("../middlewares/roleAuthMiddleware");
 
 const router = express.Router();
 
+const {limiter} = require("../utils/rateLimitUtils");
+router.use(limiter);
+
 router.get("/users/csv",jwtAuthMiddleware,authorizeRoles, exportToUserCSV);
 router.get("/users/excel",jwtAuthMiddleware,authorizeRoles, exportToUserExcel);
 

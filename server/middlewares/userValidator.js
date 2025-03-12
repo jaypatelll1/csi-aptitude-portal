@@ -37,8 +37,7 @@ const loginUserValidator = [
   body('password')
     .notEmpty()
     .withMessage('Password is required')
-    .trim()
-    .escape(),
+    .trim(),
   (req, res, next) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()){

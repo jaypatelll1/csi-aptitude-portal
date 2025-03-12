@@ -8,6 +8,8 @@ const { authorizeRoles } = require("../middlewares/roleAuthMiddleware");
 
 const router = express.Router();
 
+const {limiter} = require("../utils/rateLimitUtils");
+router.use(limiter);
 
 
 // Export to Excel

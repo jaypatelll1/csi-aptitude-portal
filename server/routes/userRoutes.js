@@ -6,6 +6,8 @@ const {blockMobileMiddleware}= require ("../middlewares/blockMoblieMiddleware")
 const {registerUserValidator, loginUserValidator, updateUserValidator} = require("../middlewares/userValidator");
 
 const router = express.Router();
+const {limiter} = require("../utils/rateLimitUtils");
+router.use(limiter);
 
 
 router.post('/register', registerUserValidator, jwtAuthMiddleware, authorizeRoles, registerUser);

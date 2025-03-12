@@ -5,6 +5,9 @@ const { updateQuestionImage } = require("../models/questionModel");
 
 const router = express.Router();
 
+const {limiter} = require("../utils/rateLimitUtils");
+router.use(limiter);
+
 // Upload Image & Update Database
 router.post("/upload-image/:exam_id/:question_id", upload.single("image"), async (req, res, next) => {
   const { exam_id, question_id } = req.params;

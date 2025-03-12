@@ -16,6 +16,10 @@ const {
 
 const router = express.Router();
 
+// Request rate limiter
+// const {limiter} = require("../utils/rateLimitUtils");
+// router.use(limiter);
+
 
   router.post('/initialize/:exam_id', deleteExistingResponses)
   router.put('/:exam_id',submitResponse) // Submit a single response

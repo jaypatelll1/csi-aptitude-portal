@@ -1,6 +1,8 @@
 const express = require("express");
 const { getAllDeptAnalysis, getAllDepartmentParams } = require("../controllers/deptAnalysisController");
 const router = express.Router();
+const {limiter} = require("../utils/rateLimitUtils");
+router.use(limiter);
 
 // router.get("/average-score/:department", deptController.getDepartmentAvgScore);
 // router.get("/average-score-per-exam/:department", deptController.getDepartmentAvgScorePerExam);
