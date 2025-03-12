@@ -7,6 +7,7 @@ import DonutChartComponent from "../../components/analytics/DonutChartComponent"
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
+import TableComponent from "../../components/analytics/TableComponent";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -195,31 +196,13 @@ function Adm_Analytics() {
 
         {/* Performers Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-medium text-[#1349C5] self-start">Top Performers</h2>
-            <ul>
-              {topPerformers.map((name, index) => (
-                <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.department_rank}. {name?.student_name}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-medium text-[#1349C5] self-start">Bottom Performers</h2>
-            <ul>
-              {bottomPerformers.map((name, index) => (
-                <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.department_rank}. {name?.student_name}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-md">
+        <TableComponent title="Top Performers" data={topPerformers} />
+        <TableComponent title="Bottom Performers" data={bottomPerformers} />
+        <div className="bg-white p-6 rounded-xl shadow-md">
             <PieChartComponent data={participationRateData} />
           </div>
         </div>
+        
       </div>
     </div>
   );

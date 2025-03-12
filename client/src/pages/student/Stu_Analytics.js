@@ -8,6 +8,7 @@ import PieChartComponent from "../../components/analytics/PieChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
 
 function Stu_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -230,26 +231,23 @@ function Stu_Analytics() {
         {/* Dashboard Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
           {/* Rank Display */}
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
-            <div className="flex flex-col items-center">
-              <h2 className="text-gray-700 mt-12 text-lg font-medium">
-                Department Rank
-              </h2>
-              <span className="text-5xl flex items-center font-bold text-gray-900">
-                {rankData.department_rank}
-                <sup className="text-xl">{dSup}</sup>
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <h2 className="text-gray-700 mt-12 text-lg font-medium">
-                Overall Rank
-              </h2>
-              <span className="text-5xl flex items-center font-bold text-gray-900">
-                {rankData && rankData.overall_rank}
-                <sup className="text-xl">{oSup}</sup>
-              </span>
-            </div>
-          </div>
+          
+<div className="">
+  <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
+    <DisplayComponent
+      title="Department Rank"
+      rank={rankData?.department_rank || "N/A"}
+      superscript={dSup}
+    />
+  </div>
+  <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
+    <DisplayComponent
+      title="Overall Rank"
+      rank={rankData?.overall_rank || "N/A"}
+      superscript={oSup}
+    />
+  </div>
+</div>
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
@@ -265,7 +263,7 @@ function Stu_Analytics() {
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6 mb-8">
           {/* Accuracy Rate - Donut Chart */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
             <DonutChartComponent data={accuracyData} />
