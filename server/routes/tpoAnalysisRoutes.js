@@ -11,6 +11,10 @@ const {
 
 const router = express.Router();
 
+// Rate Limit
+const {limiter} = require("../utils/rateLimitUtils");
+// router.use(limiter);
+
 router.get('/dept-avg', getDeptAvgScores); //
 router.get('/top-scorers', getTopScorers);
 router.get('/weak-scorers', getWeakScorers);

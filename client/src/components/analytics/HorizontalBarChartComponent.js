@@ -13,7 +13,7 @@ import {
 const HorizontalBarChartComponent = ({ data }) => {
   return (
     <div className="flex flex-col items-center bg-transparent">
-      <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
+      <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
       <ResponsiveContainer width={360} height={300}>
         <BarChart
           layout="vertical"

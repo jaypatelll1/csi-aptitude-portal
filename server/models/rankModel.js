@@ -16,18 +16,36 @@ const generateRank = async () => {
     let results = await query(queryText);
     results = results.rows;
 
-    queryText = `DELETE FROM student_rank;`;
-    await query(queryText);
+    for (const ranking of results) {
+      const { student_id, student_name, department, total_score, overall_rank, department_rank } = ranking;
+      queryText = `DELETE FROM student_rank;`;
+      await query(queryText);
 
-    results.map(async (ranking) => {
-      let { student_id, student_name, department, total_score, overall_rank, department_rank } = ranking;
+      results.map(async (ranking) => {
+        let { student_id, student_name, department, total_score, overall_rank, department_rank } = ranking;
 
-      queryText = `INSERT INTO student_rank (student_id, student_name, department_name, total_score, overall_rank, department_rank)
-        VALUES ($1, $2, $3, $4, $5, $6);`;
+        try {
+          queryText = `
+          INSERT INTO student_rank (student_id, student_name, department_name, total_score, overall_rank, department_rank, last_updated)
+          VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+          ON CONFLICT (student_id) 
+          DO UPDATE SET 
+            student_name = EXCLUDED.student_name,
+            department_name = EXCLUDED.department_name,
+            total_score = EXCLUDED.total_score,
+            overall_rank = EXCLUDED.overall_rank,
+            department_rank = EXCLUDED.department_rank,
+            last_updated = CURRENT_TIMESTAMP;
+        `;
 
-      await query(queryText, [student_id, student_name, department, total_score, overall_rank, department_rank]);
-    });
-    return results.rows;
+          await query(queryText, [student_id, student_name, department, total_score, overall_rank, department_rank]);
+        } catch (updateError) {
+          console.error(`Error updating/inserting student_id ${student_id}:`, updateError);
+        }
+      })
+
+      return results;
+    }
   } catch (error) {
     console.log(error);
   }
@@ -51,15 +69,15 @@ async function getStudentRanksInOrder(data) {
     } else {
       queryText += data.department ? " ORDER BY department_rank ASC" : " ORDER BY  overall_rank ASC";
     }
-    console.log(queryText,queryParams)
-    if(data.department){
-    const result = await query(queryText, queryParams);
-    return result.rows;
-    }else{
+    console.log(queryText, queryParams)
+    if (data.department) {
+      const result = await query(queryText, queryParams);
+      return result.rows;
+    } else {
       const result = await query(queryText);
       return result.rows;
     }
-    
+
   } catch (error) {
     console.log("Error fetching data", error);
   }

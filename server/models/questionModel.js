@@ -63,7 +63,7 @@ const getQuestionsByExamId = async (exam_id) => {
 };
 const getStudentQuestionsByExamId = async (exam_id) => {
   const queryText =
-    'SELECT question_id ,exam_id,question_text,options FROM questions WHERE exam_id = $1';
+    'SELECT * FROM questions WHERE exam_id = $1';
   const values = [exam_id];
   try {
     const res = await query(queryText, values);

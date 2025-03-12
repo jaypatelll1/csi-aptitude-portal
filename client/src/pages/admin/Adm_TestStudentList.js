@@ -9,11 +9,11 @@ const Adm_TestStudentList = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(20);
+  const [limit, setLimit] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const [ setUserDetails] = useState([]); // Store fetched user details
+  const [ userDetails, setUserDetails] = useState([]); // Store fetched user details
   // const [examName, setExamName] = useState(""); // Store the exam name
   const location = useLocation();
   // const [status, setStatus] = useState("");

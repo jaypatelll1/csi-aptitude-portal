@@ -71,12 +71,13 @@ const Stu_TestInstruction = () => {
                 }
               };
 
-
               const questions = response.data;
+              console.log("questions", questions)
 
               // Shuffle the array of questions
               shuffleArray(questions);
-
+              console.log("questions", questions)
+              
               let formattedQuestions = questions.map((q) => ({
                 ...q,
                 answered: false,
@@ -99,6 +100,7 @@ const Stu_TestInstruction = () => {
             `${API_BASE_URL}/api/exams/responses/${examId}`,
             { withCredentials: true }
           );
+          console.log(responses.data)
         
           // Format questions with selected options directly in map()
           const formattedQuestions = responses.data.responses.map((q) => ({

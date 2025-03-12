@@ -12,7 +12,7 @@ const DepartmentRanking = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-semibold mb-2">Department Ranking</h2>
+      <h2 className="ttext-xl font-medium text-[#1349C5] self-start">Department Ranking</h2>
       <div className="border rounded-lg p-2">
         {departmentData.map((dept, index) => (
           <div
