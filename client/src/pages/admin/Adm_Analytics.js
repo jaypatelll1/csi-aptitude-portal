@@ -7,6 +7,7 @@ import DonutChartComponent from "../../components/analytics/DonutChartComponent"
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
+import TableComponent from "../../components/analytics/TableComponent";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -220,6 +221,7 @@ function Adm_Analytics() {
             <PieChartComponent data={participationRateData} />
           </div>
         </div>
+        
       </div>
     </div>
   );

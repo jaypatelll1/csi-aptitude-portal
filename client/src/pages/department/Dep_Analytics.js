@@ -6,6 +6,7 @@ import RadarChartComponent from "../../components/analytics/RadarChartComponent"
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
+import TableComponent from "../../components/analytics/TableComponent"; // Added import
 import { useSelector } from "react-redux";
 
 function Dep_Analytics() {
@@ -30,7 +31,6 @@ function Dep_Analytics() {
       setBottomPerformers(response.data.bottom_performer);
       setParticipationRate(response.data.participation_rate);
       setAccuracyData(response.data.accuracy_rate);
-
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -43,17 +43,16 @@ function Dep_Analytics() {
   const filteredAccuracyData = [
     {
       name: "Correct",
-      value: Number(accuracyData?.accuracy_rate),
+      value: Number(accuracyData?.accuracy_rate) || 0,
       fill: "#4CAF50",
     },
     {
       name: "Wrong",
-      value: 100 - Number(accuracyData?.accuracy_rate),
+      value: 100 - (Number(accuracyData?.accuracy_rate) || 0),
       fill: "#F44336",
     },
   ];
 
-  // If filteredData is empty, use default values
   const donutChartData = {
     title: "Accuracy Rate",
     chartData:
@@ -75,7 +74,7 @@ function Dep_Analytics() {
       },
       {
         name: "Not Participated",
-        value: 100 - Number(participationRate[0]?.participation_rate) || 100,
+        value: 100 - (Number(participationRate[0]?.participation_rate) || 0) || 100,
         fill: "#6F91F0",
       },
     ],
@@ -90,7 +89,7 @@ function Dep_Analytics() {
       )
       .map((category) => ({
         name: category?.category,
-        yourScore: Number(category?.average_category_score),
+        yourScore: Number(category?.average_category_score) || 0,
         maxMarks: Number(category?.max_category_score) || 0,
       })),
   };
@@ -125,7 +124,7 @@ function Dep_Analytics() {
       <div className="flex-1 w-full bg-gray-100">
         <Dep_Navbar />
 
-        <div className="flex items-center  mt-4">
+        <div className="flex items-center mt-4">
           <button
             className="xl:hidden text-gray-800"
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -149,14 +148,13 @@ function Dep_Analytics() {
               />
             </svg>
           </button>
-          <h1 className="text-3xl font-bold text-gray-800  ml-60 xl:ml-5">
+          <h1 className="text-3xl font-bold text-gray-800 ml-60 xl:ml-5">
             Analytics Dashboard
           </h1>
         </div>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 ml-5">
-
           {/* Subject-wise Performance */}
           <div className="bg-white p-6 rounded-xl shadow-md">
             <RadarChartComponent data={radarChartData} />
