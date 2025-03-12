@@ -3,16 +3,17 @@ const { registerUser, loginUser, updateUser, deleteUser, getAllPaginatedUsers, v
 const { jwtAuthMiddleware, } = require('../middlewares/jwtAuthMiddleware');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const {blockMobileMiddleware}= require ("../middlewares/blockMoblieMiddleware")
+const {registerUserValidator, loginUserValidator, updateUserValidator} = require("../middlewares/userValidator");
 
 const router = express.Router();
 
 
-router.post('/register', jwtAuthMiddleware, authorizeRoles, registerUser);
+router.post('/register', registerUserValidator, jwtAuthMiddleware, authorizeRoles, registerUser);
 
-router.post('/login', blockMobileMiddleware,loginUser);
+router.post('/login', loginUserValidator,blockMobileMiddleware,loginUser);
 
 router.get('/', jwtAuthMiddleware, authorizeRoles, getAllPaginatedUsers); 
-router.put('/update/:user_id', jwtAuthMiddleware, authorizeRoles, updateUser);
+router.put('/update/:user_id', updateUserValidator,jwtAuthMiddleware, authorizeRoles, updateUser);
 router.delete('/delete/:user_id', jwtAuthMiddleware, authorizeRoles, deleteUser);
 router.get('/verify-reset-token', verifyResetToken);
 router.post('/reset-password',  resetPassword);
