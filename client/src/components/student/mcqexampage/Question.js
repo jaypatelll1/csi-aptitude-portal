@@ -5,7 +5,7 @@ const Question = ({
   question, 
   questionType,
   options, 
-  selectedOption, 
+  selectedOption,
   selectedOptions,
   textAnswer,
   imageUrl,
@@ -13,61 +13,48 @@ const Question = ({
   onSelectMultipleOptions,
   onTextChange
 }) => {
-  // Render different input types based on questionType
   const renderQuestionInput = () => {
-    switch(questionType) {
+    switch (questionType) {
       case 'single_choice':
         return (
-          <div className="mt-4">
+          <div className="mt-4 space-y-3">
             {Object.entries(options).map(([key, value], index) => (
-              <div key={index} className="mb-3">
-                <label className="flex items-start cursor-pointer">
-                  <div className="flex items-center h-5">
-                    <input
-                      type="radio"
-                      name={`option-${questionNumber}`}
-                      value={key}
-                      checked={selectedOption === key}
-                      onChange={() => onSelectOption(key)}
-                      className="w-5 h-5 text-blue-600 border-gray-300 rounded-full focus:ring-blue-500"
-                    />
-                  </div>
-                  <div className="ml-3 text-base font-light text-gray-700">
-                    {value}
-                  </div>
-                </label>
-              </div>
+              <label key={index} className="flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-100">
+                <input
+                  type="radio"
+                  name={`question-${questionNumber}`}
+                  value={key}
+                  checked={key === selectedOption}
+                  onChange={() => onSelectOption(key)}
+                  className="w-5 h-5 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-3 text-gray-700 text-base">{value}</span>
+              </label>
             ))}
           </div>
         );
       
       case 'multiple_choice':
         return (
-          <div className="mt-4">
+          <div className="mt-4 space-y-3">
             {Object.entries(options).map(([key, value], index) => (
-              <div key={index} className="mb-3">
-                <label className="flex items-start cursor-pointer">
-                  <div className="flex items-center h-5">
-                    <input
-                      type="checkbox"
-                      name={`option-${questionNumber}-${index}`}
-                      value={key}
-                      checked={selectedOptions?.includes(key)}
-                      onChange={() => {
-                        if (selectedOptions?.includes(key)) {
-                          onSelectMultipleOptions(selectedOptions.filter(item => item !== key));
-                        } else {
-                          onSelectMultipleOptions([...(selectedOptions || []), key]);
-                        }
-                      }}
-                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                  </div>
-                  <div className="ml-3 text-base font-light text-gray-700">
-                    {value}
-                  </div>
-                </label>
-              </div>
+              <label key={index} className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+                <input
+                  type="checkbox"
+                  name={`option-${questionNumber}-${index}`}
+                  value={key}
+                  checked={selectedOptions?.includes(key)}
+                  onChange={() => {
+                    if (selectedOptions?.includes(key)) {
+                      onSelectMultipleOptions(selectedOptions.filter(item => item !== key));
+                    } else {
+                      onSelectMultipleOptions([...(selectedOptions || []), key]);
+                    }
+                  }}
+                  className="w-5 h-5 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-3 text-gray-700 text-base">{value}</span>
+              </label>
             ))}
           </div>
         );
@@ -76,7 +63,7 @@ const Question = ({
         return (
           <div className="mt-4">
             <textarea
-              className="w-full p-3 border border-gray-300 rounded-md"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
               rows="4"
               value={textAnswer || ''}
               onChange={(e) => onTextChange(e.target.value)}
@@ -91,30 +78,19 @@ const Question = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-5">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-lg font-medium text-gray-800">
-            {questionNumber}. {question}
-          </h3>
-        </div>
-        {/* Example of incorporating the flag icon shown in your UI */}
-        <div className="flex items-center">
-          <button className="ml-2 text-gray-500 hover:text-blue-600 p-1">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-            </svg>
-          </button>
-        </div>
+    <div className="bg-white rounded-lg p-6 ">
+      <div className="mb-4">
+        <h3 className="text-lg font-medium text-gray-900">
+          {questionNumber}. {question}
+        </h3>
       </div>
       
-      {/* Display image if provided */}
       {imageUrl && (
         <div className="mb-4">
           <img 
             src={imageUrl} 
             alt={`Image for question ${questionNumber}`} 
-            className="max-w-full h-auto rounded-md"
+            className="w-full max-w-lg h-auto rounded-md"
           />
         </div>
       )}

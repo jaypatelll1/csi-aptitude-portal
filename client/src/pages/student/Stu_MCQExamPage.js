@@ -69,11 +69,21 @@ const Stu_MCQExamPage = () => {
     await axios.put(url, {}, { withCredentials: true });
   };
 
-  useEffect(() => {
-    const disableKeyboard = (e) => e.preventDefault();
-    window.addEventListener("keydown", disableKeyboard);
-    return () => window.removeEventListener("keydown", disableKeyboard);
-  }, []);
+  // useEffect(() => {
+  //   const disableKeyboard = (e) => {
+  //     // Get the current question from state
+  //     const currentQuestion = questions[currentQuestionIndex];
+      
+  //     // Only prevent default if the question type is NOT text
+  //     if (currentQuestion && currentQuestion.question_type !== "text") {
+  //       e.preventDefault();
+  //     }
+  //     // For text questions, allow keyboard input
+  //   };
+    
+  //   window.addEventListener("keydown", disableKeyboard);
+  //   return () => window.removeEventListener("keydown", disableKeyboard);
+  // }, [currentQuestionIndex, questions]);
 
   useEffect(() => {
     const currentQuestion = questions[currentQuestionIndex];
@@ -388,18 +398,18 @@ const Stu_MCQExamPage = () => {
             {/* Question Component */}
             {currentQuestion && (
               <Question
-                questionNumber={currentQuestionIndex + 1}
-                question={currentQuestion.question_text || "Loading..."}
-                questionType={currentQuestion.question_type || "single_choice"}
-                options={currentQuestion.options || []}
-                selectedOption={currentQuestion.selected_option}
-                selectedOptions={getSelectedOptions()}
-                textAnswer={getTextAnswer()}
-                imageUrl={currentQuestion.image_url}
-                onSelectOption={handleOptionSelect}
-                onSelectMultipleOptions={handleMultipleOptionsSelect}
-                onTextChange={handleTextChange}
-              />
+              questionNumber={currentQuestionIndex + 1}
+              question={currentQuestion.question_text || "Loading..."}
+              questionType={currentQuestion.question_type || "single_choice"} 
+              options={currentQuestion.options || {}}
+              selectedOption={currentQuestion.selectedOption} // Use camelCase to match Redux
+              selectedOptions={currentQuestion.selectedOptions || []} // Use camelCase to match Redux
+              textAnswer={currentQuestion.textAnswer || ""} // Use camelCase to match Redux
+              imageUrl={currentQuestion.image_url}
+              onSelectOption={handleOptionSelect}
+              onSelectMultipleOptions={handleMultipleOptionsSelect}
+              onTextChange={handleTextChange}
+            />
             )}
 
             <div className="absolute bottom-5 w-full flex justify-between pr-8">
