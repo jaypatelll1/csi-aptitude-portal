@@ -72,17 +72,17 @@ const Stu_TestInstruction = () => {
               };
 
               const questions = response.data;
-              console.log("questions", questions)
 
               // Shuffle the array of questions
               shuffleArray(questions);
-              console.log("questions", questions)
               
               let formattedQuestions = questions.map((q) => ({
                 ...q,
                 answered: false,
                 visited: false,
                 selectedOption: null,
+                selectedOptions: null,
+                textAnswer: null
               }));
               dispatch(setQuestions(formattedQuestions));
 
@@ -100,7 +100,6 @@ const Stu_TestInstruction = () => {
             `${API_BASE_URL}/api/exams/responses/${examId}`,
             { withCredentials: true }
           );
-          console.log(responses.data)
         
           // Format questions with selected options directly in map()
           const formattedQuestions = responses.data.responses.map((q) => ({
@@ -108,6 +107,8 @@ const Stu_TestInstruction = () => {
             answered: q.selected_option !==null,
             visited: q.selected_option !==null ,
             selectedOption: q.selected_option || null, // Directly use selected_option
+            selectedOptions: q.selected_options || null,
+            textAnswer: q.text_answer || null
           }));
         
           // Dispatch once to update Redux state

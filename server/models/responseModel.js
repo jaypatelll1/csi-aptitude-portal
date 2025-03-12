@@ -4,7 +4,9 @@ const { paginate } = require('../utils/pagination');
 
 const deleteExistingResponses = async (exam_id, user_id) => {
   if (!exam_id || !user_id) {
-    throw new Error("Both exam_id and user_id are required to delete responses.");
+    throw new Error(
+      'Both exam_id and user_id are required to delete responses.'
+    );
   }
 
   const query = `DELETE FROM responses WHERE exam_id = $1 AND student_id = $2;`;
@@ -12,14 +14,15 @@ const deleteExistingResponses = async (exam_id, user_id) => {
 
   try {
     const result = await pool.query(query, values);
-    console.log(`Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, user_id: ${user_id}`);
+    console.log(
+      `Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, user_id: ${user_id}`
+    );
     return { success: true, deletedRows: result.rowCount };
   } catch (error) {
-    console.error("Error deleting responses:", error);
-    throw new Error("Failed to delete responses. Please try again.");
+    console.error('Error deleting responses:', error);
+    throw new Error('Failed to delete responses. Please try again.');
   }
 };
-
 
 // Submit a response
 const submitResponse = async (
@@ -27,19 +30,61 @@ const submitResponse = async (
   exam_id,
   question_id,
   selected_option,
+  selected_options,
+  text_answer,
+  question_type,
   response_status
 ) => {
-  const query = `
-      UPDATE responses SET selected_option=$1, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 RETURNING *;
+  let query, values;
+  
+  if (question_type === 'single_choice') {
+    query = `
+      UPDATE responses SET selected_option=$1, selected_options=null, text_answer=null, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 AND question_type=$6 RETURNING *;
     `;
-  const values = [
-    selected_option,
-    response_status,
-    exam_id,
-    question_id,
-    student_id,
-  ];
+    values = [
+      selected_option,
+      response_status,
+      exam_id,
+      question_id,
+      student_id,
+      question_type
+    ];
+  } else if(question_type === 'multiple_choice'){
+    query = `
+      UPDATE responses SET selected_option=null, selected_options=$1::jsonb , text_answer=null, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 AND question_type=$6 RETURNING *;
+    `;
+    values = [
+      JSON.stringify(selected_options),
+      response_status,
+      exam_id,
+      question_id,
+      student_id,
+      question_type
+    ];
+  } else if(question_type === 'text') {
+    query = `
+      UPDATE responses SET selected_option=null, selected_options=null, text_answer=$1, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 AND question_type=$6 RETURNING *;
+    `;
+    values = [
+      text_answer,
+      response_status,
+      exam_id,
+      question_id,
+      student_id,
+      question_type
+    ];
+  } else {
+    // Handle unsupported question type
+    throw new Error(`Unsupported question_type: ${question_type}`);
+  }
+  
+  // Check if query is defined before executing
+  if (!query) {
+    throw new Error(`No query defined for question_type: ${question_type}`);
+  }
+  
   const result = await pool.query(query, values);
+  console.log(result.rows);
   return result.rows[0];
 };
 
@@ -51,12 +96,16 @@ const submitMultipleResponses = async (responses) => {
     response.question_id,
     response.student_id,
     response.selected_option,
+    response.selected_options,
+    response.text_answer,
+    response.question_type,
   ]);
 
   // Generate placeholders for parameterized query
   const placeholders = values
     .map(
-      (_, i) => `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`
+      (_, i) =>
+        `($${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${i * 7 + 4}, $${i * 7 + 5}, $${i * 7 + 6}, $${i * 7 + 7})`
     )
     .join(', ');
 
@@ -64,7 +113,7 @@ const submitMultipleResponses = async (responses) => {
   const flattenedValues = values.flat();
 
   const query = format(`
-    INSERT INTO responses (exam_id, question_id, student_id, selected_option)
+    INSERT INTO responses (exam_id, question_id, student_id, selected_option, selected_options, text_answer, question_type)
     VALUES ${placeholders}
     RETURNING *;
   `);
@@ -77,7 +126,7 @@ const submitMultipleResponses = async (responses) => {
 // Initialize all responses for an exam when a user starts an exam
 const submittedUnansweredQuestions = async (exam_id, student_id) => {
   const query = `
-    SELECT question_id
+    SELECT question_id, question_type
     FROM questions
     WHERE exam_id = $1
     AND question_id NOT IN (
@@ -93,6 +142,9 @@ const submittedUnansweredQuestions = async (exam_id, student_id) => {
     question_id: row.question_id,
     student_id,
     selected_option: null,
+    selected_options: null,
+    text_answer: null,
+    question_type: row.question_type,
   }));
 
   if (unansweredQuestions.length > 0) {
@@ -160,14 +212,12 @@ const getExamIdByResponse = async (status, user_id) => {
     );
 
     // Return only the exam_id array
-    return result.rows.map(row => row.exam_id)
-
+    return result.rows.map((row) => row.exam_id);
   } catch (error) {
     console.error(error);
-    return error
+    return error;
   }
-}
-
+};
 
 // Delete a response
 const deleteResponse = async (response_id) => {
@@ -203,17 +253,16 @@ const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
 
 // Function to clear a user's response for a specific question
 const clearResponse = async (studentId, examId, questionId) => {
-    try {
+  try {
     const result = await pool.query(
       "UPDATE responses SET selected_option = NULL WHERE student_id = $1 AND exam_id = $2 AND question_id = $3 AND status='draft' RETURNING *",
       [studentId, examId, questionId]
     );
     return result.rows;
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error);
   }
-}
+};
 
 module.exports = {
   submitResponse,
@@ -227,5 +276,5 @@ module.exports = {
   submitFinalResponsesAndChangeStatus,
   deleteExistingResponses,
   getExamIdByResponse,
-  clearResponse
+  clearResponse,
 };

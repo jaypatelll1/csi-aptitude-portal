@@ -19,21 +19,21 @@ const Question = ({
       case 'single_choice':
         return (
           <div className="mt-4">
-            {options.map((option, index) => (
+            {Object.entries(options).map(([key, value], index) => (
               <div key={index} className="mb-3">
                 <label className="flex items-start cursor-pointer">
                   <div className="flex items-center h-5">
                     <input
                       type="radio"
                       name={`option-${questionNumber}`}
-                      value={option}
-                      checked={selectedOption === option}
-                      onChange={() => onSelectOption(option)}
+                      value={key}
+                      checked={selectedOption === key}
+                      onChange={() => onSelectOption(key)}
                       className="w-5 h-5 text-blue-600 border-gray-300 rounded-full focus:ring-blue-500"
                     />
                   </div>
                   <div className="ml-3 text-base font-light text-gray-700">
-                    {option}
+                    {value}
                   </div>
                 </label>
               </div>
@@ -44,27 +44,27 @@ const Question = ({
       case 'multiple_choice':
         return (
           <div className="mt-4">
-            {options.map((option, index) => (
+            {Object.entries(options).map(([key, value], index) => (
               <div key={index} className="mb-3">
                 <label className="flex items-start cursor-pointer">
                   <div className="flex items-center h-5">
                     <input
                       type="checkbox"
                       name={`option-${questionNumber}-${index}`}
-                      value={option}
-                      checked={selectedOptions?.includes(option)}
+                      value={key}
+                      checked={selectedOptions?.includes(key)}
                       onChange={() => {
-                        if (selectedOptions?.includes(option)) {
-                          onSelectMultipleOptions(selectedOptions.filter(item => item !== option));
+                        if (selectedOptions?.includes(key)) {
+                          onSelectMultipleOptions(selectedOptions.filter(item => item !== key));
                         } else {
-                          onSelectMultipleOptions([...(selectedOptions || []), option]);
+                          onSelectMultipleOptions([...(selectedOptions || []), key]);
                         }
                       }}
                       className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                   </div>
                   <div className="ml-3 text-base font-light text-gray-700">
-                    {option}
+                    {value}
                   </div>
                 </label>
               </div>

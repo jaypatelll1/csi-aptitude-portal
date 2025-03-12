@@ -8,6 +8,8 @@ import {
   visitQuestion,
   clearQuestions,
   toggleMarkForReview,
+  setMultipleSelectedOption,
+  setTextAnswer,
   // We'll use the existing setSelectedOption action for all question types
 } from "../../redux/questionSlice";
 import { clearExamId } from "../../redux/ExamSlice";
@@ -35,7 +37,7 @@ const Stu_MCQExamPage = () => {
   const [testSubmitted, setTestSubmitted] = useState(false);
   const [remainingTime, setRemainingTime] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
-  
+
   // Local state to handle multiple options and text answers
   const [multipleAnswers, setMultipleAnswers] = useState({});
   const [textAnswers, setTextAnswers] = useState({});
@@ -67,11 +69,11 @@ const Stu_MCQExamPage = () => {
     await axios.put(url, {}, { withCredentials: true });
   };
 
-  // useEffect(() => {
-  //   const disableKeyboard = (e) => e.preventDefault();
-  //   window.addEventListener("keydown", disableKeyboard);
-  //   return () => window.removeEventListener("keydown", disableKeyboard);
-  // }, []);
+  useEffect(() => {
+    const disableKeyboard = (e) => e.preventDefault();
+    window.addEventListener("keydown", disableKeyboard);
+    return () => window.removeEventListener("keydown", disableKeyboard);
+  }, []);
 
   useEffect(() => {
     const currentQuestion = questions[currentQuestionIndex];
@@ -136,64 +138,74 @@ const Stu_MCQExamPage = () => {
   const handleOptionSelect = (option) => {
     const currentQuestion = questions[currentQuestionIndex];
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
-    singleResponse(option, currentQuestion?.question_id);
+    singleResponse(
+      option,
+      currentQuestion?.question_id,
+      currentQuestion?.question_type
+    );
   };
 
   const handleMultipleOptionsSelect = (options) => {
     const currentQuestion = questions[currentQuestionIndex];
     const questionId = currentQuestion?.question_id;
-    
+
     // Store in local state
     setMultipleAnswers({
       ...multipleAnswers,
-      [questionId]: options
+      [questionId]: options,
     });
-    
-    multipleResponse(options, questionId);
+    dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options }));
+    multipleResponse(options, questionId, currentQuestion?.question_type);
   };
 
   const handleTextChange = (text) => {
     const currentQuestion = questions[currentQuestionIndex];
     const questionId = currentQuestion?.question_id;
-    
+
     // Store in local state
     setTextAnswers({
       ...textAnswers,
-      [questionId]: text
+      [questionId]: text,
     });
-    
-    textResponse(text, questionId);
+    dispatch(setTextAnswer({ index: currentQuestionIndex, text }));
+    textResponse(text, questionId, currentQuestion?.question_type);
   };
 
-  const singleResponse = async (option, id) => {
+  const singleResponse = async (option, id, question_type) => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/${examId}`;
     const payload = {
       question_id: id,
       selected_option: option,
-      response_status: "draft",
+      selected_options: null,
+      text_answer: null,
+      question_type,
     };
     await axios.put(url, payload, { withCredentials: true });
   };
 
-  const multipleResponse = async (options, id) => {
+  const multipleResponse = async (options, id, question_type) => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/${examId}`;
     const payload = {
       question_id: id,
+      selected_option: null,
       selected_options: options, // Array of selected options
-      response_status: "draft",
+      text_answer: null,
+      question_type,
     };
     await axios.put(url, payload, { withCredentials: true });
   };
 
-  const textResponse = async (text, id) => {
+  const textResponse = async (text, id, question_type) => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/${examId}`;
     const payload = {
       question_id: id,
+      selected_option: null,
+      selected_options: null,
       text_answer: text,
-      response_status: "draft",
+      question_type,
     };
     await axios.put(url, payload, { withCredentials: true });
   };
@@ -235,22 +247,31 @@ const Stu_MCQExamPage = () => {
     const url = `${API_BASE_URL}/api/exams/responses/exams/clear-response`;
 
     try {
-      await axios.put(url, { studentId: userId, examId: Number(examId), questionId: id }, { withCredentials: true });
-      
+      await axios.put(
+        url,
+        { studentId: userId, examId: Number(examId), questionId: id },
+        { withCredentials: true }
+      );
+
       const currentQuestion = questions[currentQuestionIndex];
-      if (currentQuestion?.questionType === "single" || !currentQuestion?.questionType) {
-        dispatch(setSelectedOption({ index: currentQuestionIndex, option: null }));
+      if (
+        currentQuestion?.questionType === "single" ||
+        !currentQuestion?.questionType
+      ) {
+        dispatch(
+          setSelectedOption({ index: currentQuestionIndex, option: null })
+        );
       } else if (currentQuestion?.questionType === "multiple") {
         // Clear multiple options in local state
         setMultipleAnswers({
           ...multipleAnswers,
-          [id]: []
+          [id]: [],
         });
       } else if (currentQuestion?.questionType === "text") {
         // Clear text answer in local state
         setTextAnswers({
           ...textAnswers,
-          [id]: ""
+          [id]: "",
         });
       }
     } catch (error) {
@@ -264,22 +285,22 @@ const Stu_MCQExamPage = () => {
 
   // useEffect(() => {
   //   let warningCount = 0;
-  
-    // const handleTabSwitch = () => {
-    //   if (document.hidden) {
-    //     warningCount++;
-  
-    //     if (warningCount < 5) {
-    //       alert(` Tab switching detected! Warning ${warningCount}/5. Stay on the exam page.`);
-    //     } else {
-    //       alert("You have switched tabs too many times. Your test is now being submitted.");
-    //       handleSubmitTest();
-    //     }
-    //   }
-    // };
-  
+
+  // const handleTabSwitch = () => {
+  //   if (document.hidden) {
+  //     warningCount++;
+
+  //     if (warningCount < 5) {
+  //       alert(` Tab switching detected! Warning ${warningCount}/5. Stay on the exam page.`);
+  //     } else {
+  //       alert("You have switched tabs too many times. Your test is now being submitted.");
+  //       handleSubmitTest();
+  //     }
+  //   }
+  // };
+
   //   document.addEventListener("visibilitychange", handleTabSwitch);
-  
+
   //   return () => {
   //     document.removeEventListener("visibilitychange", handleTabSwitch);
   //   };
@@ -291,13 +312,15 @@ const Stu_MCQExamPage = () => {
 
   const currentQuestion = getCurrentQuestion();
   const questionId = currentQuestion?.question_id;
-// console.log(currentQuestion)
+
   // Get appropriate answers from state based on question type
   const getSelectedOptions = () => {
-    if (currentQuestion?.questionType === "multiple_choice") {
+    if (currentQuestion?.question_type === "multiple_choice") {
       return multipleAnswers[questionId] || [];
     } else {
-      return currentQuestion?.selectedOption ? [currentQuestion.selectedOption] : [];
+      return currentQuestion?.selectedOption
+        ? [currentQuestion.selectedOption]
+        : [];
     }
   };
 
@@ -367,9 +390,9 @@ const Stu_MCQExamPage = () => {
               <Question
                 questionNumber={currentQuestionIndex + 1}
                 question={currentQuestion.question_text || "Loading..."}
-                questionType={currentQuestion.question_type || "single"}
-                options={currentQuestion.options ? Object.values(currentQuestion.options) : []}
-                selectedOption={currentQuestion.selectedOption}
+                questionType={currentQuestion.question_type || "single_choice"}
+                options={currentQuestion.options || []}
+                selectedOption={currentQuestion.selected_option}
                 selectedOptions={getSelectedOptions()}
                 textAnswer={getTextAnswer()}
                 imageUrl={currentQuestion.image_url}
@@ -389,7 +412,9 @@ const Stu_MCQExamPage = () => {
               </button>
               <button
                 className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                onClick={() => handleClearResponse(currentQuestion?.question_id)}
+                onClick={() =>
+                  handleClearResponse(currentQuestion?.question_id)
+                }
               >
                 Clear
               </button>
@@ -398,7 +423,9 @@ const Stu_MCQExamPage = () => {
                 className="px-4 py-2 rounded-lg bg-purple-500 text-white"
                 onClick={handleMarkForReview}
               >
-                {currentQuestion?.markedForReview ? "Unmark Review" : "Mark for Review"}
+                {currentQuestion?.markedForReview
+                  ? "Unmark Review"
+                  : "Mark for Review"}
               </button>
               <button
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"

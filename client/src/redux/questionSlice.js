@@ -35,8 +35,22 @@ const questionsSlice = createSlice({
       state.questions[index].selectedOption = option;
       state.questions[index].answered = true;
       state.questions[index].visited = true;
-      
     },
+
+    setMultipleSelectedOption(state, action) {
+      const { index, options } = action.payload;
+      state.questions[index].selectedOptions = options;
+      state.questions[index].answered = true;
+      state.questions[index].visited = true;
+    },
+
+    setTextAnswer(state, action) {
+      const { index, text } = action.payload;
+      state.questions[index].textAnswer = text;
+      state.questions[index].answered = true;
+      state.questions[index].visited = true;
+    },
+
     toggleMarkForReview: (state, action) => {
       const index = action.payload;
       if (state.questions[index]) {
@@ -44,12 +58,12 @@ const questionsSlice = createSlice({
       }
     },
     clearQuestions(state,action){
-      state.questions =[];
+      state.questions = [];
       state.currentQuestionIndex = 0
     }, 
   },
 });
 
-export const { setQuestions, markAnswered, visitQuestion, setSelectedOption ,clearQuestions, toggleMarkForReview} =
+export const { setQuestions, markAnswered, visitQuestion, setSelectedOption, setMultipleSelectedOption, setTextAnswer, clearQuestions, toggleMarkForReview} =
   questionsSlice.actions;
 export default questionsSlice.reducer;
