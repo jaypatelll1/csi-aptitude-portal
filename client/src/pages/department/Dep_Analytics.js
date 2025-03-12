@@ -179,7 +179,7 @@ function Dep_Analytics() {
         {/* Performers Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 ml-5">
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold mb-3">Top Performers</h2>
+            <h2 className="text-lg font-semibold mb-3 text-[#1349C5]">Top Performers</h2>
             <ul>
               {topPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">
@@ -190,7 +190,7 @@ function Dep_Analytics() {
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold mb-3">Bottom Performers</h2>
+            <h2 className="text-lg font-semibold mb-3 text-[#1349C5]">Bottom Performers</h2>
             <ul>
               {bottomPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">

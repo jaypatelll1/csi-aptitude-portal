@@ -196,7 +196,7 @@ function Adm_Analytics() {
         {/* Performers Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold mb-3">Top Performers</h2>
+            <h2 className="text-xl font-medium text-[#1349C5] self-start">Top Performers</h2>
             <ul>
               {topPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">
@@ -207,7 +207,7 @@ function Adm_Analytics() {
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold mb-3">Bottom Performers</h2>
+            <h2 className="text-xl font-medium text-[#1349C5] self-start">Bottom Performers</h2>
             <ul>
               {bottomPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">

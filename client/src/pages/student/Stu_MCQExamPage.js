@@ -193,15 +193,15 @@ const Stu_MCQExamPage = () => {
     dispatch(toggleMarkForReview(currentQuestionIndex));
   };
 
-  //  Detect Screen Sharing
-  const detectScreenSharing = async () => {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const isSharing = devices.some(device => device.kind === 'videoinput' && device.label.includes('Screen'));
-    if (isSharing) {
-      alert(" Screen sharing detected! Test will be auto-submitted.");
-      submitFinalResponse();
-    }
-  };
+  // //  Detect Screen Sharing
+  // const detectScreenSharing = async () => {
+  //   const devices = await navigator.mediaDevices.enumerateDevices();
+  //   const isSharing = devices.some(device => device.kind === 'videoinput' && device.label.includes('Screen'));
+  //   if (isSharing) {
+  //     alert(" Screen sharing detected! Test will be auto-submitted.");
+  //     submitFinalResponse();
+  //   }
+  // };
 
    //  Detect Tab Switching
    useEffect(() => {
@@ -227,14 +227,14 @@ const Stu_MCQExamPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(detectScreenSharing, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(detectScreenSharing, 3000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
-  useEffect(() => {
-    if (timeUp) submitFinalResponse();
-  }, [timeUp]);
+  // useEffect(() => {
+  //   if (timeUp) submitFinalResponse();
+  // }, [timeUp]);
  
 
   return (

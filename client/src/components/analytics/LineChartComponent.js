@@ -34,8 +34,9 @@ const LineChartComponent = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
+    <div className="flex flex-col items-start w-full">
+  <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
+
       <div className="w-full max-w-[750px] -ml-10 ">
         <ResponsiveContainer width="100%" height={250}>
           <LineChart  data={data.chartData}>
