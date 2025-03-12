@@ -4,7 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 const AdmLineChartComponent = ({ data }) => {
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-3 text-[#1349C5]">{data.title}</h2>
+      <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data.chartData} margin={{ top: 10, right: 30, left: 20, bottom: 10 }}>
           <CartesianGrid strokeDasharray="3 3" />
