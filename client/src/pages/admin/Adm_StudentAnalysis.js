@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 const Adm_StudentAnalysis = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(undefined);
+  const [selectedRank, setSelectedRank] = useState('');
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   // const [isModalOpen, setIsModalOpen] = useState(false);
@@ -170,6 +171,30 @@ const Adm_StudentAnalysis = () => {
       );
     }
 
+  
+    // Apply rank filter
+    if (selectedRank) {
+      if (selectedRank === 'top') {
+        // Sort all students by rank in ascending order (lower rank number = higher performer)
+        filtered.sort((a, b) => a.rank - b.rank);
+        // No slicing, keeps all students but in ascending rank order
+      } else if (selectedRank === 'bottom') {
+        // Sort all students by rank in descending order (higher rank number = lower performer)
+        filtered.sort((a, b) => b.rank - a.rank);
+        // No slicing, keeps all students but in descending rank order
+      } else if (selectedRank.includes('+')) {
+        // Handle "501+" case
+        const minRank = parseInt(selectedRank.split('+')[0]);
+        filtered = filtered.filter((student) => student.rank >= minRank);
+      } else {
+        // Handle range cases like "1-10"
+        const [minRank, maxRank] = selectedRank.split('-').map(Number);
+        filtered = filtered.filter(
+          (student) => student.rank >= minRank && student.rank <= maxRank
+        );
+      }
+    }
+
     // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(
@@ -187,7 +212,7 @@ const Adm_StudentAnalysis = () => {
     setFilteredStudents(filtered);
     const totalPages = Math.ceil(filtered.length / limit);
     setNumberofpages(totalPages);
-  }, [selectedDepartment, students, limit, searchTerm]);
+  }, [selectedDepartment, selectedRank, students, limit, searchTerm]);
 
   const toggleFilter = () => {
     setShowFilter(!showFilter);
@@ -214,8 +239,10 @@ const Adm_StudentAnalysis = () => {
     }
     return pages;
   };
-  const handleFilterChange = (department) => {
+  
+  const handleFilterChange = (department, rank) => {
     setSelectedDepartment(department);
+    setSelectedRank(rank);
   };
 
   // const openModal = () => setIsModalOpen(true);
@@ -367,7 +394,7 @@ const Adm_StudentAnalysis = () => {
                     <td className="py-4 px-4">{student.name}</td>
                     <td className="py-4 px-4">{student.department || "N/A"}</td>
                     <td className="py-4 px-4 text-center">
-                      <button onClick={ (e) => handleAnalyticsClick(student.user_id)} className="p-2">
+                      <button onClick={(e) => handleAnalyticsClick(student.user_id)} className="p-2">
                         <svg
                           width="20"
                           height="20"
