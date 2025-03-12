@@ -28,7 +28,7 @@ const MultiLineChart = ({ data }) => {
 
   return (
     <div className="flex flex-col items-center  ">
-     <h2 className="text-xl font-medium mb-4  text-[#1349C5]">{data.title}</h2>
+     <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
       <div className="w-[750px] h-[200px]">
         <ResponsiveContainer width="100%" height={335}>
           <LineChart data={chartData} margin={{ top: 10,right: 25, left: 20, bottom: 5 }}>

@@ -13,6 +13,10 @@ const {
 
 const router = express.Router();
 
+// Rate Limit
+const {limiter} = require("../utils/rateLimitUtils");
+// router.use(limiter);
+
 router.get('/overall-results/:student_id', getOverallResultsOfAStudent);
 router.get('/exam/:exam_id/:student_id', getResultOfAParticularExam);
 router.get('/tests-completed/:student_id', testCompletion);

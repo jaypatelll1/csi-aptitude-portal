@@ -4,23 +4,24 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 const DonutChartComponent = ({ data }) => {
   const [hoveredValue, setHoveredValue] = useState(null); 
 
- 
   const total = data.chartData.reduce((sum, entry) => sum + entry.value, 0);
   const percentageData = data.chartData.reduce((acc, entry) => {
-    acc[entry.name] = ((entry.value / total) * 100).toFixed(0); // Store percentage in an object
+    acc[entry.name] = ((entry.value / total) * 100).toFixed(0); 
     return acc;
   }, {});
 
-  
   const displayPercentage = hoveredValue
     ? percentageData[hoveredValue]
     : percentageData["Correct"];
 
   return (
-    <div className="flex flex-col items-center relative ">
-      <h2 className="text-xl font-medium  text-[#1349C5]">{data.title}</h2>
-      <div className="relative w-[250px] h-[250px] mt-10 flex items-center justify-center">
-        <ResponsiveContainer className="" width="100%" height="100%">
+    <div className="flex flex-col relative">
+      {/* Align only the title to the left */}
+      <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
+
+      {/* Keep chart centered */}
+      <div className="flex flex-col items-center relative w-[250px] h-[250px] mt-10">
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data.chartData}
@@ -42,8 +43,9 @@ const DonutChartComponent = ({ data }) => {
             <Legend />
           </PieChart>
         </ResponsiveContainer>
+
         {/* Properly Centered Percentage */}
-        <div className="absolute text-4xl font-bold mb-4 text-gray-700">
+        <div className="absolute text-4xl font-bold mt-24 text-gray-700">
           {displayPercentage}%
         </div>
       </div>
