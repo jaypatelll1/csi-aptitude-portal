@@ -35,6 +35,7 @@ const insertQuestion = async (
     question_text,
     options,
     correct_option,
+    correct_options,
     category_type,
     image_url,
   ];
@@ -131,13 +132,42 @@ const getPaginatedQuestionsByExam = async (exam_id, page, limit) => {
   return result.rows;
 };
 
-// Update question with image URL
-async function updateQuestionImage(exam_id, question_id, image_url) {
-  const queryText = `UPDATE questions SET image_url = $1 WHERE exam_id = $2 AND question_id = $3 RETURNING *`;
-  const values = [image_url, exam_id, question_id];
+// // Update question with image URL
+// async function updateQuestionImage(exam_id, question_id, image_url) {
+//   const queryText = `UPDATE questions SET image_url = $1 WHERE exam_id = $2 AND question_id = $3 RETURNING *`;
+//   const values = [image_url, exam_id, question_id];
+//   const { rows } = await query(queryText, values);
+//   return rows[0];
+// }
+
+// Function to update the image URL for a specific question
+async function updateQuestionImage(question_id, image_url) {
+  const queryText = `UPDATE questions SET image_url = $1 WHERE question_id = $2 RETURNING *`;
+  const values = [image_url, question_id];
   const { rows } = await query(queryText, values);
   return rows[0];
 }
+
+// Function to save a new question
+async function saveQuestion({ exam_id, question_text, question_type, options, correct_option, correct_options, image_url }) {
+  const queryText = `
+    INSERT INTO questions (exam_id, question_text, question_type, options, correct_option, correct_options, image_url)
+    VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`;
+  
+  const values = [
+    exam_id,
+    question_text,
+    question_type, 
+    JSON.stringify(options), 
+    correct_option || null, 
+    correct_options ? JSON.stringify(correct_options) : null, 
+    image_url || null
+  ];
+
+  const { rows } = await query(queryText, values);
+  return rows[0];
+}
+
 
 module.exports = {
   createQuestionsTable,
@@ -147,5 +177,6 @@ module.exports = {
   DeleteQuestions,
   getPaginatedQuestionsByExam,
   getStudentQuestionsByExamId,
-  updateQuestionImage
+  updateQuestionImage,
+  saveQuestion
 };
