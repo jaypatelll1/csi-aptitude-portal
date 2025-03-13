@@ -1,5 +1,6 @@
 const rankModel = require('../models/rankModel');
 const { logActivity } = require('../utils/logActivity');
+
 const generateRank = async (req, res) => {
 
   try {
