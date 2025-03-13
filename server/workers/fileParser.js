@@ -36,7 +36,7 @@ async function main() {
         });
     }
 }
-
+// made
 main().catch(error => {
     console.error('Unhandled worker error:', error);
     parentPort.postMessage({
