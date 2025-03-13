@@ -26,12 +26,12 @@ const MultiLineChart = ({ data }) => {
     return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" });
   };
 
-  // Custom XAxis tick component (from LineChartComponent)
+  // Custom XAxis tick component
   const CustomTick = (props) => {
     const { x, y, payload } = props;
     const words = formatDate(payload.value).split("-"); // Split formatted date
     return (
-      <text x={x} y={y + 10} textAnchor="middle" fill="#333" fontSize="14">
+      <text x={x} y={y + 10} textAnchor="middle" fill="#333" fontSize="12">
         {words.map((word, index) => (
           <tspan key={index} x={x} dy={index * 15}>
             {word}
@@ -41,9 +41,9 @@ const MultiLineChart = ({ data }) => {
     );
   };
 
-  // Custom label component for data points (from LineChartComponent)
+  // Custom label component for data points
   const CustomLabel = (props) => {
-    const { x, y, value, index, dataKey } = props;
+    const { x, y, value, dataKey } = props;
     // Only show label if the department is selected
     if (!selected.includes(dataKey) && selected.length > 0) return null;
     return (
@@ -60,36 +60,56 @@ const MultiLineChart = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
-      <div className="w-[750px] h-[200px]">
-        <ResponsiveContainer width="100%" height={335}>
-          <LineChart data={chartData} margin={{ top: 10, right: 25, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="4 4" />
-            <XAxis
-              dataKey="date"
-              tick={<CustomTick />} // Use custom tick instead of tickFormatter
-            />
-            <YAxis domain={[0, 150]} tick={{ fontSize: 12 }} />
-            <Tooltip labelFormatter={(label) => formatDate(label)} />
-            <Legend
-              onClick={(e) => handleLegendClick(e.value)}
-              wrapperStyle={{ cursor: "pointer" }}
-            />
-            {departments.map((dept) => (
-              <Line
-                key={dept}
-                type="monotone"
-                dataKey={dept}
-                stroke={selected.includes(dept) ? "#1349C5" : "#D3D3D3"}
-                strokeWidth={selected.includes(dept) ? 2 : 2}
-                dot={{ r: selected.includes(dept) ? 2 : 2 }}
-                activeDot={{ r: 8 }}
-                // label={<CustomLabel />} // Add custom labels to each line
+    <div className="flex flex-col items-center w-full">
+      <h2 className="text-xl font-medium text-[#1349C5] self-start mb-4">{data.title}</h2>
+      
+      {/* Responsive container that adjusts based on screen size */}
+      <div className="w-full h-auto">
+        {/* Height is proportional to width with different responsive breakpoints */}
+        <div className="w-full h-[300px]  lg:h-[340px] xl:h-[340px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart 
+              data={chartData} 
+              margin={{ 
+                top: 10, 
+                right: 10, 
+                left: 0, 
+                bottom: 30 
+              }}
+            >
+              <CartesianGrid strokeDasharray="4 4" />
+              <XAxis
+                dataKey="date"
+                tick={<CustomTick />}
+                height={60} // Ensure enough height for date labels
               />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+              <YAxis 
+                domain={[0, 150]} 
+                tick={{ fontSize: 12 }} 
+                width={35} // Ensure consistent width for y-axis
+              />
+              <Tooltip labelFormatter={(label) => formatDate(label)} />
+              <Legend
+                onClick={(e) => handleLegendClick(e.value)}
+                wrapperStyle={{ cursor: "pointer" }}
+                verticalAlign="bottom"
+                height={12}
+              />
+              {departments.map((dept) => (
+                <Line
+                  key={dept}
+                  type="monotone"
+                  dataKey={dept}
+                  stroke={selected.includes(dept) ? "#1349C5" : "#D3D3D3"}
+                  strokeWidth={selected.includes(dept) ? 2 : 2}
+                  dot={{ r: selected.includes(dept) ? 2 : 2 }}
+                  activeDot={{ r: 8 }}
+                  // label={<CustomLabel />}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

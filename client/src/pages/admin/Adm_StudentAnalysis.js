@@ -413,10 +413,10 @@ const Adm_StudentAnalysis = () => {
                     <td className="py-4 px-4">
                       {student.department_name || "N/A"}
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-4 text-center">
                       {getOrdinalSuffix(student.department_rank)}
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-4 text-center">
                       {getOrdinalSuffix(student.overall_rank)}
                     </td>
                     <td className="py-4 px-4 text-center">

@@ -20,11 +20,11 @@ function Dep_Analytics() {
   const [topPerformers, setTopPerformers] = useState([]);
   const [bottomPerformers, setBottomPerformers] = useState([]);
   const [participationRate, setParticipationRate] = useState([]);
-  const [performanceOverTime, setPerformanceOverTime] = useState([])
-  const [deptRank, setDeptRank] = useState([])
-  const [highestPerformer, setHighestPerformer] = useState([]) // For dispalying overall_rank of top student
-  const [dSup, setDSup] = useState("")
-  const [oSup, setOSup] = useState("")
+  const [performanceOverTime, setPerformanceOverTime] = useState([]);
+  const [deptRank, setDeptRank] = useState([]);
+  const [highestPerformer, setHighestPerformer] = useState([]); // For dispalying overall_rank of top student
+  const [dSup, setDSup] = useState("");
+  const [oSup, setOSup] = useState("");
 
   // Refs and Redux State
   const sidebarRef = useRef(null);
@@ -42,14 +42,13 @@ function Dep_Analytics() {
       setBottomPerformers(response.data.bottom_performer);
       setParticipationRate(response.data.participation_rate);
       setAccuracyData(response.data.accuracy_rate);
-      setPerformanceOverTime(response.data.performance_over_time)
+      setPerformanceOverTime(response.data.performance_over_time);
 
-      setDeptRank(response.data.dept_ranks)
+      setDeptRank(response.data.dept_ranks);
       superscript(setDSup, response.data.dept_ranks.department_rank);
 
-      setHighestPerformer(response.data.top_performer[0])
-      superscript(setOSup, response.data.top_performer[0].overall_rank)
-
+      setHighestPerformer(response.data.top_performer[0]);
+      superscript(setOSup, response.data.top_performer[0].overall_rank);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -74,16 +73,32 @@ function Dep_Analytics() {
   const donutChartData = {
     title: "Accuracy Rate",
     chartData: [
-      { name: "Correct", value: Number(accuracyData?.accuracy_rate) || 0, fill: "#4CAF50" },
-      { name: "Wrong", value: 100 - (Number(accuracyData?.accuracy_rate) || 0), fill: "#F44336" },
+      {
+        name: "Correct",
+        value: Number(accuracyData?.accuracy_rate) || 0,
+        fill: "#4CAF50",
+      },
+      {
+        name: "Wrong",
+        value: 100 - (Number(accuracyData?.accuracy_rate) || 0),
+        fill: "#F44336",
+      },
     ],
   };
 
   const participationRateData = {
     title: "Participation Rate",
     chartData: [
-      { name: "Participated", value: Number(participationRate?.participation_rate) || 0, fill: "#1349C5" },
-      { name: "Not Participated", value: 100 - (Number(participationRate?.participation_rate) || 0), fill: "#6F91F0" },
+      {
+        name: "Participated",
+        value: Number(participationRate?.participation_rate) || 0,
+        fill: "#1349C5",
+      },
+      {
+        name: "Not Participated",
+        value: 100 - (Number(participationRate?.participation_rate) || 0),
+        fill: "#6F91F0",
+      },
     ],
   };
 
@@ -93,14 +108,14 @@ function Dep_Analytics() {
     chartData: performanceOverTime.map((exam) => ({
       name: exam?.created_on,
       Average: exam?.average_score,
-    }))
+    })),
   };
 
   const radarChartData = {
     title: "Subject-wise Performance",
     chartData: categoryWiseData
-      .filter(category => category?.category && category?.category !== "null")
-      .map(category => ({
+      .filter((category) => category?.category && category?.category !== "null")
+      .map((category) => ({
         name: category?.category,
         yourScore: Number(category?.average_category_score) || 0,
         maxMarks: Number(category?.max_category_score) || 0,
@@ -131,7 +146,7 @@ function Dep_Analytics() {
       {/* Main Content */}
       <div className="flex flex-col flex-1 xl:ml-64">
         <Dep_Navbar />
-        
+
         {/* Dashboard Content */}
         <div className="px-5">
           <div className="flex items-center mt-4">
@@ -139,40 +154,56 @@ function Dep_Analytics() {
               className="xl:hidden text-gray-800 focus:outline-none"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                  d={
+                    sidebarOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
                 />
               </svg>
             </button>
-            <h1 className="text-3xl font-bold text-gray-800 ml-4 xl:ml-0">Analytics Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-800 ml-4 xl:ml-0">
+              Analytics Dashboard
+            </h1>
           </div>
 
           {/* Header Row: 2 columns (display, line chart) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             {/* Reduced size of DisplayComponent */}
             <div>
-        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
-         <DisplayComponent
-          title="Overall Department Rank"
-          rank={deptRank.department_rank || "Loading..."}
-          superscript={dSup}
-         />
-        </div>
-        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
-         <DisplayComponent
-          title="Overall Student Rank"
-          rank={highestPerformer.overall_rank || "N/A"}
-          superscript={oSup}
-         />
-        </div>
-        </div>  
+              <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
+                <DisplayComponent
+                  title="Overall Department Rank"
+                  rank={deptRank.department_rank || "Loading..."}
+                  superscript={dSup}
+                />
+              </div>
+              <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
+                <DisplayComponent
+                  title="Overall Student Rank"
+                  rank={highestPerformer.overall_rank || "N/A"}
+                  superscript={oSup}
+                />
+              </div>
+            </div>
 
             {/* Extended LineChartComponent to take more space */}
             <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-              <LineChartComponent data={performanceOverTimeData} xAxisKey="name" lineDataKey="Percentage" />
+              <LineChartComponent
+                data={performanceOverTimeData}
+                xAxisKey="name"
+                lineDataKey="Percentage"
+              />
             </div>
           </div>
 
@@ -181,25 +212,31 @@ function Dep_Analytics() {
             <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
               <DonutChartComponent data={donutChartData} />
             </div>
-            
-            
+
             <div className="bg-white p-6 rounded-xl shadow-md  ">
-            <RadarChartComponent data={radarChartData} />
-          </div>
+              <RadarChartComponent data={radarChartData} />
+            </div>
           </div>
 
           {/* Performers Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-6 w-full">
-          <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+            <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
               <PieChartComponent data={participationRateData} />
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-md  ">
-      
-          <TableComponent title="Top Performers" data={topPerformers} type="department" />
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-md  ">
-          <TableComponent title="Bottom Performers" data={bottomPerformers} type="department" />
-          </div>   
+            </div>
+            <div>
+              <TableComponent
+                title="Top Performers"
+                data={topPerformers}
+                type="department"
+              />
+            </div>
+            <div >
+              <TableComponent
+                title="Bottom Performers"
+                data={bottomPerformers}
+                type="department"
+              />
+            </div>
           </div>
         </div>
       </div>

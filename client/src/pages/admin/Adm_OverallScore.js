@@ -142,7 +142,7 @@ const departmentPerformanceData = {
       <div className="flex-1 w-full bg-gray-100">
         <Adm_Navbar />
 
-        <div className="flex items-center justify-between mt-8">
+        <div className="flex items-center  mt-8">
           <button
             className="xl:hidden text-gray-800"
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -166,7 +166,7 @@ const departmentPerformanceData = {
               />
             </svg>
           </button>
-          <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">
+          <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 ml-60">
             Overall Analytics
           </h1>
         </div>

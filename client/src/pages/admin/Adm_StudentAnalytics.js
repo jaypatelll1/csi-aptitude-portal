@@ -6,6 +6,7 @@ import PieChartComponent from "../../components/analytics/PieChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 
 function Adm_StudentAnalytics() {
@@ -185,7 +186,7 @@ function Adm_StudentAnalytics() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-gray-100 mb-4 overflow-x-hidden">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
@@ -196,7 +197,7 @@ function Adm_StudentAnalytics() {
         <Adm_Sidebar />
       </div>
 
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 xl:ml-64 ">
         {/* Header */}
         <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
           <button
@@ -222,9 +223,7 @@ function Adm_StudentAnalytics() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-semibold text-gray-800 ml-5">
-            Dashboard
-          </h1>
+
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
@@ -233,67 +232,67 @@ function Adm_StudentAnalytics() {
           </div>
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
-
+        <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">
+          Analytics
+        </h1>
         {/* Dashboard Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 p-6 lg:ml-64">
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
           {/* Rank Display */}
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
-            <div className="flex flex-col items-center">
-              <h2 className="text-gray-700 mt-12 text-lg font-medium">
-                Department Rank
-              </h2>
-              <span className="text-5xl flex items-center font-bold text-gray-900">
-                {rankData.department_rank}
-                <sup className="text-xl">{dSup}</sup>
-              </span>
+          <div className="">
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
+              <DisplayComponent
+                title="Department Rank"
+                rank={rankData?.department_rank || "Loading..."}
+                superscript={dSup}
+              />
             </div>
-            <div className="flex flex-col items-center">
-              <h2 className="text-gray-700 mt-12 text-lg font-medium">
-                Overall Rank
-              </h2>
-              <span className="text-5xl flex items-center font-bold text-gray-900">
-                {rankData && rankData.overall_rank}
-                <sup className="text-xl">{oSup}</sup>
-              </span>
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
+              <DisplayComponent
+                title="Overall Rank"
+                rank={rankData?.overall_rank || "Loading..."}
+                superscript={oSup}
+              />
             </div>
           </div>
 
           {/* Line Chart - Overall Score */}
-          <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 col-span-2">
-            <LineChartComponent
-              data={performanceOverTimeData}
-              xAxisKey="name"
-              lineDataKey="value"
-              lineColor="#0703fc"
-            />
+          <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
+            <div className="w-full">
+              <LineChartComponent
+                data={performanceOverTimeData}
+                xAxisKey="name"
+                lineDataKey="value"
+                lineColor="#0703fc"
+              />
+            </div>
           </div>
-          <div className="flex flex-row gap-4">
-            {/* Accuracy Rate - Donut Chart */}
+        </div>
 
-            <div className="bg-white shadow-lg rounded-lg p-6 px-[5vh] flex flex-col items-center border border-gray-200">
-              <DonutChartComponent data={accuracyData} />
-              <p className="text-2xl font-bold mt-2"></p>
-            </div>
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6 mb-8">
+          {/* Accuracy Rate - Donut Chart */}
+          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
+            <DonutChartComponent data={accuracyData} />
+          </div>
 
-            {/* Subject-wise Performance - Radar Chart */}
-            <div className="bg-white shadow-lg rounded-lg p-6 w-[32vw] border border-gray-200">
-              {subjectPerformanceData.chartData.length > 0 ? (
-                <RadarChartComponent data={subjectPerformanceData} />
-              ) : (
-                <p className="text-center text-gray-500">No Data Available</p>
-              )}
-            </div>
+          {/* Subject-wise Performance - Radar Chart */}
+          <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 flex items-center justify-center col-span-3">
+            {subjectPerformanceData.chartData.length > 0 ? (
+              <RadarChartComponent data={subjectPerformanceData} />
+            ) : (
+              <p className="text-center text-gray-500">No Data Available</p>
+            )}
+          </div>
 
-            {/* Test Completion Rate - Pie Chart */}
-            <div className="bg-white shadow-lg rounded-lg p-6 border w-[23vw] border-gray-200">
-              {testCompletionData ? (
-                <PieChartComponent data={testCompletionData} />
-              ) : (
-                <p className="text-center text-gray-500">
-                  Loading Test Completion Data...
-                </p>
-              )}
-            </div>
+          {/* Test Completion Rate - Pie Chart */}
+          <div className="bg-white shadow-lg rounded-lg p-6 border mr-4 border-gray-200 flex items-center justify-center col-span-2">
+            {testCompletionData ? (
+              <PieChartComponent data={testCompletionData} />
+            ) : (
+              <p className="text-center text-gray-500">
+                Loading Test Completion Data...
+              </p>
+            )}
           </div>
         </div>
       </div>
