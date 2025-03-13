@@ -4,9 +4,11 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
-import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
+import LineChartComponent from "../../components/analytics/LineChartComponent";
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
+import TableComponent from "../../components/analytics/TableComponent";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,7 +66,18 @@ function Adm_Analytics() {
         fill: "#F44336",
       },
     ];
-
+    const chartData = {
+      title: "Performance Over Time",
+      color: "#0703fc",
+      chartData: [
+        { name: "January 2025", Percentage: 75 },
+        { name: "February 2025", Percentage: 82 },
+        { name: "March 2025", Percentage: 88 },
+        { name: "April 2025", Percentage: 90 },
+        { name: "May 2025", Percentage: 85 },
+      ],
+    };
+  
   // If filteredData is empty, use default values
   const donutChartData = {
     title: "Accuracy Rate",
@@ -76,6 +89,12 @@ function Adm_Analytics() {
             { name: "Wrong", value: 100, fill: "#F44336" },
           ],
   };
+  const rankData = { department_rank: 2 };
+  const dSup = "nd";
+
+  const rankSData = { overall_student_rank: 5 };
+  const oSup = "th";
+
 
   const participationRateData = {
     title: "Participation Rate",
@@ -184,17 +203,46 @@ function Adm_Analytics() {
         {/* Department Selection Buttons */}
 
         {/* Rankings & Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-5 mt-5 mb-5  ml-5 mr-5 ">
+        <div>
+        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
+         <DisplayComponent
+          title="Overall Department Rank"
+          rank={rankData?.department_rank || "N/A"}
+          superscript={dSup}
+         />
+        </div>
+        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
+         <DisplayComponent
+          title="Overall Student Rank"
+          rank={rankSData?.overall_student_rank || "N/A"}
+          superscript={oSup}
+         />
+        </div>
+        </div>  
+        <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
+              <LineChartComponent data={chartData} xAxisKey="name" lineDataKey="Percentage" />
+            </div>
+        
+        </div>  
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5  ml-5 mr-5 ">
+          
+          
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
             <DonutChartComponent data={donutChartData} />
           </div>
+          
           <div className="bg-white p-6 rounded-xl shadow-md">
             <RadarChartComponent data={radarChartData} />
           </div>
-        </div>
+          </div>
+        
 
         {/* Performers Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
+        <div className="bg-white p-6 rounded-xl shadow-md">
+            <PieChartComponent data={participationRateData} />
+          </div>
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-xl font-medium text-[#1349C5] self-start">Top Performers</h2>
             <ul>
@@ -216,10 +264,9 @@ function Adm_Analytics() {
               ))}
             </ul>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <PieChartComponent data={participationRateData} />
-          </div>
+          
         </div>
+        
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 const responseModel = require('../models/responseModel');
 const { logActivity } = require('../utils/logActivity');
 
-
 // Delete Exististing responses and initialize responses
 const deleteExistingResponses = async (req, res) => {
   const { exam_id } = req.params;
@@ -17,7 +16,10 @@ const deleteExistingResponses = async (req, res) => {
     // console.log('deleteResult:', deleteResult);
 
     // Initialize unanswered questions
-    const response = await responseModel.submittedUnansweredQuestions(exam_id, student_id);
+    const response = await responseModel.submittedUnansweredQuestions(
+      exam_id,
+      student_id
+    );
     // console.log('Initialized unanswered questions:', response);
 
     return res.status(201).json({
@@ -29,14 +31,20 @@ const deleteExistingResponses = async (req, res) => {
     console.error('Error in response initialization:', error.message);
     return res.status(500).json({ error: error.message });
   }
-}
+};
 // Submit a response
 const submitResponse = async (req, res) => {
   const { exam_id } = req.params;
-  const { question_id, selected_option } = req.body;
+  const {
+    question_id,
+    selected_option,
+    selected_options,
+    text_answer,
+    question_type,
+  } = req.body;
   const student_id = req.user.id; // Assume the student ID is available via JWT
 
-  if (!student_id || !exam_id || !question_id || !selected_option) {
+  if (!student_id || !exam_id || !question_id) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
@@ -46,9 +54,11 @@ const submitResponse = async (req, res) => {
       exam_id,
       question_id,
       selected_option,
+      selected_options,
+      text_answer,
+      question_type,
       'draft'
     );
-    // console.log(response);
     if (!response) {
       await logActivity({
         user_id: student_id,
@@ -183,9 +193,7 @@ const getResponsesForUsers = async (req, res) => {
   const user_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
-    const responses = await responseModel.getExamIdByResponse(status,
-      user_id
-    );
+    const responses = await responseModel.getExamIdByResponse(status, user_id);
     if (!responses) {
       await logActivity({
         user_id: user_id,
@@ -206,8 +214,6 @@ const getResponsesForUsers = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 // Get all responses for an exam (for admin or instructor)
 const getResponsesForExam = async (req, res) => {
@@ -287,12 +293,17 @@ const deleteResponse = async (req, res) => {
   const student_id = req.user?.id; // Extract student ID from JWT or authenticated user data
 
   if (!student_id || !exam_id) {
-    return res.status(400).json({ message: 'Both exam_id and student_id are required.' });
+    return res
+      .status(400)
+      .json({ message: 'Both exam_id and student_id are required.' });
   }
 
   try {
     // Delete existing responses
-    const deleteResult = await responseModel.deleteExistingResponses(exam_id, student_id);
+    const deleteResult = await responseModel.deleteExistingResponses(
+      exam_id,
+      student_id
+    );
     console.log('deleteResult:', deleteResult);
 
     // Check if any rows were deleted
@@ -302,7 +313,8 @@ const deleteResponse = async (req, res) => {
         user_id: student_id,
         activity: 'Delete Response',
         status: 'success', // Treat it as success, but with no data deleted
-        details: 'No response found to delete for the given exam_id and student_id.',
+        details:
+          'No response found to delete for the given exam_id and student_id.',
       });
 
       return res.status(200).json({
@@ -325,10 +337,14 @@ const deleteResponse = async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting response:', error);
-    res.status(500).json({ error: 'An error occurred while deleting the response. Please try again later.' });
+    res
+      .status(500)
+      .json({
+        error:
+          'An error occurred while deleting the response. Please try again later.',
+      });
   }
 };
-
 
 const getPaginatedResponsesForExam = async (req, res) => {
   const { exam_id } = req.params;
@@ -356,43 +372,43 @@ const getPaginatedResponsesForExam = async (req, res) => {
         user_id: student_id,
         activity: `Viewed paginated responses`,
         status: 'success',
-        details: `Page: ${page || "All"}, Limit: ${limit || "All"}`,
+        details: `Page: ${page || 'All'}, Limit: ${limit || 'All'}`,
       });
     } catch (logError) {
-      console.error("Error logging activity:", logError);
+      console.error('Error logging activity:', logError);
     }
 
     return res.status(200).json({
-      page: page || "All",
-      limit: limit || "All",
+      page: page || 'All',
+      limit: limit || 'All',
       student_id,
       responses,
     });
-
   } catch (error) {
-    console.error("Error fetching paginated responses:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error fetching paginated responses:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
 const resetUserResponse = async (req, res) => {
-
   const { studentId, examId, questionId } = req.body;
 
   try {
-
     if (!studentId || !examId || !questionId) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const result = await responseModel.clearResponse(studentId, examId, questionId);
-    res.json({ message: "Response cleared successfully", result });
+    const result = await responseModel.clearResponse(
+      studentId,
+      examId,
+      questionId
+    );
+    res.json({ message: 'Response cleared successfully', result });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
 
 module.exports = {
   submitResponse,
@@ -405,5 +421,5 @@ module.exports = {
   deleteExistingResponses,
   submitFinalResponsesAndChangeStatus,
   getResponsesForUsers,
-  resetUserResponse
+  resetUserResponse,
 };

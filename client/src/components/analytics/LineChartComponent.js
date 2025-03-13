@@ -37,8 +37,8 @@ const LineChartComponent = ({ data }) => {
     <div className="flex flex-col items-start w-full">
   <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
 
-      <div className="w-full max-w-[750px] -ml-10 ">
-        <ResponsiveContainer width="100%" height={250}>
+      <div className="w-full max-w-[800px]  ">
+        <ResponsiveContainer width="100%" height={260}>
           <LineChart  data={data.chartData}>
             <CartesianGrid strokeDasharray="4 4" />
             <XAxis dataKey="name" tick={<CustomTick />} />
