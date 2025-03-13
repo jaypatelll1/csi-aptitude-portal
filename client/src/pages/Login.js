@@ -20,7 +20,6 @@ const Login = () => {
     const SECRET_KEY = process.env.REACT_APP_KEY.slice(0, 32); // 32 bytes
     const IV = process.env.REACT_APP_IV.slice(0, 16); // 16 bytes
 
-    console.log(typeof KEY);
     const encoder = new TextEncoder();
     const encodedPassword = encoder.encode(password);
 

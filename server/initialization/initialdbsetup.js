@@ -55,8 +55,9 @@ CREATE TABLE responses (
     exam_id INTEGER REFERENCES exams (exam_id),
     question_id INTEGER REFERENCES questions (question_id),
     selected_option CHAR(1) NULL, -- For single-choice
-    selected_options JSONB NULL, -- For multiple-choice or text-based responses
-    text_response TEXT NULL, -- For text-based answers
+    selected_options JSONB NULL, -- For multiple-choice responses
+    text_answer TEXT NULL -- For text-based responses
+    question_type question_type_enum NOT NULL,
     answered_at TIMESTAMP,
     status response_status DEFAULT 'draft'
 );

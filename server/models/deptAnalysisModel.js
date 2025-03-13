@@ -132,7 +132,7 @@ const getParticipationRate = async (department) => {
       },
     ];
   }
-  return result.rows;
+  return result.rows[0];
 };
 const getParticipationRatePerExam = async (department) => {
   const result = await pool.query(
@@ -198,17 +198,23 @@ const getWeakAreas = async (department) => {
 const getPerformanceOverTime = async (department) => {
   const result = await pool.query(
     `
+    WITH latest_exams AS (
     SELECT 
-        sa.exam_id, 
-        sa.exam_name, 
-        sa.department_name AS department, 
-        ROUND(AVG(sa.total_score)::NUMERIC, 2) AS average_score,
-        TO_CHAR(e.created_at, 'YYYY-MM-DD') AS created_on
+        sa.exam_id,
+        sa.exam_name,
+        sa.department_name AS department,
+        ROUND(AVG(sa.total_score)::NUMERIC, 0) AS average_score,
+        TO_CHAR(e.created_at, 'Mon YYYY') AS created_on,
+        ROW_NUMBER() OVER (ORDER BY e.created_at DESC) AS row_num
     FROM student_analysis sa
     JOIN exams e ON sa.exam_id = e.exam_id
     WHERE sa.department_name = $1
     GROUP BY sa.exam_id, sa.exam_name, sa.department_name, e.created_at
-    ORDER BY e.created_at ASC;  -- Order by exam creation date to analyze trends
+)
+SELECT exam_id, exam_name, department, average_score, created_on
+FROM latest_exams
+WHERE row_num <= 5
+ORDER BY created_on ASC;
   `,
     [department]
   );
@@ -218,6 +224,34 @@ const getPerformanceOverTime = async (department) => {
   }
 
   return result.rows;
+};
+
+const deptRanks = async (department) => {
+  try {
+    const result = await pool.query(`
+        WITH department_averages AS (
+            SELECT 
+                sa.department_name AS department,
+                ROUND(AVG(sa.total_score)::NUMERIC, 2) AS average_score,
+                COUNT(DISTINCT sa.exam_id) AS exams_count,
+                COUNT(DISTINCT sa.student_id) AS students_count
+            FROM student_analysis sa
+            GROUP BY sa.department_name
+        )
+        SELECT 
+            department,
+            average_score,
+            exams_count,
+            students_count,
+            RANK() OVER (ORDER BY average_score DESC) AS department_rank
+        FROM department_averages
+        WHERE department = $1
+        ORDER BY department_rank;
+    `, [department]);
+    return result.rows[0];
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = {
@@ -231,4 +265,5 @@ module.exports = {
   getAccuracyRate,
   getWeakAreas,
   getPerformanceOverTime,
+  deptRanks
 };

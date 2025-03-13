@@ -10,7 +10,7 @@ async function calculateAndStoreTotalScore(examId) {
       FROM 
         questions
       WHERE 
-        exam_id = $1;
+        exam_id = $1 AND question_type != 'text';
     `;
     const maxScoreResult = await query(maxScoreQuery, [examId]);
     const max_score = maxScoreResult.rows[0]?.max_score || 0;

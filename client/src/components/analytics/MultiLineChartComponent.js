@@ -29,9 +29,9 @@ const MultiLineChart = ({ data }) => {
   // Custom XAxis tick component (from LineChartComponent)
   const CustomTick = (props) => {
     const { x, y, payload } = props;
-    const words = formatDate(payload.value).split(" "); // Split formatted date
+    const words = formatDate(payload.value).split("-"); // Split formatted date
     return (
-      <text x={x} y={y + 10} textAnchor="middle" fill="#333" fontSize="12">
+      <text x={x} y={y + 10} textAnchor="middle" fill="#333" fontSize="14">
         {words.map((word, index) => (
           <tspan key={index} x={x} dy={index * 15}>
             {word}
@@ -69,9 +69,8 @@ const MultiLineChart = ({ data }) => {
             <XAxis
               dataKey="date"
               tick={<CustomTick />} // Use custom tick instead of tickFormatter
-              tick={{ fontSize: 12 }}
             />
-            <YAxis domain={[0, 50]} tick={{ fontSize: 12 }} />
+            <YAxis domain={[0, 150]} tick={{ fontSize: 12 }} />
             <Tooltip labelFormatter={(label) => formatDate(label)} />
             <Legend
               onClick={(e) => handleLegendClick(e.value)}

@@ -80,13 +80,18 @@ const getAllDeptAnalysis = async (req, res) => {
     const bottom_performer = await deptModel.getBottomPerformer(department);
     const participation_rate = await deptModel.getParticipationRate(department);
     const accuracy_rate = await deptModel.getAccuracyRate(department)
+    const performance_over_time = await deptModel.getPerformanceOverTime(department)
+
+    const dept_ranks = await deptModel.deptRanks(department)
 
     res.json({
       category_performance,
       top_performer,
       bottom_performer,
       participation_rate,
-      accuracy_rate
+      accuracy_rate,
+      performance_over_time,
+      dept_ranks
     });
   } catch (error) {
     console.error(error);
