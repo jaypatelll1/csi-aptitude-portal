@@ -99,6 +99,9 @@ function Dep_Analytics() {
 
   const rankData = { department_rank: 2 };
   const dSup = "nd";
+  const rankSData = { overall_student_rank: 5 };
+  const oSup = "th";
+
 
   // Render
   return (
@@ -138,13 +141,22 @@ function Dep_Analytics() {
           {/* Header Row: 2 columns (display, line chart) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             {/* Reduced size of DisplayComponent */}
-            <div className="bg-white shadow-lg rounded-lg p-4 flex flex-col items-center justify-center border border-gray-200">
-              <DisplayComponent
-                title="Overall Department Rank"
-                rank={rankData?.department_rank || "N/A"}
-                superscript={dSup}
-              />
-            </div>
+            <div>
+        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
+         <DisplayComponent
+          title="Overall Department Rank"
+          rank={rankData?.department_rank || "N/A"}
+          superscript={dSup}
+         />
+        </div>
+        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
+         <DisplayComponent
+          title="Overall Student Rank"
+          rank={rankSData?.overall_student_rank || "N/A"}
+          superscript={oSup}
+         />
+        </div>
+        </div>  
 
             {/* Extended LineChartComponent to take more space */}
             <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
