@@ -118,7 +118,7 @@ const Adm_InputQuestions = () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(
-        `${API_BASE_URL}/api/upload-image/${examId}/${questionId}`,
+        `${API_BASE_URL}/api/upload-image`,
         formData,
         {
           headers: {
@@ -127,11 +127,20 @@ const Adm_InputQuestions = () => {
           withCredentials: true,
         }
       );
-console.log(response.data)
+      console.log(response.data);
+      
       // Save the image URL returned from the server
-      if (response.data && response.data.question.image_url) {
-        setImageUrl(response.data.question.image_url);
+      if (response.data && response.data.imageUrl) {
+        setImageUrl(response.data.imageUrl);
         alert("Image uploaded successfully!");
+        
+        // Now save the image URL in the database
+        const saveResponse = await axios.post(
+          `${API_BASE_URL}/api/save-image`,
+          { image_url: response.data.imageUrl },
+          { withCredentials: true }
+        );
+        console.log("Save Image Response:", saveResponse.data);
       } else {
         alert(
           "Image uploaded but no URL was returned. Please check the server response."
