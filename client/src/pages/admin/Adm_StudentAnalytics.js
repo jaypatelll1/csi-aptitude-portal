@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Details from "../../components/NavbarDetails";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
@@ -10,21 +9,24 @@ import RadarChartComponent from "../../components/analytics/RadarChartComponent"
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 
 function Adm_StudentAnalytics() {
-   const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-    const [testCompletionData, setTestCompletionData] = useState(null);
-    const [data, setData] = useState([]);
-    const [avgData, setAvgData] = useState([]);
-    const [performanceData, setPerformanceData] = useState([]);
-    const [dSup, setDSup] = useState(""); // superscript of department rank
-    const [oSup, setOSup] = useState(""); // superscript of overall rank
-    const [correct, setCorrect] = useState(0);
-    const [total, setTotal] = useState(0);
-    const [rankData, setRankData] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [testCompletionData, setTestCompletionData] = useState(null);
+  const [data, setData] = useState([]);
+  const [avgData, setAvgData] = useState([]);
+  const [performanceOverTime, setPerformanceOverTime] = useState([]);
+  const [dSup, setDSup] = useState(""); // superscript of department rank
+  const [oSup, setOSup] = useState(""); // superscript of overall rank
+  const [correct, setCorrect] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [rankData, setRankData] = useState([]);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   // const user_id = useSelector((state) => state.user.user.id);
-  const { user_id } = useParams();
+  // const { user_id } = useParams();
+
+  const location = useLocation();
+  const user_id = location.state?.user_id;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,8 +45,13 @@ function Adm_StudentAnalytics() {
   const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/all-analysis/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
+      let url = `${API_BASE_URL}/api/analysis/all-analysis`;
+      const response = await axios.get(url, {
+        withCredentials: true,
+        headers: {
+          "x-user-id": user_id,
+        },
+      });
 
       setData(response.data.overall_resultS);
 
@@ -56,7 +63,7 @@ function Adm_StudentAnalytics() {
         superscript(setOSup, response.data.rank.overall_rank); // set overall rank superscript
       }
 
-      setPerformanceData(response.data.performance_over_time);
+      setPerformanceOverTime(response.data.performance_over_time);
 
       const { attempted, total } = response.data.test_completion_data;
       setTestCompletionData({
@@ -77,12 +84,12 @@ function Adm_StudentAnalytics() {
     }
   }, [user_id]);
 
-  const chartData = {
+  const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: data.map((exam) => ({
-      name: exam?.exam_name,
-      Percentage: exam?.percentage,
+    chartData: performanceOverTime.map((exam) => ({
+      name: exam?.created_on,
+      Average: exam?.average_score,
     })),
   };
 
@@ -254,7 +261,7 @@ function Adm_StudentAnalytics() {
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 col-span-2">
             <LineChartComponent
-              data={chartData}
+              data={performanceOverTimeData}
               xAxisKey="name"
               lineDataKey="value"
               lineColor="#0703fc"
@@ -265,8 +272,7 @@ function Adm_StudentAnalytics() {
 
             <div className="bg-white shadow-lg rounded-lg p-6 px-[5vh] flex flex-col items-center border border-gray-200">
               <DonutChartComponent data={accuracyData} />
-              <p className="text-2xl font-bold mt-2">
-              </p>
+              <p className="text-2xl font-bold mt-2"></p>
             </div>
 
             {/* Subject-wise Performance - Radar Chart */}

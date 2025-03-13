@@ -36,11 +36,11 @@ const Dep_Navbar = ({ setSidebarOpen }) => {
     //   >
     <div className="bg-white h-14 border-b border-gray-200 flex items-center px-4">
       {/*  Sidebar Toggle Button - This correctly toggles sidebar state */}
-      <button
+      {/* <button
         className="text-gray-800 mr-4 xl:hidden"
         onClick={() => setSidebarOpen((prev) => !prev)} //  FIXED: Sidebar toggling works correctly
-      >
-        <svg className="w-7 h-8"
+      > */}
+        {/* <svg className="w-7 h-8"
          fill="none" 
          stroke="currentColor"
          strokeWidth={2}
@@ -50,8 +50,8 @@ const Dep_Navbar = ({ setSidebarOpen }) => {
           strokeLinecap="round" 
           strokeLinejoin="round" 
           d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+        </svg> */}
+      {/* </button> */}
 
       <div className="ml-auto flex items-center">
         <div className="h-9 w-9 rounded-full bg-blue-300 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer" onClick={openDetails}>

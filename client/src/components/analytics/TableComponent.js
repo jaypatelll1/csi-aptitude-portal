@@ -1,7 +1,7 @@
 // src/components/analytics/TableComponent.jsx
 import React from "react";
 
-const TableComponent = ({ title, data }) => {
+const TableComponent = ({ title, data, type }) => {
   return (
     <div className="bg-white p-6 rounded-xl  shadow-lg  border border-gray-200">
       <h2 className="text-xl font-medium text-[#1349C5] self-start">{title}</h2>
@@ -15,7 +15,8 @@ const TableComponent = ({ title, data }) => {
         <tbody>
           {data.map((item, index) => (
             <tr key={index} className="border-b">
-              <td className="py-2 text-gray-700">{item?.department_rank || "N/A"}</td>
+              {type==="overall" ? (<td className="py-2 text-gray-700">{item?.overall_rank || "N/A"}</td>) :  (<td className="py-2 text-gray-700">{item?.department_rank || "N/A"}</td>)}
+              
               <td className="py-2 text-gray-700">{item?.student_name || "N/A"}</td>
             </tr>
           ))}

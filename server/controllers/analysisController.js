@@ -209,7 +209,7 @@ const getPerformanceOverTime = async (req, res) => {
 };
 
 const generateAllAnalysis = async (req, res) => {
-  const { student_id } = req.params;
+  const student_id = req.headers['x-user-id'] || req.user.id;;
 
   try {
     const overall_resultS = await analysisModel.getOverallResultsOfAStudent(student_id);
