@@ -3,7 +3,6 @@ import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 
-
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
@@ -12,32 +11,25 @@ import TableComponent from "../../components/analytics/TableComponent";
 function Adm_OverallScore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  
-  const [accuracyData, setAccuracyData] = useState([]);
+
   const [avgData, setAvgData] = useState([]);
-  const [categoryWiseData, setCategoryWiseData] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState("CMPN");
   const [topPerformers, setTopPerformers] = useState([]);
   const [bottomPerformers, setBottomPerformers] = useState([]);
   const [participationRate, setParticipationRate] = useState([]);
-  const [performance_cmpn, setPerformance_cmpn] = useState([]);
-    const [performance_inft, setPerformance_inft] = useState([]);
-    const [performance_extc, setPerformance_extc] = useState([]);
-    const [performance_ecs, setPerformance_ecs] = useState([]);
-    const [performance_elec, setPerformance_elec] = useState([]);
+  const [performanceOverTime, setPerformanceOverTime] = useState({});
 
-   
   const fetchAllTpoAnalysis = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${selectedDepartment}`;
+      let url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
       const response = await axios.get(url, { withCredentials: true });
+      console.log(response.data);
 
-      setCategoryWiseData(response.data.category_performance);
-      setTopPerformers(response.data.top_performer);
-      setBottomPerformers(response.data.bottom_performer);
+      setAvgData(response.data.dept_avg);
+      setTopPerformers(response.data.top_performers);
+      setBottomPerformers(response.data.bottom_performers);
       setParticipationRate(response.data.participation_rate);
-      setAccuracyData(response.data.accuracy_rate);
+      setPerformanceOverTime(response.data.performance_over_time);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -45,64 +37,27 @@ function Adm_OverallScore() {
 
   useEffect(() => {
     fetchAllTpoAnalysis();
-  }, [selectedDepartment]);
-
-  const handleDepartmentChange = (dept) => {
-    setSelectedDepartment(dept);
-  };
-  const allPerformances = [
-    performance_cmpn,
-    performance_inft,
-    performance_extc,
-    performance_ecs,
-    performance_elec,
-  ];
-  const allDates = [
-    ...new Set(
-      allPerformances.flatMap((dept) =>
-        dept.map((entry) => entry.created_on).filter(Boolean)
-      )
-    ),
-  ];
-  const filteredAccuracyData = [
-    {
-      name: "Correct",
-      value: Number(accuracyData?.accuracy_rate) || 0,
-      fill: "#4CAF50",
-    },
-    {
-      name: "Wrong",
-      value: 100 - (Number(accuracyData?.accuracy_rate) || 0),
-      fill: "#F44336",
-    },
-  ];
-
-  const donutChartData = {
-    title: "Accuracy Rate",
-    chartData:
-      filteredAccuracyData.length > 0
-        ? filteredAccuracyData
-        : [
-            { name: "Correct", value: 0, fill: "#4CAF50" },
-            { name: "Wrong", value: 100, fill: "#F44336" },
-          ],
-  };
+  }, []);
 
   const participationRateData = {
     title: "Participation Rate",
     chartData: [
       {
         name: "Participated",
-        value: Number(participationRate[0]?.participation_rate) || 0,
+        value: Number(participationRate?.participation_rate) || 0,
         fill: "#1349C5",
       },
       {
         name: "Not Participated",
-        value: Number(100 - (participationRate[0]?.participation_rate || 0)).toFixed(2) || 100,
+        value:
+          +Number(100 - (participationRate?.participation_rate || 0)).toFixed(
+            2
+          ) || 100,
         fill: "#6F91F0",
       },
     ],
   };
+
   const barChartData = {
     title: "Department Average Score",
     dataKey: "department",
@@ -111,31 +66,51 @@ function Adm_OverallScore() {
       score: department?.avg_score,
     })),
   };
-  const mergedData = allDates.map((date) => ({
-    date,
-    CMPN:
-      performance_cmpn.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    INFT:
-      performance_inft.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    ECS:
-      performance_ecs.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    EXTC:
-      performance_extc.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    ELEC:
-      performance_elec.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-  }));
 
-  const departmentPerformanceData = {
-    title: "Department Performance Over Time",
-    chartData: mergedData,
-  };
+ // First, get all unique dates
+ const allDates = [
+  ...new Set(
+    Object.entries(performanceOverTime).flatMap(([key, value]) =>
+      value.map((entry) => entry.created_on).filter(Boolean)
+    )
+  ),
+];
 
+// Sort dates in chronological order
+const sortedDates = [...allDates].sort((a, b) => new Date(a) - new Date(b));
 
+// Use all dates
+const selectedDates = sortedDates;
+
+// Now use these dates to create merged data with averaged scores for same-day exams
+const mergedData = selectedDates.map((date) => {
+  const dataPoint = { date };
+  
+  // Loop through departments in performanceOverTime and add scores
+  Object.entries(performanceOverTime).forEach(([deptKey, entries]) => {
+    // Extract department name (remove "dept*" prefix)
+    const deptName = deptKey.replace('dept_', '').toUpperCase();
+    
+    // Find all entries for current date
+    const sameDayEntries = entries.filter(entry => entry.created_on === date);
+    
+    if (sameDayEntries.length > 0) {
+      // Calculate average score for same-day exams
+      const totalScore = sameDayEntries.reduce((sum, entry) => sum + entry.average_score, 0);
+      const avgScore = totalScore / sameDayEntries.length;
+      dataPoint[deptName] = Number(avgScore.toFixed(1)); // Round to 1 decimal place
+    } else {
+      dataPoint[deptName] = 0;
+    }
+  });
+  
+  return dataPoint;
+});
+
+const departmentPerformanceData = {
+  title: "Performnce Over Time",
+  chartData: mergedData,
+}
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -192,9 +167,8 @@ function Adm_OverallScore() {
             </svg>
           </button>
           <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">
-            Overall Analytics 
+            Overall Analytics
           </h1>
-          
         </div>
 
         {/* Rankings & Statistics */}
@@ -211,8 +185,16 @@ function Adm_OverallScore() {
 
         {/* Performers Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
-          <TableComponent title="Top Performers" data={topPerformers} />
-          <TableComponent title="Bottom Performers" data={bottomPerformers} />
+          <TableComponent
+            title="Top Performers"
+            data={topPerformers}
+            type="overall"
+          />
+          <TableComponent
+            title="Bottom Performers"
+            data={bottomPerformers}
+            type="overall"
+          />
           <div className="bg-white p-6 rounded-xl shadow-md">
             <PieChartComponent data={participationRateData} />
           </div>

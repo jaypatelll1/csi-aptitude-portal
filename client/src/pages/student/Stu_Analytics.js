@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Details from "../../components/NavbarDetails";
@@ -16,7 +15,7 @@ function Stu_Analytics() {
   const [testCompletionData, setTestCompletionData] = useState(null);
   const [data, setData] = useState([]);
   const [avgData, setAvgData] = useState([]);
-  const [performanceData, setPerformanceData] = useState([]);
+  const [performanceOverTime, setPerformanceOverTime] = useState([]);
   const [dSup, setDSup] = useState(""); // superscript of department rank
   const [oSup, setOSup] = useState(""); // superscript of overall rank
   const [correct, setCorrect] = useState(0);
@@ -25,7 +24,10 @@ function Stu_Analytics() {
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   // const user_id = useSelector((state) => state.user.user.id);
-  const { user_id } = useParams();
+  // const { user_id } = useParams();
+
+  const location = useLocation();
+  const user_id = location.state?.user_id;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -44,9 +46,14 @@ function Stu_Analytics() {
   const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/all-analysis/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      console.log(response.data);
+      let url = `${API_BASE_URL}/api/analysis/all-analysis`;
+      const response = await axios.get(url, {
+        withCredentials: true,
+        headers: {
+          "x-user-id": user_id,
+        },
+      });
+
       setData(response.data.overall_resultS);
 
       setAvgData(response.data.avg_results);
@@ -57,10 +64,9 @@ function Stu_Analytics() {
         superscript(setOSup, response.data.rank.overall_rank); // // set overall rank superscript
       }
 
-      setPerformanceData(response.data.performance_over_time);
+      setPerformanceOverTime(response.data.performance_over_time);
 
       const { attempted, total } = response.data.test_completion_data;
-      console.log(response.data.test_completion_data);
       setTestCompletionData({
         title: "Test Completion Rate",
         chartData: [
@@ -79,12 +85,12 @@ function Stu_Analytics() {
     }
   }, [user_id]);
 
-  const chartData = {
+  const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: data.map((exam) => ({
-      name: exam?.exam_name,
-      Percentage: exam?.percentage,
+    chartData: performanceOverTime.map((exam) => ({
+      name: exam?.created_on,
+      Average: exam?.average_score,
     })),
   };
 
@@ -231,29 +237,28 @@ function Stu_Analytics() {
         {/* Dashboard Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
           {/* Rank Display */}
-          
-         <div className="">
-         <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
-         <DisplayComponent
-          title="Department Rank"
-          rank={rankData?.department_rank || "N/A"}
-      superscript={dSup}
-      />
-    </div>
-    <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
-    <DisplayComponent
-      title="Overall Rank"
-      rank={rankData?.overall_rank || "N/A"}
-      superscript={oSup}
-     />
-    </div>
-   </div>
+          <div className="">
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
+              <DisplayComponent
+                title="Department Rank"
+                rank={rankData?.department_rank || "Loading..."}
+                superscript={dSup}
+              />
+            </div>
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
+              <DisplayComponent
+                title="Overall Rank"
+                rank={rankData?.overall_rank || "Loading..."}
+                superscript={oSup}
+              />
+            </div>
+          </div>
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
             <div className="w-full">
               <LineChartComponent
-                data={chartData}
+                data={performanceOverTimeData}
                 xAxisKey="name"
                 lineDataKey="value"
                 lineColor="#0703fc"

@@ -96,7 +96,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/analytics/:user_id"
+        path="/analytics"
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <Stu_Analytics />
@@ -261,7 +261,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/admin/student-analytics/:user_id"
+        path="/admin/student-analytics"
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_StudentAnalytics />
@@ -376,7 +376,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/department/student-analytics/:user_id"
+        path="/department/student-analytics"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
             <Dep_StudentAnalytics />

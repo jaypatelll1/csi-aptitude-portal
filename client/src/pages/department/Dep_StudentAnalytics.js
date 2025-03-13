@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Details from "../../components/NavbarDetails";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
@@ -8,6 +7,7 @@ import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import Dep_Sidebar from "../../components/department/Dep_Sidebar";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
 
 function Dep_StudentAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,14 +15,20 @@ function Dep_StudentAnalytics() {
   const [testCompletionData, setTestCompletionData] = useState(null);
   const [data, setData] = useState([]);
   const [avgData, setAvgData] = useState([]);
-  const [sup, setSup] = useState("");
+  const [performanceOverTime, setPerformanceOverTime] = useState([]);
+  const [dSup, setDSup] = useState(""); // superscript of department rank
+  const [oSup, setOSup] = useState(""); // superscript of overall rank
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
   const [rankData, setRankData] = useState([]);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   // const user_id = useSelector((state) => state.user.user.id);
-    const { user_id } = useParams();
+  // const { user_id } = useParams();
+
+  // Replace useParams with useLocation to get user_id from state
+  const location = useLocation();
+  const user_id = location.state?.user_id;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,19 +43,29 @@ function Dep_StudentAnalytics() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/all-analysis/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
+      let url = `${API_BASE_URL}/api/analysis/all-analysis`;
+      const response = await axios.get(url, {
+        withCredentials: true,
+        headers: {
+          "x-user-id": user_id, // Pass user_id in a header instead
+        },
+      });
+      console.log(response.data);
 
       setData(response.data.overall_resultS);
 
       setAvgData(response.data.avg_results);
 
       setRankData(response.data.rank);
-      if (response.data.rank) superscript(response.data.rank.department_rank);
+      setRankData(response.data.rank);
+      if (response.data.rank) {
+        superscript(setDSup, response.data.rank.department_rank); // set dept rank superscript
+        superscript(setOSup, response.data.rank.overall_rank); // // set overall rank superscript
+      }
 
       const { attempted, total } = response.data.test_completion_data;
       setTestCompletionData({
@@ -59,6 +75,8 @@ function Dep_StudentAnalytics() {
           { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
         ],
       });
+
+      setPerformanceOverTime(response.data.performance_over_time);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -70,22 +88,21 @@ function Dep_StudentAnalytics() {
     }
   }, [user_id]);
 
-  const chartData = {
+  const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: data.map((exam) => ({
-      name: exam?.exam_name,
-      Percentage: exam?.percentage,
+    chartData: performanceOverTime.map((exam) => ({
+      name: exam?.created_on,
+      Average: exam?.average_score,
     })),
   };
 
-  const superscript = (rank) => {
-      const condition = rank % 10;
-      if (condition === 1) setSup("st");
-      else if (condition === 2) setSup("nd");
-      else if (condition === 3) setSup("rd");
-      else setSup("th");
-    
+  const superscript = (changeUsestateValue, rank) => {
+    const condition = rank % 10;
+    if (condition === 1) changeUsestateValue("st");
+    else if (condition === 2) changeUsestateValue("nd");
+    else if (condition === 3) changeUsestateValue("rd");
+    else changeUsestateValue("th");
   };
 
   useEffect(() => {
@@ -100,7 +117,6 @@ function Dep_StudentAnalytics() {
       setTotal((prev) => prev + exam.max_score);
     });
     if (data[0]) {
-      
     }
   }, [data]);
 
@@ -228,18 +244,27 @@ function Dep_StudentAnalytics() {
         {/* Dashboard Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 p-6 lg:ml-64">
           {/* Rank Display */}
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
-            <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
-            <span className="text-5xl font-bold text-gray-900 ">
-              {rankData.department_rank}
-              <sup className="text-xl">{sup}</sup>
-            </span>
+          <div className="">
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
+              <DisplayComponent
+                title="Department Rank"
+                rank={rankData?.department_rank || "Loading..."}
+                superscript={dSup}
+              />
+            </div>
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
+              <DisplayComponent
+                title="Overall Rank"
+                rank={rankData?.overall_rank || "Loading..."}
+                superscript={oSup}
+              />
+            </div>
           </div>
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 col-span-2">
             <LineChartComponent
-              data={chartData}
+              data={performanceOverTimeData}
               xAxisKey="name"
               lineDataKey="value"
               lineColor="#0703fc"

@@ -25,10 +25,7 @@ const getDeptAvgScores = async () => {
 const topScorers = async () => {
   try {
     const result = await query(`
-        SELECT DISTINCT ON (department_name) 
-            student_id, student_name, exam_id, exam_name, department_name, total_score, max_score
-        FROM student_analysis
-        ORDER BY department_name, total_score DESC, exam_id;
+        SELECT * FROM student_rank ORDER BY overall_rank ASC LIMIT 5;
     `);
     return result.rows;
   } catch (error) {
@@ -40,10 +37,12 @@ const weakScorers = async () => {
   try {
     // Students scoring less than 40% of total marks
     const result = await query(`
-        SELECT DISTINCT ON (department_name) 
-            student_id, student_name, exam_id, exam_name, department_name, total_score, max_score
-        FROM student_analysis
-        ORDER BY department_name, total_score ASC, exam_id;
+        SELECT * FROM (
+        SELECT * FROM student_rank 
+        ORDER BY overall_rank DESC 
+        LIMIT 5
+    ) AS subquery
+    ORDER BY overall_rank ASC;
     `);
     return result.rows;
   } catch (error) {
@@ -87,6 +86,24 @@ const deptParticipationRate = async () => {
   }
 };
 
+const totalParticipationRate = async () => {
+  try {
+    const result = await query(`
+        SELECT 
+            COUNT(DISTINCT student_id) AS students_attempted,
+            (SELECT COUNT(*) FROM users u) AS total_students,
+            ROUND((COUNT(DISTINCT student_id) * 100.0) / 
+                  (SELECT COUNT(*) FROM users u), 2) AS participation_rate
+        FROM student_analysis sa
+        WHERE attempted = TRUE
+        ORDER BY participation_rate DESC;
+    `);
+    return result.rows[0];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const categoryWiseAccuracy = async () => {
   try {
     const result = await query(`
@@ -107,11 +124,73 @@ const categoryWiseAccuracy = async () => {
   }
 };
 
+const deptRanks = async () => {
+  try {
+    const result = await query(`
+        WITH department_averages AS (
+            SELECT 
+                sa.department_name AS department,
+                ROUND(AVG(sa.total_score)::NUMERIC, 2) AS average_score,
+                COUNT(DISTINCT sa.exam_id) AS exams_count,
+                COUNT(DISTINCT sa.student_id) AS students_count
+            FROM student_analysis sa
+            GROUP BY sa.department_name
+        )
+        SELECT 
+            department,
+            average_score,
+            exams_count,
+            students_count,
+            RANK() OVER (ORDER BY average_score DESC) AS department_rank
+        FROM department_averages
+        ORDER BY department_rank;
+    `);
+    return result.rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getPerformanceOverTime = async (department) => {
+  const result = await query(
+    `
+    WITH latest_exams AS (
+    SELECT 
+        sa.exam_id,
+        sa.exam_name,
+        sa.department_name AS department,
+        ROUND(AVG(sa.total_score)::NUMERIC, 0) AS average_score,
+        TO_CHAR(e.created_at, 'DD-Mon-YYYY') AS created_on,
+        ROW_NUMBER() OVER (ORDER BY e.created_at DESC) AS row_num
+    FROM student_analysis sa
+    JOIN exams e ON sa.exam_id = e.exam_id
+    WHERE sa.department_name = $1
+    GROUP BY sa.exam_id, sa.exam_name, sa.department_name, e.created_at
+)
+SELECT exam_id, exam_name, department, average_score, created_on
+FROM latest_exams
+WHERE row_num <= 5
+ORDER BY created_on ASC;
+  `,
+    [department]
+  );
+
+  if (result.rows.length === 0) {
+    return [{}];
+  }
+
+  return result.rows;
+};
+
+
 module.exports = {
   getDeptAvgScores,
   topScorers,
   weakScorers,
   accuracyRatePerDept,
   deptParticipationRate,
-  categoryWiseAccuracy
+  categoryWiseAccuracy,
+  totalParticipationRate,
+  deptRanks,
+  getPerformanceOverTime
 };

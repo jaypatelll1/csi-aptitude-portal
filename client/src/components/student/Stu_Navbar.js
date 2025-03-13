@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Details from "../../components/NavbarDetails";
 
-function Stu_Navbar() {
+function Stu_Navbar({ hideTitle = false }) {
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -27,13 +27,13 @@ function Stu_Navbar() {
     }, []);
 
   return (
-    <div>
+    <div >
       <div
         id="main-section"
-        className={` bg-white h-max w-full overflow-hidden transition-all duration-300 xl:ml-64`}
+        className={` bg-white w-full overflow-hidden transition-all duration-300 pl-0 xl:pl-64 `}
       >
         {/* Top Bar */}
-        <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
+        <div className=" bg-white h-14 border-b border-gray-200 flex items-center">
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -58,9 +58,11 @@ function Stu_Navbar() {
               />
             </svg>
           </button>
+          {!hideTitle && (
           <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
             Dashboard
           </h1>
+          )}
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}

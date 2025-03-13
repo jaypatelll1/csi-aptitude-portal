@@ -20,6 +20,11 @@ function Adm_Analytics() {
   const [topPerformers, setTopPerformers] = useState([]);
   const [bottomPerformers, setBottomPerformers] = useState([]);
   const [participationRate, setParticipationRate] = useState([]);
+  const [performanceOverTime, setPerformanceOverTime] = useState([])
+  const [deptRank, setDeptRank] = useState([]);
+  const [highestPerformer, setHighestPerformer] = useState([]); // For dispalying overall_rank of top student
+  const [dSup, setDSup] = useState("");
+  const [oSup, setOSup] = useState("");
 
   const fetchAllTpoAnalysis = async () => {
     try {
@@ -32,6 +37,13 @@ function Adm_Analytics() {
       setBottomPerformers(response.data.bottom_performer);
       setParticipationRate(response.data.participation_rate);
       setAccuracyData(response.data.accuracy_rate);
+      setPerformanceOverTime(response.data.performance_over_time)
+
+      setDeptRank(response.data.dept_ranks)
+      superscript(setDSup, response.data.dept_ranks.department_rank);
+
+      setHighestPerformer(response.data.top_performer[0])
+      superscript(setOSup, response.data.top_performer[0].overall_rank)
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -55,29 +67,27 @@ function Adm_Analytics() {
   };
 
   const filteredAccuracyData = [
-      {
-        name: "Correct",
-        value: Number(accuracyData?.accuracy_rate),
-        fill: "#4CAF50",
-      },
-      {
-        name: "Wrong",
-        value: 100 - Number(accuracyData?.accuracy_rate),
-        fill: "#F44336",
-      },
-    ];
-    const chartData = {
-      title: "Performance Over Time",
-      color: "#0703fc",
-      chartData: [
-        { name: "January 2025", Percentage: 75 },
-        { name: "February 2025", Percentage: 82 },
-        { name: "March 2025", Percentage: 88 },
-        { name: "April 2025", Percentage: 90 },
-        { name: "May 2025", Percentage: 85 },
-      ],
-    };
-  
+    {
+      name: "Correct",
+      value: Number(accuracyData?.accuracy_rate),
+      fill: "#4CAF50",
+    },
+    {
+      name: "Wrong",
+      value: 100 - Number(accuracyData?.accuracy_rate),
+      fill: "#F44336",
+    },
+  ];
+  const performanceOverTimeData = {
+    title: "Performance Over Time",
+    color: "#0703fc",
+    chartData: performanceOverTime.map((exam) => ({
+      name: exam?.created_on,
+      Average: exam?.average_score,
+    }))
+  };
+
+
   // If filteredData is empty, use default values
   const donutChartData = {
     title: "Accuracy Rate",
@@ -89,24 +99,20 @@ function Adm_Analytics() {
             { name: "Wrong", value: 100, fill: "#F44336" },
           ],
   };
-  const rankData = { department_rank: 2 };
-  const dSup = "nd";
-
-  const rankSData = { overall_student_rank: 5 };
-  const oSup = "th";
-
 
   const participationRateData = {
     title: "Participation Rate",
     chartData: [
       {
         name: "Participated",
-        value: Number(participationRate[0]?.participation_rate) || 0,
+        value: Number(participationRate?.participation_rate) || 0,
         fill: "#1349C5",
       },
       {
         name: "Not Participated",
-        value: +(Number(100 - participationRate[0]?.participation_rate).toFixed(2)) || 100, // to convert this from string to floating point
+        value:
+          +Number(100 - participationRate?.participation_rate).toFixed(2) ||
+          100, // to convert this from string to floating point
         fill: "#6F91F0",
       },
     ],
@@ -124,6 +130,14 @@ function Adm_Analytics() {
         yourScore: Number(category?.average_category_score),
         maxMarks: Number(category?.max_category_score) || 0,
       })),
+  };
+
+  const superscript = (changeUsestateValue, rank) => {
+    const condition = rank % 10;
+    if (condition === 1) changeUsestateValue("st");
+    else if (condition === 2) changeUsestateValue("nd");
+    else if (condition === 3) changeUsestateValue("rd");
+    else changeUsestateValue("th");
   };
 
   useEffect(() => {
@@ -204,69 +218,56 @@ function Adm_Analytics() {
 
         {/* Rankings & Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-5 mt-5 mb-5  ml-5 mr-5 ">
-        <div>
-        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
-         <DisplayComponent
-          title="Overall Department Rank"
-          rank={rankData?.department_rank || "N/A"}
-          superscript={dSup}
-         />
-        </div>
-        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
-         <DisplayComponent
-          title="Overall Student Rank"
-          rank={rankSData?.overall_student_rank || "N/A"}
-          superscript={oSup}
-         />
-        </div>
-        </div>  
-        <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-              <LineChartComponent data={chartData} xAxisKey="name" lineDataKey="Percentage" />
+          <div>
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
+              <DisplayComponent
+                title="Overall Department Rank"
+                rank={deptRank?.department_rank || "Loading..."}
+                superscript={dSup}
+              />
             </div>
-        
-        </div>  
+            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
+              <DisplayComponent
+                title="Overall Student Rank"
+                rank={highestPerformer?.overall_rank || "Loading..."}
+                superscript={oSup}
+              />
+            </div>
+          </div>
+          <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
+            <LineChartComponent
+              data={performanceOverTimeData}
+              xAxisKey="name"
+              lineDataKey="Percentage"
+            />
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5  ml-5 mr-5 ">
-          
-          
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
             <DonutChartComponent data={donutChartData} />
           </div>
-          
+
           <div className="bg-white p-6 rounded-xl shadow-md">
             <RadarChartComponent data={radarChartData} />
           </div>
-          </div>
-        
+        </div>
 
         {/* Performers Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
-        <div className="bg-white p-6 rounded-xl shadow-md">
+          <TableComponent
+            title="Top Performers"
+            data={topPerformers}
+            type="department"
+          />
+          <TableComponent
+            title="Bottom Performers"
+            data={bottomPerformers}
+            type="department"
+          />
+          <div className="bg-white p-6 rounded-xl shadow-md">
             <PieChartComponent data={participationRateData} />
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-medium text-[#1349C5] self-start">Top Performers</h2>
-            <ul>
-              {topPerformers.map((name, index) => (
-                <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.department_rank}. {name?.student_name}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-medium text-[#1349C5] self-start">Bottom Performers</h2>
-            <ul>
-              {bottomPerformers.map((name, index) => (
-                <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.department_rank}. {name?.student_name}
-                </li>
-              ))}
-            </ul>
-          </div>
-          
         </div>
-        
       </div>
     </div>
   );
