@@ -170,13 +170,18 @@ function Dep_Analytics() {
               <DonutChartComponent data={donutChartData} />
             </div>
             
-            <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-              <PieChartComponent data={participationRateData} />
-            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-md  ">
+            <RadarChartComponent data={radarChartData} />
+          </div>
           </div>
 
           {/* Performers Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-6 w-full">
+          <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+              <PieChartComponent data={participationRateData} />
+            </div>
+          
             <div className="bg-white p-6 rounded-xl shadow-md">
               <h2 className="text-lg font-semibold mb-3 text-[#1349C5]">Top Performers</h2>
               <ul>
@@ -198,6 +203,7 @@ function Dep_Analytics() {
                 ))}
               </ul>
             </div>
+            
           </div>
         </div>
       </div>
