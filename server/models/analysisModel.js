@@ -168,20 +168,22 @@ const avgResults = async (student_id) => {
       WHERE student_id = $1
       GROUP BY student_id;
     `;
-    const result = await query(queryText, [student_id])
+    const result = await query(queryText, [student_id]);
     return result.rows[0];
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 
 async function getStudentRank(student_id) {
   try {
-    const result = await query(`SELECT * FROM student_rank WHERE student_id=$1;`, [student_id]);
-    if(!result.rows === 0){
-      return
+    const result = await query(
+      `SELECT * FROM student_rank WHERE student_id=$1;`,
+      [student_id]
+    );
+    if (!result.rows === 0) {
+      return;
     }
-    console.log(student_id)
     return result.rows[0];
   } catch (error) {
     console.error('Error returning student rank:', error);
@@ -189,21 +191,25 @@ async function getStudentRank(student_id) {
   }
 }
 
-
 async function getPerformanceOverTime(student_id) {
   try {
-    const result = await query(`SELECT 
- 		sa.student_id,
+    const result = await query(`
+      SELECT 
+          sa.student_id,
           sa.exam_id, 
           sa.exam_name, 
           sa.department_name AS department, 
-          ROUND(AVG(sa.total_score)::NUMERIC, 2) AS average_score,
-          TO_CHAR(e.created_at, 'YYYY-MM-DD') AS created_on
+          ROUND(AVG(sa.total_score)::NUMERIC, 0) AS average_score,
+          TO_CHAR(e.created_at, 'DD Mon-YYYY') AS created_on
       FROM student_analysis sa
       JOIN exams e ON sa.exam_id = e.exam_id
-    WHERE student_id = $1
+      WHERE sa.student_id = $1
       GROUP BY sa.student_id, sa.exam_id, sa.exam_name, sa.department_name, e.created_at
-      ORDER BY sa.student_id, e.created_at ASC;  -- Order by exam creation date to analyze trends`, [student_id]);
+      ORDER BY e.created_at DESC  -- Get the latest exams first
+      LIMIT 5;
+`,
+      [student_id]
+    );
     return result.rows;
   } catch (error) {
     console.error('Error returning student rank:', error);
@@ -220,5 +226,5 @@ module.exports = {
   generateStudentAnalysis,
   avgResults,
   getStudentRank,
-  getPerformanceOverTime
+  getPerformanceOverTime,
 };

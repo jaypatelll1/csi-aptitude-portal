@@ -83,7 +83,7 @@ function Adm_Analytics() {
     color: "#0703fc",
     chartData: performanceOverTime.map((exam) => ({
       name: exam?.created_on,
-      Percentage: exam?.average_score,
+      Average: exam?.average_score,
     }))
   };
 
@@ -222,14 +222,14 @@ function Adm_Analytics() {
             <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
               <DisplayComponent
                 title="Overall Department Rank"
-                rank={deptRank.department_rank || "Loading..."}
+                rank={deptRank?.department_rank || "Loading..."}
                 superscript={dSup}
               />
             </div>
             <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
               <DisplayComponent
                 title="Overall Student Rank"
-                rank={highestPerformer.overall_rank || "Loading..."}
+                rank={highestPerformer?.overall_rank || "Loading..."}
                 superscript={oSup}
               />
             </div>

@@ -228,7 +228,8 @@ ORDER BY created_on ASC;
 
 const deptRanks = async (department) => {
   try {
-    const result = await pool.query(`
+    const result = await pool.query(
+      `
         WITH department_averages AS (
             SELECT 
                 sa.department_name AS department,
@@ -243,11 +244,20 @@ const deptRanks = async (department) => {
             average_score,
             exams_count,
             students_count,
-            RANK() OVER (ORDER BY average_score DESC) AS department_rank
-        FROM department_averages
-        WHERE department = $1
-        ORDER BY department_rank;
-    `, [department]);
+            department_rank
+        FROM (
+            SELECT 
+                department,
+                average_score,
+                exams_count,
+                students_count,
+                RANK() OVER (ORDER BY average_score DESC) AS department_rank
+            FROM department_averages
+        ) ranked_departments
+        WHERE department = $1;  -- Replace $1 with your department name (or use a parameter in a query)
+            `,
+      [department]
+    );
     return result.rows[0];
   } catch (error) {
     console.log(error);
@@ -265,5 +275,5 @@ module.exports = {
   getAccuracyRate,
   getWeakAreas,
   getPerformanceOverTime,
-  deptRanks
+  deptRanks,
 };

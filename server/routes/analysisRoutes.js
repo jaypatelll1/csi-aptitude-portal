@@ -24,7 +24,7 @@ router.get('/avg-results/:student_id', avgResults);
 router.get('/rank/:student_id', getStudentRank)
 router.get('/performance-over-time/:student_id', getPerformanceOverTime)
 
-router.get('/all-analysis/:student_id', generateAllAnalysis)
+router.get('/all-analysis', generateAllAnalysis)
 
 router.post('/student-analysis', generateStudentAnalysis)
 router.post('/student-analysis/:student_id/:exam_id', generateStudentAnalysisUsingId)

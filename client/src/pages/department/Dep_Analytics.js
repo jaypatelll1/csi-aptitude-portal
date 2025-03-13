@@ -87,13 +87,12 @@ function Dep_Analytics() {
     ],
   };
 
-
   const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
     chartData: performanceOverTime.map((exam) => ({
       name: exam?.created_on,
-      Percentage: exam?.average_score,
+      Average: exam?.average_score,
     }))
   };
 

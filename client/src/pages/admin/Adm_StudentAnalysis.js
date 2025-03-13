@@ -7,13 +7,12 @@ import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import { useNavigate } from "react-router-dom";
 import { getOrdinalSuffix } from "../../ordinalSuffix";
 
-
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_StudentAnalysis = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(undefined);
-  const [selectedRank, setSelectedRank] = useState('');
+  const [selectedRank, setSelectedRank] = useState("");
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   // const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,11 +30,8 @@ const Adm_StudentAnalysis = () => {
   const [setIsUploading] = useState(false);
   const navigate = useNavigate();
 
-  
-
-
   const handleAnalyticsClick = (user_id) => {
-    navigate(`/admin/student-analytics/${user_id}`);
+    navigate(`/admin/student-analytics`, { state: { user_id } });
   };
 
   //    Handle file change and validate file type
@@ -87,11 +83,7 @@ const Adm_StudentAnalysis = () => {
         }
       );
 
-     
-
       if (response.data.status === "success") {
-      
-
         // If there are warnings, display them to the user
         if (response.data.warnings && response.data.warnings.length > 0) {
           alert(`Warnings:\n${response.data.warnings.join("\n")}`);
@@ -162,9 +154,6 @@ const Adm_StudentAnalysis = () => {
     // fetchStudents();
   }, [limit, deletedUsers]);
 
-  
-  
-
   useEffect(() => {
     let filtered = students;
 
@@ -175,7 +164,6 @@ const Adm_StudentAnalysis = () => {
       );
     }
 
-  
     // Apply rank filter
     // if (selectedRank) {
     //   if (selectedRank === 'top') {
@@ -243,25 +231,27 @@ const Adm_StudentAnalysis = () => {
     }
     return pages;
   };
-  
+
   const handleFilterChange = async (department, rank) => {
     try {
-      
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
-        withCredentials: true,
-        params:{
-          filter : rank === "" ? "all" : rank,
-          department
+      const response = await axios.get(
+        `${API_BASE_URL}/api/rank/generate-rank-order`,
+        {
+          withCredentials: true,
+          params: {
+            filter: rank === "" ? "all" : rank,
+            department,
+          },
         }
-      });
+      );
       if (response) {
-        setFilteredStudents(response.data)
+        setFilteredStudents(response.data);
         const totalPages = Math.ceil(response.data.length / limit);
-    setNumberofpages(totalPages);
+        setNumberofpages(totalPages);
       }
     } catch (error) {
-      console.log("Error fetching student ranks in asc order", error)
+      console.log("Error fetching student ranks in asc order", error);
     }
     // setSelectedDepartment(department);
     // setSelectedRank(rank);
@@ -281,7 +271,6 @@ const Adm_StudentAnalysis = () => {
       }
     };
 
-
     // Attach event listener to the document
     document.addEventListener("mousedown", handleClickOutside);
 
@@ -292,9 +281,8 @@ const Adm_StudentAnalysis = () => {
   }, []);
 
   useEffect(() => {
-      handleFilterChange("", "all")
-  }, [])
-  
+    handleFilterChange("", "all");
+  }, []);
 
   return (
     <div className="min-h-screen flex">
@@ -422,11 +410,22 @@ const Adm_StudentAnalysis = () => {
                   >
                     <td className="py-4 px-4">{student.student_id}</td>
                     <td className="py-4 px-4">{student.student_name}</td>
-                    <td className="py-4 px-4">{student.department_name || "N/A"}</td>
-                    <td className="py-4 px-4">{getOrdinalSuffix(student.department_rank)}</td>
-                    <td className="py-4 px-4">{getOrdinalSuffix(student.overall_rank)}</td>
+                    <td className="py-4 px-4">
+                      {student.department_name || "N/A"}
+                    </td>
+                    <td className="py-4 px-4">
+                      {getOrdinalSuffix(student.department_rank)}
+                    </td>
+                    <td className="py-4 px-4">
+                      {getOrdinalSuffix(student.overall_rank)}
+                    </td>
                     <td className="py-4 px-4 text-center">
-                      <button onClick={(e) => handleAnalyticsClick(student.user_id)} className="p-2">
+                      <button
+                        onClick={(e) =>
+                          handleAnalyticsClick(student.student_id)
+                        }
+                        className="p-2"
+                      >
                         <svg
                           width="20"
                           height="20"

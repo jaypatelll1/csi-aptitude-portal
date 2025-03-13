@@ -85,7 +85,7 @@ const MultiLineChart = ({ data }) => {
                 strokeWidth={selected.includes(dept) ? 2 : 2}
                 dot={{ r: selected.includes(dept) ? 2 : 2 }}
                 activeDot={{ r: 8 }}
-                label={<CustomLabel />} // Add custom labels to each line
+                // label={<CustomLabel />} // Add custom labels to each line
               />
             ))}
           </LineChart>

@@ -13,7 +13,7 @@ const Dep_StudentAnalysis = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [filterPref, setfilterPref] = useState("")
+  const [filterPref, setfilterPref] = useState("");
   const [limit] = useState(20);
   const [numberofpages, setNumberofpages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -21,7 +21,7 @@ const Dep_StudentAnalysis = () => {
   const navigate = useNavigate();
 
   const handleAnalyticsClick = (user_id) => {
-    navigate(`/department/student-analytics/${user_id}`);
+    navigate(`/department/student-analytics`, { state: { user_id } });
   };
 
   const handleSearch = (e) => {
@@ -49,23 +49,26 @@ const Dep_StudentAnalysis = () => {
   const handleFilter = async (filter) => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
-        withCredentials: true,
-        params:{
-          filter : filter === "" ? "all" : filter,
-          department : currentUser?.department
+      const response = await axios.get(
+        `${API_BASE_URL}/api/rank/generate-rank-order`,
+        {
+          withCredentials: true,
+          params: {
+            filter: filter === "" ? "all" : filter,
+            department: currentUser?.department,
+          },
         }
-      });
+      );
       if (response) {
-        setFilteredStudents(response.data)
+        setFilteredStudents(response.data);
         setNumberofpages(Math.ceil(response.data.length / limit));
       }
     } catch (error) {
-      console.log("Error fetching student ranks in asc order", error)
-    }finally{
-      setLoading(false)
+      console.log("Error fetching student ranks in asc order", error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     // const fetchStudentsWithRanks = async () => {
@@ -120,7 +123,7 @@ const Dep_StudentAnalysis = () => {
     //   }
     // };
 
-    handleFilter(filterPref)
+    handleFilter(filterPref);
 
     // fetchStudentsWithRanks();
   }, [currentUser, limit, filterPref]);
@@ -150,8 +153,11 @@ const Dep_StudentAnalysis = () => {
 
   return (
     <div className="min-h-screen flex">
-      <div className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}>
+      <div
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+      >
         <Dep_Sidebar />
       </div>
 
@@ -162,7 +168,9 @@ const Dep_StudentAnalysis = () => {
 
         <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-blue-600 text-2xl font-bold">Student wise Analysis</h1>
+            <h1 className="text-blue-600 text-2xl font-bold">
+              Student wise Analysis
+            </h1>
             <div className="flex items-center gap-4">
               <div className="relative">
                 <input
@@ -172,7 +180,15 @@ const Dep_StudentAnalysis = () => {
                   placeholder="Search here"
                   className="pl-10 pr-4 py-2 border rounded-lg w-64"
                 />
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
@@ -182,12 +198,24 @@ const Dep_StudentAnalysis = () => {
                   onClick={toggleFilter}
                   className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
                   </svg>
                   <span>Filter</span>
                 </button>
-                {filterOpen && <Dep_Filter toggleFilter={toggleFilter} handleFilter={handleFilter} />}
+                {filterOpen && (
+                  <Dep_Filter
+                    toggleFilter={toggleFilter}
+                    handleFilter={handleFilter}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -212,13 +240,23 @@ const Dep_StudentAnalysis = () => {
                   {filteredStudents
                     .slice((page - 1) * limit, page * limit)
                     .map((student) => (
-                      <tr key={student.user_id} className="border-b hover:bg-gray-50">
+                      <tr
+                        key={student.user_id}
+                        className="border-b hover:bg-gray-50"
+                      >
                         <td className="py-4 px-4">{student.student_id}</td>
                         <td className="py-4 px-4">{student.student_name}</td>
-                        <td className="py-4 px-4">{student.department_name || "N/A"}</td>
+                        <td className="py-4 px-4">
+                          {student.department_name || "N/A"}
+                        </td>
                         <td className="py-4 px-4">{student.department_rank}</td>
                         <td className="py-4 px-4 text-center">
-                          <button onClick={() => handleAnalyticsClick(student.user_id)} className="p-2">
+                          <button
+                            onClick={() =>
+                              handleAnalyticsClick(student.student_id)
+                            }
+                            className="p-2"
+                          >
                             <svg
                               width="20"
                               height="20"
@@ -257,8 +295,9 @@ const Dep_StudentAnalysis = () => {
                   {getPageNumbers().map((p) => (
                     <div
                       key={p}
-                      className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                        }`}
+                      className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
+                        page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                      }`}
                       onClick={() => setPage(p)}
                     >
                       {p}
