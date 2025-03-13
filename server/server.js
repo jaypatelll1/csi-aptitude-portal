@@ -114,11 +114,10 @@ app.get('/', (req, res) => {
 // Centralized error handling middleware
 app.use(errorHandler);
 
-// EXPORT APP FOR TESTING
-module.exports = app;
 
-server.listen(PORT, HOST, () => {
-  console.log(`Server is running at http://${HOST}:${PORT}`);
+
+server.listen(PORT, () => {
+  console.log(`Server is running at http://${PORT}`);
 });
 
 // FOR SOCKET.IO TESTING
@@ -126,3 +125,5 @@ server.listen(PORT, HOST, () => {
 //   console.log(`Server is running at http://localhost:${PORT}`);
 
 // });
+// EXPORT APP FOR TESTING
+module.exports = app;
