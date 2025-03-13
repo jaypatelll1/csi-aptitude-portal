@@ -5,7 +5,6 @@ const generateRank = async (req, res) => {
 
   try {
     const results = await rankModel.generateRank();
-    console.log(results)
     
     res.status(200).json(results);
   } catch (error) {
@@ -13,4 +12,14 @@ const generateRank = async (req, res) => {
   }
 };
 
-module.exports = {generateRank};
+const GetStudentRanksInAscOrder = async(req,res)=>{
+  const {filter,department} = req.query
+    try {
+      const results = await rankModel.getStudentRanksInOrder({filter,department})
+      return res.status(200).json(results)
+    } catch (error) {
+     return res.status(500).json({ error: error.message });
+    }
+}
+
+module.exports = {generateRank,GetStudentRanksInAscOrder};

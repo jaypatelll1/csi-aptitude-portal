@@ -3,69 +3,126 @@ const XLSX = require("xlsx");
 const csvParser = require("csv-parser");
 const { query } = require("../config/db");
 
+const validCategories = [
+  "quantitative aptitude",
+  "logical reasoning",
+  "verbal ability",
+  "technical",
+  "general knowledge",
+];
+
+const validQuestionTypes = ["single_choice", "multiple_choice", "text", "image"];
+
+/**
+ * Parses and inserts Excel questions into the database.
+ */
 const parseExcelQuestion = async (filePath, examId) => {
   try {
     const workbook = XLSX.readFile(filePath);
     const sheetNames = workbook.SheetNames;
     const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-    // console.log("Excel Data to insert:", jsonData);
-    const warnings = []; // Collect all warnings here
-    let index = 0; 
-    for (const row of jsonData) {
-      // console.log(jsonData)
-      const { question_text, correct_option, options_a, options_b, options_c, options_d ,category} = row;
+    const warnings = [];
 
-      if (!question_text || (!options_a && !options_b && !options_c && !options_d) || !correct_option || !category) {
-        warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
-        // console.log(warnings)
-    index++; // Increment index
-    continue;
+    for (let index = 0; index < jsonData.length; index++) {
+      const row = jsonData[index];
+      // console.log(jsonData)
+      let {
+        question_text,
+        question_type,
+        options_a,
+        options_b,
+        options_c,
+        options_d,
+        correct_option,
+        correct_options,
+        image_url,
+        category,
+      } = row;
+
+      if (!question_text || !question_type || !category) {
+        warnings.push(`Row ${index + 1}: Skipped due to missing fields.`);
+        continue;
+      }
+      if(image_url === "NULL") image_url=null;
+      const categoryType = category.toLowerCase();
+      if (!validCategories.includes(categoryType)) {
+        warnings.push(`Row ${index + 1}: Invalid category - ${category}`);
+        continue;
       }
 
-      // Construct the options object dynamically
-      const optionsObject = {
-        a: options_a || "",
-        b: options_b || "",
-        c: options_c || "",
-        d: options_d || "",
-      };
-// Convert category to lowercase and validate it against ENUM values
-const category_type = category.toLowerCase();
-const validCategories = [
-  'quantitative aptitude',
-  'logical reasoning',
-  'verbal ability',
-  'technical',
-  'general knowledge',
-];
+      if (!validQuestionTypes.includes(question_type)) {
+        warnings.push(`Row ${index + 1}: Invalid question type - ${question_type}`);
+        continue;
+      }
 
+      let optionsObject = null;
+      let correctAnswer = null;
+      let correctAnswers = null;
 
-if (!validCategories.includes(category_type)) {
-  warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
-  // console.log(warnings)
-index++; // Increment index
-continue;
-}
+      if (question_type === "single_choice") {
+        optionsObject = {
+          a: options_a || "",
+          b: options_b || "",
+          c: options_c || "",
+          d: options_d || "",
+        };
+        if (!correct_option) {
+          warnings.push(`Row ${index + 1}: Missing correct_option for single_choice.`);
+          continue;
+        }
+        correctAnswer = correct_option;
+      } else if (question_type === "multiple_choice") {
+        optionsObject = {
+          a: options_a || "",
+          b: options_b || "",
+          c: options_c || "",
+          d: options_d || "",
+        };
+        if (!correct_options) {
+          warnings.push(`Row ${index + 1}: Missing correct_options for multiple_choice.`);
+          continue;
+        }
+        correctAnswers = JSON.parse(correct_options);
+      } else if (question_type === "text") {
+        optionsObject = null; // No options for text-based questions
+      } else if (question_type === "image") {
+        if (!image_url) {
+          warnings.push(`Row ${index + 1}: Missing image_url for image question.`);
+          continue;
+        }
+      }
 
       const queryText = `
-        INSERT INTO questions (exam_id, question_text, options, correct_option, category)
-VALUES ($1, $2, $3, $4, $5);
-
+        INSERT INTO questions (exam_id, question_text, question_type, options, correct_option, correct_options, image_url, category)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
       `;
-      const values = [examId, question_text, JSON.stringify(optionsObject), correct_option,category_type];
+      const values = [
+        examId,
+        question_text,
+        question_type,
+        optionsObject ? JSON.stringify(optionsObject) : null,
+        correctAnswer,
+        correctAnswers ? JSON.stringify(correctAnswers) : null,
+        image_url || null,
+        categoryType
+      ];
+
       await query(queryText, values);
-      
     }
 
     console.log("All Excel data inserted successfully.");
-    return warnings; 
+    console.log("warnings: ", warnings);
+    return jsonData;
   } catch (err) {
     console.error("Error inserting Excel data:", err);
     throw new Error(err.detail || "Error inserting data into the database");
   }
 };
 
-const parseCSVquestion = async (filePath, examId) => {
+/**
+ * Parses and inserts CSV questions into the database.
+ */
+const parseCSVQuestion = async (filePath, examId) => {
   try {
     const jsonData = await new Promise((resolve, reject) => {
       const data = [];
@@ -76,39 +133,89 @@ const parseCSVquestion = async (filePath, examId) => {
         .on("error", (err) => reject(err));
     });
 
-    // console.log("CSV Data to insert:", jsonData);
+    const warnings = [];
 
-    for (const row of jsonData) {
-      const {  question_text, options, correct_option } = row;
+    for (let index = 0; index < jsonData.length; index++) {
+      const row = jsonData[index];
+      const {
+        question_text,
+        question_type,
+        options,
+        correct_option,
+        correct_options,
+        image_url,
+        category,
+      } = row;
 
-      if (!question_text || !options || !correct_option) {
-        console.warn(`Skipping invalid row: ${JSON.stringify(row)}`);
+      if (!question_text || !question_type || !category) {
+        warnings.push(`Row ${index + 1}: Skipped due to missing fields.`);
         continue;
       }
 
-      const cleanedOptions = options
-        .replace(/"\s*'/g, '"')
-        .replace(/'\s*"/g, '"')
-        .replace(/\s*'/g, '"')
-        .replace(/(\w+)\s*:/g, '"$1":');
-
-      let parsedOptions;
-      try {
-        parsedOptions = JSON.parse(cleanedOptions);
-      } catch (err) {
-        console.error("Invalid options format, skipping row:", err);
+      const categoryType = category.toLowerCase();
+      if (!validCategories.includes(categoryType)) {
+        warnings.push(`Row ${index + 1}: Invalid category - ${category}`);
         continue;
+      }
+
+      if (!validQuestionTypes.includes(question_type)) {
+        warnings.push(`Row ${index + 1}: Invalid question type - ${question_type}`);
+        continue;
+      }
+
+      let optionsObject = null;
+      let correctAnswer = null;
+      let correctAnswers = null;
+
+      if (question_type === "single_choice") {
+        try {
+          optionsObject = JSON.parse(options);
+        } catch (err) {
+          warnings.push(`Row ${index + 1}: Invalid options format.`);
+          continue;
+        }
+        if (!correct_option) {
+          warnings.push(`Row ${index + 1}: Missing correct_option for single_choice.`);
+          continue;
+        }
+        correctAnswer = correct_option;
+      } else if (question_type === "multiple_choice") {
+        try {
+          optionsObject = JSON.parse(options);
+          correctAnswers = JSON.parse(correct_options);
+        } catch (err) {
+          warnings.push(`Row ${index + 1}: Invalid JSON format in options or correct_options.`);
+          continue;
+        }
+      } else if (question_type === "text") {
+        optionsObject = null;
+      } else if (question_type === "image") {
+        if (!image_url) {
+          warnings.push(`Row ${index + 1}: Missing image_url for image question.`);
+          continue;
+        }
       }
 
       const queryText = `
-        INSERT INTO questions ( exam_id, question_text, options, correct_option)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO questions (exam_id, question_text, question_type, options, correct_option, correct_options, image_url, category)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
       `;
-      const values = [ examId, question_text, parsedOptions, correct_option];
+      const values = [
+        examId,
+        question_text,
+        question_type,
+        optionsObject ? JSON.stringify(optionsObject) : null,
+        correctAnswer,
+        correctAnswers ? JSON.stringify(correctAnswers) : null,
+        image_url || null,
+        categoryType
+      ];
+
       await query(queryText, values);
     }
 
     console.log("All CSV data inserted successfully.");
+    return warnings;
   } catch (err) {
     console.error("Error inserting CSV data:", err);
     throw new Error(err.detail || "Error inserting data into the database");
@@ -117,5 +224,5 @@ const parseCSVquestion = async (filePath, examId) => {
 
 module.exports = {
   parseExcelQuestion,
-  parseCSVquestion,
+  parseCSVQuestion,
 };

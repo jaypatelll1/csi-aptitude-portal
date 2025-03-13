@@ -166,11 +166,15 @@ const Adm_Sidebar = () => {
         {showAnalyticsSubmenu && (
           <ul className="pl-5 mt-1">
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
+              <Link to="/admin/overall-score">Overall Analysis</Link>
+            </li>
+            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
               <Link to="/admin/analytics">Branch Analytics</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
               <Link to="/admin/student-analysis">Student Analysis</Link>
             </li>
+            
           </ul>
         )}
       </ul>

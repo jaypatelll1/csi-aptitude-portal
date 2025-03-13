@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 const Dep_Dashboard = () => {
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
-  console.log(userData);
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [tileData, setTileData] = useState([]);
@@ -46,8 +45,6 @@ const Dep_Dashboard = () => {
         const response = await axios.get(endpoint, {
             withCredentials: true,
         });
-
-        console.log(response);
 
         setTestsData((prevData) => ({
             ...prevData,
@@ -256,7 +253,6 @@ const Dep_Dashboard = () => {
             ) : (
               paginatedData?.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-                console.log(test);
 
                 if (activeTab === "live") {
                   return <Dep_LiveTestCard key={key} test={test} />;

@@ -14,12 +14,17 @@ const {
   markPastExam,
   markLiveExam,
   getExamsForUser,
-  getExamStatus
+  getExamStatus,
+  getExamForTeachers,
+  createExamForTeachers
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
 const router = express.Router();
 
+// Rate Limit
+const {limiter} = require("../utils/rateLimitUtils");
+// router.use(limiter);
 
 
 router.get('/', getAllPaginatedExams); // Pagination
@@ -28,9 +33,12 @@ router.get('/scheduled', getPaginatedScheduledExams);
 router.get('/past', getPaginatedPastExams);
 router.get('/live', getPaginatedLiveExams);
 router.get('/find/:exam_id', getExamById);
-router.post("/student",getExamsForUser)
+router.get('/student',getExamsForUser)
+router.get("/teacher",getExamForTeachers)
 
 router.post('/', authorizeRoles, createExam);
+router.post("/create/teacher",authorizeRoles, createExamForTeachers)
+
 
 router.put('/:exam_id', authorizeRoles, updateExam);
 router.put('/publish/:exam_id',authorizeRoles, scheduleExam); // to publish an exam

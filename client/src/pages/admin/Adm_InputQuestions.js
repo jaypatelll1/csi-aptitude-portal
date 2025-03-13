@@ -15,9 +15,11 @@ const validCategories = [
   "general knowledge",
 ];
 
+const validQusetionTypes = ["single_choice", "multiple_choice", "text"];
+
 const Adm_InputQuestions = () => {
   const [question, setQuestion] = useState("");
-  const [questionType, setQuestionType] = useState("single");
+  const [questionsType, setQuestionsType] = useState("single_choice");
   const [options, setOptions] = useState(["", "", "", ""]);
   const [toggles, setToggles] = useState([false, false, false, false]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,7 +28,12 @@ const Adm_InputQuestions = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
-  
+
+  // New state variables for image upload
+  const [isImageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +54,23 @@ const Adm_InputQuestions = () => {
       return;
     }
     setSelectedFile(file);
+  };
+
+  // New handler for image file changes
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/jpg",
+      "image/webp",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload a valid image file.");
+      return;
+    }
+    setSelectedImage(file);
   };
 
   const handleQuestionSubmit = async (event) => {
@@ -80,32 +104,110 @@ const Adm_InputQuestions = () => {
     }
   };
 
+  // New handler for image submission
+  const handleImageSubmit = async (event) => {
+    event.preventDefault();
+    if (!selectedImage) {
+      alert("Please select an image to upload.");
+      return;
+    }
+    setIsImageUploading(true);
+    const formData = new FormData();
+    formData.append("image", selectedImage);
+
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.post(
+        `${API_BASE_URL}/api/upload-image`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(response.data);
+      
+      // Save the image URL returned from the server
+      if (response.data && response.data.imageUrl) {
+        setImageUrl(response.data.imageUrl);
+        alert("Image uploaded successfully!");
+        
+        // Now save the image URL in the database
+        const saveResponse = await axios.post(
+          `${API_BASE_URL}/api/save-image`,
+          { image_url: response.data.imageUrl },
+          { withCredentials: true }
+        );
+        console.log("Save Image Response:", saveResponse.data);
+      } else {
+        alert(
+          "Image uploaded but no URL was returned. Please check the server response."
+        );
+        console.log("Server response:", response.data);
+      }
+
+      setImageModalOpen(false);
+    } catch (error) {
+      alert("An error occurred while uploading the image.");
+      console.error("Upload error:", error);
+    } finally {
+      setIsImageUploading(false);
+    }
+  };
+
   const {
     questionId,
+    questionType,
     questionText,
     questionOptions = {},
     exam_id,
     correct_option,
+    correct_options,
+    image_url,
     category: initialCategory,
   } = location.state || {};
 
   useEffect(() => {
-    if (questionText && questionOptions) {
+    if (location.state) {
       setQuestion(questionText);
-      const { a = "", b = "", c = "", d = "" } = questionOptions;
-      setOptions([a, b, c, d]);
-      const validOptions = ["a", "b", "c", "d"];
-      const correctOptionIndex = validOptions.indexOf(
-        questionOptions.correct_option
-      );
-      setToggles(
-        validOptions.map(
-          (option, index) =>
-            index === (correctOptionIndex >= 0 ? correctOptionIndex : 0)
-        )
-      );
+      setQuestionsType(questionType);
+
+      if (questionType === "text") {
+        setOptions([]); // Clear options for text-based questions
+        setToggles([]); // No toggles needed for text questions
+      } else {
+        const { a = "", b = "", c = "", d = "" } = questionOptions;
+        setOptions([a, b, c, d]);
+
+        const validOptions = ["a", "b", "c", "d"];
+
+        let correctOptionIndexes = [];
+
+        if (correct_option) {
+          correctOptionIndexes = [validOptions.indexOf(correct_option)];
+        } else if (Array.isArray(correct_options)) {
+          correctOptionIndexes = correct_options
+            .map((opt) => validOptions.indexOf(opt))
+            .filter((index) => index >= 0);
+        }
+
+        setToggles(
+          validOptions.map((_, index) => correctOptionIndexes.includes(index))
+        );
+      }
+
+      if (location.state?.questionNumber) {
+        setQuestionCount(location.state.questionNumber);
+      }
+
+      // Set image URL if it exists in location state
+      if (image_url) {
+        setImageUrl(image_url);
+      }
     }
-  }, [questionText, questionOptions]);
+  }, [questionText, questionOptions, questionType, location.state, image_url]);
 
   const viewquestions = () => {
     navigate("/admin/viewquestions");
@@ -133,7 +235,7 @@ const Adm_InputQuestions = () => {
 
   const handleToggleChange = (index) => {
     const newToggles = [...toggles];
-    if (questionType === "single") {
+    if (questionsType === "single_choice") {
       newToggles.fill(false);
       newToggles[index] = true;
     } else {
@@ -142,9 +244,16 @@ const Adm_InputQuestions = () => {
     setToggles(newToggles);
   };
 
+  const handleRemoveImage = () => {
+    setImageUrl("");
+  };
+
   const handleSubmit = async () => {
-    if (question && options.every((option) => option.trim() !== "")) {
-      if (!toggles.includes(true)) {
+    if (
+      (question && options.every((option) => String(option).trim() !== "")) ||
+      questionType === "text"
+    ) {
+      if (!toggles.includes(true) && questionType !== "text") {
         alert("Please select at least one correct answer.");
         return;
       }
@@ -154,15 +263,22 @@ const Adm_InputQuestions = () => {
         return;
       }
 
-      const findTrueIndex = () => {
-        var a = toggles.findIndex((toggle) => toggle === true);
-        return a !== -1 ? a : "No true value found";
-      };
+      const findTrueIndices = () =>
+        toggles
+          .map((toggle, index) => (toggle ? index : -1))
+          .filter((index) => index !== -1);
 
-      let b = findTrueIndex();
-      const correctOption = String.fromCharCode(97 + b);
-  
+      let b = findTrueIndices();
+
+      const correctOption =
+        b.length === 1 ? String.fromCharCode(97 + b[0]) : null;
+      const correctOptions =
+        b.length === 1
+          ? null
+          : b.map((index) => String.fromCharCode(97 + index));
+
       const payload = {
+        question_type: b.length === 1 ? "single_choice" : `${questionsType}`,
         question_text: `${question}`,
         options: {
           a: `${options[0]}`,
@@ -170,8 +286,10 @@ const Adm_InputQuestions = () => {
           c: `${options[2]}`,
           d: `${options[3]}`,
         },
-        correct_option: `${correctOption}`,
+        correct_option: correctOption ? `${correctOption}` : null,
+        correct_options: correctOptions ? new Array(...correctOptions) : null,
         category: category,
+        image_url: imageUrl, // Include the image URL in the payload
       };
 
       try {
@@ -188,6 +306,7 @@ const Adm_InputQuestions = () => {
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
           setCategory("");
+          setImageUrl(""); // Clear the image URL
           setQuestionCount((prevCount) => prevCount + 1);
           navigate("/admin/input?category=");
         } else {
@@ -202,6 +321,7 @@ const Adm_InputQuestions = () => {
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
+          setImageUrl(""); // Clear the image URL
           navigate("/admin/viewquestions");
         }
       } catch (error) {
@@ -219,6 +339,7 @@ const Adm_InputQuestions = () => {
     setQuestion("");
     setOptions(["", "", "", ""]);
     setToggles([false, false, false, false]);
+    setImageUrl(""); // Clear the image URL
   };
 
   useEffect(() => {
@@ -275,12 +396,18 @@ const Adm_InputQuestions = () => {
             <div className="text-2xl font-semibold text-center text-gray-800 ml-0 xl:ml-0">
               Create Aptitude Test
             </div>
-            <div>
+            <div className="flex space-x-3">
               <button
                 className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
                 onClick={() => setModalOpen(true)}
               >
                 Upload File
+              </button>
+              <button
+                className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
+                onClick={() => setImageModalOpen(true)}
+              >
+                Upload Image
               </button>
               <UploadModal
                 isOpen={isModalOpen}
@@ -289,6 +416,14 @@ const Adm_InputQuestions = () => {
                 onFileChange={handleFileChange}
                 onSubmit={handleQuestionSubmit}
                 isUploading={isUploading}
+              />
+              <UploadModal
+                isOpen={isImageModalOpen}
+                check="Upload Image"
+                closeModal={() => setImageModalOpen(false)}
+                onFileChange={handleImageChange}
+                onSubmit={handleImageSubmit}
+                isUploading={isImageUploading}
               />
             </div>
           </div>
@@ -319,6 +454,22 @@ const Adm_InputQuestions = () => {
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <div className="mb-4">
+              <label className="text-xl block text-gray-700 font-medium mb-2">
+                Question Type:
+              </label>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={questionsType}
+                onChange={(e) => setQuestionsType(e.target.value)}
+              >
+                {validQusetionTypes.map((qtype, index) => (
+                  <option key={index} value={qtype}>
+                    {qtype.replace("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
               <label
                 htmlFor="question"
                 className="text-xl block text-gray-700 font-medium mb-2"
@@ -343,8 +494,9 @@ const Adm_InputQuestions = () => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="" hidden disabled className="text-gray-400">
-          {initialCategory || "Select a category"} {/* Show the existing category if editing */}
-        </option>
+                  {initialCategory || "Select a category"}{" "}
+                  {/* Show the existing category if editing */}
+                </option>
                 {validCategories.map((cat, index) => (
                   <option key={index} value={cat} className="text-gray-800">
                     {cat}
@@ -352,62 +504,92 @@ const Adm_InputQuestions = () => {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="text-xl block text-gray-700 font-medium mb-2">
-                Options:
-              </label>
-              {options.map((answer, index) => (
-                <div
-                  key={index}
-                  className="group flex items-center gap-4 mb-2 p-3 rounded-lg "
-                >
-                  <input
-                    type="text"
-                    value={answer}
-                    onChange={(e) => handleAnswerChange(index, e.target.value)}
-                    placeholder={`Enter option ${index + 1}`}
-                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+            {/* Display uploaded image if available */}
+            {imageUrl && (
+              <div className="mb-4">
+                <label className="text-xl block text-gray-700 font-medium mb-2">
+                  Uploaded Image:
+                </label>
+                <div className="border rounded-lg p-2 max-w-md">
+                  <img
+                    src={imageUrl}
+                    alt="Question image"
+                    className="max-w-full h-auto"
                   />
-                  <button
-                    onClick={() => handleToggleChange(index)}
-                    className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                      toggles[index] ? "bg-[#449800]" : "bg-gray-300"
-                    }`}
-                  >
-                    <div
-                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
-                        toggles[index] ? "translate-x-6" : "translate-x-0"
-                      }`}
-                    />
-                  </button>
-                  <button
-                    onClick={() => handleRemoveAnswer(index)}
-                    className="text-red-500 hover:text-red-700 ml-2"
-                  >
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </button>
                 </div>
-              ))}
-              {options.length < 4 && (
                 <button
-                  onClick={handleAddAnswer}
-                  className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
+                  onClick={handleRemoveImage}
+                  className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 border border-red-400"
                 >
-                  + Add Answer
+                  Remove Image
                 </button>
-              )}
-            </div>
+              </div>
+            )}
+
+            {questionsType !== "text" && (
+              <div>
+                <label className="text-xl block text-gray-700 font-medium mb-2">
+                  Options:
+                </label>
+                {options.map((answer, index) => (
+                  <div
+                    key={index}
+                    className="group flex items-center gap-4 mb-2 p-3 rounded-lg"
+                  >
+                    <input
+                      type="text"
+                      value={answer}
+                      onChange={(e) =>
+                        handleAnswerChange(index, e.target.value)
+                      }
+                      placeholder={`Enter option ${index + 1}`}
+                      className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {/* Toggle Button */}
+                    <button
+                      onClick={() => handleToggleChange(index)}
+                      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
+                        toggles[index] ? "bg-[#449800]" : "bg-gray-300"
+                      }`}
+                    >
+                      <div
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
+                          toggles[index] ? "translate-x-6" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                    {/* Remove Option Button */}
+                    <button
+                      onClick={() => handleRemoveAnswer(index)}
+                      className="text-red-500 hover:text-red-700 ml-2"
+                    >
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {/* Add Answer Button */}
+                {options.length < 4 && (
+                  <button
+                    onClick={handleAddAnswer}
+                    className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
+                  >
+                    + Add Answer
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex gap-4 justify-between">
             <button

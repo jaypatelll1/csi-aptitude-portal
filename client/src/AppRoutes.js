@@ -49,6 +49,7 @@ import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
 import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
 import Teacher_UpcomingTest from "./pages/teacher/Teacher_UpcomingTest";
 import Teacher_Result from "./pages/teacher/Teacher_Result";
+import Adm_OverallScore from "./pages/admin/Adm_OverallScore";
 
 
 
@@ -264,6 +265,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_StudentAnalytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/overall-score"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_OverallScore />
           </ProtectedRoute>
         }
       />

@@ -4,115 +4,35 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
-import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
+import LineChartComponent from "../../components/analytics/LineChartComponent";
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
+import TableComponent from "../../components/analytics/TableComponent";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const departments = ["CMPN", "INFT", "EXTC", "ECS", "ELEC"];
-  const [avgData, setAvgData] = useState([]);
   const [accuracyData, setAccuracyData] = useState([]);
   const [categoryWiseData, setCategoryWiseData] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("CMPN");
   const [topPerformers, setTopPerformers] = useState([]);
   const [bottomPerformers, setBottomPerformers] = useState([]);
   const [participationRate, setParticipationRate] = useState([]);
-  const [performance_cmpn, setPerformance_cmpn] = useState([]);
-  const [performance_inft, setPerformance_inft] = useState([]);
-  const [performance_extc, setPerformance_extc] = useState([]);
-  const [performance_ecs, setPerformance_ecs] = useState([]);
-  const [performance_elec, setPerformance_elec] = useState([]);
 
-  const fetchAvgData = async () => {
+  const fetchAllTpoAnalysis = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/tpo-analysis/dept-avg`;
+      let url = `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${selectedDepartment}`;
       const response = await axios.get(url, { withCredentials: true });
-      setAvgData(response.data.results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
 
-  const fetchAccuracyData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/tpo-analysis/accuracy-per-dept`;
-      const response = await axios.get(url, { withCredentials: true });
-      setAccuracyData(response.data.results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      setCategoryWiseData(response.data.category_performance);
+      setTopPerformers(response.data.top_performer);
+      setBottomPerformers(response.data.bottom_performer);
+      setParticipationRate(response.data.participation_rate);
+      setAccuracyData(response.data.accuracy_rate);
 
-  const fetchCategoryWiseData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/category-performance/${selectedDepartment}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setCategoryWiseData(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchTopPerformersData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/top-performer/${selectedDepartment}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setTopPerformers(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchBottomPerformersData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/bottom-performer/${selectedDepartment}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setBottomPerformers(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchParticipationRateData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/department-analysis/participation-rate/${selectedDepartment}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setParticipationRate(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchPerformanceOverTimeData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url1 = `${API_BASE_URL}/api/department-analysis/performance-over-time/CMPN`;
-      const response1 = await axios.get(url1, { withCredentials: true });
-      setPerformance_cmpn(response1.data);
-
-      let url2 = `${API_BASE_URL}/api/department-analysis/performance-over-time/INFT`;
-      const response2 = await axios.get(url2, { withCredentials: true });
-      setPerformance_inft(response2.data);
-
-      let url3 = `${API_BASE_URL}/api/department-analysis/performance-over-time/EXTC`;
-      const response3 = await axios.get(url3, { withCredentials: true });
-      setPerformance_extc(response3.data);
-
-      let url4 = `${API_BASE_URL}/api/department-analysis/performance-over-time/ECS`;
-      const response4 = await axios.get(url4, { withCredentials: true });
-      setPerformance_ecs(response4.data);
-
-      let url5 = `${API_BASE_URL}/api/department-analysis/performance-over-time/ELEC`;
-      const response5 = await axios.get(url5, { withCredentials: true });
-      setPerformance_elec(response5.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -125,95 +45,39 @@ function Adm_Analytics() {
   // console.log("topPerformers", topPerformers);
   // console.log("bottomPerformers", bottomPerformers);
   // console.log("participationRate", participationRate);
-  // console.log("performance_cmpn", performance_cmpn);
-  // console.log("performance_inft", performance_inft);
-  // console.log("performance_extc", performance_extc);
-  // console.log("performance_ecs", performance_ecs);
-  // console.log("performance_elec", performance_elec);
 
   useEffect(() => {
-    fetchAvgData();
-    fetchAccuracyData();
-    fetchCategoryWiseData();
-    fetchTopPerformersData();
-    fetchBottomPerformersData();
-    fetchParticipationRateData();
-    fetchPerformanceOverTimeData();
+    fetchAllTpoAnalysis();
   }, [selectedDepartment]);
 
   const handleDepartmentChange = (dept) => {
     setSelectedDepartment(dept);
   };
 
-  const allPerformances = [
-    performance_cmpn,
-    performance_inft,
-    performance_extc,
-    performance_ecs,
-    performance_elec,
-  ];
-
-  // Extract all unique dates
-  const allDates = [
-    ...new Set(
-      allPerformances.flatMap((dept) =>
-        dept.map((entry) => entry.created_on).filter(Boolean)
-      )
-    ),
-  ];
-
-  // Sort dates in ascending order (YYYY-MM-DD format ensures correct sorting)
-  allDates.sort((a, b) => new Date(a) - new Date(b));
-
-  // Merge data by date
-  const mergedData = allDates.map((date) => ({
-    date,
-    CMPN:
-      performance_cmpn.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    INFT:
-      performance_inft.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    ECS:
-      performance_ecs.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    EXTC:
-      performance_extc.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-    ELEC:
-      performance_elec.find((entry) => entry.created_on === date)
-        ?.average_score || 0,
-  }));
-
-  const departmentPerformanceData = {
-    title: "Department Performance Over Time",
-    chartData: mergedData,
-  };
-
-  const barChartData = {
-    title: "Department Average Score",
-    dataKey: "department",
-    chartData: avgData.map((department) => ({
-      department: department?.department_name,
-      score: department?.avg_score,
-    })),
-  };
-
-  const filteredAccuracyData = accuracyData
-    .filter((department) => department?.department_name === selectedDepartment)
-    .flatMap((department) => [
+  const filteredAccuracyData = [
       {
         name: "Correct",
-        value: Number(department?.accuracy_rate),
+        value: Number(accuracyData?.accuracy_rate),
         fill: "#4CAF50",
       },
       {
         name: "Wrong",
-        value: 100 - Number(department?.accuracy_rate),
+        value: 100 - Number(accuracyData?.accuracy_rate),
         fill: "#F44336",
       },
-    ]);
-
+    ];
+    const chartData = {
+      title: "Performance Over Time",
+      color: "#0703fc",
+      chartData: [
+        { name: "January 2025", Percentage: 75 },
+        { name: "February 2025", Percentage: 82 },
+        { name: "March 2025", Percentage: 88 },
+        { name: "April 2025", Percentage: 90 },
+        { name: "May 2025", Percentage: 85 },
+      ],
+    };
+  
   // If filteredData is empty, use default values
   const donutChartData = {
     title: "Accuracy Rate",
@@ -225,6 +89,12 @@ function Adm_Analytics() {
             { name: "Wrong", value: 100, fill: "#F44336" },
           ],
   };
+  const rankData = { department_rank: 2 };
+  const dSup = "nd";
+
+  const rankSData = { overall_student_rank: 5 };
+  const oSup = "th";
+
 
   const participationRateData = {
     title: "Participation Rate",
@@ -236,7 +106,7 @@ function Adm_Analytics() {
       },
       {
         name: "Not Participated",
-        value: 100 - Number(participationRate[0]?.participation_rate) || 100,
+        value: +(Number(100 - participationRate[0]?.participation_rate).toFixed(2)) || 100, // to convert this from string to floating point
         fill: "#6F91F0",
       },
     ],
@@ -332,54 +202,71 @@ function Adm_Analytics() {
 
         {/* Department Selection Buttons */}
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-5 mb-5 ml-5 mr-5">
-          {/* Department Average Score */}
-          <div className="bg-white p-6 rounded-xl shadow-md col-span-2">
-            <BarChartComponent data={barChartData} />
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-md col-span-3">
-            <MultiLineChartComponent data={departmentPerformanceData} />
-          </div>
-        </div>
-
         {/* Rankings & Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-5 mt-5 mb-5  ml-5 mr-5 ">
+        <div>
+        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
+         <DisplayComponent
+          title="Overall Department Rank"
+          rank={rankData?.department_rank || "N/A"}
+          superscript={dSup}
+         />
+        </div>
+        <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
+         <DisplayComponent
+          title="Overall Student Rank"
+          rank={rankSData?.overall_student_rank || "N/A"}
+          superscript={oSup}
+         />
+        </div>
+        </div>  
+        <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
+              <LineChartComponent data={chartData} xAxisKey="name" lineDataKey="Percentage" />
+            </div>
+        
+        </div>  
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5  ml-5 mr-5 ">
+          
+          
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
             <DonutChartComponent data={donutChartData} />
           </div>
+          
           <div className="bg-white p-6 rounded-xl shadow-md">
             <RadarChartComponent data={radarChartData} />
           </div>
-        </div>
+          </div>
+        
 
         {/* Performers Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
+        <div className="bg-white p-6 rounded-xl shadow-md">
+            <PieChartComponent data={participationRateData} />
+          </div>
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold mb-3">Top Performers</h2>
+            <h2 className="text-xl font-medium text-[#1349C5] self-start">Top Performers</h2>
             <ul>
               {topPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.rank}. {name?.student_name}
+                  {name?.department_rank}. {name?.student_name}
                 </li>
               ))}
             </ul>
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-lg font-semibold mb-3">Bottom Performers</h2>
+            <h2 className="text-xl font-medium text-[#1349C5] self-start">Bottom Performers</h2>
             <ul>
               {bottomPerformers.map((name, index) => (
                 <li key={index} className="border-b py-2 text-gray-700">
-                  {name?.rank}. {name?.student_name}
+                  {name?.department_rank}. {name?.student_name}
                 </li>
               ))}
             </ul>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <PieChartComponent data={participationRateData} />
-          </div>
+          
         </div>
+        
       </div>
     </div>
   );

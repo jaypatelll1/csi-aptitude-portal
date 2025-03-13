@@ -4,8 +4,8 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 const PieChartComponent = ({ data }) => {
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
-      <ResponsiveContainer width={400} height={320}>
+      <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
+      <ResponsiveContainer  width={300} height={320}>
         <PieChart>
           <Pie
             data={data.chartData}
@@ -13,7 +13,7 @@ const PieChartComponent = ({ data }) => {
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius={120}
+            outerRadius={100}
             fill="#1349C5"
             label
           >

@@ -14,20 +14,25 @@ const Adm_CreateTestPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
-  
+  const [userType, setUserType] = useState("Student");
+
   const sidebarRef = useRef(null);
   const branchRef = useRef(null);
   const yearRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const branches = ['CMPN', 'INFT', 'EXTC', 'ELEC', 'ECS'];
-  const years = ['FE', 'SE', 'TE', 'BE'];
+  const branches = ["CMPN", "INFT", "EXTC", "ELEC", "ECS"];
+  const years = ["FE", "SE", "TE", "BE"];
 
   const handleCreateQuestions = async (e) => {
     e.preventDefault();
 
-    if (!testName || !duration || branch.length === 0 || year.length === 0) {
+    if (
+      !testName ||
+      !duration ||
+      (userType === "Student" && (branch.length === 0 || year.length === 0))
+    ) {
       alert("Please fill in all the fields.");
       return;
     }
@@ -35,39 +40,58 @@ const Adm_CreateTestPage = () => {
     const payload = {
       name: testName,
       duration: duration,
-      target_years: year,
-      target_branches: branch,
+      target_years: userType === "Student" ? year : [],
+      target_branches: userType === "Student" ? branch : [],
+      user_type: userType,
     };
 
     try {
+     if(userType === "Student"){
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(`${API_BASE_URL}/api/exams`, payload, { withCredentials: true });
+      const response = await axios.post(`${API_BASE_URL}/api/exams`, payload, {
+        withCredentials: true,
+      });
       const examId = response.data.newExam.exam_id;
       dispatch(setExamId(examId));
       navigate("/admin/input");
+     }
+     if(userType === "Teacher"){
+
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      // console.log(API_BASE_URL)
+      const response = await axios.post(`http://localhost:4000/api/exams/create/teacher`, payload, {
+        withCredentials: true,
+      });
+      const examId = response.data.newExam.exam_id;
+      dispatch(setExamId(examId));
+      navigate("/admin/input");
+     }
     } catch (error) {
       alert("Invalid Input");
-      console.error("Error creating test:", error.response?.data || error.message);
+      console.error(
+        "Error creating test:",
+        error.response?.data || error.message
+      );
     }
   };
 
   const handleBranchChange = (selectedBranch) => {
-    if (selectedBranch === 'All') {
+    if (selectedBranch === "All") {
       setBranch(branch.length === branches.length ? [] : [...branches]);
     } else {
       const newBranches = branch.includes(selectedBranch)
-        ? branch.filter(b => b !== selectedBranch)
+        ? branch.filter((b) => b !== selectedBranch)
         : [...branch, selectedBranch];
       setBranch(newBranches);
     }
   };
 
   const handleYearChange = (selectedYear) => {
-    if (selectedYear === 'All') {
+    if (selectedYear === "All") {
       setYear(year.length === years.length ? [] : [...years]);
     } else {
       const newYears = year.includes(selectedYear)
-        ? year.filter(y => y !== selectedYear)
+        ? year.filter((y) => y !== selectedYear)
         : [...year, selectedYear];
       setYear(newYears);
     }
@@ -172,125 +196,157 @@ const Adm_CreateTestPage = () => {
 
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
-            <div className="grid grid-cols-2 gap-4 my-5">
-              {/* Branch Dropdown */}
-              <div ref={branchRef}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Branch
-                </label>
-                <div className="relative">
-                  <div
-                    onClick={() => setShowBranchDropdown(!showBranchDropdown)}
-                    className="cursor-pointer border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {branch.length === 0 ? (
-                      <span className="text-gray-500">Select branches</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {branch.length === branches.length || branch.includes('All') ? (
-                          <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">All Branches</span>
-                        ) : (
-                          branch.map(b => (
-                            <span key={b} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
-                              {b}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {showBranchDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                      <div className="p-2">
-                        <label className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                          <input
-                            type="checkbox"
-                            checked={branch.length === branches.length}
-                            onChange={() => handleBranchChange('All')}
-                            className="text-blue-500 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-md">All Branches</span>
-                        </label>
-                        {branches.map((b) => (
-                          <label
-                            key={b}
-                            className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={branch.includes(b)}
-                              onChange={() => handleBranchChange(b)}
-                              value={branch.toString()}
-                              className="text-blue-500 rounded focus:ring-blue-500"
-                            />
-                            <span className="text-md">{b}</span>
-                          </label>
-                        ))}
-                      </div>    
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Year Dropdown */}
-              <div ref={yearRef}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year
-                </label>
-                <div className="relative">
-                  <div
-                    onClick={() => setShowYearDropdown(!showYearDropdown)}
-                    className="cursor-pointer border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {year.length === 0 ? (
-                      <span className="text-gray-500">Select years</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {year.length === years.length || year.includes('All') ? (
-                          <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">All Years</span>
-                        ) : (
-                          year.map(y => (
-                            <span key={y} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
-                              {y}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {showYearDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                      <div className="p-2">
-                        <label className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                          <input
-                            type="checkbox"
-                            checked={year.length === years.length}
-                            onChange={() => handleYearChange('All')}
-                            value={year.toString()}
-                            className="text-blue-500 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-md">All Years</span>
-                        </label>
-                        {years.map((y) => (
-                          <label
-                            key={y}
-                            className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={year.includes(y)}
-                              onChange={() => handleYearChange(y)}
-                              className="text-blue-500 rounded focus:ring-blue-500"
-                            />
-                            <span className="text-md">{y}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+            {/* User Type Dropdown */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                User Type
+              </label>
+              <select
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={userType}
+                onChange={(e) => setUserType(e.target.value)}
+              >
+                <option value="Student">Student</option>
+                <option value="Teacher">Teacher</option>
+              </select>
             </div>
+            {userType === "Student" && (
+              <>
+                <div className="grid grid-cols-2 gap-4 my-5">
+                  {/* Branch Dropdown */}
+                  <div ref={branchRef}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Branch
+                    </label>
+                    <div className="relative">
+                      <div
+                        onClick={() =>
+                          setShowBranchDropdown(!showBranchDropdown)
+                        }
+                        className="cursor-pointer border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {branch.length === 0 ? (
+                          <span className="text-gray-500">Select branches</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {branch.length === branches.length ||
+                            branch.includes("All") ? (
+                              <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                                All Branches
+                              </span>
+                            ) : (
+                              branch.map((b) => (
+                                <span
+                                  key={b}
+                                  className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded"
+                                >
+                                  {b}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {showBranchDropdown && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          <div className="p-2">
+                            <label className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
+                              <input
+                                type="checkbox"
+                                checked={branch.length === branches.length}
+                                onChange={() => handleBranchChange("All")}
+                                className="text-blue-500 rounded focus:ring-blue-500"
+                              />
+                              <span className="text-md">All Branches</span>
+                            </label>
+                            {branches.map((b) => (
+                              <label
+                                key={b}
+                                className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={branch.includes(b)}
+                                  onChange={() => handleBranchChange(b)}
+                                  value={branch.toString()}
+                                  className="text-blue-500 rounded focus:ring-blue-500"
+                                />
+                                <span className="text-md">{b}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Year Dropdown */}
+                  <div ref={yearRef}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Year
+                    </label>
+                    <div className="relative">
+                      <div
+                        onClick={() => setShowYearDropdown(!showYearDropdown)}
+                        className="cursor-pointer border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {year.length === 0 ? (
+                          <span className="text-gray-500">Select years</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {year.length === years.length ||
+                            year.includes("All") ? (
+                              <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                                All Years
+                              </span>
+                            ) : (
+                              year.map((y) => (
+                                <span
+                                  key={y}
+                                  className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded"
+                                >
+                                  {y}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {showYearDropdown && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          <div className="p-2">
+                            <label className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
+                              <input
+                                type="checkbox"
+                                checked={year.length === years.length}
+                                onChange={() => handleYearChange("All")}
+                                value={year.toString()}
+                                className="text-blue-500 rounded focus:ring-blue-500"
+                              />
+                              <span className="text-md">All Years</span>
+                            </label>
+                            {years.map((y) => (
+                              <label
+                                key={y}
+                                className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={year.includes(y)}
+                                  onChange={() => handleYearChange(y)}
+                                  className="text-blue-500 rounded focus:ring-blue-500"
+                                />
+                                <span className="text-md">{y}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="mb-6">
               <label
@@ -330,7 +386,7 @@ const Adm_CreateTestPage = () => {
           </form>
         </div>
 
-        <div className="flex items-center space-x-4 mt-20 ml-6">
+        <div className="flex items-center space-x-4 mt-9 ml-6">
           <button
             type="submit"
             className="bg-[#1349C5] text-white px-3 lg:px-4 py-2 rounded hover:bg-[#4d75d2] border-[#2c54b2] opacity-90 hover:opacity-100"

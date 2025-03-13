@@ -1,10 +1,13 @@
 import React from "react";
 
-const DisplayComponent = ({ title, value }) => {
+const DisplayComponent = ({ title, rank, superscript }) => {
   return (
-    <div className=" flex flex-col items-center border-2 border-gray-400 rounded-lg p-6 size-28 h-32 mb-2  ">
-      <h2 className="text-lg font-semibold mb-2 ">{title}</h2>
-      <span className="text-6xl font-bold text-[#1349C5] ">{value}</span>
+    <div className="flex flex-col items-center ">
+      <h2 className="text-xl font-medium text-[#1349C5] self-start">{title}</h2>
+      <span className="text-5xl flex items-center  font-bold text-gray-900">
+        {rank}
+        <sup className="text-xl">{superscript}</sup>
+      </span>
     </div>
   );
 };

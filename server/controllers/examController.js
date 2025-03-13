@@ -52,6 +52,45 @@ const createExam = async (req, res) => {
   });
 };
 
+const createExamForTeachers = async (req, res) => {
+  let { name, duration, start_time, end_time } =
+    req.body;
+  const created_by = req.user.id; // Get user_id from token
+
+  if (!name || !duration || !created_by ) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+
+  const newExam = await examModel.createExamForTeachersModel({
+    name,
+    duration,
+    created_by,
+  });
+  if (!newExam) {
+    await logActivity({
+      user_id: created_by,
+      activity: 'New Exam',
+      status: 'failure',
+      details: 'Could not create new exam',
+    });
+    return res.status(500).json({
+      error: 'Server Error',
+      message: 'Could not create exam',
+    });
+  }
+  await logActivity({
+    user_id: created_by,
+    activity: 'New Exam',
+    status: 'success',
+    details: 'New Exam created successfully and saved as draft',
+  });
+  res.status(201).json({
+    message: 'Exam created successfully and saved as draft',
+    newExam,
+  });
+};
+
 const getExams = async (req, res) => {
   const id = req.user.id; // Get user_id from token
   const exams = await examModel.getExams();
@@ -330,7 +369,7 @@ const getPaginatedDraftedExams = async (req, res) => {
   let status = 'draft',
     Count,
     exams;
-  const { page, limit } = req.query;
+  const { page, limit } = req.query; 
   console.log('page is ', page, limit);
 
   try {
@@ -459,10 +498,11 @@ const getPaginatedPastExams = async (req, res) => {
 };
 
 const getExamsForUser = async (req, res) => {
+console.log(req.params);
   const user_id = req.user.id;
 
-  const { status, target_branches, target_years } = req.body;
-  // console.log('status, target_branches, target_year', status, target_branches, target_years, page , limit);
+  const { status, target_branches, target_years } = req.query; //
+  // console.log('status, target_branches, target_year', status, target_branches, target_years);
 
   try {
     const exams = await examModel.getExamsForUser(
@@ -489,6 +529,38 @@ const getExamsForUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const getExamForTeachers = async (req, res) => {
+  const user_id = req.user.id;
+
+  const {status} = req.query
+  // console.log('status, target_branches, target_year', status, target_branches, target_years, page , limit);
+  console.log(status)
+  try {
+    const exams = await examModel.getExamsForTeachers(
+      status
+    );
+    console.log(exams)
+
+    await logActivity({
+      user_id,
+      activity: `Viewed exams for teachers`,
+      status: 'success',
+      details: `Filters applied: Status = ${status}`,
+    });
+
+    res.status(200).json({
+      message: 'Exams for teachers retrieved successfully',
+      exams: exams.rows || [],
+      count: exams.rowCount || 0,
+    });
+  } catch (error) {
+    console.error('Error fetching exams for teachers:', error.message);
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 
 
@@ -524,5 +596,7 @@ module.exports = {
   markLiveExam,
   markPastExam,
   getExamsForUser,
-  getExamStatus
+  getExamStatus,
+  getExamForTeachers,
+  createExamForTeachers
 };

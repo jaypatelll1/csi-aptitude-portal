@@ -5,6 +5,7 @@ import Filter from "../../components/admin/Adm_Filter";
 
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import { useNavigate } from "react-router-dom";
+import { getOrdinalSuffix } from "../../ordinalSuffix";
 
 
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
@@ -12,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 const Adm_StudentAnalysis = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState(undefined);
+  const [selectedRank, setSelectedRank] = useState('');
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   // const [isModalOpen, setIsModalOpen] = useState(false);
@@ -157,8 +159,11 @@ const Adm_StudentAnalysis = () => {
         console.error("Error fetching students:", error);
       }
     };
-    fetchStudents();
+    // fetchStudents();
   }, [limit, deletedUsers]);
+
+  
+  
 
   useEffect(() => {
     let filtered = students;
@@ -169,6 +174,30 @@ const Adm_StudentAnalysis = () => {
         (student) => student.department === selectedDepartment
       );
     }
+
+  
+    // Apply rank filter
+    // if (selectedRank) {
+    //   if (selectedRank === 'top') {
+    //     // Sort all students by rank in ascending order (lower rank number = higher performer)
+    //     filtered.sort((a, b) => a.rank - b.rank);
+    //     // No slicing, keeps all students but in ascending rank order
+    //   } else if (selectedRank === 'bottom') {
+    //     // Sort all students by rank in descending order (higher rank number = lower performer)
+    //     filtered.sort((a, b) => b.rank - a.rank);
+    //     // No slicing, keeps all students but in descending rank order
+    //   } else if (selectedRank.includes('+')) {
+    //     // Handle "501+" case
+    //     const minRank = parseInt(selectedRank.split('+')[0]);
+    //     filtered = filtered.filter((student) => student.rank >= minRank);
+    //   } else {
+    //     // Handle range cases like "1-10"
+    //     const [minRank, maxRank] = selectedRank.split('-').map(Number);
+    //     filtered = filtered.filter(
+    //       (student) => student.rank >= minRank && student.rank <= maxRank
+    //     );
+    //   }
+    // }
 
     // Apply search filter
     if (searchTerm) {
@@ -187,7 +216,7 @@ const Adm_StudentAnalysis = () => {
     setFilteredStudents(filtered);
     const totalPages = Math.ceil(filtered.length / limit);
     setNumberofpages(totalPages);
-  }, [selectedDepartment, students, limit, searchTerm]);
+  }, [selectedDepartment, selectedRank, students, limit, searchTerm]);
 
   const toggleFilter = () => {
     setShowFilter(!showFilter);
@@ -214,8 +243,28 @@ const Adm_StudentAnalysis = () => {
     }
     return pages;
   };
-  const handleFilterChange = (department) => {
-    setSelectedDepartment(department);
+  
+  const handleFilterChange = async (department, rank) => {
+    try {
+      
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
+        withCredentials: true,
+        params:{
+          filter : rank === "" ? "all" : rank,
+          department
+        }
+      });
+      if (response) {
+        setFilteredStudents(response.data)
+        const totalPages = Math.ceil(response.data.length / limit);
+    setNumberofpages(totalPages);
+      }
+    } catch (error) {
+      console.log("Error fetching student ranks in asc order", error)
+    }
+    // setSelectedDepartment(department);
+    // setSelectedRank(rank);
   };
 
   // const openModal = () => setIsModalOpen(true);
@@ -232,6 +281,7 @@ const Adm_StudentAnalysis = () => {
       }
     };
 
+
     // Attach event listener to the document
     document.addEventListener("mousedown", handleClickOutside);
 
@@ -240,6 +290,11 @@ const Adm_StudentAnalysis = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+      handleFilterChange("", "all")
+  }, [])
+  
 
   return (
     <div className="min-h-screen flex">
@@ -352,6 +407,8 @@ const Adm_StudentAnalysis = () => {
                 <th className="text-left py-4 px-4">User ID.</th>
                 <th className="text-left py-4 px-4">Name</th>
                 <th className="text-left py-4 px-4">Department</th>
+                <th className="text-center py-4 px-4">Dept. Rank</th>
+                <th className="text-center py-4 px-4">Overall Rank</th>
                 <th className="text-center py-4 px-4">Analytics</th>
               </tr>
             </thead>
@@ -363,11 +420,13 @@ const Adm_StudentAnalysis = () => {
                     key={student.user_id}
                     className="border-b hover:bg-gray-50"
                   >
-                    <td className="py-4 px-4">{student.user_id}</td>
-                    <td className="py-4 px-4">{student.name}</td>
-                    <td className="py-4 px-4">{student.department || "N/A"}</td>
+                    <td className="py-4 px-4">{student.student_id}</td>
+                    <td className="py-4 px-4">{student.student_name}</td>
+                    <td className="py-4 px-4">{student.department_name || "N/A"}</td>
+                    <td className="py-4 px-4">{getOrdinalSuffix(student.department_rank)}</td>
+                    <td className="py-4 px-4">{getOrdinalSuffix(student.overall_rank)}</td>
                     <td className="py-4 px-4 text-center">
-                      <button onClick={ (e) => handleAnalyticsClick(student.user_id)} className="p-2">
+                      <button onClick={(e) => handleAnalyticsClick(student.user_id)} className="p-2">
                         <svg
                           width="20"
                           height="20"

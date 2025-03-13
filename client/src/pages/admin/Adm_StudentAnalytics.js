@@ -10,19 +10,21 @@ import RadarChartComponent from "../../components/analytics/RadarChartComponent"
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 
 function Adm_StudentAnalytics() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [testCompletionData, setTestCompletionData] = useState(null);
-  const [data, setData] = useState([]);
-  const [avgData, setAvgData] = useState([]);
-  const [sup, setSup] = useState("");
-  const [correct, setCorrect] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [rankData, setRankData] = useState([]);
+   const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [testCompletionData, setTestCompletionData] = useState(null);
+    const [data, setData] = useState([]);
+    const [avgData, setAvgData] = useState([]);
+    const [performanceData, setPerformanceData] = useState([]);
+    const [dSup, setDSup] = useState(""); // superscript of department rank
+    const [oSup, setOSup] = useState(""); // superscript of overall rank
+    const [correct, setCorrect] = useState(0);
+    const [total, setTotal] = useState(0);
+    const [rankData, setRankData] = useState([]);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   // const user_id = useSelector((state) => state.user.user.id);
-    const { user_id } = useParams();
+  const { user_id } = useParams();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,53 +39,26 @@ function Adm_StudentAnalytics() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
-  const fetchData = async () => {
+
+  const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      // console.log(response.data);
-      setData(response.data.results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchAvgData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/avg-results/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      // console.log("avg data", response.data.result);
-      setAvgData(response.data.result);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchRankData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/rank/${user_id}`;
+      let url = `${API_BASE_URL}/api/analysis/all-analysis/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
 
-      
-      setRankData(response.data.result);
-      superscript(response.data.result.rank);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      setData(response.data.overall_resultS);
 
-  const fetchCompletionData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/tests-completed/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
+      setAvgData(response.data.avg_results);
 
-      const { attempted, total } = response.data.exams;
+      setRankData(response.data.rank);
+      if (response.data.rank) {
+        superscript(setDSup, response.data.rank.department_rank); // set dept rank superscript
+        superscript(setOSup, response.data.rank.overall_rank); // set overall rank superscript
+      }
 
+      setPerformanceData(response.data.performance_over_time);
+
+      const { attempted, total } = response.data.test_completion_data;
       setTestCompletionData({
         title: "Test Completion Rate",
         chartData: [
@@ -96,29 +71,11 @@ function Adm_StudentAnalytics() {
     }
   };
 
-  // console.log(data);
-  // console.log("testData", testCompletionData);
-  // console.log("avgData", avgData);
-
   useEffect(() => {
     if (user_id) {
-      fetchData();
-      fetchCompletionData();
-      fetchAvgData();
-      fetchRankData();
+      fetchAllData();
     }
   }, [user_id]);
-
-  // const rankData = {
-  //   title: "Rank Progression",
-  //   dataKey: "name",
-  //   chartData: [
-  //     { name: "Semester 1", rank: 5 },
-  //     { name: "Semester 2", rank: 3 },
-  //     { name: "Semester 3", rank: 2 },
-  //     { name: "Semester 4", rank: 1 },
-  //   ],
-  // };
 
   const chartData = {
     title: "Performance Over Time",
@@ -129,13 +86,12 @@ function Adm_StudentAnalytics() {
     })),
   };
 
-  const superscript = (rank) => {
-      const condition = rank % 10;
-      if (condition === 1) setSup("st");
-      else if (condition === 2) setSup("nd");
-      else if (condition === 3) setSup("rd");
-      else setSup("th");
-    
+  const superscript = (changeUsestateValue, rank) => {
+    const condition = rank % 10;
+    if (condition === 1) changeUsestateValue("st");
+    else if (condition === 2) changeUsestateValue("nd");
+    else if (condition === 3) changeUsestateValue("rd");
+    else changeUsestateValue("th");
   };
 
   useEffect(() => {
@@ -199,10 +155,6 @@ function Adm_StudentAnalytics() {
             sum + (parseFloat(exam.category[subject]?.max_score) || 0),
           0
         );
-
-        // const attemptedExams = validData.filter(
-        //   (exam) => subject in exam.category
-        // ).length;
 
         const averageScore =
           totalMaxScore > 0
@@ -278,12 +230,25 @@ function Adm_StudentAnalytics() {
         {/* Dashboard Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 p-6 lg:ml-64">
           {/* Rank Display */}
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center border border-gray-200">
-            <h2 className="text-gray-700 text-lg font-medium">Your Rank</h2>
-            <span className="text-5xl font-bold text-gray-900 ">
-              {rankData.rank}
-              <sup className="text-xl">{sup}</sup>
-            </span>
+          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
+            <div className="flex flex-col items-center">
+              <h2 className="text-gray-700 mt-12 text-lg font-medium">
+                Department Rank
+              </h2>
+              <span className="text-5xl flex items-center font-bold text-gray-900">
+                {rankData.department_rank}
+                <sup className="text-xl">{dSup}</sup>
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <h2 className="text-gray-700 mt-12 text-lg font-medium">
+                Overall Rank
+              </h2>
+              <span className="text-5xl flex items-center font-bold text-gray-900">
+                {rankData && rankData.overall_rank}
+                <sup className="text-xl">{oSup}</sup>
+              </span>
+            </div>
           </div>
 
           {/* Line Chart - Overall Score */}
@@ -301,7 +266,6 @@ function Adm_StudentAnalytics() {
             <div className="bg-white shadow-lg rounded-lg p-6 px-[5vh] flex flex-col items-center border border-gray-200">
               <DonutChartComponent data={accuracyData} />
               <p className="text-2xl font-bold mt-2">
-                {Math.round((correct / total) * 100)}%
               </p>
             </div>
 

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const Adm_PastTestCard = ({ test, onClick }) => {
 
-  const [setResult] = useState([]);
+  const [result, setResult] = useState([]);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
@@ -23,10 +23,6 @@ const Adm_PastTestCard = ({ test, onClick }) => {
         { withCredentials: true }
       );
       const fetchedResult = response.data.results;
-      setResult(fetchedResult);
-
-  
-
       // Navigate to the new route and pass the fetched result
       navigate("/admin/teststudentlist", {
         state: {
@@ -35,6 +31,11 @@ const Adm_PastTestCard = ({ test, onClick }) => {
           examId: test.exam_id,
         },
       });
+      setResult(fetchedResult);
+
+  
+
+      
     } catch (error) {
       console.error("Error during POST request:", error);
     }

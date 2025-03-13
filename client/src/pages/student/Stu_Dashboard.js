@@ -39,25 +39,26 @@ function Stu_Dashboard() {
     if (filterType === "all") {
       payload = {
         status: "live",
-        target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`,
+        target_branches: [userData.department],
+        target_years: [userData.year],
       };
     } else if (filterType === "upcoming") {
       payload = {
         status: "scheduled",
-        target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`,
+        target_branches: [userData.department],
+        target_years: [userData.year],
       };
     } else if (filterType === "past") {
       payload = {
         status: "past",
-        target_branches: `{${userData.department}}`,
-        target_years: `{${userData.year}}`,
+        target_branches: [userData.department],
+        target_years: [userData.year],
       };
     }
 
     try {
-      const response = await axios.post(url, payload,{
+      const response = await axios.get(url, {
+        params : {status : payload.status, target_branches : payload.target_branches, target_years: payload.target_years },
         withCredentials: true,  // Make sure the cookie is sent with the request
     });
       // console.log('response is ', response);

@@ -90,10 +90,11 @@ CREATE TABLE student_rank (
     rank_id SERIAL PRIMARY KEY,
     student_id INT REFERENCES users(user_id) ON DELETE CASCADE,
     department_name branch_enum NOT NULL,
-    rank INT NOT NULL,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_score INTEGER,
-    student_name VARCHAR(255)
+    student_name VARCHAR(255),
+    overall_rank INTEGER NOT NULL,
+    department_rank INTEGER NOT NULL
 );
 `;
 

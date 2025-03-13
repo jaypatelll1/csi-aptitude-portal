@@ -7,12 +7,13 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList
 } from "recharts";
 
 const HorizontalBarChartComponent = ({ data }) => {
   return (
     <div className="flex flex-col items-center bg-transparent">
-      <h2 className="text-xl font-medium mb-4 text-[#1349C5]">{data.title}</h2>
+      <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
       <ResponsiveContainer width={360} height={300}>
         <BarChart
           layout="vertical"
@@ -25,7 +26,20 @@ const HorizontalBarChartComponent = ({ data }) => {
           <Tooltip />
           <Legend />
           {data.xKey.map((key, index) => (
-            <Bar key={index} dataKey={key} fill={data.colors?.[key] || "#1349C5"} barSize={25} stackId="a" name={key} />
+            <Bar 
+              key={index} 
+              dataKey={key} 
+              fill={data.colors?.[key] || "#1349C5"} 
+              barSize={25} 
+              stackId="a" 
+              name={key}
+            >
+              <LabelList
+                dataKey={key}
+                position="right"  // Changed from "top" since it's horizontal
+                style={{ fill: '#000000', fontSize: '12px' }}
+              />
+            </Bar>
           ))}
         </BarChart>
       </ResponsiveContainer>

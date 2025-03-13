@@ -97,7 +97,7 @@ const generateStudentAnalysisUsingId = async (req, res) => {
         status: 'failure',
         details: 'anlaysis not found',
       });
-      return res.status(404).json({ message: 'anlaysis not found.' });
+      return res.status(404).json({ message: 'analysis not found.' });
     }
 
     await logActivity({
@@ -153,7 +153,7 @@ const avgResults = async (req, res) => {
 };
 
 const getStudentRank = async (req, res) => {
-  const {student_id} = req.params;
+  const { student_id } = req.params;
 
   try {
     const result = await analysisModel.getStudentRank(student_id);
@@ -180,7 +180,7 @@ const getStudentRank = async (req, res) => {
 };
 
 const getPerformanceOverTime = async (req, res) => {
-  const {student_id} = req.params;
+  const { student_id } = req.params;
 
   try {
     const result = await analysisModel.getPerformanceOverTime(student_id);
@@ -191,7 +191,9 @@ const getPerformanceOverTime = async (req, res) => {
         status: 'failure',
         details: 'Student Performance not found',
       });
-      return res.status(404).json({ message: 'Student Performance not found.' });
+      return res
+        .status(404)
+        .json({ message: 'Student Performance not found.' });
     }
 
     await logActivity({
@@ -206,6 +208,30 @@ const getPerformanceOverTime = async (req, res) => {
   }
 };
 
+const generateAllAnalysis = async (req, res) => {
+  const { student_id } = req.params;
+
+  try {
+    const overall_resultS = await analysisModel.getOverallResultsOfAStudent(student_id);
+    const avg_results = await analysisModel.avgResults(student_id);
+    const rank = await analysisModel.getStudentRank(student_id);
+    const test_completion_data = await analysisModel.testCompletion(student_id);
+    const performance_over_time = await analysisModel.getPerformanceOverTime(student_id);
+
+    res
+      .status(200)
+      .json({
+        overall_resultS,
+        avg_results,
+        rank,
+        test_completion_data,
+        performance_over_time,
+      });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
@@ -214,5 +240,6 @@ module.exports = {
   generateStudentAnalysisUsingId,
   avgResults,
   getStudentRank,
-  getPerformanceOverTime
+  getPerformanceOverTime,
+  generateAllAnalysis,
 };

@@ -2,15 +2,17 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_ViewQuestionCard = ({
   id,
+  question_type,
   text,
   options,
   index,
   correct_option,
+  correct_options,
   category,
+  image_url,
 }) => {
   const navigate = useNavigate();
   const exam_id = useSelector((state) => state.exam.examId);
@@ -18,11 +20,15 @@ const Adm_ViewQuestionCard = ({
     navigate(`/admin/input?category=${encodeURIComponent(category)}`, {
       state: {
         questionId: id,
+        questionType: question_type,
         questionText: text,
         questionOptions: options,
         exam_id: exam_id,
         correct_option: correct_option,
+        correct_options: correct_options,
         category: category,
+        image_url: image_url,
+        questionNumber: index + 1,
       },
     });
   };

@@ -8,15 +8,17 @@ import PieChartComponent from "../../components/analytics/PieChartComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
 
 function Stu_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [testCompletionData, setTestCompletionData] = useState(null);
   const [data, setData] = useState([]);
-  const [setAvgData] = useState([]);
-  const [setPerformanceData] = useState([]);
-  const [sup, setSup] = useState("");
+  const [avgData, setAvgData] = useState([]);
+  const [performanceData, setPerformanceData] = useState([]);
+  const [dSup, setDSup] = useState(""); // superscript of department rank
+  const [oSup, setOSup] = useState(""); // superscript of overall rank
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
   const [rankData, setRankData] = useState([]);
@@ -39,52 +41,26 @@ function Stu_Analytics() {
     };
   }, []);
 
-  const fetchData = async () => {
+  const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/overall-results/${user_id}`;
+      let url = `${API_BASE_URL}/api/analysis/all-analysis/${user_id}`;
       const response = await axios.get(url, { withCredentials: true });
-      // console.log(response.data);
-      setData(response.data.results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      console.log(response.data);
+      setData(response.data.overall_resultS);
 
-  const fetchAvgData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/avg-results/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      // console.log("avg data", response.data.result);
-      setAvgData(response.data.result);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      setAvgData(response.data.avg_results);
 
-  const fetchRankData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/rank/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
+      setRankData(response.data.rank);
+      if (response.data.rank) {
+        superscript(setDSup, response.data.rank.department_rank); // set dept rank superscript
+        superscript(setOSup, response.data.rank.overall_rank); // // set overall rank superscript
+      }
 
-    
-      setRankData(response.data.result);
-      superscript(response.data.result.rank);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+      setPerformanceData(response.data.performance_over_time);
 
-  const fetchCompletionData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/tests-completed/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-
-      const { attempted, total } = response.data.exams;
-
+      const { attempted, total } = response.data.test_completion_data;
+      console.log(response.data.test_completion_data);
       setTestCompletionData({
         title: "Test Completion Rate",
         chartData: [
@@ -97,28 +73,9 @@ function Stu_Analytics() {
     }
   };
 
-  const fetchPerformanceOverTimeData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/performance-over-time/${user_id}`;
-      const response = await axios.get(url, { withCredentials: true });
-      setPerformanceData(response.data.result)
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  // console.log(data);
-  // console.log("testData", testCompletionData);
-  // console.log("avgData", avgData);
-
   useEffect(() => {
     if (user_id) {
-      fetchData();
-      fetchCompletionData();
-      fetchAvgData();
-      fetchRankData();
-      fetchPerformanceOverTimeData();
+      fetchAllData();
     }
   }, [user_id]);
 
@@ -130,13 +87,13 @@ function Stu_Analytics() {
       Percentage: exam?.percentage,
     })),
   };
-  
-  const superscript = (rank) => {
+
+  const superscript = (changeUsestateValue, rank) => {
     const condition = rank % 10;
-    if (condition === 1) setSup("st");
-    else if (condition === 2) setSup("nd");
-    else if (condition === 3) setSup("rd");
-    else setSup("th");
+    if (condition === 1) changeUsestateValue("st");
+    else if (condition === 2) changeUsestateValue("nd");
+    else if (condition === 3) changeUsestateValue("rd");
+    else changeUsestateValue("th");
   };
 
   useEffect(() => {
@@ -222,7 +179,7 @@ function Stu_Analytics() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-gray-100 mb-4 overflow-x-hidden">
       {/* Sidebar */}
       <div
         ref={sidebarRef}
@@ -274,15 +231,23 @@ function Stu_Analytics() {
         {/* Dashboard Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
           {/* Rank Display */}
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center ml-4 border border-gray-200">
-            <h2 className="text-gray-700 mt-24 text-lg font-medium">
-              Your Rank
-            </h2>
-            <span className="text-5xl  font-bold text-gray-900">
-              {rankData.rank}
-              <sup className="text-xl">{sup}</sup>
-            </span>
-          </div>
+          
+         <div className="">
+         <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
+         <DisplayComponent
+          title="Department Rank"
+          rank={rankData?.department_rank || "N/A"}
+      superscript={dSup}
+      />
+    </div>
+    <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
+    <DisplayComponent
+      title="Overall Rank"
+      rank={rankData?.overall_rank || "N/A"}
+      superscript={oSup}
+     />
+    </div>
+   </div>
 
           {/* Line Chart - Overall Score */}
           <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
@@ -298,13 +263,10 @@ function Stu_Analytics() {
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6 mb-8">
           {/* Accuracy Rate - Donut Chart */}
           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
             <DonutChartComponent data={accuracyData} />
-            <p className="text-2xl font-bold mt-2">
-              {Math.round((correct / total) * 100)}%
-            </p>
           </div>
 
           {/* Subject-wise Performance - Radar Chart */}

@@ -16,17 +16,29 @@ const createQuestionsTable = async () => {
 };
 const insertQuestion = async (
   exam_id,
+  question_type,
   question_text,
   options,
   correct_option,
-  category_type
+  correct_options,
+  category_type,
+  image_url
 ) => {
   const queryText = `
-    INSERT INTO questions (exam_id, question_text, options, correct_option, category)
-    VALUES ($1, $2, $3, $4, $5) RETURNING *;
+    INSERT INTO questions (exam_id, question_type, question_text, options, correct_option, correct_options, category, image_url)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
   `;
 
-  const values = [exam_id, question_text, options, correct_option, category_type];
+  const values = [
+    exam_id,
+    question_type,
+    question_text,
+    options,
+    correct_option,
+    correct_options,
+    category_type,
+    image_url,
+  ];
 
   try {
     const res = await query(queryText, values);
@@ -36,7 +48,6 @@ const insertQuestion = async (
     throw err;
   }
 };
-
 
 // Function to get all questions for a given exam_id
 const getQuestionsByExamId = async (exam_id) => {
@@ -52,7 +63,8 @@ const getQuestionsByExamId = async (exam_id) => {
   }
 };
 const getStudentQuestionsByExamId = async (exam_id) => {
-  const queryText = 'SELECT question_id ,exam_id,question_text,options FROM questions WHERE exam_id = $1';
+  const queryText =
+    'SELECT question_id, exam_id, question_text, options, category, question_type, image_url FROM questions WHERE exam_id = $1';
   const values = [exam_id];
   try {
     const res = await query(queryText, values);
@@ -67,14 +79,27 @@ const getStudentQuestionsByExamId = async (exam_id) => {
 const UpdateQuestions = async (
   question_id,
   exam_id,
+  question_type,
   question_text,
   options,
   correct_option,
-  category_type
+  correct_options,
+  category_type,
+  image_url
 ) => {
   const queryText =
-    'UPDATE questions SET question_text = $1, correct_option = $2, exam_id = $3, options = $4 , category = $6 WHERE question_id = $5 RETURNING *';
-  const values = [question_text, correct_option, exam_id, options, question_id ,category_type];
+    'UPDATE questions SET question_text = $1, correct_option = $2, exam_id = $3, options = $4 , category = $6, question_type = $7, correct_options = $8, image_url = $9 WHERE question_id = $5 RETURNING *';
+  const values = [
+    question_text,
+    correct_option,
+    exam_id,
+    options,
+    question_id,
+    category_type,
+    question_type,
+    correct_options,
+    image_url,
+  ];
 
   try {
     const res = await query(queryText, values);
@@ -107,6 +132,43 @@ const getPaginatedQuestionsByExam = async (exam_id, page, limit) => {
   return result.rows;
 };
 
+// // Update question with image URL
+// async function updateQuestionImage(exam_id, question_id, image_url) {
+//   const queryText = `UPDATE questions SET image_url = $1 WHERE exam_id = $2 AND question_id = $3 RETURNING *`;
+//   const values = [image_url, exam_id, question_id];
+//   const { rows } = await query(queryText, values);
+//   return rows[0];
+// }
+
+// Function to update the image URL for a specific question
+async function updateQuestionImage(question_id, image_url) {
+  const queryText = `UPDATE questions SET image_url = $1 WHERE question_id = $2 RETURNING *`;
+  const values = [image_url, question_id];
+  const { rows } = await query(queryText, values);
+  return rows[0];
+}
+
+// Function to save a new question
+async function saveQuestion({ exam_id, question_text, question_type, options, correct_option, correct_options, image_url }) {
+  const queryText = `
+    INSERT INTO questions (exam_id, question_text, question_type, options, correct_option, correct_options, image_url)
+    VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`;
+  
+  const values = [
+    exam_id,
+    question_text,
+    question_type, 
+    JSON.stringify(options), 
+    correct_option || null, 
+    correct_options ? JSON.stringify(correct_options) : null, 
+    image_url || null
+  ];
+
+  const { rows } = await query(queryText, values);
+  return rows[0];
+}
+
+
 module.exports = {
   createQuestionsTable,
   insertQuestion,
@@ -114,5 +176,7 @@ module.exports = {
   UpdateQuestions,
   DeleteQuestions,
   getPaginatedQuestionsByExam,
-  getStudentQuestionsByExamId
+  getStudentQuestionsByExamId,
+  updateQuestionImage,
+  saveQuestion
 };

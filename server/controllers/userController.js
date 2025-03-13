@@ -30,7 +30,7 @@ const decryptPassword = require('../utils/decryptPassword');
 dotenv.config();
 // Function to create a new user/register
 const registerUser = async (req, res) => {
-  const { name, email, password, role, year, department, rollno, phone } =
+  const { name, email, role, year, department, rollno, phone } =
     req.body;
   if (
     !name ||
@@ -129,7 +129,6 @@ const loginUser = async (req, res) => {
       status: 'success',
       details: 'User logged in successfully',
     });
-
     res.cookie('jwttoken', token, {
       expires: new Date(Date.now() + 86400000),
       httpOnly: true,
