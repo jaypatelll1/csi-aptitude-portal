@@ -412,39 +412,37 @@ const Stu_MCQExamPage = () => {
             />
             )}
 
-            <div className="absolute bottom-5 w-full flex justify-between pr-8">
-              <button
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
-                disabled={currentQuestionIndex === 0}
-                onClick={handlePreviousQuestion}
-              >
-                Previous
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                onClick={() =>
-                  handleClearResponse(currentQuestion?.question_id)
-                }
-              >
-                Clear
-              </button>
+<div className="absolute bottom-5 w-full flex justify-between px-8">
+  <div className="flex gap-4">
+    <button
+      className="px-4 py-2 bg-[#939191] text-white rounded-lg disabled:bg-gray-300"
+      disabled={currentQuestionIndex === 0}
+      onClick={handlePreviousQuestion}
+    >
+      Previous
+    </button>
+    <button
+      className="px-4 py-2 bg-[#D0150ACC] text-white rounded-lg"
+      onClick={() => handleClearResponse(currentQuestion?.question_id)}
+    >
+      Clear
+    </button>
+    <button
+      className="px-4 py-2 rounded-lg bg-[#8A2BE2CC] text-white"
+      onClick={handleMarkForReview}
+    >
+      {currentQuestion?.markedForReview ? "Unmark Review" : "Mark for Review"}
+    </button>
+  </div>
+  <button
+    className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
+    disabled={currentQuestionIndex === questions.length - 1}
+    onClick={handleNextQuestion}
+  >
+    Save & Next
+  </button>
+</div>
 
-              <button
-                className="px-4 py-2 rounded-lg bg-purple-500 text-white"
-                onClick={handleMarkForReview}
-              >
-                {currentQuestion?.markedForReview
-                  ? "Unmark Review"
-                  : "Mark for Review"}
-              </button>
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
-                disabled={currentQuestionIndex === questions.length - 1}
-                onClick={handleNextQuestion}
-              >
-                Next
-              </button>
-            </div>
           </div>
         </div>
         <Sidebar name={userName} onSubmitTest={handleSubmitTest} />

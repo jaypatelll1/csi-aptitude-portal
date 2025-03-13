@@ -40,7 +40,7 @@ const Sidebar = ({ name, onSubmitTest }) => {
             Answered
           </div>
           <div className="flex items-center">
-            <div className="w-4 h-4 bg-purple-500 rounded-md mr-1"></div>
+            <div className="w-4 h-4 bg-[#8A2BE2] rounded-md mr-1"></div>
             Review
           </div>
           <div className="flex items-center">
