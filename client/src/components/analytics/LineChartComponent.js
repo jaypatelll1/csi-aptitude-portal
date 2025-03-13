@@ -37,7 +37,7 @@ const LineChartComponent = ({ data }) => {
     <div className="flex flex-col items-start w-full">
   <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
 
-      <div className="w-full max-w-[8000px]  ">
+      <div className="w-full max-w-[800px]  ">
         <ResponsiveContainer width="100%" height={260}>
           <LineChart  data={data.chartData}>
             <CartesianGrid strokeDasharray="4 4" />

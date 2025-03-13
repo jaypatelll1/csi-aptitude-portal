@@ -3,7 +3,7 @@ import React from "react";
 
 const TableComponent = ({ title, data }) => {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md">
+    <div className="bg-white p-6 rounded-xl  shadow-lg  border border-gray-200">
       <h2 className="text-xl font-medium text-[#1349C5] self-start">{title}</h2>
       <table className="w-full">
         <thead>

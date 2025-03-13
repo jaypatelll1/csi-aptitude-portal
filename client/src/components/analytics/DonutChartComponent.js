@@ -15,13 +15,13 @@ const DonutChartComponent = ({ data }) => {
     : percentageData["Correct"];
 
   return (
-    <div className="flex flex-col relative">
+    <div className="flex flex-col relative items-center ">
       {/* Align only the title to the left */}
       <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
 
       {/* Keep chart centered */}
-      <div className="flex flex-col items-center relative w-[250px] h-[250px] mt-10">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex flex-col items-center relative w-[250px] h-[250px] mt-10 ">
+        <ResponsiveContainer >
           <PieChart>
             <Pie
               data={data.chartData}

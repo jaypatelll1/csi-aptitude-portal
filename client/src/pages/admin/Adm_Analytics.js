@@ -8,6 +8,7 @@ import MultiLineChartComponent from "../../components/analytics/MultiLineChartCo
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
+import DisplayComponent from "../../components/analytics/DisplayComponent";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -77,6 +78,9 @@ function Adm_Analytics() {
             { name: "Wrong", value: 100, fill: "#F44336" },
           ],
   };
+  const rankData = { department_rank: 2 };
+  const dSup = "nd";
+
 
   const participationRateData = {
     title: "Participation Rate",
@@ -185,7 +189,14 @@ function Adm_Analytics() {
         {/* Department Selection Buttons */}
 
         {/* Rankings & Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5  ml-5 mr-5 ">
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-5 mt-5 mb-5  ml-5 mr-5 ">
+        <div className="bg-white shadow-lg rounded-lg p-4 flex flex-col items-center justify-center border border-gray-200  ">
+    <DisplayComponent
+      title="Overall Department Rank"
+      rank={rankData?.department_rank || "N/A"}
+      superscript={dSup}
+    />
+  </div>
           <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
             <DonutChartComponent data={donutChartData} />
           </div>

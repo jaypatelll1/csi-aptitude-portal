@@ -192,7 +192,7 @@ function Adm_OverallScore() {
             </svg>
           </button>
           <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">
-            Analytics Dashboard
+            Overall Analytics 
           </h1>
           
         </div>
