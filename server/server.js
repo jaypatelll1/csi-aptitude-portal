@@ -43,6 +43,7 @@ const FRONTEND_ORIGIN =
         'https://csi-aptitude-portal-client.onrender.com',
         'http://localhost:3000',
         'https://aptitude.csiace.com',
+        'https://csi-aptitude-portal-1.onrender.com',
       ]
     : ['http://localhost:3000']; // Development also returns an array
 // Local frontend URL
