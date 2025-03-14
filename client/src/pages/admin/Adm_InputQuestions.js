@@ -104,19 +104,25 @@ const Adm_InputQuestions = () => {
     }
   };
 
-  // New handler for image submission
+  // Handler for image submission
   const handleImageSubmit = async (event) => {
     event.preventDefault();
-    if (!selectedImage) {
-      alert("Please select an image to upload.");
+    
+    if (!selectedImage || !questionId) {  // Ensure questionId is present
+      alert("Please select an image and ensure the question ID is available.");
       return;
     }
+  
     setIsImageUploading(true);
+    
     const formData = new FormData();
     formData.append("image", selectedImage);
-
+    formData.append("question_id", questionId);
+  
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      
+      // Upload Image to Cloudinary via backend
       const response = await axios.post(
         `${API_BASE_URL}/api/upload-image`,
         formData,
@@ -127,27 +133,18 @@ const Adm_InputQuestions = () => {
           withCredentials: true,
         }
       );
+  
       console.log(response.data);
-      
+  
       // Save the image URL returned from the server
       if (response.data && response.data.imageUrl) {
         setImageUrl(response.data.imageUrl);
         alert("Image uploaded successfully!");
-        
-        // Now save the image URL in the database
-        const saveResponse = await axios.post(
-          `${API_BASE_URL}/api/save-image`,
-          { image_url: response.data.imageUrl },
-          { withCredentials: true }
-        );
-        console.log("Save Image Response:", saveResponse.data);
       } else {
-        alert(
-          "Image uploaded but no URL was returned. Please check the server response."
-        );
+        alert("Image uploaded but no URL was returned. Please check the server response.");
         console.log("Server response:", response.data);
       }
-
+  
       setImageModalOpen(false);
     } catch (error) {
       alert("An error occurred while uploading the image.");
@@ -156,7 +153,7 @@ const Adm_InputQuestions = () => {
       setIsImageUploading(false);
     }
   };
-
+  
   const {
     questionId,
     questionType,
@@ -244,9 +241,35 @@ const Adm_InputQuestions = () => {
     setToggles(newToggles);
   };
 
-  const handleRemoveImage = () => {
-    setImageUrl("");
+  // const handleRemoveImage = () => {
+  //   setImageUrl("");
+  // };
+  const handleRemoveImage = async () => {
+    if (!questionId) {
+      alert("No question ID found");
+      return;
+    }
+  
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      
+      // Call backend to delete image
+      const response = await axios.delete(`${API_BASE_URL}/api/delete-image/${questionId}`, {
+        withCredentials: true,
+      });
+  
+      if (response.data.success) {
+      
+        setImageUrl(""); // Clear image from UI
+      } else {
+        alert("Failed to delete image.");
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      alert("An error occurred while deleting the image.");
+    }
   };
+  
 
   const handleSubmit = async () => {
     // Trim values to avoid spaces being considered as input
