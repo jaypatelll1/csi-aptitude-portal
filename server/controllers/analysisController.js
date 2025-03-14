@@ -1,4 +1,5 @@
 const analysisModel = require('../models/analysisModel');
+const { getCachedAnalytics, fetchAndCacheAnalytics } = require('../utils/cache');
 const { logActivity } = require('../utils/logActivity');
 const { student_analysis } = require('../utils/student_analysis');
 
@@ -209,24 +210,39 @@ const getPerformanceOverTime = async (req, res) => {
 };
 
 const generateAllAnalysis = async (req, res) => {
-  const student_id = req.headers['x-user-id'] || req.user.id;;
+  const student_id = req.headers['x-user-id'] || req.user.id;
+
+  const cacheKey = `analytics:students:${student_id}`
 
   try {
-    const overall_resultS = await analysisModel.getOverallResultsOfAStudent(student_id);
-    const avg_results = await analysisModel.avgResults(student_id);
-    const rank = await analysisModel.getStudentRank(student_id);
-    const test_completion_data = await analysisModel.testCompletion(student_id);
-    const performance_over_time = await analysisModel.getPerformanceOverTime(student_id);
+    // Check Redis first
+    const cachedData = await getCachedAnalytics(cacheKey);
+    if (cachedData) {
+      console.log(`Cache Hit: Returning cached analytics for ${cacheKey}`);
+      return res.json(JSON.parse(cachedData));
+    } else {
+      //  Cache Miss: Fetch from DB
+      console.log(`Cache Miss: Fetching analytics for ${cacheKey} from DB`);
 
-    res
-      .status(200)
-      .json({
+      const overall_resultS = await analysisModel.getOverallResultsOfAStudent(student_id);
+      const avg_results = await analysisModel.avgResults(student_id);
+      const rank = await analysisModel.getStudentRank(student_id);
+      const test_completion_data = await analysisModel.testCompletion(student_id);
+      const performance_over_time = await analysisModel.getPerformanceOverTime(student_id);
+
+      const analyticsData = {
         overall_resultS,
         avg_results,
         rank,
         test_completion_data,
         performance_over_time,
-      });
+      };
+
+      // Cache the data
+      await fetchAndCacheAnalytics(cacheKey, analyticsData);
+
+      res.status(200).json({ analyticsData });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

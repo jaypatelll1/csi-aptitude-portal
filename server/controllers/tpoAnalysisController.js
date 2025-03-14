@@ -1,6 +1,7 @@
 const tpoAnalysisModel = require('../models/tpoAnalysisModel');
 const deptAnalysisModel = require('../models/deptAnalysisModel');
 const { logActivity } = require('../utils/logActivity');
+const { fetchAndCacheAnalytics, getCachedAnalytics } = require('../utils/cache');
 
 const getDeptAvgScores = async (req, res) => {
   const user_id = req.user.id;
@@ -153,43 +154,53 @@ const getCategoryWiseAccuracy = async (req, res) => {
 };
 
 const getAllTpoAnalysis = async (req, res) => {
-  const user_id = req.user.id;
+  
+  const cacheKey = `analytics:overall`;
+
   try {
-    const dept_avg = await tpoAnalysisModel.getDeptAvgScores();
-    const top_performers = await tpoAnalysisModel.topScorers();
-    const bottom_performers = await tpoAnalysisModel.weakScorers();
-    const participation_rate = await tpoAnalysisModel.totalParticipationRate();
+    // Check Redis first
+    const cachedData = await getCachedAnalytics(cacheKey);
+    if (cachedData) {
+      console.log(`Cache Hit: Returning cached analytics for ${cacheKey}`);
+      return res.json(JSON.parse(cachedData));
 
-    const dept_cmpn = await tpoAnalysisModel.getPerformanceOverTime('CMPN');
-    const dept_inft = await tpoAnalysisModel.getPerformanceOverTime('INFT');
-    const dept_ecs = await tpoAnalysisModel.getPerformanceOverTime('ECS');
-    const dept_extc = await tpoAnalysisModel.getPerformanceOverTime('EXTC');
-    const dept_elec = await tpoAnalysisModel.getPerformanceOverTime('ELEC');
+    } else {
+      //  Cache Miss: Fetch from DB
+      console.log(`Cache Miss: Fetching analytics for ${cacheKey} from DB`);
 
-    const performance_over_time = {
-      dept_cmpn,
-      dept_inft,
-      dept_ecs,
-      dept_extc,
-      dept_elec,
-    };
+      const dept_avg = await tpoAnalysisModel.getDeptAvgScores();
+      const top_performers = await tpoAnalysisModel.topScorers();
+      const bottom_performers = await tpoAnalysisModel.weakScorers();
+      const participation_rate =
+        await tpoAnalysisModel.totalParticipationRate();
 
-    await logActivity({
-      user_id: user_id,
-      activity: 'View Overall Analysis',
-      status: 'success',
-      details: 'Results found',
-    });
+      const dept_cmpn = await tpoAnalysisModel.getPerformanceOverTime('CMPN');
+      const dept_inft = await tpoAnalysisModel.getPerformanceOverTime('INFT');
+      const dept_ecs = await tpoAnalysisModel.getPerformanceOverTime('ECS');
+      const dept_extc = await tpoAnalysisModel.getPerformanceOverTime('EXTC');
+      const dept_elec = await tpoAnalysisModel.getPerformanceOverTime('ELEC');
 
-    res
-      .status(200)
-      .json({
+      const performance_over_time = {
+        dept_cmpn,
+        dept_inft,
+        dept_ecs,
+        dept_extc,
+        dept_elec,
+      };
+
+      const analyticsData = {
         dept_avg,
         top_performers,
         bottom_performers,
         participation_rate,
         performance_over_time,
-      });
+      };
+
+      // Cache the data
+      await fetchAndCacheAnalytics(cacheKey, analyticsData);
+
+      return res.status(200).json({ analyticsData });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

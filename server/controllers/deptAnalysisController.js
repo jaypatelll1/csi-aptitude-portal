@@ -1,25 +1,8 @@
 const deptModel = require('../models/deptAnalysisModel');
-
-const fetchDepartmentData = async (req, res, fetchFunction) => {
-  const { department } = req.params;
-  if (!department) {
-    return res.status(400).json({ error: 'Department is required' });
-  }
-  try {
-    const data = await fetchFunction(department);
-
-    if (data.length === 0) {
-      return res
-        .status(404)
-        .json({ error: 'No data found for this department' });
-    }
-
-    res.json(data);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
+const {
+  fetchAndCacheAnalytics,
+  getCachedAnalytics,
+} = require('../utils/cache');
 
 const getAllDepartmentParams = async (req, res) => {
   try {
@@ -67,32 +50,54 @@ const getAllDepartmentParams = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 const getAllDeptAnalysis = async (req, res) => {
   const { department } = req.params;
   if (!department) {
     return res.status(400).json({ error: 'Department is required' });
   }
+  
+  const cacheKey = `analytics:department:${department}`
 
   try {
-    const category_performance =
-      await deptModel.getCategoryPerformance(department);
-    const top_performer = await deptModel.getTopPerformer(department);
-    const bottom_performer = await deptModel.getBottomPerformer(department);
-    const participation_rate = await deptModel.getParticipationRate(department);
-    const accuracy_rate = await deptModel.getAccuracyRate(department)
-    const performance_over_time = await deptModel.getPerformanceOverTime(department)
+    
+    // Check Redis first
+    const cachedData = await getCachedAnalytics(cacheKey);
+    if (cachedData) {
+      console.log(`Cache Hit: Returning cached analytics for ${cacheKey}`);
+      return res.json(JSON.parse(cachedData));
 
-    const dept_ranks = await deptModel.deptRanks(department)
+    } else {
+      //  Cache Miss: Fetch from DB
+      console.log(`Cache Miss: Fetching analytics for ${cacheKey} from DB`);
 
-    res.json({
-      category_performance,
-      top_performer,
-      bottom_performer,
-      participation_rate,
-      accuracy_rate,
-      performance_over_time,
-      dept_ranks
-    });
+      const category_performance =
+        await deptModel.getCategoryPerformance(department);
+      const top_performer = await deptModel.getTopPerformer(department);
+      const bottom_performer = await deptModel.getBottomPerformer(department);
+      const participation_rate =
+        await deptModel.getParticipationRate(department);
+      const accuracy_rate = await deptModel.getAccuracyRate(department);
+      const performance_over_time =
+        await deptModel.getPerformanceOverTime(department);
+
+      const dept_ranks = await deptModel.deptRanks(department);
+
+      const analyticsData = {
+        category_performance,
+        top_performer,
+        bottom_performer,
+        participation_rate,
+        accuracy_rate,
+        performance_over_time,
+        dept_ranks,
+      };
+
+      // Cache the data
+      await fetchAndCacheAnalytics(cacheKey, analyticsData);
+
+      return res.json({ analyticsData });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
