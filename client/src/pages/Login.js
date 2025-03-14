@@ -81,6 +81,8 @@ const Login = () => {
             navigate("/department", { replace: true });
           } else if (userData.role === "Teacher") {
             navigate("/teacher", { replace: true });
+          } else if (userData.role === "President") {
+            navigate("/president", { replace: true });
           } else {
             setError("Unauthorized role");
           }

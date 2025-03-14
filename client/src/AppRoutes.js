@@ -11,6 +11,7 @@ import Stu_Dashboard from "./pages/student/Stu_Dashboard";
 import Stu_UpcomingTest from "./pages/student/Stu_UpcomingTest";
 import Stu_TestInstruction from "./pages/student/Stu_TestInstruction";
 import Stu_Analytics from "./pages/student/Stu_Analytics";
+import Stu_Result from "./pages/student/Stu_Result";
 
 
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
@@ -39,11 +40,9 @@ import Dep_ViewQuestions from "./pages/department/Dep_ViewQuestions";
 import Dep_TestStudentList from "./pages/department/Dep_TestStudentList";
 import Dep_Analytics from "./pages/department/Dep_Analytics";
 import Dep_StudentAnalysis from "./pages/department/Dep_StudentAnalysis";
-import Stu_Result from "./pages/student/Stu_Result";
-
-// Protected Route Component
-import ProtectedRoute from "./ProtectedRoute";
 import Dep_StudentAnalytics from "./pages/department/Dep_StudentAnalytics";
+
+
 import Teacher_Dashboard from "./pages/teacher/Teacher_Dashboard";
 import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
 import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
@@ -52,9 +51,19 @@ import Teacher_Result from "./pages/teacher/Teacher_Result";
 import Adm_OverallScore from "./pages/admin/Adm_OverallScore";
 
 
+import Dep_PresidentDashboard from "./pages/depPresident/Dep_PresidentDashboard";
+import Dep_PresidentCreateTestForm from "./pages/depPresident/Dep_PresidentCreateTestForm";
+import Dep_PresidentDraftTest from "./pages/depPresident/Dep_PresidentDraftTest";
+import Dep_PresidentLiveTest from "./pages/depPresident/Dep_PresidentLiveTest";
+import Dep_PresidentPastTest from "./pages/depPresident/Dep_PresidentPastTest";
+import Dep_PresidentScheduleTest from "./pages/depPresident/Dep_PresidentScheduleTest";
+import Dep_PresidentInputQuestions from "./pages/depPresident/Dep_PresidentInputQuestions";
+import Dep_PresidentTeacherList from "./pages/depPresident/Dep_PresidentStudentList";
+import Dep_PresidentTestTeacherList from "./pages/depPresident/Dep_PresidentTestStudentList";
+import Dep_PresidentViewQuestions from "./pages/depPresident/Dep_PresidentViewQuestions";
 
-
-
+// Protected Route Component
+import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
   return (
@@ -161,7 +170,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
 
       {/* Admin Routes */}
       <Route
@@ -315,7 +323,7 @@ const AppRoutes = () => {
         path="/department/past-tests"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
-          < Dep_PastTest/>
+            <Dep_PastTest />
           </ProtectedRoute>
         }
       />
@@ -323,7 +331,7 @@ const AppRoutes = () => {
         path="/department/scheduled-tests"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
-          < Dep_ScheduleTest />
+            <Dep_ScheduleTest />
           </ProtectedRoute>
         }
       />
@@ -331,7 +339,7 @@ const AppRoutes = () => {
         path="/department/input"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
-          < Dep_InputQuestions />
+            <Dep_InputQuestions />
           </ProtectedRoute>
         }
       />
@@ -339,7 +347,7 @@ const AppRoutes = () => {
         path="/department/studentlist"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
-          < Dep_StudentList/>
+            <Dep_StudentList />
           </ProtectedRoute>
         }
       />
@@ -347,7 +355,7 @@ const AppRoutes = () => {
         path="/department/test-students"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
-          < Dep_TestStudentList />
+            <Dep_TestStudentList />
           </ProtectedRoute>
         }
       />
@@ -355,7 +363,7 @@ const AppRoutes = () => {
         path="/department/viewquestions"
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
-          < Dep_ViewQuestions/>
+            <Dep_ViewQuestions />
           </ProtectedRoute>
         }
       />
@@ -380,6 +388,90 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
             <Dep_StudentAnalytics />
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* Department President Routes */}
+      <Route
+        path="/president"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/createtest"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentCreateTestForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/drafted-tests"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentDraftTest />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/president/live-tests"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentLiveTest />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/past-tests"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentPastTest />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/scheduled-tests"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentScheduleTest />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/input"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentInputQuestions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/teacherlist"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentTeacherList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/test-students"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentTestTeacherList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/viewquestions"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentViewQuestions />
           </ProtectedRoute>
         }
       />
