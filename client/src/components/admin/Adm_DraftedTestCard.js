@@ -116,8 +116,8 @@ const Adm_DraftedTestCard = ({ test }) => {
               Created on: {test.date}
             </span>
             <span className="text-black-500 text-xs mr-5">
-              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
-              {test.target_branches.replace(/[{}]/g, "")}
+              Branch: {test.target_years?.replace(/[{}]/g, "")} -{" "}
+              {test.target_branches?.replace(/[{}]/g, "")}
             </span>
           </div>
         </div>
