@@ -140,10 +140,18 @@ const getPaginatedQuestionsByExam = async (exam_id, page, limit) => {
 //   return rows[0];
 // }
 
-// Function to update the image URL for a specific question
+// Function to get the question details before updating
+async function getQuestionById(question_id) {
+  const queryText = `SELECT * FROM questions WHERE question_id = $1`;
+  const { rows } = await query(queryText, [question_id]);
+  return rows.length > 0 ? rows[0] : null;
+}
+
+// Function to update the image URL (set NULL when deleting)
 async function updateQuestionImage(question_id, image_url) {
   const queryText = `UPDATE questions SET image_url = $1 WHERE question_id = $2 RETURNING *`;
   const values = [image_url, question_id];
+
   const { rows } = await query(queryText, values);
   return rows[0];
 }
@@ -168,7 +176,6 @@ async function saveQuestion({ exam_id, question_text, question_type, options, co
   return rows[0];
 }
 
-
 module.exports = {
   createQuestionsTable,
   insertQuestion,
@@ -177,6 +184,7 @@ module.exports = {
   DeleteQuestions,
   getPaginatedQuestionsByExam,
   getStudentQuestionsByExamId,
+  getQuestionById,
   updateQuestionImage,
   saveQuestion
 };

@@ -32,6 +32,8 @@ const rankRoutes = require('./routes/rankRoutes');
 const uploadRoutes = require("./routes/uploadRoutes");
 
 
+
+
 // Initialize the app
 const app = express();
 const server = http.createServer(app);
@@ -94,7 +96,10 @@ app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
 app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
 
-app.use("/api", uploadRoutes);
+app.use("/api",jwtAuthMiddleware, uploadRoutes);
+
+
+
 
 
 // Initialize Socket.IO handlers
