@@ -156,26 +156,6 @@ async function updateQuestionImage(question_id, image_url) {
   return rows[0];
 }
 
-// Function to save a new question
-async function saveQuestion({ exam_id, question_text, question_type, options, correct_option, correct_options, image_url }) {
-  const queryText = `
-    INSERT INTO questions (exam_id, question_text, question_type, options, correct_option, correct_options, image_url)
-    VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`;
-  
-  const values = [
-    exam_id,
-    question_text,
-    question_type, 
-    JSON.stringify(options), 
-    correct_option || null, 
-    correct_options ? JSON.stringify(correct_options) : null, 
-    image_url || null
-  ];
-
-  const { rows } = await query(queryText, values);
-  return rows[0];
-}
-
 module.exports = {
   createQuestionsTable,
   insertQuestion,
@@ -186,5 +166,4 @@ module.exports = {
   getStudentQuestionsByExamId,
   getQuestionById,
   updateQuestionImage,
-  saveQuestion
 };

@@ -32,21 +32,7 @@ const uploadImage = async (req, res) => {
   }
 };
 
-// Save Question Logic
-const saveQuestion = async (req, res) => {
-  const { exam_id, question_text, question_type, options, correct_option, correct_options, image_url } = req.body;
 
-  if (!exam_id || !question_text || !question_type || !options) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
-
-  try {
-    const newQuestion = await saveQuestionModel({ exam_id, question_text, question_type, options, correct_option, correct_options, image_url });
-    res.status(201).json({ success: true, question: newQuestion });
-  } catch (err) {
-    res.status(500).json({ error: "Database error" });
-  }
-};
 
 // Delete Image Logic
 const deleteImage = async (req, res) => {
@@ -98,4 +84,4 @@ const deleteImage = async (req, res) => {
   };
   
   
-module.exports = { uploadImage, saveQuestion, deleteImage};
+module.exports = { uploadImage, deleteImage};

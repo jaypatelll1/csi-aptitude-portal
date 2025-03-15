@@ -107,22 +107,21 @@ const Adm_InputQuestions = () => {
   // Handler for image submission
   const handleImageSubmit = async (event) => {
     event.preventDefault();
-    
-    if (!selectedImage || !questionId) {  // Ensure questionId is present
-      alert("Please select an image and ensure the question ID is available.");
+  
+    if (!selectedImage) {
+      alert("Please select an image to upload.");
       return;
     }
   
     setIsImageUploading(true);
-    
+  
     const formData = new FormData();
     formData.append("image", selectedImage);
-    formData.append("question_id", questionId);
   
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      
-      // Upload Image to Cloudinary via backend
+  
+      // Upload the image and display it
       const response = await axios.post(
         `${API_BASE_URL}/api/upload-image`,
         formData,
@@ -134,25 +133,24 @@ const Adm_InputQuestions = () => {
         }
       );
   
-      console.log(response.data);
+      console.log("Upload Response:", response.data);
   
-      // Save the image URL returned from the server
       if (response.data && response.data.imageUrl) {
-        setImageUrl(response.data.imageUrl);
+        setImageUrl(response.data.imageUrl); // Set the image URL for display
         alert("Image uploaded successfully!");
       } else {
-        alert("Image uploaded but no URL was returned. Please check the server response.");
-        console.log("Server response:", response.data);
+        alert("Image uploaded but no URL was returned.");
       }
   
-      setImageModalOpen(false);
     } catch (error) {
-      alert("An error occurred while uploading the image.");
       console.error("Upload error:", error);
+      alert("An error occurred while uploading the image.");
     } finally {
       setIsImageUploading(false);
     }
   };
+  
+
   
   const {
     questionId,
@@ -246,7 +244,8 @@ const Adm_InputQuestions = () => {
   // };
   const handleRemoveImage = async () => {
     if (!questionId) {
-      alert("No question ID found");
+      // alert("No question ID found");
+      setImageUrl(""); 
       return;
     }
   
@@ -320,6 +319,8 @@ const Adm_InputQuestions = () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
   
+  
+
       if (!questionId) {
         await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, {
           withCredentials: true,

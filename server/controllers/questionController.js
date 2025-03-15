@@ -49,6 +49,8 @@ const createQuestions = async (req, res) => {
 
   if (question_type === 'text') options = null;
 
+  if (image_url === "") image_url = null;
+
   try {
     const newQuestion = await questionModel.insertQuestion(
       exam_id,
@@ -193,6 +195,8 @@ const UpdateQuestion = async (req, res) => {
 
   if (question_type === 'text') options = null;
 
+  if (image_url === "") image_url = null;
+  
   try {
     const questions = await questionModel.UpdateQuestions(
       question_id,
