@@ -3,7 +3,7 @@ import UploadImage from "./UploadImage";
 
 
 
-const UploadModal = ({ isOpen, closeModal, onFileChange, onSubmit, isUploading,check }) => {
+const UploadImageModal = ({ isOpen, closeModal, onFileChange, onSubmit, isUploading,check }) => {
   if (!isOpen) return null;
 // console.log("checkis",check)
   return (
@@ -26,5 +26,5 @@ const UploadModal = ({ isOpen, closeModal, onFileChange, onSubmit, isUploading,c
   );
 };
 
-export default UploadModal;
+export default UploadImageModal;
 

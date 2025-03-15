@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import UploadImageModal from "../../upload/UploadImageModal";
 
 const validCategories = [
   "quantitative aptitude",
@@ -526,7 +527,7 @@ const Adm_InputQuestions = () => {
                 onSubmit={handleQuestionSubmit}
                 isUploading={isUploading}
               />
-              <UploadModal
+              <UploadImageModal
                 isOpen={isImageModalOpen}
                 check="Upload Image"
                 closeModal={() => setImageModalOpen(false)}
