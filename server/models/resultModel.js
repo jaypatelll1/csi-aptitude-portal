@@ -168,22 +168,42 @@ order by e.end_time desc
 
 // question_ext, options, question_id
 async function getCorrectIncorrect(student_id, exam_id) {
-  const queryText = `SELECT 
-  r.student_id,
-  q.question_id,
-  q.question_text,
-  q.options,
-  q.category,
-  r.selected_option,
-  q.correct_option,
+  const queryText = `
+    SELECT 
+      r.student_id,
+      q.question_id,
+      q.question_text,
+      q.options,
+      q.category,
+      q.question_type,
 
-    CASE 
-        WHEN r.selected_option = q.correct_option THEN 'true'
-        ELSE 'false'
-    END AS result_status
+      -- Store selected response in a consistent JSONB format
+      CASE 
+          WHEN q.question_type = 'multiple_choice' THEN r.selected_options
+          ELSE to_jsonb(r.selected_option)
+      END AS selected_response,
+
+      -- Correct answer should be NULL for text questions
+      CASE 
+          WHEN q.question_type = 'text' THEN NULL
+          WHEN q.question_type = 'multiple_choice' THEN q.correct_options
+          ELSE to_jsonb(q.correct_option)
+      END AS correct_answer,
+
+      -- Result status: NULL for text questions, 'true' or 'false' otherwise
+      CASE 
+          WHEN q.question_type = 'text' THEN NULL
+          WHEN q.question_type = 'multiple_choice' 
+               THEN (r.selected_options @> q.correct_options AND q.correct_options @> r.selected_options)::text
+          ELSE (r.selected_option = q.correct_option)::text
+      END AS result_status
+
     FROM responses r
-    JOIN questions q ON r.question_id = q.question_id
-    WHERE r.student_id = $1 AND r.exam_id = $2;`;
+    JOIN questions q 
+    ON r.question_id = q.question_id
+    WHERE r.student_id = $1 
+    AND r.exam_id = $2;
+  `;
 
   try {
     const res = await query(queryText, [student_id, exam_id]);
