@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
-
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
@@ -12,6 +11,7 @@ function Adm_OverallScore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
 
+  const [loading, setLoading] = useState(true); // Step 1: Add Loading State
   const [avgData, setAvgData] = useState([]);
   const [topPerformers, setTopPerformers] = useState([]);
   const [bottomPerformers, setBottomPerformers] = useState([]);
@@ -30,8 +30,11 @@ function Adm_OverallScore() {
       setBottomPerformers(response.data.bottom_performers);
       setParticipationRate(response.data.participation_rate);
       setPerformanceOverTime(response.data.performance_over_time);
+
+      setLoading(false); // Step 2: Set Loading to False after fetching data
     } catch (error) {
       console.error("Error fetching data:", error);
+      setLoading(false); // Ensure loading stops even if there's an error
     }
   };
 
@@ -67,50 +70,55 @@ function Adm_OverallScore() {
     })),
   };
 
- // First, get all unique dates
- const allDates = [
-  ...new Set(
-    Object.entries(performanceOverTime).flatMap(([key, value]) =>
-      value.map((entry) => entry.created_on).filter(Boolean)
-    )
-  ),
-];
+  // First, get all unique dates
+  const allDates = [
+    ...new Set(
+      Object.entries(performanceOverTime).flatMap(([key, value]) =>
+        value.map((entry) => entry.created_on).filter(Boolean)
+      )
+    ),
+  ];
 
-// Sort dates in chronological order
-const sortedDates = [...allDates].sort((a, b) => new Date(a) - new Date(b));
+  // Sort dates in chronological order
+  const sortedDates = [...allDates].sort((a, b) => new Date(a) - new Date(b));
 
-// Use all dates
-const selectedDates = sortedDates;
+  // Use all dates
+  const selectedDates = sortedDates;
 
-// Now use these dates to create merged data with averaged scores for same-day exams
-const mergedData = selectedDates.map((date) => {
-  const dataPoint = { date };
-  
-  // Loop through departments in performanceOverTime and add scores
-  Object.entries(performanceOverTime).forEach(([deptKey, entries]) => {
-    // Extract department name (remove "dept*" prefix)
-    const deptName = deptKey.replace('dept_', '').toUpperCase();
-    
-    // Find all entries for current date
-    const sameDayEntries = entries.filter(entry => entry.created_on === date);
-    
-    if (sameDayEntries.length > 0) {
-      // Calculate average score for same-day exams
-      const totalScore = sameDayEntries.reduce((sum, entry) => sum + entry.average_score, 0);
-      const avgScore = totalScore / sameDayEntries.length;
-      dataPoint[deptName] = Number(avgScore.toFixed(1)); // Round to 1 decimal place
-    } else {
-      dataPoint[deptName] = 0;
-    }
+  // Now use these dates to create merged data with averaged scores for same-day exams
+  const mergedData = selectedDates.map((date) => {
+    const dataPoint = { date };
+
+    // Loop through departments in performanceOverTime and add scores
+    Object.entries(performanceOverTime).forEach(([deptKey, entries]) => {
+      // Extract department name (remove "dept*" prefix)
+      const deptName = deptKey.replace("dept_", "").toUpperCase();
+
+      // Find all entries for current date
+      const sameDayEntries = entries.filter(
+        (entry) => entry.created_on === date
+      );
+
+      if (sameDayEntries.length > 0) {
+        // Calculate average score for same-day exams
+        const totalScore = sameDayEntries.reduce(
+          (sum, entry) => sum + entry.average_score,
+          0
+        );
+        const avgScore = totalScore / sameDayEntries.length;
+        dataPoint[deptName] = Number(avgScore.toFixed(1)); // Round to 1 decimal place
+      } else {
+        dataPoint[deptName] = 0;
+      }
+    });
+
+    return dataPoint;
   });
-  
-  return dataPoint;
-});
 
-const departmentPerformanceData = {
-  title: "Performnce Over Time",
-  chartData: mergedData,
-}
+  const departmentPerformanceData = {
+    title: "Performance Over Time",
+    chartData: mergedData,
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -142,7 +150,7 @@ const departmentPerformanceData = {
       <div className="flex-1 w-full bg-gray-100">
         <Adm_Navbar />
 
-        <div className="flex items-center  mt-8">
+        <div className="flex items-center mt-8">
           <button
             className="xl:hidden text-gray-800"
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -171,34 +179,42 @@ const departmentPerformanceData = {
           </h1>
         </div>
 
-        {/* Rankings & Statistics */}
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-5 mb-5 ml-5 mr-5">
-          {/* Department Average Score */}
-          <div className="bg-white p-6 rounded-xl shadow-md col-span-2">
-            <BarChartComponent data={barChartData} />
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-md col-span-3">
-            <MultiLineChartComponent data={departmentPerformanceData} />
-          </div>
+        {/* Show Loading Until Data is Ready */}
+        {loading ? (
+          <div className="flex items-center justify-center h-96 text-2xl font-medium">
+          Loading...
         </div>
+        ) : (
+          <>
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-5 mb-5 ml-5 mr-5">
+              {/* Department Average Score */}
+              <div className="bg-white p-6 rounded-xl shadow-md col-span-2">
+                <BarChartComponent data={barChartData} />
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-md col-span-3">
+                <MultiLineChartComponent data={departmentPerformanceData} />
+              </div>
+            </div>
 
-        {/* Performers Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
-          <TableComponent
-            title="Top Performers"
-            data={topPerformers}
-            type="overall"
-          />
-          <TableComponent
-            title="Bottom Performers"
-            data={bottomPerformers}
-            type="overall"
-          />
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <PieChartComponent data={participationRateData} />
-          </div>
-        </div>
+            {/* Performers Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
+              <TableComponent
+                title="Top Performers"
+                data={topPerformers}
+                type="overall"
+              />
+              <TableComponent
+                title="Bottom Performers"
+                data={bottomPerformers}
+                type="overall"
+              />
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <PieChartComponent data={participationRateData} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

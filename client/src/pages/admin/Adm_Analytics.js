@@ -23,8 +23,29 @@ function Adm_Analytics() {
   const [performanceOverTime, setPerformanceOverTime] = useState([])
   const [deptRank, setDeptRank] = useState([]);
   const [highestPerformer, setHighestPerformer] = useState([]); // For dispalying overall_rank of top student
+  const [isLoading, setIsLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState(null);
   const [dSup, setDSup] = useState("");
   const [oSup, setOSup] = useState("");
+
+  useEffect(() => {
+    setTimeout(() => {
+      fetchAnalyticsData();
+    }, 2000); // Simulating delay
+  }, []);
+  
+  const fetchAnalyticsData = async () => {
+    try {
+      const response = await fetch("/api/getAnalytics"); // Replace with actual API
+      const data = await response.json();
+      setAnalyticsData(data);
+      setIsLoading(false); // Set loading to false after data is loaded
+    } catch (error) {
+      console.error("Error fetching analytics data:", error);
+      setIsLoading(false); // Ensure loading state is updated even if there's an error
+    }
+  };
+  
 
   const fetchAllTpoAnalysis = async () => {
     try {
@@ -157,120 +178,68 @@ function Adm_Analytics() {
   return (
     <div className="min-h-screen flex overflow-x-hidden bg-white">
       {/* Sidebar */}
-      <div
-        ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-100 z-50 border-r-2 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
-      >
+      <div ref={sidebarRef} className={`fixed top-0 left-0 h-full bg-gray-100 z-50 border-r-2 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}>
         <Adm_Sidebar />
       </div>
-
+  
       {/* Main Content */}
       <div className="flex-1 w-full bg-gray-100">
         <Adm_Navbar />
-
-        <div className="flex items-center justify-between mt-8">
-          <button
-            className="xl:hidden text-gray-800"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <svg
-              className="w-7 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
-              />
-            </svg>
-          </button>
-          <h1 className="text-3xl font-bold text-gray-800  xl:ml-7 md ">
-            Analytics Dashboard
-          </h1>
-          <div className="flex justify-center space-x-4 mr-10">
-            {departments.map((dept) => (
-              <button
-                key={dept}
-                className={`px-6 py-2 rounded-md font-semibold transition-all ${
-                  selectedDepartment === dept
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-gray-300 text-gray-800"
-                }`}
-                onClick={() => handleDepartmentChange(dept)}
-              >
-                {dept}
+  
+        {/* Show "Loading..." while analytics are being fetched */}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-screen text-2xl font-medium">
+            Loading...
+          </div>
+        ) : (
+          <>
+            {/* Analytics Dashboard UI (Only show when data is loaded) */}
+            <div className="flex items-center justify-between mt-8">
+              <button className="xl:hidden text-gray-800" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                <svg className="w-7 h-8" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+                </svg>
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Department Selection Buttons */}
-
-        {/* Rankings & Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-5 mt-5 mb-5  ml-5 mr-5 ">
-          <div>
-            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200  ">
-              <DisplayComponent
-                title="Overall Department Rank"
-                rank={deptRank?.department_rank || "Loading..."}
-                superscript={dSup}
-              />
+              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">Analytics Dashboard</h1>
+              <div className="flex justify-center space-x-4 mr-10">
+                {departments.map((dept) => (
+                  <button key={dept} className={`px-6 py-2 rounded-md font-semibold transition-all ${selectedDepartment === dept ? "bg-blue-600 text-white shadow-lg" : "bg-gray-300 text-gray-800"}`} onClick={() => handleDepartmentChange(dept)}>
+                    {dept}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center  mt-4 border border-gray-200">
-              <DisplayComponent
-                title="Overall Student Rank"
-                rank={highestPerformer?.overall_rank || "Loading..."}
-                superscript={oSup}
-              />
+  
+            {/* Other Analytics Components */}
+            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5 ">
+              <div>
+                <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200">
+                  <DisplayComponent title="Overall Department Rank" rank={deptRank?.department_rank || "Loading..."} superscript={dSup} />
+                </div>
+                <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
+                  <DisplayComponent title="Overall Student Rank" rank={highestPerformer?.overall_rank || "Loading..."} superscript={oSup} />
+                </div>
+              </div>
+              <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
+                <LineChartComponent data={performanceOverTimeData} xAxisKey="name" lineDataKey="Percentage" />
+              </div>
             </div>
-          </div>
-          <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-            <LineChartComponent
-              data={performanceOverTimeData}
-              xAxisKey="name"
-              lineDataKey="Percentage"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5  ml-5 mr-5 ">
-          <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
-            <DonutChartComponent data={donutChartData} />
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <RadarChartComponent data={radarChartData} />
-          </div>
-        </div>
-
-        {/* Performers Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
-          <TableComponent
-            title="Top Performers"
-            data={topPerformers}
-            type="department"
-          />
-          <TableComponent
-            title="Bottom Performers"
-            data={bottomPerformers}
-            type="department"
-          />
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <PieChartComponent data={participationRateData} />
-          </div>
-        </div>
+            
+            {/* Other Components */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5 ml-5 mr-5">
+              <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
+                <DonutChartComponent data={donutChartData} />
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <RadarChartComponent data={radarChartData} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
+  
 }
 
 export default Adm_Analytics;

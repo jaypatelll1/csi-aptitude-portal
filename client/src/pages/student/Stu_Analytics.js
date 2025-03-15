@@ -21,6 +21,7 @@ function Stu_Analytics() {
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
   const [rankData, setRankData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   // const user_id = useSelector((state) => state.user.user.id);
@@ -53,19 +54,18 @@ function Stu_Analytics() {
           "x-user-id": user_id,
         },
       });
-
+  
       setData(response.data.overall_resultS);
-
       setAvgData(response.data.avg_results);
-
       setRankData(response.data.rank);
+      
       if (response.data.rank) {
-        superscript(setDSup, response.data.rank.department_rank); // set dept rank superscript
-        superscript(setOSup, response.data.rank.overall_rank); // // set overall rank superscript
+        superscript(setDSup, response.data.rank.department_rank);
+        superscript(setOSup, response.data.rank.overall_rank);
       }
-
+  
       setPerformanceOverTime(response.data.performance_over_time);
-
+      
       const { attempted, total } = response.data.test_completion_data;
       setTestCompletionData({
         title: "Test Completion Rate",
@@ -74,10 +74,15 @@ function Stu_Analytics() {
           { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
         ],
       });
+  
+      // Set loading to false after data is loaded
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setLoading(false); // Even on error, stop showing the loading state
     }
   };
+  
 
   useEffect(() => {
     if (user_id) {
@@ -195,7 +200,7 @@ function Stu_Analytics() {
       >
         <Stu_Sidebar />
       </div>
-
+  
       <div className="flex flex-col flex-1 xl:ml-64 ">
         {/* Header */}
         <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
@@ -222,7 +227,7 @@ function Stu_Analytics() {
               />
             </svg>
           </button>
-
+  
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
@@ -231,72 +236,88 @@ function Stu_Analytics() {
           </div>
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">
-          Analytics
-        </h1>
-        {/* Dashboard Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
-          {/* Rank Display */}
-          <div className="">
-            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
-              <DisplayComponent
-                title="Department Rank"
-                rank={rankData?.department_rank || "Loading..."}
-                superscript={dSup}
-              />
-            </div>
-            <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
-              <DisplayComponent
-                title="Overall Rank"
-                rank={rankData?.overall_rank || "Loading..."}
-                superscript={oSup}
-              />
-            </div>
+  
+        {/* Main Content */}
+        <div className="p-6">
+          {loading ? (
+            // Show Loading message while data is fetching
+            <div className="flex items-center justify-center h-96 text-2xl font-medium">
+            Loading...
           </div>
-
-          {/* Line Chart - Overall Score */}
-          <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
-            <div className="w-full">
-              <LineChartComponent
-                data={performanceOverTimeData}
-                xAxisKey="name"
-                lineDataKey="value"
-                lineColor="#0703fc"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7  gap-6 mt-6 mb-8">
-          {/* Accuracy Rate - Donut Chart */}
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
-            <DonutChartComponent data={accuracyData} />
-          </div>
-
-          {/* Subject-wise Performance - Radar Chart */}
-          <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 flex items-center justify-center col-span-3">
-            {subjectPerformanceData.chartData.length > 0 ? (
-              <RadarChartComponent data={subjectPerformanceData} />
-            ) : (
-              <p className="text-center text-gray-500">No Data Available</p>
-            )}
-          </div>
-
-          {/* Test Completion Rate - Pie Chart */}
-          <div className="bg-white shadow-lg rounded-lg p-6 border mr-4 border-gray-200 flex items-center justify-center col-span-2">
-            {testCompletionData ? (
-              <PieChartComponent data={testCompletionData} />
-            ) : (
-              <p className="text-center text-gray-500">
-                Loading Test Completion Data...
-              </p>
-            )}
-          </div>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">
+                Analytics
+              </h1>
+  
+              {/* Dashboard Content */}
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
+                {/* Rank Display */}
+                <div className="">
+                  <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
+                    <DisplayComponent
+                      title="Department Rank"
+                      rank={rankData?.department_rank || "Loading..."}
+                      superscript={dSup}
+                    />
+                  </div>
+                  <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
+                    <DisplayComponent
+                      title="Overall Rank"
+                      rank={rankData?.overall_rank || "Loading..."}
+                      superscript={oSup}
+                    />
+                  </div>
+                </div>
+  
+                {/* Line Chart - Overall Score */}
+                <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
+                  <div className="w-full">
+                    <LineChartComponent
+                      data={performanceOverTimeData}
+                      xAxisKey="name"
+                      lineDataKey="value"
+                      lineColor="#0703fc"
+                    />
+                  </div>
+                </div>
+              </div>
+  
+              {/* Charts Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-6 mt-6 mb-8">
+                {/* Accuracy Rate - Donut Chart */}
+                <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
+                  <DonutChartComponent data={accuracyData} />
+                </div>
+  
+                {/* Subject-wise Performance - Radar Chart */}
+                <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 flex items-center justify-center col-span-3">
+                  {subjectPerformanceData.chartData.length > 0 ? (
+                    <RadarChartComponent data={subjectPerformanceData} />
+                  ) : (
+                    <p className="text-center text-gray-500">No Data Available</p>
+                  )}
+                </div>
+  
+                {/* Test Completion Rate - Pie Chart */}
+                <div className="bg-white shadow-lg rounded-lg p-6 border mr-4 border-gray-200 flex items-center justify-center col-span-2">
+                  {testCompletionData ? (
+                    <PieChartComponent data={testCompletionData} />
+                  ) : (
+                    <p className="text-center text-gray-500">
+                      Loading Test Completion Data...
+                    </p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
+  
+  
 }
 
 export default Stu_Analytics;

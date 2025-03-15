@@ -280,22 +280,26 @@ const Dep_CreateTestPage = () => {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="duration"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Duration (in minutes)
-              </label>
-              <input
-                type="number"
-                id="duration"
-                placeholder="Eg. 30"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                required
-              />
-            </div>
+  <label
+    htmlFor="duration"
+    className="block text-sm font-medium text-gray-700 mb-2"
+  >
+    Duration (in minutes)
+  </label>
+  <input
+    type="number"
+    id="duration"
+    placeholder="Eg. 30"
+    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+    value={duration}
+    onChange={(e) => {
+      const value = Math.max(0, Number(e.target.value)); // Prevent negative values
+      setDuration(value);
+    }}
+    min="0" // Prevents manual negative input
+    required
+  />
+</div>
           </form>
         </div>
 
