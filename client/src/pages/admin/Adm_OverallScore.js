@@ -20,8 +20,7 @@ function Adm_OverallScore() {
   const [participationRate, setParticipationRate] = useState([]);
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
 
-  const overallAnalysis = useSelector((state)=> state.analysis.overallAnalysis.analyticsData) // Fetch data from redux
-
+  const overallAnalysis = useSelector((state)=> state.analysis.overallAnalysis) // Fetch data from redux
 
   const fetchAllTpoAnalysis =  () => {
     try {

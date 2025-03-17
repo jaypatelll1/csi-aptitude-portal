@@ -33,7 +33,7 @@ function Dep_Analytics() {
   const user_department = useSelector((state) => state.user.user.department);
    const departmentAnalysis = useSelector(
       (state) =>
-        state.analysis.departmentAnalysis[user_department].analyticsData
+        state.analysis.departmentAnalysis[user_department]
     ); // Fetch data from redux
 
   // Data Fetching

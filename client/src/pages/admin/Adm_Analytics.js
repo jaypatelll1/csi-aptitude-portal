@@ -30,7 +30,7 @@ function Adm_Analytics() {
 
   const departmentAnalysis = useSelector(
     (state) =>
-      state.analysis.departmentAnalysis[selectedDepartment].analyticsData
+      state.analysis.departmentAnalysis[selectedDepartment]
   ); // Fetch data from redux
 
   const fetchAllTpoAnalysis = async () => {
