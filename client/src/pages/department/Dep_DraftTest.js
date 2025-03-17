@@ -131,9 +131,13 @@ const Dep_DraftTest = () => {
 
         <hr className="mb-4" />
         {loading ? (
-          <p>Loading drafted tests...</p> // Show loading indicator
-        ) : error ? (
-          <p className="text-red-500">{error}</p> // Show error message
+         <p className="text-center mt-8">Loading drafted tests...</p>
+         ) : error ? (
+         <p className="text-red-500 text-center mt-8">{error}</p>
+         ) : tests.length === 0 ? (
+         <p className="text-center mt-8 text-gray-600">
+            No drafted tests available.
+        </p>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-6">
@@ -143,6 +147,7 @@ const Dep_DraftTest = () => {
             </div>
 
             {/* Pagination Controls */}
+            {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -180,6 +185,7 @@ const Dep_DraftTest = () => {
                 &gt; {/* Right Arrow */}
               </button>
             </div>
+            )}
           </>
         )}
       </div>
