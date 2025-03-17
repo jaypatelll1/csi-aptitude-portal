@@ -117,7 +117,7 @@ const getExams = async (req, res) => {
 // Get Exam by exam_id
 const getExamById = async (req, res) => {
   const id = req.user.id; // Get user
-  const { exam_id } = req.params;
+  const exam_id  = req.headers["x-exam-id"];
 
   console.log('Socket.IO Server Running');
 

@@ -21,11 +21,12 @@ import "./MCQExamPage.css";
 const Stu_MCQExamPage = () => {
   const socketRef = useRef(null);
   const dispatch = useDispatch();
-  const { examId } = useParams();
+  // const { examId } = useParams();
   const navigate = useNavigate();
   const exam = useSelector((state) => state.exam.exam);
   const location = useLocation();
   const Duration = location.state?.Duration;
+  const examId = location.state?.examId;
   const userId = useSelector((state) => state.user.user.id);
   const userName = useSelector((state) => state.user.user.name);
   const userEmail = useSelector((state) => state.user.user.email);
@@ -73,14 +74,14 @@ const Stu_MCQExamPage = () => {
   //   const disableKeyboard = (e) => {
   //     // Get the current question from state
   //     const currentQuestion = questions[currentQuestionIndex];
-      
+
   //     // Only prevent default if the question type is NOT text
   //     if (currentQuestion && currentQuestion.question_type !== "text") {
   //       e.preventDefault();
   //     }
   //     // For text questions, allow keyboard input
   //   };
-    
+
   //   window.addEventListener("keydown", disableKeyboard);
   //   return () => window.removeEventListener("keydown", disableKeyboard);
   // }, [currentQuestionIndex, questions]);
@@ -164,7 +165,9 @@ const Stu_MCQExamPage = () => {
       ...multipleAnswers,
       [questionId]: options,
     });
-    dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options }));
+    dispatch(
+      setMultipleSelectedOption({ index: currentQuestionIndex, options })
+    );
     multipleResponse(options, questionId, currentQuestion?.question_type);
   };
 
@@ -398,51 +401,54 @@ const Stu_MCQExamPage = () => {
             {/* Question Component */}
             {currentQuestion && (
               <Question
-              questionNumber={currentQuestionIndex + 1}
-              question={currentQuestion.question_text || "Loading..."}
-              questionType={currentQuestion.question_type || "single_choice"} 
-              options={currentQuestion.options || {}}
-              selectedOption={currentQuestion.selectedOption} // Use camelCase to match Redux
-              selectedOptions={currentQuestion.selectedOptions || []} // Use camelCase to match Redux
-              textAnswer={currentQuestion.textAnswer || ""} // Use camelCase to match Redux
-              imageUrl={currentQuestion.image_url}
-              onSelectOption={handleOptionSelect}
-              onSelectMultipleOptions={handleMultipleOptionsSelect}
-              onTextChange={handleTextChange}
-            />
+                questionNumber={currentQuestionIndex + 1}
+                question={currentQuestion.question_text || "Loading..."}
+                questionType={currentQuestion.question_type || "single_choice"}
+                options={currentQuestion.options || {}}
+                selectedOption={currentQuestion.selectedOption} // Use camelCase to match Redux
+                selectedOptions={currentQuestion.selectedOptions || []} // Use camelCase to match Redux
+                textAnswer={currentQuestion.textAnswer || ""} // Use camelCase to match Redux
+                imageUrl={currentQuestion.image_url}
+                onSelectOption={handleOptionSelect}
+                onSelectMultipleOptions={handleMultipleOptionsSelect}
+                onTextChange={handleTextChange}
+              />
             )}
 
-<div className="absolute bottom-5 w-full flex justify-between px-8">
-  <div className="flex gap-4">
-    <button
-      className="px-4 py-2 bg-[#939191] text-white rounded-lg disabled:bg-gray-300"
-      disabled={currentQuestionIndex === 0}
-      onClick={handlePreviousQuestion}
-    >
-      Previous
-    </button>
-    <button
-      className="px-4 py-2 bg-[#D0150ACC] text-white rounded-lg"
-      onClick={() => handleClearResponse(currentQuestion?.question_id)}
-    >
-      Clear
-    </button>
-    <button
-      className="px-4 py-2 rounded-lg bg-[#8A2BE2CC] text-white"
-      onClick={handleMarkForReview}
-    >
-      {currentQuestion?.markedForReview ? "Unmark Review" : "Mark for Review"}
-    </button>
-  </div>
-  <button
-    className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
-    disabled={currentQuestionIndex === questions.length - 1}
-    onClick={handleNextQuestion}
-  >
-    Save & Next
-  </button>
-</div>
-
+            <div className="absolute bottom-5 w-full flex justify-between px-8">
+              <div className="flex gap-4">
+                <button
+                  className="px-4 py-2 bg-[#939191] text-white rounded-lg disabled:bg-gray-300"
+                  disabled={currentQuestionIndex === 0}
+                  onClick={handlePreviousQuestion}
+                >
+                  Previous
+                </button>
+                <button
+                  className="px-4 py-2 bg-[#D0150ACC] text-white rounded-lg"
+                  onClick={() =>
+                    handleClearResponse(currentQuestion?.question_id)
+                  }
+                >
+                  Clear
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-[#8A2BE2CC] text-white"
+                  onClick={handleMarkForReview}
+                >
+                  {currentQuestion?.markedForReview
+                    ? "Unmark Review"
+                    : "Mark for Review"}
+                </button>
+              </div>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
+                disabled={currentQuestionIndex === questions.length - 1}
+                onClick={handleNextQuestion}
+              >
+                Save & Next
+              </button>
+            </div>
           </div>
         </div>
         <Sidebar name={userName} onSubmitTest={handleSubmitTest} />

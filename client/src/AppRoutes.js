@@ -89,7 +89,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/exam/:examId"
+        path="/exam"
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <MCQExamPage />

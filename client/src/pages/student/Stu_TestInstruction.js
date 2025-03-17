@@ -134,7 +134,8 @@ const Stu_TestInstruction = () => {
 
 
   const handleStartTest = () => {
-    navigate(`/exam/${examId}`, { state: { Duration: Duration }, replace: true });
+    console.log(examId)
+    navigate(`/exam`, { state: { examId: examId,  Duration: Duration }, replace: true });
 
   };
   useEffect(() => {
