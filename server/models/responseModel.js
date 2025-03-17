@@ -255,7 +255,7 @@ const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
 const clearResponse = async (studentId, examId, questionId) => {
   try {
     const result = await pool.query(
-      "UPDATE responses SET selected_option = NULL WHERE student_id = $1 AND exam_id = $2 AND question_id = $3 AND status='draft' RETURNING *",
+      "UPDATE responses SET selected_option = NULL, selected_options=NULL, text_answer=NULL WHERE student_id = $1 AND exam_id = $2 AND question_id = $3 AND status='draft' RETURNING *",
       [studentId, examId, questionId]
     );
     return result.rows;
