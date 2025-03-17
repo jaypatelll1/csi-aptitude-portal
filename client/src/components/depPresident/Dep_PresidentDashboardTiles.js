@@ -2,10 +2,10 @@ import React from "react";
 
 const Dep_PresidentDashboardTiles = ({ tileData }) => {
   const colors = {
-    "Active Students": "bg-blue-500",
-    "Live Tests": "bg-purple-500",
-    "Scheduled Tests": "bg-orange-500",
-    "Students in Last Exam": "bg-green-500",
+    "Active Students": "bg-[#3B35C3]",
+    "Live Tests": "bg-[#CD0606]",
+    "Scheduled Tests": "bg-[#EF9B2D]",
+    "Students in Last Exam": "bg-[#EF9B2D]",
   };
 
   return (

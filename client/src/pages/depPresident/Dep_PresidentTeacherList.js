@@ -302,10 +302,10 @@ const Dep_PresidentTeacherList = () => {
           </svg>
           <div className="ml-9">
             <h1 className="text-[#9C9C9C] font-poppins text-[18px] font-medium leading-normal">
-              Import Students
+              Import Teachers
             </h1>
             <h1 className="text-black font-poppins text-[18px] font-medium leading-normal">
-              Register students to gain access to aptitude tests
+              Register Teacher to gain access to tests
             </h1>
           </div>
           <div className="flex ml-auto mr-9">
@@ -331,7 +331,7 @@ const Dep_PresidentTeacherList = () => {
               className="bg-[#533FCC] w-32 xl:w-40 h-14 rounded-xl flex items-center justify-center hover:bg-[#2d2170] transition-all duration-200 cursor-pointer"
             >
               <h1 className="text-white font-poppins text-lg font-medium leading-nor cursor-pointermal ">
-                Add Student
+                Add Teacher
               </h1>
             </div>
           </div>
@@ -345,7 +345,7 @@ const Dep_PresidentTeacherList = () => {
             className="flex justify-between items-center w-full mb-5"
           >
             <h1 className="text-black font-roboto text-[22px] font-semibold leading-normal">
-              Students List
+              Teacher List
             </h1>
             <div className="flex ml-auto">
               <div className="w-full max-w-md ">

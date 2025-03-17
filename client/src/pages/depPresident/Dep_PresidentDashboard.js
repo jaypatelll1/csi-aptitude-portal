@@ -107,7 +107,6 @@ const Dep_PresidentDashboard = () => {
 
         setTileData([
           { label: "Live Tests", value: liveTestsCount },
-          { label: "Scheduled Tests", value: scheduledTestsCount },
           { label: "Active Students", value: studentsCount },
           { label: "Students in Last Exam", value: lastTestStudentCount },
         ]);
@@ -138,7 +137,7 @@ const Dep_PresidentDashboard = () => {
   }, []);
 
   const createTestHandler = () => {
-    navigate("/department/createtest");
+    navigate("/president/createtest");
   };
 
   const openDetails = () => setIsDetailsOpen(true);

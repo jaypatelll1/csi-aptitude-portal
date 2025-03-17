@@ -76,7 +76,7 @@ const Dep_PresidentViewQuestions = () => {
   };
 
   const handleGoBack = () => {
-    navigate("/department/input");
+    navigate("/president/input");
   };
 
   const handleSchedulePost = () => {
@@ -88,7 +88,7 @@ const Dep_PresidentViewQuestions = () => {
   };
 
   const handleSaveDraft = () => {
-    navigate("/department");
+    navigate("/president");
     dispatch(clearExamId());
   };
 
@@ -116,7 +116,7 @@ const Dep_PresidentViewQuestions = () => {
         closeScheduleModal();
         console.log(startTime, endTime);
         dispatch(clearExamId()); // Dispatch clearing examId here to ensure it runs after successful API call
-        navigate("/department"); // Navigate to /department after successful test scheduling
+        navigate("/president"); // Navigate to /department after successful test scheduling
       })
       .catch((err) =>
         alert(
@@ -133,7 +133,7 @@ const Dep_PresidentViewQuestions = () => {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
     
-    navigate("/department/createtest");
+    navigate("/president/createtest");
   };
 
   useEffect(() => {

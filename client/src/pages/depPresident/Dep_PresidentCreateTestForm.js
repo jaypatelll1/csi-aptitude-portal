@@ -9,87 +9,53 @@ import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavb
 const Dep_PresidentCreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
-  const [branch, setBranch] = useState([]);
-  const [year, setYear] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showYearDropdown, setShowYearDropdown] = useState(false);
-  const [userBranch, setUserBranch] = useState("");
+  const [userType, setUserType] = useState("teacher"); // Default user type
 
   const sidebarRef = useRef(null);
-  const branchRef = useRef(null);
-  const yearRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   let user = useSelector((state) => state.user.user);
 
-  const branches = ["CMPN", "INFT", "EXTC", "ELEC", "ECS"];
-  const years = ["FE", "SE", "TE", "BE"];
-
   const handleCreateQuestions = async (e) => {
     e.preventDefault();
 
-    if (!testName || !duration || year.length === 0) {
+    if (!testName || !duration) {
       alert("Please fill in all the fields.");
       return;
     }
 
+    // Make sure we're using the user's department from Redux state
     const payload = {
       name: testName,
-      duration: duration,
-      target_years: year,
-      target_branches: branch ? [branch] : [],
+      duration: parseInt(duration), // Convert to integer as backend might expect a number
+      target_years: ["FE", "SE", "TE", "BE"], // Include all years by default
+      target_branches: [user.department], // Use the department from user state
+      user_type: userType
     };
+
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(`${API_BASE_URL}/api/exams`, payload, {
         withCredentials: true,
       });
+      
       const examId = response.data.newExam.exam_id;
       dispatch(setExamId(examId));
-      navigate("/department/input");
+      navigate("/president/input");
     } catch (error) {
-      alert("Invalid Input");
+      alert("Invalid Input. Please check all fields and try again.");
       console.error(
         "Error creating test:",
         error.response?.data || error.message
       );
     }
   };
-  
-
-  useEffect(() => {
-    const fetchUserBranch = async () => {
-      try {
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/user`, {
-          withCredentials: true,
-        });
-        setUserBranch(response.data); // Assuming API returns { branch: "CMPN" }
-      } catch (error) {
-        console.error("Error fetching user branch:", error);
-      }
-    };
-
-    fetchUserBranch();
-  }, []);
-
-  const handleYearChange = (selectedYear) => {
-    if (selectedYear === "All") {
-      setYear(year.length === years.length ? [] : [...years]);
-    } else {
-      const newYears = year.includes(selectedYear)
-        ? year.filter((y) => y !== selectedYear)
-        : [...year, selectedYear];
-      setYear(newYears);
-    }
-  };
 
   const handleCancel = () => {
     setTestName("");
     setDuration("");
-    setBranch([]);
-    setYear([]);
   };
 
   const handleGoBack = () => {
@@ -101,9 +67,6 @@ const Dep_PresidentCreateTestPage = () => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setSidebarOpen(false);
       }
-      if (yearRef.current && !yearRef.current.contains(event.target)) {
-        setShowYearDropdown(false);
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -111,10 +74,6 @@ const Dep_PresidentCreateTestPage = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  useEffect(() => {
-    setBranch(user.department);
-  }, [user.department]);
 
   return (
     <div className="min-h-screen flex">
@@ -182,84 +141,11 @@ const Dep_PresidentCreateTestPage = () => {
             Basic create test info.
           </h2>
         </div>
-{/* <>User type</> */}
+
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
-            <div className="grid grid-cols-2 gap-4 my-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Branch
-                </label>
-                <div className="border border-gray-300 rounded-lg p-2 bg-gray-100 text-gray-800">
-                  {branch}
-                </div>
-              </div>
-
-              {/* Year Dropdown */}
-              <div ref={yearRef}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year
-                </label>
-                <div className="relative">
-                  <div
-                    onClick={() => setShowYearDropdown(!showYearDropdown)}
-                    className="cursor-pointer border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {year.length === 0 ? (
-                      <span className="text-gray-500">Select years</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {year.length === years.length ||
-                        year.includes("All") ? (
-                          <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
-                            All Years
-                          </span>
-                        ) : (
-                          year.map((y) => (
-                            <span
-                              key={y}
-                              className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded"
-                            >
-                              {y}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {showYearDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                      <div className="p-2">
-                        <label className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                          <input
-                            type="checkbox"
-                            checked={year.length === years.length}
-                            onChange={() => handleYearChange("All")}
-                            value={year.toString()}
-                            className="text-blue-500 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-md">All Years</span>
-                        </label>
-                        {years.map((y) => (
-                          <label
-                            key={y}
-                            className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={year.includes(y)}
-                              onChange={() => handleYearChange(y)}
-                              className="text-blue-500 rounded focus:ring-blue-500"
-                            />
-                            <span className="text-md">{y}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            {/* Hidden field for user type */}
+            <input type="hidden" value={userType} />
 
             <div className="mb-6">
               <label

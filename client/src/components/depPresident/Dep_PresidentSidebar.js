@@ -23,7 +23,7 @@ const Dep_Presidentsidebar = () => {
       </h2>
       <ul className="list-none p-0 m-0">
         <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
-        onClick={() => handleNavigation("/department")} 
+        onClick={() => handleNavigation("/president")} 
         >
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
             <svg
@@ -42,10 +42,10 @@ const Dep_Presidentsidebar = () => {
               />
             </svg>
           </span>
-          <Link to="/department">Home</Link>
+          <Link to="/president">Home</Link>
         </li>
         <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
-        onClick={() => handleNavigation("/department/studentlist")}
+        onClick={() => handleNavigation("/president/teacherlist")}
         >
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
             <svg
@@ -63,7 +63,7 @@ const Dep_Presidentsidebar = () => {
               />
             </svg>
           </span>
-          <Link to="/department/studentlist">Student</Link>
+          <Link to="/president/teacherlist">Teacher</Link>
         </li>
 
         <li
@@ -109,66 +109,16 @@ const Dep_Presidentsidebar = () => {
         {showSubmenu && (
           <ul className="pl-5 mt-1">
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/department/drafted-tests">Drafted Tests</Link>
+              <Link to="/president/drafted-tests">Drafted Tests</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/department/scheduled-tests">Schedule Tests</Link>
+              <Link to="/president/scheduled-tests">Schedule Tests</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/department/past-tests"> Past Test</Link>
+              <Link to="/president/past-tests"> Past Test</Link>
             </li>
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/department/live-tests"> Live Test</Link>
-            </li>
-          </ul>
-        )}
-        <li
-          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500"
-          onClick={toggleAnalyticsSubmenu}
-        >
-          <span className="mr-2 flex items-center justify-center w-6 h-6">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17ZM19 19H5V5H12V3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V12H19V19Z"
-                fill="black"
-              />
-            </svg>
-          </span>
-          Analytics
-          <span
-            className={`ml-auto ${showAnalyticsSubmenu ? "rotate-180" : ""}`}
-          >
-            <svg
-              width="10"
-              height="6"
-              viewBox="0 0 10 6"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1 1L5 5L9 1"
-                stroke="black"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-        </li>
-
-        {showAnalyticsSubmenu && (
-          <ul className="pl-5 mt-1">
-            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/department/analytics">Branch Analytics</Link>
-            </li>
-            <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
-              <Link to="/department/student-analysis">Student Analysis</Link>
+              <Link to="/president/live-tests"> Live Test</Link>
             </li>
           </ul>
         )}

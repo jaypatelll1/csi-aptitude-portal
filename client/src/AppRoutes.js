@@ -58,7 +58,7 @@ import Dep_PresidentLiveTest from "./pages/depPresident/Dep_PresidentLiveTest";
 import Dep_PresidentPastTest from "./pages/depPresident/Dep_PresidentPastTest";
 import Dep_PresidentScheduleTest from "./pages/depPresident/Dep_PresidentScheduleTest";
 import Dep_PresidentInputQuestions from "./pages/depPresident/Dep_PresidentInputQuestions";
-import Dep_PresidentTeacherList from "./pages/depPresident/Dep_PresidentStudentList";
+import Dep_PresidentTeacherList from "./pages/depPresident/Dep_PresidentTeacherList";
 import Dep_PresidentTestTeacherList from "./pages/depPresident/Dep_PresidentTestStudentList";
 import Dep_PresidentViewQuestions from "./pages/depPresident/Dep_PresidentViewQuestions";
 
@@ -460,7 +460,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/president/test-students"
+        path="/president/test-teachers"
         element={
           <ProtectedRoute allowedRoles={["President"]}>
             <Dep_PresidentTestTeacherList />

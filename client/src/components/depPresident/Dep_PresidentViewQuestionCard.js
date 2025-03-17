@@ -19,7 +19,7 @@ const Dep_PresidentViewQuestionCard = ({
   
 
   const handleEditQuestion = () => {
-    navigate(`/department/input?category=${encodeURIComponent(category)}`, {
+    navigate(`/president/input?category=${encodeURIComponent(category)}`, {
       state: {
         questionId: id,
         questionText: text,

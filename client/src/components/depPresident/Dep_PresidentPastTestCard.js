@@ -29,7 +29,7 @@ const Dep_PresidentPastTestCard = ({ test, onClick }) => {
       setResult(fetchedResult);
       
       // Navigate to the new route and pass the fetched result
-      navigate("/department/test-students", {
+      navigate("/president/test-students", {
         state: {
           name: test.title,
           duration: test.duration,

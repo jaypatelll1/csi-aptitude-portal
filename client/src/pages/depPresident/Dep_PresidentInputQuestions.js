@@ -108,7 +108,7 @@ const Dep_PresidentInputQuestions = () => {
   }, [questionText, questionOptions]);
 
   const viewquestions = () => {
-    navigate("/department/viewquestions");
+    navigate("/president/viewquestions");
   };
 
   const handleAddAnswer = () => {
@@ -184,7 +184,7 @@ const Dep_PresidentInputQuestions = () => {
           setToggles([false, false, false, false]);
           setCategory("");
           setQuestionCount((prevCount) => prevCount + 1);
-          navigate("/department/input?category=");
+          navigate("/president/input?category=");
         } else {
           let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           await axios.put(
@@ -197,7 +197,7 @@ const Dep_PresidentInputQuestions = () => {
           setQuestion("");
           setOptions(["", "", "", ""]);
           setToggles([false, false, false, false]);
-          navigate("/department/viewquestions");
+          navigate("/president/viewquestions");
         }
       } catch (error) {
         console.error(
