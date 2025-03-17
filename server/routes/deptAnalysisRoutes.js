@@ -16,8 +16,10 @@ const {limiter} = require("../utils/rateLimitUtils");
 // router.get("/accuracy-rate/:department", deptController.getAccuracyRate);
 // router.get("/weak-areas/:department", deptController.getWeakAreas);
 // router.get("/performance-over-time/:department", deptController.getPerformanceOverTime);
+
 router.get("/get-all-department-data/:department", getAllDepartmentParams);
 
+// using this route
 router.get('/all-dept-analysis/:department', getAllDeptAnalysis)
 
 module.exports = router;
