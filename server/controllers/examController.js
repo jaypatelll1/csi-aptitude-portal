@@ -5,6 +5,9 @@ const createExam = async (req, res) => {
   let { name, duration, start_time, end_time, target_years, target_branches } =
     req.body;
   const created_by = req.user.id; // Get user_id from token
+  const role = req.user.role; // Get user role from token
+
+  console.log(req.user)
 
   if (!name || !duration || !created_by || !target_years || !target_branches) {
     return res.status(400).json({ error: 'All fields are required' });
@@ -21,51 +24,23 @@ const createExam = async (req, res) => {
     return res.json({ message: 'input field error ' });
   }
 
+// Determine 'exam_for' based on role
+let exam_for;
+if (role === 'TPO' || role === 'Department') {
+  exam_for = 'Student';
+} else if (role === 'President') {
+  exam_for = 'Teacher';
+} else {
+  return res.status(403).json({ error: 'Unauthorized role for exam creation' });
+}
+
   const newExam = await examModel.createExam({
     name,
     duration,
     created_by,
     formattedTargetBranches,
     formattedTargetYears,
-  });
-  if (!newExam) {
-    await logActivity({
-      user_id: created_by,
-      activity: 'New Exam',
-      status: 'failure',
-      details: 'Could not create new exam',
-    });
-    return res.status(500).json({
-      error: 'Server Error',
-      message: 'Could not create exam',
-    });
-  }
-  await logActivity({
-    user_id: created_by,
-    activity: 'New Exam',
-    status: 'success',
-    details: 'New Exam created successfully and saved as draft',
-  });
-  res.status(201).json({
-    message: 'Exam created successfully and saved as draft',
-    newExam,
-  });
-};
-
-const createExamForTeachers = async (req, res) => {
-  let { name, duration, start_time, end_time } =
-    req.body;
-  const created_by = req.user.id; // Get user_id from token
-
-  if (!name || !duration || !created_by ) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
-
-
-  const newExam = await examModel.createExamForTeachersModel({
-    name,
-    duration,
-    created_by,
+    exam_for,
   });
   if (!newExam) {
     await logActivity({
@@ -597,6 +572,5 @@ module.exports = {
   markPastExam,
   getExamsForUser,
   getExamStatus,
-  getExamForTeachers,
-  createExamForTeachers
+  getExamForTeachers
 };

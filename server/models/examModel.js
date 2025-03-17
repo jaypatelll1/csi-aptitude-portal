@@ -4,9 +4,9 @@ const { paginate } = require('../utils/pagination');
 const createExam = async (exam) => {
 
   try {
-    const { name, duration, created_by, formattedTargetYears, formattedTargetBranches } = exam;
-    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches) VALUES ($1, $2, $3, $4,$5,$6) RETURNING  *`;
-    const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches];
+    const { name, duration, created_by, formattedTargetYears, formattedTargetBranches, exam_for } = exam;
+    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches, exam_for) VALUES ($1, $2, $3, $4,$5,$6,$7) RETURNING  *`;
+    const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches, exam_for];
     const result = await pool.query(query, values);
     return result.rows[0];
   } catch (err) {
@@ -15,20 +15,6 @@ const createExam = async (exam) => {
   }
 
 };
-
-const createExamForTeachersModel = async (exam) => {
-  try {
-    const { name, duration, created_by } = exam;
-    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches, exam_for) VALUES ($1, $2, $3, $4,$5,$6,$7) RETURNING  *`;
-    const values = [name, duration, created_by, 'draft', null, null, 'Teacher'];
-    const result = await pool.query(query, values);
-    return result.rows[0];
-  } catch (err) {
-    console.error(err.name); // Output: RangeError
-    console.error(err.message); // Output: Value must be a non-negative number.
-  }
-
-}
 
 const getExams = async () => {
   const query = `SELECT * FROM exams`;
@@ -377,6 +363,5 @@ module.exports = {
   getExamsByStatus,
   ExamCount,
   getExamStatusById,
-  createExamForTeachersModel,
   getExamsForTeachers
 };  
