@@ -165,7 +165,7 @@ function Adm_OverallScore() {
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center h-96 text-2xl font-medium">
+          <div className="flex items-center justify-center h-screen text-2xl font-medium">
             Loading...
           </div>
         ) : (
