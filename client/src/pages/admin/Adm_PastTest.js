@@ -123,11 +123,16 @@ const Adm_PastTest = () => {
           </h1>
         </div>
         <hr />
-        {loading && <p>Loading past tests...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-
-        {!loading && !error && (
-          <>
+        {loading ? (
+        <p className="text-center mt-8">Loading past tests...</p>
+      ) : error ? (
+        <p className="text-red-500 text-center mt-8">{error}</p>
+      ) : pastTests.length === 0 ? (
+        <p className="text-center mt-8 text-gray-600">
+          No past tests available.
+        </p>
+      ) : (
+        <>
             {/* Grid Layout for Paginated Past Test Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
@@ -136,6 +141,7 @@ const Adm_PastTest = () => {
             </div>
 
             {/* Pagination Controls */}
+            {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -173,6 +179,7 @@ const Adm_PastTest = () => {
                 &gt; {/* Right Arrow */}
               </button>
             </div>
+            )}
           </>
         )}
       </div>
