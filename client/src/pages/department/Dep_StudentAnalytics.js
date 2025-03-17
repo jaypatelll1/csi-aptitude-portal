@@ -8,6 +8,7 @@ import DonutChartComponent from "../../components/analytics/DonutChartComponent"
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
+import Loader from "../../components/Loader";
 
 function Dep_StudentAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -208,10 +209,11 @@ function Dep_StudentAnalytics() {
       <div className="flex flex-col flex-1 xl:ml-64">
         {/* Show only "Loading..." while data is being fetched */}
         {loading ? (
-          <div className="flex justify-center items-center h-screen text-2xl font-semibold">
-            Loading...
-          </div>
-        ) : (
+  <div className="flex items-center justify-center h-96">
+    <Loader />
+  </div>
+) : (
+
           <>
             {/* Analytics Dashboard UI (Shown After Loading Completes) */}
             <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">

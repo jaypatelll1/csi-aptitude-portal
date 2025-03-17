@@ -11,6 +11,7 @@ import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
+import Loader from "../../components/Loader";
 
 function Dep_Analytics() {
   // State Declarations
@@ -153,10 +154,11 @@ function Dep_Analytics() {
         <div className="px-5">
           {/* Show "Loading..." if data is not loaded */}
           {loading ? (
-            <div className="flex items-center justify-center h-screen text-2xl font-medium">
-            Loading...
-          </div>
-          ) : (
+  <div className="flex items-center justify-center h-96">
+    <Loader />
+  </div>
+) : (
+
             <>
               <div className="flex items-center mt-4">
                 <h1 className="text-3xl font-bold text-gray-800 ml-4 xl:ml-0">

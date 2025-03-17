@@ -9,6 +9,7 @@ import Dep_LiveTestCard from "../../components/department/Dep_LiveTestCard";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import Loader from "../../components/Loader";
 
 const Dep_Dashboard = () => {
   const navigate = useNavigate();
@@ -245,9 +246,11 @@ const Dep_Dashboard = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
+          <div className="relative min-h-[150px] grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {loading ? (
-              <p>Loading...</p>
+               
+               <Loader />
+     
             ) : error ? (
               <p>{error}</p>
             ) : (
