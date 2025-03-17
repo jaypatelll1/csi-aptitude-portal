@@ -31,26 +31,27 @@ function Dep_Analytics() {
   // Refs and Redux State
   const sidebarRef = useRef(null);
   const user_department = useSelector((state) => state.user.user.department);
+   const departmentAnalysis = useSelector(
+      (state) =>
+        state.analysis.departmentAnalysis[user_department].analyticsData
+    ); // Fetch data from redux
 
   // Data Fetching
   const fetchAllDeptData = async () => {
     try {
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const url = `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${user_department}`;
-      const response = await axios.get(url, { withCredentials: true });
   
-      setCategoryWiseData(response.data.category_performance);
-      setTopPerformers(response.data.top_performer);
-      setBottomPerformers(response.data.bottom_performer);
-      setParticipationRate(response.data.participation_rate);
-      setAccuracyData(response.data.accuracy_rate);
-      setPerformanceOverTime(response.data.performance_over_time);
+      setCategoryWiseData(departmentAnalysis.category_performance);
+      setTopPerformers(departmentAnalysis.top_performer);
+      setBottomPerformers(departmentAnalysis.bottom_performer);
+      setParticipationRate(departmentAnalysis.participation_rate);
+      setAccuracyData(departmentAnalysis.accuracy_rate);
+      setPerformanceOverTime(departmentAnalysis.performance_over_time);
   
-      setDeptRank(response.data.dept_ranks);
-      superscript(setDSup, response.data.dept_ranks.department_rank);
+      setDeptRank(departmentAnalysis.dept_ranks);
+      superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
   
-      setHighestPerformer(response.data.top_performer[0]);
-      superscript(setOSup, response.data.top_performer[0].overall_rank);
+      setHighestPerformer(departmentAnalysis.top_performer[0]);
+      superscript(setOSup, departmentAnalysis.top_performer[0].overall_rank);
   
       setLoading(false);  // Set loading to false once all data is fetched
     } catch (error) {
@@ -59,7 +60,6 @@ function Dep_Analytics() {
     }
   };
   
-
   // Effects
   useEffect(() => {
     fetchAllDeptData();

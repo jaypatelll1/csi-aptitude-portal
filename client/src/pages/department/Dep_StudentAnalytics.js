@@ -56,8 +56,7 @@ function Dep_StudentAnalytics() {
           "x-user-id": user_id,
         },
       });
-  
-      console.log(response.data);
+      
       setData(response.data.overall_resultS);
       setAvgData(response.data.avg_results);
       setRankData(response.data.rank);

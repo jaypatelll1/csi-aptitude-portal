@@ -8,10 +8,9 @@ import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
 import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import {setDepartmentAnalysis, setOverallAnalysis} from "../../redux/analysisSlice"
+import { useSelector ,useDispatch } from "react-redux";
 import Loader from "../../components/Loader";
-// const API_BASE_URL = process.env.BACKEND_BASE_URL;
-// const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
 const Adm_Dashboard = () => {
   const navigate = useNavigate();
@@ -30,6 +29,7 @@ const Adm_Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
+  const dispatch = useDispatch();
 
   const [selectedTestId, setSelectedTestId] = useState(null);
 
@@ -131,6 +131,44 @@ const Adm_Dashboard = () => {
   const createTestHandler = () => {
     navigate("/admin/createtest");
   };
+
+
+  useEffect(() => {
+    const fetchAllTpoAnalysis = async () => {
+      try {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        let url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
+        const response = await axios.get(url, { withCredentials: true });
+        dispatch(setOverallAnalysis(response.data))
+      }
+      catch(err){
+        console.log(err)
+      }
+    }
+    fetchAllTpoAnalysis();
+  }, [])
+
+  useEffect(() => {
+    const fetchDepartmentAnalysis = async () => {
+      try {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        let response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/CMPN`, { withCredentials: true });
+        dispatch(setDepartmentAnalysis({department: "CMPN", data: response.data}))
+        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/INFT`, { withCredentials: true });
+        dispatch(setDepartmentAnalysis({department: "INFT", data: response.data}))
+        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/EXTC`, { withCredentials: true });
+        dispatch(setDepartmentAnalysis({department: "EXTC", data: response.data}))
+        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/ECS`, { withCredentials: true });
+        dispatch(setDepartmentAnalysis({department: "ECS", data: response.data}))
+        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/ELEC`, { withCredentials: true });
+        dispatch(setDepartmentAnalysis({department: "ELEC", data: response.data}))
+      }
+      catch(err){
+        console.log(err)
+      }
+    }
+    fetchDepartmentAnalysis();
+  }, [])
 
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);

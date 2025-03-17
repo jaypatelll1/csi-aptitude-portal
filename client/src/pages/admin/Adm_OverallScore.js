@@ -3,9 +3,10 @@ import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
-import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
+import { useSelector } from "react-redux";
+
 import Loader from "../../components/Loader";
 
 function Adm_OverallScore() {
@@ -17,20 +18,19 @@ function Adm_OverallScore() {
   const [topPerformers, setTopPerformers] = useState([]);
   const [bottomPerformers, setBottomPerformers] = useState([]);
   const [participationRate, setParticipationRate] = useState([]);
-  const [performanceOverTime, setPerformanceOverTime] = useState({});
+  const [performanceOverTime, setPerformanceOverTime] = useState([]);
 
-  const fetchAllTpoAnalysis = async () => {
+  const overallAnalysis = useSelector((state)=> state.analysis.overallAnalysis.analyticsData) // Fetch data from redux
+
+
+  const fetchAllTpoAnalysis =  () => {
     try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
-      const response = await axios.get(url, { withCredentials: true });
-      console.log(response.data);
 
-      setAvgData(response.data.dept_avg);
-      setTopPerformers(response.data.top_performers);
-      setBottomPerformers(response.data.bottom_performers);
-      setParticipationRate(response.data.participation_rate);
-      setPerformanceOverTime(response.data.performance_over_time);
+      setAvgData(overallAnalysis.dept_avg);
+      setTopPerformers(overallAnalysis.top_performers);
+      setBottomPerformers(overallAnalysis.bottom_performers);
+      setParticipationRate(overallAnalysis.participation_rate);
+      setPerformanceOverTime(overallAnalysis.performance_over_time);
 
       setLoading(false);
     } catch (error) {
@@ -65,7 +65,7 @@ function Adm_OverallScore() {
   const barChartData = {
     title: "Department Average Score",
     dataKey: "department",
-    chartData: avgData.map((department) => ({
+    chartData: avgData?.map((department) => ({
       department: department?.department_name,
       score: department?.avg_score,
     })),
