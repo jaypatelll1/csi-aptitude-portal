@@ -110,7 +110,7 @@ const Login = () => {
 
   return (
     <div className="block">
-      <div className="flex sm:flex-row  h-screen relative">
+      <div className="xs:flex hidden sm:flex-row h-screen relative">
         <img
           src={ace}
           alt="ACE Logo"
@@ -186,6 +186,9 @@ const Login = () => {
             className="hidden md:block max-w-[90%] md:max-w-[70%] lg:max-w-[50%] h-auto object-contain"
           />
         </div>
+      </div>
+      <div className="xs:hidden flex justify-center items-center h-screen text-xl font-bold text-gray-800">
+        Login through Desktop
       </div>
     </div>
   );

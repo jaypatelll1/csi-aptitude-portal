@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '900px', 
+      },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'], // Use Poppins as the default font
       },
