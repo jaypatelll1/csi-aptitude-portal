@@ -1,7 +1,17 @@
 const Redis = require('redis');
 const { BloomFilter } = require('bloom-filters');
+require('dotenv').config();
 
-const redisClient = Redis.createClient();
+const redisClient = Redis.createClient({
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  },
+});
+redisClient.on('error', err => console.log('Redis Client Error', err));
+
 redisClient.connect();
 
 // Expected items and false positive rate
