@@ -554,6 +554,17 @@ const getExamStatus = async (req, res) => {
   }
 };
 
+// Function to get list of exams attempted by teacher
+const getExamsAttemptedByTeacherId = async (req, res) => {
+  const {teacher_id} = req.params;
+  try{
+    const examList = await examModel.getExamsByTeacherId(teacher_id);
+    res.status(200).json({"ExamList":examList});
+  } catch(err){
+    console.log("Error: ", err);
+    return res.status(500).json({error:"Internal server error"});
+  }
+}
 
 
 module.exports = {
@@ -572,5 +583,7 @@ module.exports = {
   markPastExam,
   getExamsForUser,
   getExamStatus,
-  getExamForTeachers
+  getExamForTeachers,
+  createExamForTeachers,
+  getExamsAttemptedByTeacherId
 };

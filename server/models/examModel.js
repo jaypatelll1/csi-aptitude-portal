@@ -346,6 +346,26 @@ const getExamStatusById = async (exam_id) => {
   }
 };
 
+const getExamsByTeacherId = async (teacher_id) => {
+  // Query text for databse
+  const query_text = `
+    SELECT 
+      e.exam_id,
+      e.exam_name,
+      e.duration,
+      COUNT(DISTINCT r.question_id) AS total_attempted_questions
+    FROM exams e
+    JOIN responses r 
+    ON e.exam_id = r.exam_id
+    WHERE r.student_id = $1
+    GROUP BY e.exam_id, e.exam_name, e.duration
+    ORDER BY e.exam_name DESC;
+  `;
+  console.log(teacher_id);
+  const result = await pool.query(query_text, [teacher_id]);
+  return result.rows;
+}
+
 module.exports = {
   createExam,
   getExams,
@@ -363,5 +383,7 @@ module.exports = {
   getExamsByStatus,
   ExamCount,
   getExamStatusById,
-  getExamsForTeachers
+  createExamForTeachersModel,
+  getExamsForTeachers,
+  getExamsByTeacherId
 };  

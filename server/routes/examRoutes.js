@@ -16,7 +16,8 @@ const {
   getExamsForUser,
   getExamStatus,
   getExamForTeachers,
-  createExamForTeachers
+  createExamForTeachers,
+  getExamsAttemptedByTeacherId
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
@@ -47,5 +48,6 @@ router.put('/live-exam/:exam_id',authorizeRoles, markLiveExam); // to mark an ex
 
 router.delete('/:exam_id',authorizeRoles, deleteExam);
 router.get("/status/:exam_id", getExamStatus);
+router.get("/get-exams-attempted/:teacher_id", getExamsAttemptedByTeacherId);
 
 module.exports = router;
