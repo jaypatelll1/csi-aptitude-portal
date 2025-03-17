@@ -22,40 +22,24 @@ const Dep_PresidentNavbar = ({ setSidebarOpen }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
- 
-  // useEffect(() => {
-  //   setSidebarOpen((prev) => prev);
-  // }, [setSidebarOpen]);
+
+  // Function to extract initials (first letter of first and last name)
+  const getInitials = (name) => {
+    if (!name) return "";
+    const nameParts = name.trim().split(" ");
+    const firstInitial = nameParts[0]?.charAt(0) || "";
+    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "";
+    return (firstInitial + lastInitial).toUpperCase();
+  };
 
   return (
-    // <div className="bg-white h-14 border-b border-gray-200 flex items-center px-4">
-    //   {/* Sidebar Toggle Button */}
-    //   <button
-    //     className="text-gray-800 mr-4 xl:hidden"
-    //     onClick={() => setSidebarOpen((prev) => !prev)}
-    //   >
     <div className="bg-white h-14 border-b border-gray-200 flex items-center px-4">
-      {/*  Sidebar Toggle Button - This correctly toggles sidebar state */}
-      {/* <button
-        className="text-gray-800 mr-4 xl:hidden"
-        onClick={() => setSidebarOpen((prev) => !prev)} //  FIXED: Sidebar toggling works correctly
-      > */}
-        {/* <svg className="w-7 h-8"
-         fill="none" 
-         stroke="currentColor"
-         strokeWidth={2}
-         viewBox="0 0 24 24"
-         xmlns="http://www.w3.org/2000/svg">
-          <path 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          d="M4 6h16M4 12h16M4 18h16" />
-        </svg> */}
-      {/* </button> */}
-
       <div className="ml-auto flex items-center">
-        <div className="h-9 w-9 rounded-full bg-blue-300 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer" onClick={openDetails}>
-          AM
+        <div
+          className="h-9 w-9 rounded-full bg-blue-300 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
+          onClick={openDetails}
+        >
+          {getInitials(userData.name)}
         </div>
       </div>
 
@@ -72,6 +56,6 @@ const Dep_PresidentNavbar = ({ setSidebarOpen }) => {
       </div>
     </div>
   );
-}
+};
 
 export default Dep_PresidentNavbar;

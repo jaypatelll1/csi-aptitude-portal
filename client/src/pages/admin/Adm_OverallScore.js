@@ -22,6 +22,7 @@ function Adm_OverallScore() {
 
   const overallAnalysis = useSelector((state)=> state.analysis.overallAnalysis) // Fetch data from redux
 
+
   const fetchAllTpoAnalysis =  () => {
     try {
 
