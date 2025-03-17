@@ -6,6 +6,7 @@ import MultiLineChartComponent from "../../components/analytics/MultiLineChartCo
 import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
+import Loader from "../../components/Loader";
 
 function Adm_OverallScore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -164,11 +165,12 @@ function Adm_OverallScore() {
           </div>
         )}
 
-        {loading ? (
-          <div className="flex items-center justify-center h-screen text-2xl font-medium">
-            Loading...
-          </div>
-        ) : (
+{loading ? (
+  <div className="flex items-center justify-center h-screen">
+    <Loader />
+  </div>
+) : (
+
           <>
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-5 mb-5 ml-5 mr-5">
               <div className="bg-white p-6 rounded-xl shadow-md col-span-2">

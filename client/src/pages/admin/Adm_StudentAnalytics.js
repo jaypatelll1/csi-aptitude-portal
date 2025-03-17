@@ -8,6 +8,7 @@ import DonutChartComponent from "../../components/analytics/DonutChartComponent"
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
+import Loader from "../../components/Loader";
 
 function Adm_StudentAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -213,10 +214,11 @@ function Adm_StudentAnalytics() {
   
         {/* Show loading state before rendering analytics */}
         {loading ? (
-          <div className="flex items-center justify-center h-full text-2xl font-medium">
-          Loading...
-        </div>
-        ) : (
+  <div className="flex items-center justify-center h-screen">
+    <Loader />
+  </div>
+) : (
+
           <>
             <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">Analytics</h1>
   

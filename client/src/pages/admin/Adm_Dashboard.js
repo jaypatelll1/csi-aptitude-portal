@@ -9,6 +9,7 @@ import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import Loader from "../../components/Loader";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
@@ -236,9 +237,9 @@ const Adm_Dashboard = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
+          <div className="relative min-h-[150px] grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {loading ? (
-              <p>Loading...</p>
+              <Loader />
             ) : error ? (
               <p>{error}</p>
             ) : paginatedData.length === 0 ? ( //  ADDED: Show message when no tests are available

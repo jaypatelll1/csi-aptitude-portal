@@ -9,6 +9,7 @@ import axios from "axios";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
+import Loader from "../../components/Loader";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -188,10 +189,10 @@ function Adm_Analytics() {
   
         {/* Show "Loading..." while analytics are being fetched */}
         {isLoading ? (
-          <div className="flex items-center justify-center h-screen text-2xl font-medium">
-            Loading...
-          </div>
-        ) : (
+  <div className="flex items-center justify-center h-screen">
+    <Loader />
+  </div>
+) : (
           <>
             {/* Analytics Dashboard UI (Only show when data is loaded) */}
             <div className="flex items-center justify-between mt-8">
