@@ -197,7 +197,7 @@ const Adm_CreateTestPage = () => {
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
             {/* User Type Dropdown */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 User Type
               </label>
@@ -209,7 +209,7 @@ const Adm_CreateTestPage = () => {
                 <option value="Student">Student</option>
                 <option value="Teacher">Teacher</option>
               </select>
-            </div>
+            </div> */}
             {userType === "Student" && (
               <>
                 <div className="grid grid-cols-2 gap-4 my-5">
