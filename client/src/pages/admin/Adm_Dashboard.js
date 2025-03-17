@@ -24,6 +24,7 @@ const Adm_Dashboard = () => {
     drafted: [],
     scheduled: [],
     past: [],
+    live: []
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -240,7 +241,9 @@ const Adm_Dashboard = () => {
               <p>Loading...</p>
             ) : error ? (
               <p>{error}</p>
-            ) : (
+            ) : paginatedData.length === 0 ? ( //  ADDED: Show message when no tests are available
+              <p className="text-gray-500 text-center w-full">No tests available.</p>
+            ) :(
               paginatedData?.map((test) => {
                 const key = test.exam_id || test.id || test.name;
             
@@ -258,7 +261,7 @@ const Adm_Dashboard = () => {
               })
             )}
           </div>
-
+          {totalPages > 1 && (  // ✅ ADDED: Hide pagination if only one page exists
           <div className="flex justify-center items-center mt-6">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -296,6 +299,7 @@ const Adm_Dashboard = () => {
               &gt; {/* Right Arrow */}
             </button>
           </div>
+          )}
         </div>
       </div>
     </div>

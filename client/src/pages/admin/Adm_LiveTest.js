@@ -79,6 +79,13 @@ const Adm_LiveTest = () => {
     fetchLiveTests();
   }, []);
 
+  //  Reset pagination when no tests are available
+useEffect(() => {
+  if (tests.length === 0) {
+    setCurrentPage(1);
+  }
+}, [tests]);
+
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
@@ -143,16 +150,21 @@ const Adm_LiveTest = () => {
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
+            {currentItems.length === 0 ? ( // ADDED: Show message when no tests are available
+           <p className="text-gray-500 text-center w-full">No tests available.</p>
+          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2  gap-y-5 mt-6">
               {/* Display only current items */}
               {currentItems.map((test, index) => (
                 <Adm_LiveTestCard key={index} test={test} />
               ))}
             </div>
-
+           )}
             {/* Pagination Controls */}
+            {tests.length > 0 && totalPages > 1 && (
             <div className="flex justify-center mt-6">
               {/* Left Arrow Button */}
+              {currentPage > 1 && totalPages > 1 && (
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 className={`p-2 mx-1 border rounded ${
@@ -177,7 +189,8 @@ const Adm_LiveTest = () => {
                   />
                 </svg>
               </button>
-
+            )}
+   
               {/* Page Number Buttons */}
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
@@ -194,6 +207,7 @@ const Adm_LiveTest = () => {
               ))}
 
               {/* Right Arrow Button */}
+              {currentPage < totalPages && totalPages > 1 && ( 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`p-2 mx-1 border rounded ${
@@ -218,7 +232,9 @@ const Adm_LiveTest = () => {
                   />
                 </svg>
               </button>
+              )}
             </div>
+            )}
           </>
         )}
       </div>
