@@ -8,12 +8,15 @@ import Dep_PastTestCard from "../../components/department/Dep_PastTestCard";
 import Dep_LiveTestCard from "../../components/department/Dep_LiveTestCard";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
+import { setDepartmentAnalysis } from "../../redux/analysisSlice";
 
 const Dep_Dashboard = () => {
+  const dispatch = useDispatch()
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
+  const user_department = userData.department;
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [tileData, setTileData] = useState([]);
@@ -140,6 +143,21 @@ const Dep_Dashboard = () => {
   const createTestHandler = () => {
     navigate("/department/createtest");
   };
+
+  useEffect(() => {
+    const fetchDepartmentAnalysis = async () => {
+      try {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        let response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/${user_department}`, { withCredentials: true });
+        dispatch(setDepartmentAnalysis({department: user_department, data: response.data}))
+      }
+      catch(err){
+        console.log(err)
+      }
+    }
+    fetchDepartmentAnalysis();
+  }, [])
+
 
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);
