@@ -182,7 +182,7 @@ const Dep_CreateTestPage = () => {
             Basic create test info.
           </h2>
         </div>
-
+{/* <>User Type</> */}
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
             <div className="grid grid-cols-2 gap-4 my-5">
