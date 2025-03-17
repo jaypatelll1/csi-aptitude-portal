@@ -62,6 +62,20 @@ CREATE TABLE responses (
     status response_status DEFAULT 'draft'
 );
 
+CREATE TABLE text_response (
+    answer_id SERIAL PRIMARY KEY,
+    question_id INT NOT NULL,
+    response_id INT NOT NULL,
+    marks_alloted INT,
+    total_marks INT,
+    comments TEXT,
+    user_id INTEGER,
+    exam_id INTEGER,
+    FOREIGN KEY (response_id) REFERENCES responses(response_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (exam_id) REFERENCES exams(exam_id) ON DELETE CASCADE
+);
+
 CREATE TABLE results (
     result_id SERIAL PRIMARY KEY,
     student_id INTEGER,
@@ -71,6 +85,17 @@ CREATE TABLE results (
     completed_at TIMESTAMP,
     FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
     FOREIGN KEY (student_id) REFERENCES users (user_id)
+);
+
+CREATE TABLE teacher_results (
+    result_id SERIAL PRIMARY KEY,
+    teacher_id INTEGER,
+    exam_id INTEGER,
+    total_score INTEGER,
+    max_score INTEGER,
+    completed_at TIMESTAMP,
+    FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
+    FOREIGN KEY (teacher_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE student_analysis (
