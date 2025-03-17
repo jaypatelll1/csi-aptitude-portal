@@ -38,22 +38,15 @@ const textResponseRoutes = require("./routes/textResponseRoutes");
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
-const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-const FRONTEND_ORIGIN =
-  process.env.NODE_ENV === 'production'
-    ? [
-        'https://csi-aptitude-portal-client.onrender.com',
-        'http://localhost:3000',
-        'https://aptitude.csiace.com',
-        'https://csi-aptitude-portal-1.onrender.com',
-      ]
-    : ['http://localhost:3000']; // Development also returns an array
-// Local frontend URL
+
+const allowedOrigins = process.env.NODE_ENV ==='production'
+  ? process.env.FRONTEND_ORIGIN
+  : 'http://localhost:3000';
 
 const io = new Server(server, {
   cookie: true,
   cors: {
-    origin: FRONTEND_ORIGIN, // Allow frontend origin
+    origin: allowedOrigins, // Allow frontend origin
     methods: ['GET', 'POST'], // Specify HTTP methods
     credentials: true, // Allow credentials (cookies)
   },
@@ -63,7 +56,7 @@ const io = new Server(server, {
 app.use(cookieParser());
 app.use(
   cors({
-    origin: FRONTEND_ORIGIN, // Update this to your frontend URL deployed on Render
+    origin: allowedOrigins, // Update this to your frontend URL deployed on Render
     credentials: true, // Allow cookies to be sent
   })
 );
@@ -108,6 +101,7 @@ initSocketHandlers(start_exam);
 
 // Ensure a response for the root route
 app.get('/', (req, res) => {
+
   res.send('Server is running!'); // Generic message for Render health checks
 });
 
@@ -124,6 +118,7 @@ app.use(errorHandler);
 
 
 server.listen(PORT, () => {
+ 
   console.log(`Server is running at http://${PORT}`);
 });
 
