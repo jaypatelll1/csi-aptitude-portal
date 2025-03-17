@@ -383,7 +383,6 @@ module.exports = {
   getExamsByStatus,
   ExamCount,
   getExamStatusById,
-  createExamForTeachersModel,
   getExamsForTeachers,
   getExamsByTeacherId
 };  
