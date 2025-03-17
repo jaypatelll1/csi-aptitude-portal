@@ -160,7 +160,7 @@ function Dep_Analytics() {
             <>
               <div className="flex items-center mt-4">
                 <h1 className="text-3xl font-bold text-gray-800 ml-4 xl:ml-0">
-                  Analytics Dashboard
+                  Branch Analytics
                 </h1>
               </div>
   

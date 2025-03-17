@@ -200,7 +200,7 @@ function Adm_Analytics() {
                   <path strokeLinecap="round" strokeLinejoin="round" d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
                 </svg>
               </button>
-              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">Analytics Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">Branch Analytics</h1>
               <div className="flex justify-center space-x-4 mr-10">
                 {departments.map((dept) => (
                   <button key={dept} className={`px-6 py-2 rounded-md font-semibold transition-all ${selectedDepartment === dept ? "bg-blue-600 text-white shadow-lg" : "bg-gray-300 text-gray-800"}`} onClick={() => handleDepartmentChange(dept)}>
