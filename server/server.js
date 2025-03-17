@@ -31,7 +31,7 @@ const rankRoutes = require('./routes/rankRoutes');
 
 const uploadRoutes = require("./routes/uploadRoutes");
 
-
+const textResponseRoutes = require("./routes/textResponseRoutes");
 
 
 // Initialize the app
@@ -98,6 +98,7 @@ app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
 
 app.use("/api",jwtAuthMiddleware, uploadRoutes);
 
+app.use("/api/text-responses",jwtAuthMiddleware, textResponseRoutes);
 
 
 
