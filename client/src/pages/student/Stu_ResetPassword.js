@@ -11,6 +11,30 @@ const Stu_ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [tokenValid, setTokenValid] = useState(false);
 
+  const encryptPassword = async (password) => {
+    const SECRET_KEY = process.env.REACT_APP_KEY.slice(0, 32); // 32 bytes
+    const IV = process.env.REACT_APP_IV.slice(0, 16); // 16 bytes
+
+    const encoder = new TextEncoder();
+    const encodedPassword = encoder.encode(password);
+
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(SECRET_KEY),
+      { name: "AES-CBC" },
+      false,
+      ["encrypt"]
+    );
+
+    const encryptedData = await crypto.subtle.encrypt(
+      { name: "AES-CBC", iv: new TextEncoder().encode(IV) },
+      cryptoKey,
+      encodedPassword
+    );
+
+    return btoa(String.fromCharCode(...new Uint8Array(encryptedData))); // Convert to Base64
+  };
+
   useEffect(() => {
     const verifyToken = async () => {
       try {
@@ -40,10 +64,11 @@ const Stu_ResetPassword = () => {
     setError("");
 
     try {
+      const encryptedPassword = await encryptPassword(newPassword);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       await axios.post(`${API_BASE_URL}/api/users/reset-password`, { 
         resettoken : resettoken,
-        password: newPassword });
+        password: encryptedPassword });
       navigate("/"); // Redirect to login after successful password reset
     } catch (err) {
       setError("Failed to reset password. Please try again.");

@@ -178,8 +178,10 @@ const resetPassword = async (req, res) => {
     console.log(decoded);
     const userId = decoded.id;
 
+    const decryptedPassword = await decryptPassword(newPassword)
+
     // Hash the new password
-    const hashedPassword = await hashPassword(newPassword);
+    const hashedPassword = await hashPassword(decryptedPassword);
 
     // Update the user password using the `updateUser` model
     const updatedUser = await userModel.updateUser(userId, {
