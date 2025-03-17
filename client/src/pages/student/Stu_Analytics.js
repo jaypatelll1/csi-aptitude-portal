@@ -8,6 +8,7 @@ import LineChartComponent from "../../components/analytics/LineChartComponent";
 import DonutChartComponent from "../../components/analytics/DonutChartComponent";
 import RadarChartComponent from "../../components/analytics/RadarChartComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
+import Loader from "../../components/Loader";
 
 function Stu_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -239,12 +240,12 @@ function Stu_Analytics() {
   
         {/* Main Content */}
         <div className="p-6">
-          {loading ? (
-            // Show Loading message while data is fetching
-            <div className="flex items-center justify-center h-96 text-2xl font-medium">
-            Loading...
-          </div>
-          ) : (
+        {loading ? (
+  <div className="flex items-center justify-center h-96">
+    <Loader />
+  </div>
+) : (
+
             <>
               <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">
                 Analytics
