@@ -3,6 +3,7 @@ import axios from "axios";
 import Dep_Sidebar from "../../components/department/Dep_Sidebar"; // Sidebar component
 import Dep_LiveTestCard from "../../components/department/Dep_LiveTestCard"; // Drafted Test Card component
 import Dep_Navbar from "../../components/department/Dep_Navbar";
+import Loader from "../../components/Loader";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_LiveTest = () => {
@@ -101,133 +102,148 @@ const Dep_LiveTest = () => {
       >
         <Dep_Sidebar />
       </div>
-
+  
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Dep_Navbar />
-        <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
-          {/* Burger Icon Button */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="xl:hidden text-gray-800 focus:outline-none"
-          >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
-                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
-                }
-              />
-            </svg>
-          </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0 ">
-            Live Tests
-          </h1>
-        </div>
-
-        <hr className="mb-4" />
+  
+        {/* Hide Header while loading */}
+        {!loading && (
+          <>
+            {/* Header Section */}
+            <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
+              {/* Sidebar Toggle Button */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="xl:hidden text-gray-800 focus:outline-none"
+              >
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d={
+                      sidebarOpen
+                        ? "M6 18L18 6M6 6l12 12"
+                        : "M4 6h16M4 12h16M4 18h16"
+                    }
+                  />
+                </svg>
+              </button>
+  
+              {/* Title */}
+              <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
+                Live Tests
+              </h1>
+            </div>
+  
+            <hr className="mb-4" />
+          </>
+        )}
+  
+        {/* Loader while fetching data */}
         {loading ? (
-          <p>Loading live tests...</p> // Show loading indicator
+          <div className="flex justify-center items-center h-screen">
+            <Loader />
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p> // Show error message
+          <p className="text-red-500 text-center mt-8">{error}</p>
+        ) : currentItems.length === 0 ? (
+          <p className="text-gray-500 text-center w-full mt-8">
+            No Live tests available.
+          </p>
         ) : (
           <>
-          {currentItems.length === 0 ? ( // ADDED: Show message when no tests are available
-           <p className="text-gray-500 text-center w-full">No Live tests available.</p>
-          ) :(
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2  gap-y-5 mt-6">
-              {/* Display only current items */}
+            {/* Live Tests Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-6">
               {currentItems.map((test, index) => (
                 <Dep_LiveTestCard key={index} test={test} />
               ))}
             </div>
-          )}
+  
             {/* Pagination Controls */}
             {tests.length > 0 && totalPages > 1 && (
-            <div className="flex justify-center mt-6">
-              {/* Left Arrow Button */}
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === 1}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-
-              {/* Page Number Buttons */}
-              {Array.from({ length: totalPages }, (_, i) => (
+              <div className="flex justify-center mt-6">
+                {/* Previous Page Button */}
                 <button
-                  key={i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 text-sm border rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === 1
+                      ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-gray-200"
                   }`}
+                  disabled={currentPage === 1}
                 >
-                  {i + 1}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
                 </button>
-              ))}
-
-              {/* Right Arrow Button */}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === totalPages}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
+  
+                {/* Page Number Buttons */}
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`px-3 py-1 mx-1 text-sm border rounded ${
+                      currentPage === i + 1
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-gray-200"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+  
+                {/* Next Page Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === totalPages
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-200"
+                  }`}
+                  disabled={currentPage === totalPages}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
             )}
           </>
         )}
       </div>
     </div>
   );
+  
 };
 
 export default Dep_LiveTest;

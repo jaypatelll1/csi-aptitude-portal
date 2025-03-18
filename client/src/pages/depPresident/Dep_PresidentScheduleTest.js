@@ -3,6 +3,7 @@ import axios from "axios";
 import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSidebar";
 import Dep_PresidentScheduledTestCard from "../../components/depPresident/Dep_PresidentScheduleTestCard";
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
+import Loader from "../../components/Loader";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentScheduledTest = () => {
@@ -127,9 +128,11 @@ const Dep_PresidentScheduledTest = () => {
         </div>
         
         {loading ? (
-          <p>Loading scheduled tests...</p>
+          <div className="flex justify-center items-center h-screen">
+            <Loader />
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500 text-center mt-8">{error}</p>
         ) : scheduledTests.length === 0 ? (
           <p className="text-center mt-8 text-gray-600">
             No tests available.
