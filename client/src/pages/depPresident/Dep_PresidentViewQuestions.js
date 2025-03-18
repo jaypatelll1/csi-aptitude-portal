@@ -56,7 +56,6 @@ const Dep_PresidentViewQuestions = () => {
           }
         );
       
-
         setTestDuration(response.data.exam.duration);
       } catch (err) {
         console.error("Error fetching test duration:", err.message);

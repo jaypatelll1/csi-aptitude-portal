@@ -27,10 +27,10 @@ const analysisRoutes = require('./routes/analysisRoutes');
 const deptRoutes = require('./routes/deptAnalysisRoutes');
 const tpoRoutes = require('./routes/tpoAnalysisRoutes');
 const rankRoutes = require('./routes/rankRoutes');
+const teacherResponseRoutes = require("./routes/teacherResponseRoutes");
 
 const uploadRoutes = require("./routes/uploadRoutes");
 
-const teacherResponseRoutes = require("./routes/teacherResponseRoutes");
 
 
 // Initialize the app
@@ -90,16 +90,14 @@ app.use('/api/export', exportRoutes);
 // app.use('/api/exams', fileRoutes);
 app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 app.use('/api/analysis', jwtAuthMiddleware, analysisRoutes);
-const start_exam = io.of('/exams/start-exam');
 app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
 app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
+app.use("/api/exams/teacher-responses",jwtAuthMiddleware, teacherResponseRoutes);
 
 app.use("/api",jwtAuthMiddleware, uploadRoutes);
 
-app.use("/api/teacher-responses",jwtAuthMiddleware, teacherResponseRoutes);
-
-
+const start_exam = io.of('/exams/start-exam');
 
 
 // Initialize Socket.IO handlers

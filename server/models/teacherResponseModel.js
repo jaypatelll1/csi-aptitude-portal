@@ -170,8 +170,8 @@ const submitFinalTeacherResponsesAndChangeStatus = async (
 const getExamIdByResponse = async (status, user_id) => {
   try {
     const result = await pool.query(
-      `SELECT DISTINCT exam_id FROM responses 
-         WHERE teacher_id = $1 AND status = $2`,
+      `SELECT DISTINCT exam_id FROM teacher_responses 
+         WHERE teacher_id = $1 AND response_status = $2`,
       [user_id, status]
     );
 
@@ -187,7 +187,7 @@ const getExamIdByResponse = async (status, user_id) => {
 const clearResponse = async (teacherId, examId, questionId) => {
   try {
     const result = await pool.query(
-      "UPDATE responses SET selected_option = NULL, selected_options=NULL, text_answer=NULL WHERE teacher_id = $1 AND exam_id = $2 AND question_id = $3 AND status='draft' RETURNING *",
+      "UPDATE responses SET selected_option = NULL, selected_options=NULL, text_answer=NULL WHERE teacher_id = $1 AND exam_id = $2 AND question_id = $3 AND response_status='draft' RETURNING *",
       [teacherId, examId, questionId]
     );
     return result.rows;
@@ -198,7 +198,7 @@ const clearResponse = async (teacherId, examId, questionId) => {
 
 const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
   let query = `
-    SELECT response_id, selected_option, answered_at, responses.question_id, q.question_text, q.options  
+    SELECT response_id, selected_option, answered_at, teacher_responses.question_id, q.question_text, q.options  
     FROM teacher_responses
     INNER JOIN questions AS q ON teacher_responses.question_id = q.question_id
     WHERE q.exam_id = $1 AND teacher_responses.teacher_id = $2

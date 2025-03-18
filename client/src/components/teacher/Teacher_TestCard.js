@@ -1,9 +1,7 @@
 import React, { useEffect ,useState} from 'react';
 import { useNavigate } from "react-router-dom";
-import { useSelector , useDispatch} from 'react-redux';
+import { useDispatch} from 'react-redux';
 import axios from 'axios';
-import {setDuration} from "../../redux/ExamSlice"
-
 
 const Teacher_TestCard = ({ testName, questionCount, duration, lastDate, examId, status }) => {
   const [submit,setSubmit]= useState(false)
@@ -27,14 +25,14 @@ const dispatch = useDispatch()
         try {
           let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           const response = await axios.get(
-            `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+            `${API_BASE_URL}/api/exams/teacher-responses/user_id?status=submitted`,
             { withCredentials: true }
           );
   
           // if (isMounted) {
           //   setResponseExamIds(response.data); // Store fetched data in state
           // }
-  
+
           // Check if examId is present in the response data
           if (response.data.includes(examId)) {
         setSubmit(true)
@@ -54,8 +52,8 @@ const dispatch = useDispatch()
 
 
   const handleChange = async () => {
-   
-    navigate("/test-instruction", { state: { examId: examId, Duration: duration } , replace:true})
+   console.log(examId, duration)
+    navigate("/teacher/test-instruction", { state: { examId: examId, Duration: duration } , replace:true})
 
   }
 

@@ -131,7 +131,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/test-instruction"
+        path="/teacher/test-instruction"
         element={
           <ProtectedRoute allowedRoles={["Teacher"]}>
             <Teacher_TestInstruction />
@@ -139,7 +139,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/exam/:examId"
+        path="/teacher/exam"
         element={
           <ProtectedRoute allowedRoles={["Teacher"]}>
             <Teacher_MCQExamPage />
@@ -147,7 +147,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/upcoming-tests"
+        path="/teacher/upcoming-tests"
         element={
           <ProtectedRoute allowedRoles={["Teacher"]}>
             <Teacher_UpcomingTest />

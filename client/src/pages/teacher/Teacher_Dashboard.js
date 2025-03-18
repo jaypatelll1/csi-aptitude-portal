@@ -48,14 +48,14 @@ function Teacher_Dashboard() {
         },
         withCredentials: true,  // Make sure the cookie is sent with the request
       });
-      console.log('response is ', response);
-      // let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      // const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/results/teacher/${userData.id}`, {
+      console.log('response is ', response.data);
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      // const pastPaper = await axios.get(`${API_BASE_URL}/api/exams/teacher-results/${userData.id}`, {
       //   withCredentials: true,  // Make sure the cookie is sent with the request
       // })
 
       const responseExamId = await axios.get(
-        `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+        `${API_BASE_URL}/api/exams/teacher-responses/user_id?status=submitted`,
         { withCredentials: true }
       );
 
@@ -63,10 +63,11 @@ function Teacher_Dashboard() {
       // console.log('past tests is ', pastPaper);
       // setResult(pastPaper.data.results)
       // console.log(result)
-      // console.log('responseExamId.data',responseExamId.data);
+      console.log('responseExamId.data',responseExamId.data);
       // dispatch(markSubmit(responseExamId.data))
-      const fetchedTests = response.data.exams || []
-      setTests((prevTests) => JSON.stringify(prevTests) !== JSON.stringify(fetchedTests) ? fetchedTests : prevTests);
+      // const fetchedTests = response.data.exams || []
+      // setTests((prevTests) => JSON.stringify(prevTests) !== JSON.stringify(fetchedTests) ? fetchedTests : prevTests);
+      setTests(response.data.exams || []);
     } catch (err) {
       console.error("error getting response ", err);
     }

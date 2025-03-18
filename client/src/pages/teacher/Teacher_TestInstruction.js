@@ -37,19 +37,19 @@ const Teacher_TestInstruction = () => {
       try {
         // Fetch user responses
         const response = await axios.get(
-          `${API_BASE_URL}/api/exams/responses/user_id?status=draft`,
+          `${API_BASE_URL}/api/exams/teacher-responses/user_id?status=draft`,
           { withCredentials: true }
         );
 
         if (!response.data.includes(examId)) {
           // If examId is not in responses, delete old and initialize new responses
           await axios.delete(
-            `${API_BASE_URL}/api/exams/responses/questions/${examId}`,
+            `${API_BASE_URL}/api/exams/teacher-responses/questions/${examId}`,
             { withCredentials: true }
           );
 
           await axios.post(
-            `${API_BASE_URL}/api/exams/responses/initialize/${examId}`,
+            `${API_BASE_URL}/api/exams/teacher-responses/initialize/${examId}`,
             {},
             { withCredentials: true }
           );
@@ -71,17 +71,18 @@ const Teacher_TestInstruction = () => {
                 }
               };
 
-
               const questions = response.data;
 
               // Shuffle the array of questions
               shuffleArray(questions);
-
+              
               let formattedQuestions = questions.map((q) => ({
                 ...q,
                 answered: false,
                 visited: false,
                 selectedOption: null,
+                selectedOptions: null,
+                textAnswer: null
               }));
               dispatch(setQuestions(formattedQuestions));
 
@@ -96,7 +97,7 @@ const Teacher_TestInstruction = () => {
 
         else if (response.data.includes(examId)) {
           const responses = await axios.get(
-            `${API_BASE_URL}/api/exams/responses/${examId}`,
+            `${API_BASE_URL}/api/exams/teacher-responses/${examId}`,
             { withCredentials: true }
           );
         
@@ -106,6 +107,8 @@ const Teacher_TestInstruction = () => {
             answered: q.selected_option !==null,
             visited: q.selected_option !==null ,
             selectedOption: q.selected_option || null, // Directly use selected_option
+            selectedOptions: q.selected_options || null,
+            textAnswer: q.text_answer || null
           }));
         
           // Dispatch once to update Redux state
@@ -131,7 +134,8 @@ const Teacher_TestInstruction = () => {
 
 
   const handleStartTest = () => {
-    navigate(`/exam/${examId}`, { state: { Duration: Duration }, replace: true });
+    console.log(examId)
+    navigate(`/teacher/exam`, { state: { examId: examId,  Duration: Duration }, replace: true });
 
   };
   useEffect(() => {
