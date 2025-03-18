@@ -113,7 +113,7 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/results"
+        path="student/results"
         element={
           <ProtectedRoute allowedRoles={["Student"]}>
             <Stu_Result />

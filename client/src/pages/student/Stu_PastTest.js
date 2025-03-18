@@ -102,8 +102,6 @@ const Stu_PastTest = () => {
       </div>
 
       {/* Main Content Section */}
-      <div className="flex-1">
-        <Stu_Sidebar />
         <div className="flex-1 p-4 sm:p-6">
           <div className="flex items-center  mb-4 sm:mb-6">
             {/* Burger Icon Button */}
@@ -188,7 +186,7 @@ const Stu_PastTest = () => {
           )}
         </div>
       </div>
-    </div>
+
   );
 };
 

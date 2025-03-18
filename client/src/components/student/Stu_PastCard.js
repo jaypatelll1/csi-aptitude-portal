@@ -1,72 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DataTime from "../admin/Adm_DataTime";
 import axios from "axios";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 
 const Stu_PastCard = ({ test }) => {
- 
-
+  const navigate = useNavigate();
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
-  const [questions, setQuestions] = useState([])
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
-  const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
-  const [loading, setLoading] = useState(false);
-
-
-  const examId = test.exam_id;
- 
-
-  // Handle page change
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-  };
-
-  // Handle limit change (optional)
-  const handleLimitChange = (newLimit) => {
-    setLimit(newLimit);
-    setPage(1); // Reset to first page whenever the limit changes
-  };
-
-
-
-
 
   const handlePublishClick = async (test) => {
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     try {
-    
-      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,{
-        withCredentials: true,  // Make sure the cookie is sent with the request
-    });
-
-      
-      window.location.reload();
-
-
+  
+      // Navigate to the results page with exam_id in state
+      navigate(`/student/results`, { state: { exam_id: test.exam_id } });
     } catch (error) {
       console.error('Error during Put request:', error);
     }
   };
 
-  const handleSchedule = (start, end) => {
-    setScheduledTime({ start, end });
-    axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
-      start_time: start,
-      end_time: end,
-    } ,{
-      withCredentials: true,  // Make sure the cookie is sent with the request
-  })
-      .then(() => {
-        setIsScheduling(false);
-      })
-      .catch((err) =>
-        alert(
-          `Error scheduling test: ${err.response?.data?.message || err.message}`
-        )
-      );
-  };
+  //   setScheduledTime({ start, end });
+  //   axios.put(`${API_BASE_URL}/api/exams/publish/${test.exam_id}`, {
+  //     start_time: start,
+  //     end_time: end,
+  //   }, {
+  //     withCredentials: true,  // Make sure the cookie is sent with the request
+  //   })
+  //     .then(() => {
+  //       setIsScheduling(false);
+  //     })
+  //     .catch((err) =>
+  //       alert(
+  //         `Error scheduling test: ${err.response?.data?.message || err.message}`
+  //       )
+  //     );
+  // };
 
   const handleCancel = () => {
     setIsScheduling(false);
@@ -98,7 +67,7 @@ const Stu_PastCard = ({ test }) => {
       <h2 className="text-lg font-bold text-gray-900">{test.title}</h2>
       <div className="text-gray-600 text-sm mt-4">
         <p className="mb-2 font-bold flex items-center">
-        <svg
+          <svg
             width="22"
             height="22"
             viewBox="0 0 22 22"
@@ -149,8 +118,6 @@ const Stu_PastCard = ({ test }) => {
               />
             </g>
           </svg>
-          {/* Display the question count */}
-
           <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
         </p>
         <p className="font-bold flex items-center">
@@ -182,30 +149,22 @@ const Stu_PastCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border  opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button 
+          className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border opacity-90 hover:opacity-100" 
+          onClick={() => handlePublishClick(test)}
         >
-
-
-          View Results
+          View Result
         </button>
-        {/* <button
-          onClick={() => setIsScheduling(true)}
-          className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
-        >
-          Schedule
-        </button> */}
       </div>
-      <div className="relative">
-        {/* Conditionally render the DataTime component for scheduling */}
+      {/* <div className="relative">
         {isScheduling && (
-          <DataTime
-            onSchedule={handleSchedule}
-            onCancel={handleCancel}
-            duration={test.duration}
-          />
+          // <DataTime
+          //   onSchedule={handleSchedule}
+          //   onCancel={handleCancel}
+          //   duration={test.duration}
+          // />
         )}
 
-        {/* Display scheduled time */}
         {scheduledTime.start && scheduledTime.end && (
           <div className="mt-4 text-sm text-gray-600">
             <p>
@@ -214,9 +173,8 @@ const Stu_PastCard = ({ test }) => {
             </p>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
-    
   );
 };
 

@@ -45,7 +45,7 @@ function Stu_Navbar({ hideTitle = false }) {
           {/* Burger Icon Button */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="xl:hidden text-gray-800 focus:outline-none"
+            className="xl:hidden text-gray-800 focus:outline-none pl-4"
           >
             <svg
               className="w-8 h-8"
@@ -78,17 +78,17 @@ function Stu_Navbar({ hideTitle = false }) {
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}
           >
-            {getInitials(userData.name)}
+            {getInitials(userData?.name || "")}
           </div>
 
           <div ref={detailsRef}>
             {isDetailsOpen && (
               <Details
-                name={userData.name}
-                email={userData.email}
-                mobile={userData.phone}
-                branch={userData.department}
-                year={userData.year}
+                name={userData?.name || ""}
+                email={userData?.email || ""}
+                mobile={userData?.phone || ""}
+                branch={userData?.department || ""}
+                year={userData?.year || ""}
               />
             )}
           </div>

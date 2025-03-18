@@ -1,71 +1,100 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from "react";
 
 const Stu_SidebarViewResult = ({ 
-  name = "General Knowledge", 
+  questions = [],
+  currentIndex = 0,
   onQuestionClick,
-  isPassed = true,
-  userName = "Akshay Manjrekar",
-  currentExamId,
-  student_id,
-  API_BASE_URL
+  totalMarks = 0,
+  obtainedMarks = 0,
+  userName = "Student",
+  name = "Test"
 }) => {
-  const [questions, setQuestions] = useState([]);
-  const [totalMarks, setTotalMarks] = useState(0);
-  const [obtainedMarks, setObtainedMarks] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch question status data
-        const student_id = 524;
-        const currentExamId = 74;
-        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const questionsRes = await axios.get(
-          `${API_BASE_URL}/api/exams/results/correct-incorrect/${currentExamId}/${student_id}`,
-          { withCredentials: true }
-        );
-        
-    
-        
-        setQuestions(questionsRes.data);
-        // setTotalMarks(marksRes.data.totalMarks);
-        // setObtainedMarks(marksRes.data.obtainedMarks);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load data");
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [API_BASE_URL, currentExamId, student_id]);
-
-  // Use placeholder data if loading or error
-  const displayQuestions = loading || error ? 
+  // Process questions to match the expected format for this component
+  // Handle both single answer and multiple answer questions
+  const processedQuestions = questions.map(question => {
+    if (question.isMultipleAnswer) {
+      // For multiple answer questions
+      const selectedOptions = question.selectedOptions || [];
+      const correctAnswers = question.correctAnswers || [];
+      
+      // A question is correct if all correct answers are selected and no incorrect answers are selected
+      const allCorrectAnswersSelected = correctAnswers.every(answer => 
+        selectedOptions.includes(answer)
+      );
+      
+      const noIncorrectAnswersSelected = selectedOptions.every(option => 
+        correctAnswers.includes(option)
+      );
+      
+      const isCorrect = allCorrectAnswersSelected && noIncorrectAnswersSelected && selectedOptions.length > 0;
+      
+      // A question is unanswered if nothing is selected
+      const isUnanswered = selectedOptions.length === 0;
+      
+      // A question is incorrect if it's not correct and not unanswered
+      const isIncorrect = !isCorrect && !isUnanswered;
+      
+      return {
+        question_id: question.question_id || question.questionId,
+        isCorrect,
+        isIncorrect,
+        isUnanswered,
+        category: question.category || "TEST",
+        isMultipleAnswer: true
+      };
+    } else {
+      // For single answer questions (original logic)
+      return {
+        question_id: question.question_id || question.questionId,
+        isCorrect: question.selectedOption !== null && 
+                  question.selectedOption !== undefined && 
+                  question.selectedOption === question.correctAnswer,
+        isIncorrect: question.selectedOption !== null && 
+                    question.selectedOption !== undefined && 
+                    question.selectedOption !== question.correctAnswer,
+        isUnanswered: question.selectedOption === null || 
+                    question.selectedOption === undefined,
+        category: question.category || "TEST",
+        isMultipleAnswer: false
+      };
+    }
+  });
+  
+  // Calculate stats
+  const displayQuestions = processedQuestions.length > 0 ? 
+    processedQuestions.slice(0, 30) : // Limit to 30 questions
     Array.from({ length: 30 }, (_, i) => ({
       question_id: i + 1,
       isCorrect: false,
-      isIncorrect: false
-    })) : 
-    // Limit to 30 questions
-    questions.slice(0, 30);
-
-  // Calculate stats
+      isIncorrect: false,
+      isUnanswered: true,
+      isMultipleAnswer: false
+    }));
+    
   const correctCount = displayQuestions.filter(q => q.isCorrect).length;
   const incorrectCount = displayQuestions.filter(q => q.isIncorrect).length;
-  const unansweredCount = displayQuestions.length - correctCount - incorrectCount;
+  const unansweredCount = displayQuestions.filter(q => q.isUnanswered).length;
   const total = displayQuestions.length;
+  const multipleAnswerCount = displayQuestions.filter(q => q.isMultipleAnswer).length;
+  
+  // Calculate marks based on correct answers
+  const calculatedObtainedMarks = correctCount;
+  const calculatedTotalMarks = total;
+  
+  // Determine pass/fail status (typically 60% is passing)
+  const isPassed = correctCount >= Math.ceil(total * 0.6);
+  
+  // Get category from first question or use default
+  const category = questions.length > 0 && questions[0].category ? 
+    questions[0].category : "TEST";
 
   return (
-    <div className="flex items-center justify-center bg-[#F5F6F8]">
-      <div className="w-full max-w-[372px] h-[calc(100vh-195px)] overflow-hidden gap-2 p-4 bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8 mb-10 mr-0 sm:mr-4 md:mr-8 rounded-lg shadow-lg">
+    <div className="flex items-center justify-center bg-[#F5F6F8] ">
+      <div className="w-full max-w-[372px] h-[calc(100vh-195px)] mt-8 overflow-y-auto overflow-x-hidden gap-2 p-4 bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8 mb-10 mr-0 sm:mr-4 md:mr-8 rounded-lg shadow-lg">
         <div className="mb-4">
-        <p className="text-lg sm:text-xl font-semibold mb-2">{userName}</p>
+          <p className="text-lg sm:text-xl font-semibold mb-2">{userName}</p>
           <div className="flex justify-between items-center">
-          <h1 className="text-sm sm:text-base text-gray-700">{name}</h1>
+            <h1 className="text-sm sm:text-base text-gray-700 uppercase font-bold">{category}</h1>
             <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm ${isPassed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
               {isPassed ? "Passed" : "Failed"}
             </span>
@@ -116,6 +145,7 @@ const Stu_SidebarViewResult = ({
           {displayQuestions.map((question, index) => {
             let bgColor = "bg-gray-200"; // Default for unanswered
             let text = "text-black";
+            let borderStyle = "";
             
             if (question.isCorrect) {
               bgColor = "bg-[#07C31D]"; // Green for correct
@@ -124,25 +154,43 @@ const Stu_SidebarViewResult = ({
               bgColor = "bg-[#C82F2F]"; // Red for incorrect
               text = "text-white";
             }
-
+            
+            // Add special indicator for multiple answer questions
+            if (question.isMultipleAnswer) {
+              borderStyle = "border-2 border-blue-500";
+            }
+            
             return (
               <button
                 key={index}
-                className={`${bgColor} ${text} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md border hover:opacity-80 transition`}
+                className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? 'ring-2 ring-blue-500' : ''}`}
                 onClick={() => onQuestionClick(index)}
+                title={question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}
               >
                 {index + 1}
+                {question.isMultipleAnswer && <span className="text-xs">*</span>}
               </button>
             );
           })}
         </div>
 
         <div className="mb-4 p-2 sm:p-3 bg-gray-50 shadow rounded-lg text-xs sm:text-sm">
-          <p className="font-semibold">Marks: {obtainedMarks}/{totalMarks}</p>
+          <p className="font-semibold">Marks: {calculatedObtainedMarks}/{calculatedTotalMarks}</p>
           <p>Total no. questions: {total}</p>
-          <p>No. answered questions: {correctCount + incorrectCount}</p>
+          <p>No. of answered questions: {correctCount + incorrectCount}</p>
           <p>No. of unanswered questions: {unansweredCount}</p>
+          {multipleAnswerCount > 0 && (
+            <p>Multiple answer questions: {multipleAnswerCount}</p>
+          )}
         </div>
+        
+        {multipleAnswerCount > 0 && (
+          <div className="mb-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm">
+            <p className="text-blue-800">
+              <span className="font-semibold">Note:</span> Questions marked with <span className="text-blue-500">*</span> and blue borders require multiple answers.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
