@@ -39,14 +39,22 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 
-const allowedOrigins = process.env.NODE_ENV ==='production'
-  ? process.env.FRONTEND_ORIGIN
-  : 'http://localhost:3000';
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+const FRONTEND_ORIGIN =
+  process.env.NODE_ENV === 'production'
+    ? [
+        'https://csi-aptitude-portal-client.onrender.com',
+        'http://localhost:3000',
+        'https://aptitude.csiace.com',
+        'https://csi-aptitude-portal-1-nu4p.onrender.com',
+      ]
+    : ['http://localhost:3000']; // Development also returns an array
+// Local frontend URL
 
 const io = new Server(server, {
   cookie: true,
   cors: {
-    origin: allowedOrigins, // Allow frontend origin
+    origin: FRONTEND_ORIGIN, // Allow frontend origin
     methods: ['GET', 'POST'], // Specify HTTP methods
     credentials: true, // Allow credentials (cookies)
   },
@@ -56,10 +64,11 @@ const io = new Server(server, {
 app.use(cookieParser());
 app.use(
   cors({
-    origin: allowedOrigins, // Update this to your frontend URL deployed on Render
+    origin: FRONTEND_ORIGIN, // Update this to your frontend URL deployed on Render
     credentials: true, // Allow cookies to be sent
   })
 );
+
 app.use(express.json());
 app.use(bodyParser.json());
 

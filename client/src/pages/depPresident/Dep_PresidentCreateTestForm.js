@@ -10,7 +10,6 @@ const Dep_PresidentCreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userType, setUserType] = useState("teacher"); // Default user type
 
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -30,9 +29,6 @@ const Dep_PresidentCreateTestPage = () => {
     const payload = {
       name: testName,
       duration: parseInt(duration), // Convert to integer as backend might expect a number
-      target_years: ["FE", "SE", "TE", "BE"], // Include all years by default
-      target_branches: [user.department], // Use the department from user state
-      user_type: userType
     };
 
     try {
@@ -144,8 +140,6 @@ const Dep_PresidentCreateTestPage = () => {
 
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
-            {/* Hidden field for user type */}
-            <input type="hidden" value={userType} />
 
             <div className="mb-6">
               <label

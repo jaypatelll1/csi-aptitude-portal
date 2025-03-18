@@ -441,7 +441,7 @@ const Adm_StudentList = () => {
                   </tr>
                 ))}
             </tbody>
-          </table>
+          </table> 
           <div className="flex justify-center items-center mt-5">
             <svg
               onClick={handlePrevPage}

@@ -45,6 +45,9 @@ const Dep_PresidentDraftTest = () => {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
           withCredentials: true,
+          params:{
+            role: "President"
+          }
         });
 
         console.log("response", response);
@@ -134,15 +137,20 @@ const Dep_PresidentDraftTest = () => {
           <p>Loading drafted tests...</p> // Show loading indicator
         ) : error ? (
           <p className="text-red-500">{error}</p> // Show error message
-        ) : (
+        ) : tests.length === 0 ? (
+          <p className="text-center mt-8 text-gray-600">
+             No drafted tests available.
+         </p>
+         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-6">
-              {paginatedTests.map((test, index) => (
+              {paginatedTests.length !== 0 ? paginatedTests.map((test, index) => (
                 <Dep_PresidentDraftedTestCard key={index} test={test} />
-              ))}
+              )): <p className="text-lg text-gray-500 mx-auto">No draft tests available</p>}
             </div>
 
             {/* Pagination Controls */}
+            {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -180,6 +188,7 @@ const Dep_PresidentDraftTest = () => {
                 &gt; {/* Right Arrow */}
               </button>
             </div>
+            )}
           </>
         )}
       </div>

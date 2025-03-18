@@ -132,7 +132,8 @@ const getUserCount = async () => {
     'SELECT COUNT(*) FROM users WHERE role =$1 ';
   const user_TPO = await pool.query(query, ['TPO']);
   const user_Student = await pool.query(query, ['Student']);
-  return {TPO : user_TPO.rows[0].count, Students: user_Student.rows[0].count};
+  const user_Teacher = await pool.query(query, ['Teacher']);
+  return {TPO : user_TPO.rows[0].count, Students: user_Student.rows[0].count, Teachers: user_Teacher.rows[0].count};
 };
 
 
