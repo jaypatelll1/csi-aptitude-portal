@@ -9,7 +9,7 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
   try {
     // Update exams that are scheduled and have an end_time before the current time
     const result = await pool.query(
-      `UPDATE exams SET status = 'past' WHERE status = 'live' AND end_time < CURRENT_TIMESTAMP RETURNING CURRENT_TIMESTAMP, end_time, exam_id;` // Use RETURNING to get the updated exam_id
+      `UPDATE exams SET status = 'past' WHERE status = 'live' AND end_time < CURRENT_TIMESTAMP RETURNING CURRENT_TIMESTAMP, end_time, exam_id, exam_for;` // Use RETURNING to get the updated exam_id
     );
 
     if (result.rows.length > 0) {
@@ -18,6 +18,14 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
       // Process each exam that was updated
       for (const row of result.rows) {
         const examId = row.exam_id;
+        const examType = row.exam_for;
+        
+        // Check if the exam is for teacher
+        if(examType === 'Teacher'){
+          console.log(`Skipping the result generation for teacher exam ${examId}`);
+          continue;
+        }
+
         await calculateAndStoreTotalScore(examId);
 
         // Fetch student IDs from responses
