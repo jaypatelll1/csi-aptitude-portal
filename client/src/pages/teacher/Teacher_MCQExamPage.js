@@ -262,7 +262,7 @@ const Teacher_MCQExamPage = () => {
     try {
       await axios.put(
         url,
-        { studentId: userId, examId: Number(examId), questionId: id },
+        { teacherId: userId, examId: Number(examId), questionId: id },
         { withCredentials: true }
       );
   
