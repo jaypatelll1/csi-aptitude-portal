@@ -130,9 +130,9 @@ const Dep_PresidentScheduledTest = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-8">
-              {paginatedTests.map((test, index) => (
+              {paginatedTests.length !== 0 ? paginatedTests.map((test, index) => (
                 <Dep_PresidentScheduledTestCard key={index} test={test} />
-              ))}
+              )): <p className="text-lg text-gray-500 mx-auto">No scheduled tests available</p>}
             </div>
 
             {/* Pagination Controls */}

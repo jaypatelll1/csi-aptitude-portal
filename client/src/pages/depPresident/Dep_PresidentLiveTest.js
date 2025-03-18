@@ -53,7 +53,7 @@ const Dep_PresidentLiveTest = () => {
           {
             withCredentials: true,
           },
-          { params: { page: currentPage, limit: itemsPerPage } }
+          { params: { page: currentPage, limit: itemsPerPage,role: "President" } }
         );
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
@@ -144,9 +144,9 @@ const Dep_PresidentLiveTest = () => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2  gap-y-5 mt-6">
               {/* Display only current items */}
-              {currentItems.map((test, index) => (
+              {currentItems.length !== 0 ?currentItems.map((test, index) => (
                 <Dep_PresidentLiveTestCard key={index} test={test} />
-              ))}
+              )): <p className="text-lg text-gray-500 mx-auto">No live tests available</p>}
             </div>
 
             {/* Pagination Controls */}

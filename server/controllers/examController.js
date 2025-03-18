@@ -300,13 +300,13 @@ const getPaginatedScheduledExams = async (req, res) => {
   let status = 'scheduled',
     Count,
     exams;
-  const { page, limit } = req.query;
+  const { page, limit, role } = req.query;
   console.log('page is ', page, limit);
 
   try {
     if (!page && !limit) {
-      Count = await examModel.ExamCount(status);
-      exams = await examModel.getExamsByStatus(status);
+      Count = await examModel.ExamCount(status,role);
+      exams = await examModel.getExamsByStatus(status,role);
       await logActivity({
         user_id,
         activity: `Viewed paginated scheduled exams`,
@@ -314,11 +314,12 @@ const getPaginatedScheduledExams = async (req, res) => {
         details: `Page: ${page}, Limit: ${limit}`,
       });
     } else {
-      Count = await examModel.ExamCount(status);
+      Count = await examModel.ExamCount(status,role);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
-        status
+        status,
+        role
       );
       await logActivity({
         user_id,
@@ -344,26 +345,28 @@ const getPaginatedDraftedExams = async (req, res) => {
   let status = 'draft',
     Count,
     exams;
-  const { page, limit } = req.query; 
+  const { page, limit, role } = req.query; 
   console.log('page is ', page, limit);
-
+  console.log(role)
   try {
     if (!page && !limit) {
-      Count = await examModel.ExamCount(status);
-      exams = await examModel.getExamsByStatus(status);
+      Count = await examModel.ExamCount(status,role);
+      exams = await examModel.getExamsByStatus(status,role);
       await logActivity({
         user_id,
-        activity: `Viewed paginated scheduled exams`,
+        activity: `Viewed paginated draft exams`,
         status: 'success',
         details: `Page: ${page}, Limit: ${limit}`,
       });
     } else {
-      Count = await examModel.ExamCount(status);
+      Count = await examModel.ExamCount(status,role);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
-        status
+        status,
+        role
       );
+      console.log(exams)
       await logActivity({
         user_id,
         activity: `Viewed paginated published exams`,
@@ -388,13 +391,13 @@ const getPaginatedLiveExams = async (req, res) => {
   let status = 'live',
     Count,
     exams;
-  const { page, limit } = req.query;
+  const { page, limit,role} = req.query;
   console.log('page is ', page, limit);
 
   try {
     if (!page && !limit) {
-      Count = await examModel.ExamCount(status);
-      exams = await examModel.getExamsByStatus(status);
+      Count = await examModel.ExamCount(status,role);
+      exams = await examModel.getExamsByStatus(status,role);
       await logActivity({
         user_id,
         activity: `Viewed paginated scheduled exams`,
@@ -402,11 +405,12 @@ const getPaginatedLiveExams = async (req, res) => {
         details: `Page: ${page}, Limit: ${limit}`,
       });
     } else {
-      Count = await examModel.ExamCount(status);
+      Count = await examModel.ExamCount(status,role);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
-        status
+        status,
+        role
       );
       await logActivity({
         user_id,
@@ -432,13 +436,13 @@ const getPaginatedPastExams = async (req, res) => {
   let status = 'past',
     Count,
     exams;
-  const { page, limit } = req.query;
+  const { page, limit, role } = req.query;
   console.log('page is ', page, limit);
 
   try {
     if (!page && !limit) {
-      Count = await examModel.ExamCount(status);
-      exams = await examModel.getExamsByStatus(status);
+      Count = await examModel.ExamCount(status,role);
+      exams = await examModel.getExamsByStatus(status,role);
       await logActivity({
         user_id,
         activity: `Viewed paginated scheduled exams`,
@@ -446,11 +450,12 @@ const getPaginatedPastExams = async (req, res) => {
         details: `Page: ${page}, Limit: ${limit}`,
       });
     } else {
-      Count = await examModel.ExamCount(status);
+      Count = await examModel.ExamCount(status,role);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
-        status
+        status,
+        role
       );
       await logActivity({
         user_id,

@@ -41,9 +41,12 @@ const Dep_PresidentPastTest = () => {
         setLoading(true);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
-          withCredentials: true, // Make sure the cookie is sent with the request
+          withCredentials: true,
+          params:{
+            role: "President"
+          } // Make sure the cookie is sent with the request
         });
-        const formattedTests =response.data.exams.map((exam) => ({
+        const formattedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -54,8 +57,10 @@ const Dep_PresidentPastTest = () => {
           target_years: exam.target_years,
           target_branches: exam.target_branches,
         }));
+
+        
         // console.log("formattedTests",formattedTests)
-        // setPastTests(formattedTests);
+        setPastTests(formattedTests);
       } catch (err) {
         console.error("Error fetching past tests:", err);
         setError("Failed to fetch past tests. Please try again later.");
@@ -130,9 +135,9 @@ const Dep_PresidentPastTest = () => {
           <>
             {/* Grid Layout for Paginated Past Test Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-y-5 mt-8">
-              {paginatedTests.map((test, index) => (
+              {paginatedTests.length !== 0 ?paginatedTests.map((test, index) => (
                 <Dep_PresidentPastTestCard key={index} test={test} />
-              ))}
+              )): <p className="text-lg text-gray-500 mx-auto">No past tests available</p>}
             </div>
 
             {/* Pagination Controls */}

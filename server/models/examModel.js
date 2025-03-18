@@ -90,39 +90,76 @@ const getAllPaginatedExams = async (page, limit) => {
 };
 // count of differnt type of exams
 
-const ExamCount = async (status) => {
-  const queryTEXT = 'SELECT * FROM exams WHERE status=$1';
-  let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
+const ExamCount = async (status, role) => {
+  if (role === "President") {
+    const queryTEXT = 'SELECT * FROM exams WHERE status=$1 AND exam_for = $2';
+    let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
 
-  try {
-    // Query for each status
-    if (status === 'draft') {
-      const result = await pool.query(queryTEXT, [status]);
-      draft_count = result.rowCount || 0;
-    }
-    if (status === 'scheduled') {
-      const result = await pool.query(queryTEXT, [status]);
-      scheduled_count = result.rowCount || 0;
-    }
-    if (status === 'past') {
-      const result = await pool.query(queryTEXT, [status]);
-      past_count = result.rowCount || 0;
-    }
-    if (status === 'live') {
-      const result = await pool.query(queryTEXT, [status]);
-      live_count = result.rowCount || 0;
-    }
+    try {
+      // Query for each status
+      if (status === 'draft') {
+        const result = await pool.query(queryTEXT, [status, "Teacher"]);
+        draft_count = result.rowCount || 0;
+      }
+      if (status === 'scheduled') {
+        const result = await pool.query(queryTEXT, [status,  "Teacher"]);
+        scheduled_count = result.rowCount || 0;
+      }
+      if (status === 'past') {
+        const result = await pool.query(queryTEXT, [status,  "Teacher"]);
+        past_count = result.rowCount || 0;
+      }
+      if (status === 'live') {
+        const result = await pool.query(queryTEXT, [status,  "Teacher"]);
+        live_count = result.rowCount || 0;
+      }
 
-    // Return the counts for each status
-    return {
-      draft: draft_count,
-      scheduled: scheduled_count,
-      past: past_count,
-      live: live_count
-    };
-  } catch (error) {
-    console.error("Error retrieving exam counts:", error);
-    throw new Error("Failed to retrieve exam counts");
+      // Return the counts for each status
+      return {
+        draft: draft_count,
+        scheduled: scheduled_count,
+        past: past_count,
+        live: live_count
+      };
+    } catch (error) {
+      console.error("Error retrieving exam counts:", error);
+      throw new Error("Failed to retrieve exam counts");
+    }
+  } else {
+
+    const queryTEXT = 'SELECT * FROM exams WHERE status=$1';
+    let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
+
+    try {
+      // Query for each status
+      if (status === 'draft') {
+        const result = await pool.query(queryTEXT, [status]);
+        draft_count = result.rowCount || 0;
+      }
+      if (status === 'scheduled') {
+        const result = await pool.query(queryTEXT, [status]);
+        scheduled_count = result.rowCount || 0;
+      }
+      if (status === 'past') {
+        const result = await pool.query(queryTEXT, [status]);
+        past_count = result.rowCount || 0;
+      }
+      if (status === 'live') {
+        const result = await pool.query(queryTEXT, [status]);
+        live_count = result.rowCount || 0;
+      }
+
+      // Return the counts for each status
+      return {
+        draft: draft_count,
+        scheduled: scheduled_count,
+        past: past_count,
+        live: live_count
+      };
+    } catch (error) {
+      console.error("Error retrieving exam counts:", error);
+      throw new Error("Failed to retrieve exam counts");
+    }
   }
 };
 
@@ -134,8 +171,10 @@ const getAllScheduledExams = async () => {
   return result.rows;
 };
 
-const getExamsByStatus = async (status) => {
-  const query = `SELECT DISTINCT 
+const getExamsByStatus = async (status, role) => {
+  console.log(role)
+  if (role === "President") {
+    const query = `SELECT DISTINCT 
     e.exam_id, 
     e.exam_name, 
 e.duration,
@@ -153,12 +192,38 @@ LEFT JOIN
 ON 
     e.exam_id = q.exam_id
 WHERE 
-    e.status = $1
+    e.status = $1 AND e.exam_for = $2
 GROUP BY 
     e.exam_id, e.exam_name 
    ORDER BY created_at DESC`;
-  const result = await pool.query(query, [status]);
-  return result.rows;
+    const result = await pool.query(query, [status,  "Teacher"]);
+    return result.rows;
+  } else {
+    const query = `SELECT DISTINCT 
+    e.exam_id, 
+    e.exam_name, 
+e.duration,
+e.start_time,
+e.end_time,
+e.created_at,
+e.status,
+e.target_branches,
+e.target_years,
+    COUNT(q.question_id) AS question_count
+FROM 
+    exams e
+LEFT JOIN 
+    questions q
+ON 
+    e.exam_id = q.exam_id
+WHERE 
+    e.status = $1 AND e.exam_for = $2
+GROUP BY 
+    e.exam_id, e.exam_name 
+   ORDER BY created_at DESC`;
+    const result = await pool.query(query, [status,  "Teacher"]);
+    return result.rows;
+  }
 }
 
 const getExamsForUser = async (status, target_branches, target_years) => {
@@ -200,7 +265,7 @@ const getExamsForTeachers = async (status) => {
   console.log(status)
   try {
     if (status === "all") {
-      
+
       const queryTEXT = `
  SELECT DISTINCT
   e.exam_id,
@@ -225,7 +290,7 @@ ORDER BY e.exam_id DESC;`;
 
 
       const result = await pool.query(queryTEXT);
-      
+
       console.log(result)
       return result;
     } else {
@@ -265,9 +330,10 @@ ORDER BY e.exam_id DESC;`;
 
 
 
-const getPaginatedExams = async (page, limit, status) => {
+const getPaginatedExams = async (page, limit, status, role) => {
 
-  const query = `SELECT DISTINCT
+  if (role === "President") {
+    const query = `SELECT DISTINCT
     e.exam_id, 
     e.exam_name, 
 e.duration,
@@ -285,14 +351,41 @@ LEFT JOIN
 ON 
     e.exam_id = q.exam_id
 WHERE 
-    e.status = $1
+    e.status = $1 AND e.exam_for = $2
 GROUP BY 
     e.exam_id, e.exam_name 
    ORDER BY created_at DESC`;
-  const paginatedQuery = paginate(query, page, limit);
-  const result = await pool.query(paginatedQuery, [status]);
-  return result.rows;
+    const paginatedQuery = paginate(query, page, limit);
+    const result = await pool.query(paginatedQuery, [status,"Teacher"]);
+    return result.rows;
 
+  } else {
+    const query = `SELECT DISTINCT
+    e.exam_id, 
+    e.exam_name, 
+e.duration,
+e.start_time,
+e.end_time,
+e.created_at,
+e.status,
+e.target_branches,
+e.target_years,
+    COUNT(q.question_id) AS question_count
+FROM 
+    exams e
+LEFT JOIN 
+    questions q
+ON 
+    e.exam_id = q.exam_id
+WHERE 
+    e.status = $1 AND e.exam_for = $2
+GROUP BY 
+    e.exam_id, e.exam_name 
+   ORDER BY created_at DESC`;
+    const paginatedQuery = paginate(query, page, limit);
+    const result = await pool.query(paginatedQuery, [status,"Teacher"]);
+    return result.rows;
+  }
 }
 
 // const getPaginatedLiveExams = async (page, limit) => {
