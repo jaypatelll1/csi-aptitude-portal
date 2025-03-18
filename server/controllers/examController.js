@@ -7,16 +7,15 @@ const createExam = async (req, res) => {
   const created_by = req.user.id; // Get user_id from token
   const role = req.user.role; // Get user role from token
 
-  console.log(req.user)
-
-  if (!name || !duration || !created_by || !target_years || !target_branches) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
+  console.log(req.user);
 
   let formattedTargetYears = JSON.stringify(target_years);
   let formattedTargetBranches = JSON.stringify(target_branches);
 
-  if (typeof formattedTargetBranches && typeof formattedTargetYears === 'string') {
+  if (
+    typeof formattedTargetBranches &&
+    typeof formattedTargetYears === 'string'
+  ) {
     formattedTargetBranches = JSON.parse(formattedTargetBranches);
     formattedTargetYears = JSON.parse(formattedTargetYears);
     // console.log('year and branches', formattedTargetBranches, formattedTargetYears);
@@ -24,15 +23,31 @@ const createExam = async (req, res) => {
     return res.json({ message: 'input field error ' });
   }
 
-// Determine 'exam_for' based on role
-let exam_for;
-if (role === 'TPO' || role === 'Department') {
-  exam_for = 'Student';
-} else if (role === 'President') {
-  exam_for = 'Teacher';
-} else {
-  return res.status(403).json({ error: 'Unauthorized role for exam creation' });
-}
+  // Determine 'exam_for' based on role
+  let exam_for;
+  if (role === 'TPO' || role === 'Department') {
+    exam_for = 'Student';
+    if (
+      !name ||
+      !duration ||
+      !created_by ||
+      !target_years ||
+      !target_branches
+    ) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+  } else if (role === 'President') {
+    exam_for = 'Teacher';
+    formattedTargetBranches = null;
+    formattedTargetYears = null;
+    if (!name || !duration || !created_by) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+  } else {
+    return res
+      .status(403)
+      .json({ error: 'Unauthorized role for exam creation' });
+  }
 
   const newExam = await examModel.createExam({
     name,
@@ -92,7 +107,7 @@ const getExams = async (req, res) => {
 // Get Exam by exam_id
 const getExamById = async (req, res) => {
   const id = req.user.id; // Get user
-  const exam_id  = req.headers["x-exam-id"];
+  const exam_id = req.headers['x-exam-id'];
 
   console.log('Socket.IO Server Running');
 
@@ -478,7 +493,7 @@ const getPaginatedPastExams = async (req, res) => {
 };
 
 const getExamsForUser = async (req, res) => {
-console.log(req.params);
+  console.log(req.params);
   const user_id = req.user.id;
 
   const { status, target_branches, target_years } = req.query; //
@@ -513,14 +528,12 @@ console.log(req.params);
 const getExamForTeachers = async (req, res) => {
   const user_id = req.user.id;
 
-  const {status} = req.query
+  const { status } = req.query;
   // console.log('status, target_branches, target_year', status, target_branches, target_years, page , limit);
-  console.log(status)
+  console.log(status);
   try {
-    const exams = await examModel.getExamsForTeachers(
-      status
-    );
-    console.log(exams)
+    const exams = await examModel.getExamsForTeachers(status);
+    console.log(exams);
 
     await logActivity({
       user_id,
@@ -541,36 +554,31 @@ const getExamForTeachers = async (req, res) => {
   }
 };
 
-
-
-
 // Function to get exam status
 const getExamStatus = async (req, res) => {
   try {
     const { exam_id } = req.params;
 
     const result = await examModel.getExamStatusById(exam_id);
-    
-    return res.status(200).json(result);
 
+    return res.status(200).json(result);
   } catch (error) {
-    console.error("Error fetching exam status:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error fetching exam status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
 // Function to get list of exams attempted by teacher
 const getExamsAttemptedByTeacherId = async (req, res) => {
-  const {teacher_id} = req.params;
-  try{
+  const { teacher_id } = req.params;
+  try {
     const examList = await examModel.getExamsByTeacherId(teacher_id);
-    res.status(200).json({"ExamList":examList});
-  } catch(err){
-    console.log("Error: ", err);
-    return res.status(500).json({error:"Internal server error"});
+    res.status(200).json({ ExamList: examList });
+  } catch (err) {
+    console.log('Error: ', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
-}
-
+};
 
 module.exports = {
   createExam,
@@ -589,5 +597,5 @@ module.exports = {
   getExamsForUser,
   getExamStatus,
   getExamForTeachers,
-  getExamsAttemptedByTeacherId
+  getExamsAttemptedByTeacherId,
 };

@@ -5,7 +5,7 @@ const createExam = async (exam) => {
 
   try {
     const { name, duration, created_by, formattedTargetYears, formattedTargetBranches, exam_for } = exam;
-    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches, exam_for) VALUES ($1, $2, $3, $4,$5,$6,$7) RETURNING  *`;
+    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches, exam_for) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING  *`;
     const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches, exam_for];
     const result = await pool.query(query, values);
     return result.rows[0];

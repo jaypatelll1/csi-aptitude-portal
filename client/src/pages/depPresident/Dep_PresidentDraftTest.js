@@ -137,7 +137,11 @@ const Dep_PresidentDraftTest = () => {
           <p>Loading drafted tests...</p> // Show loading indicator
         ) : error ? (
           <p className="text-red-500">{error}</p> // Show error message
-        ) : (
+        ) : tests.length === 0 ? (
+          <p className="text-center mt-8 text-gray-600">
+             No drafted tests available.
+         </p>
+         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-6">
               {paginatedTests.length !== 0 ? paginatedTests.map((test, index) => (
@@ -146,6 +150,7 @@ const Dep_PresidentDraftTest = () => {
             </div>
 
             {/* Pagination Controls */}
+            {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -183,6 +188,7 @@ const Dep_PresidentDraftTest = () => {
                 &gt; {/* Right Arrow */}
               </button>
             </div>
+            )}
           </>
         )}
       </div>

@@ -38,7 +38,6 @@ router.get('/student',getExamsForUser)
 router.get("/teacher",getExamForTeachers)
 
 router.post('/', authorizeRoles, createExam);
-router.post("/create/teacher",authorizeRoles)
 
 
 router.put('/:exam_id', authorizeRoles, updateExam);

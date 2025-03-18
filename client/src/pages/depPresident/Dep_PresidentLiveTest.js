@@ -142,14 +142,18 @@ const Dep_PresidentLiveTest = () => {
           <p className="text-red-500">{error}</p> // Show error message
         ) : (
           <>
+          {currentItems.length === 0 ? ( // ADDED: Show message when no tests are available
+           <p className="text-gray-500 text-center w-full">No Live tests available.</p>
+          ) :(
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2  gap-y-5 mt-6">
               {/* Display only current items */}
               {currentItems.length !== 0 ?currentItems.map((test, index) => (
                 <Dep_PresidentLiveTestCard key={index} test={test} />
               )): <p className="text-lg text-gray-500 mx-auto">No live tests available</p>}
             </div>
-
+          )}
             {/* Pagination Controls */}
+            {tests.length > 0 && totalPages > 1 && (
             <div className="flex justify-center mt-6">
               {/* Left Arrow Button */}
               <button
@@ -218,6 +222,7 @@ const Dep_PresidentLiveTest = () => {
                 </svg>
               </button>
             </div>
+            )}
           </>
         )}
       </div>
