@@ -7,6 +7,7 @@ const {
   getResponsesForUsers,
   resetUserResponse,
   deleteResponse,
+  getPaginatedResponsesForExam,
 } = require('../controllers/teacherResponseController');
 
 router.post('/initialize/:exam_id', deleteExistingTeacherResponses);
