@@ -1,5 +1,5 @@
 const fs = require('fs');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const csvParser = require('csv-parser');
 const { query } = require('../config/db');
 const { hashPassword } = require('../utils/hashUtil');
@@ -8,19 +8,34 @@ const { generateRandomPassword } = require('../utils/randomPassword');
 
 const parseExcelUsers = async (filePath) => {
   try {
-    // Read the Excel file
-    const workbook = XLSX.readFile(filePath);
-    const sheetNames = workbook.SheetNames;
-    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-    // console.log("Excel Data to insert:", jsonData);
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+    const worksheet = workbook.worksheets[0];
+    const jsonData = [];
 
-    const warnings = []; // Collect all warnings here
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // Skip header row
+      const rowData = {
+        user_id: row.getCell(1).value,
+        name: row.getCell(2).value || '',
+        email: (typeof row.getCell(3).value === 'object' && row.getCell(3).value !== null) 
+                 ? row.getCell(3).value.text 
+                 : row.getCell(3).value || '',
+        department: row.getCell(4).value || '',
+        year: row.getCell(5).value || '',
+        rollno: row.getCell(6).value || '',
+        phone: row.getCell(7).value || '',
+      };
+      
+      jsonData.push(rowData);
+    });
+
+    const warnings = [];
+    const emailList = [];
     let index = 0;
 
-    // Process each row
     for (const row of jsonData) {
       try {
-        // Destructure and validate row data
         const {
           user_id,
           name = '',
@@ -30,90 +45,50 @@ const parseExcelUsers = async (filePath) => {
           rollno = '',
           phone = '',
         } = row;
-        const password = generateRandomPassword(8, true)
-        // Ensure password is a string
-        const passwordHash = await hashPassword(password.toString());
+        const password = generateRandomPassword(8, true);
+        
+        if (!name || !email || !password || !department || !year || !rollno || !phone) {
+          warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
+          index++;
+          continue;
+        }
 
+        const passwordHash = await hashPassword(password.toString());
         const createdAt = new Date().toISOString();
 
-        // Check if the row data is valid
-        if (
-          !name ||
-          !email ||
-          !password ||
-          !department ||
-          !year ||
-          !rollno ||
-          !phone
-        ) {
-          warnings.push(
-            `Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`
-          );
-          index++; // Increment index
-          continue; // Skip this row
-        }
-
-        // Query to insert data
         const queryText = `
-                    INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                `;
+          INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          ON CONFLICT (email) DO UPDATE 
+          SET name = EXCLUDED.name, department = EXCLUDED.department, year = EXCLUDED.year, 
+              rollno = EXCLUDED.rollno, phone = EXCLUDED.phone
+        `;
+
         const values = [
-          name,
-          email,
-          passwordHash,
-          'Student',
-          createdAt,
-          'NOTACTIVE',
-          department,
-          year,
-          rollno,
-          phone.toString(),
+          name, email, passwordHash, 'Student', createdAt, 'NOTACTIVE', department, year, rollno, phone.toString()
         ];
 
-        try {
-          // Attempt to insert the row into the database
-          await query(queryText, values);
-          await sendBulkEmailToUsers(email, password);
-        } catch (error) {
-          // console.log('dbError',error);
+        await query(queryText, values);
+        emailList.push({ email, password });
 
-          // If the error is a duplicate email (unique constraint violation), skip the row
-          if (error.code === '23505') {
-            warnings.push(
-              `Row ${index + 1}: Skipped due to duplicate email - ${email}`
-            );
-            console.log('warnings', warnings);
-          } else {
-            // For other errors, log the error but continue
-            console.error(`Error inserting row: ${JSON.stringify(row)}`, error);
-          }
-          // Continue to the next row without throwing
-        }
       } catch (rowError) {
         console.error(`Error processing row: ${JSON.stringify(row)}`, rowError);
       }
+      index++;
+    }
 
-      index++; // Increment index for each row processed
+    if (emailList.length > 0) {
+      await sendBulkEmailToUsers(emailList);
     }
 
     console.log('All data processed successfully.');
-    if (warnings.length > 0) {
-      // console.log("Warnings:", warnings.join('\n'));
-      return {
-        status: 'success',
-        message: 'Data processed successfully.',
-        warnings: warnings.length > 0 ? warnings : null,
-      };
-    }
     return {
       status: 'success',
-      message: 'All data processed successfully.',
-      warnings: null,
+      message: 'Data processed successfully.',
+      warnings: warnings.length > 0 ? warnings : null,
     };
   } catch (err) {
     console.error('Error processing Excel file:', err);
-    // throw new Error("Failed to parse and insert Excel data");
     return {
       status: 'error',
       message: err.message || 'Error inserting data into the database',
@@ -138,95 +113,64 @@ const parseCSVusers = async (filePath) => {
         });
     });
 
-    const warnings = []; // Array to collect warnings
-    let index = 0; // Initialize the index for row tracking
+    const warnings = [];
+    const emailList = [];
+    let index = 0;
 
-    // Process each row in the CSV file
     for (const row of jsonData) {
       const {
         user_id,
         name,
         email,
-        password,
+        password = generateRandomPassword(8, true),
         department,
         year,
         rollno,
         phone,
       } = row;
-      const created_at = new Date().toISOString();
-      const password_hash = await hashPassword(password); // assuming hashPassword is async
 
-      // Skip invalid rows if any fields are missing
-      if (
-        !name ||
-        !email ||
-        !password ||
-        !department ||
-        !year ||
-        !rollno ||
-        !phone
-      ) {
-        warnings.push(
-          `Row ${index + 1}: Skipped due to missing data - ${JSON.stringify(row)}`
-        );
-        index++; // Increment index for skipped row
-        continue; // Skip this row
+      if (!name || !email || !password || !department || !year || !rollno || !phone) {
+        warnings.push(`Row ${index + 1}: Skipped due to missing data - ${JSON.stringify(row)}`);
+        index++;
+        continue;
       }
 
+      const created_at = new Date().toISOString();
+      const password_hash = await hashPassword(password.toString());
+
       const queryText = `
-                INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            `;
+        INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        ON CONFLICT (email) DO UPDATE 
+        SET name = EXCLUDED.name, department = EXCLUDED.department, year = EXCLUDED.year, 
+            rollno = EXCLUDED.rollno, phone = EXCLUDED.phone
+      `;
+
       const values = [
-        name,
-        email,
-        password_hash,
-        'Student',
-        created_at,
-        'NOTACTIVE',
-        department,
-        year,
-        rollno,
-        phone.toString(),
+        name, email, password_hash, 'Student', created_at, 'NOTACTIVE', department, year, rollno, phone.toString()
       ];
 
       try {
-        // Attempt to insert the row into the database
         await query(queryText, values);
+        emailList.push({ email, password });
       } catch (error) {
         console.log('Error inserting row:', error);
-
-        // If the error is a duplicate email (unique constraint violation), skip the row
-        if (error.code === '23505') {
-          warnings.push(
-            `Row ${index + 1}: Skipped due to duplicate email - ${email}`
-          );
-          console.log(
-            `Duplicate email found. Skipping row ${index + 1} with email: ${email}`
-          );
-        } else {
-          // For other errors, log the error but continue
-          console.error(
-            `Error inserting row: ${JSON.stringify(row)} - Error:`,
-            error
-          );
-        }
-
-        // Continue to the next row
+        warnings.push(`Row ${index + 1}: Failed due to an error - ${error.message}`);
       }
 
-      index++; // Increment index for each row processed
+      index++;
+    }
+
+    if (emailList.length > 0) {
+      await sendBulkEmailToUsers(emailList);
     }
 
     console.log('All data processed successfully.');
-    if (warnings.length > 0) {
-      // console.log("Warnings:", warnings.join('\n'));
-      return {
-        status: 'success',
-        message: 'Data processed successfully.',
-        warnings: warnings.length > 0 ? warnings : null,
-      };
-    }
+    return {
+      status: 'success',
+      message: 'Data processed successfully.',
+      warnings: warnings.length > 0 ? warnings : null,
+    };
   } catch (err) {
     console.error('Error processing CSV file:', err);
     return {
