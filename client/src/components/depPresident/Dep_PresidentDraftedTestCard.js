@@ -42,7 +42,7 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
     try {
       dispatch(setExamId(examId));
 
-      navigate("/department/input", { replace: true });
+      navigate("/president/input", { replace: true });
 
       // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       // await axios.put(
