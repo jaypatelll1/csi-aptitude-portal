@@ -9,7 +9,7 @@ import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
 import {setDepartmentAnalysis, setOverallAnalysis} from "../../redux/analysisSlice"
-import { useSelector ,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Loader from "../../components/Loader";
 
 const Adm_Dashboard = () => {
@@ -26,7 +26,13 @@ const Adm_Dashboard = () => {
     past: [],
     live: []
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingStates, setLoadingStates] = useState({
+    drafted: true,
+    scheduled: true,
+    past: true,
+    live: true
+  });
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
@@ -46,13 +52,10 @@ const Adm_Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-      // const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      // console.log("endpoint",endpoint)
       const response = await axios.get(endpoint, {
         withCredentials: true,
       });
       
-      // console.log( "testsData", testsData)
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams.map((exam) => ({
@@ -71,7 +74,10 @@ const Adm_Dashboard = () => {
       console.error(`Error fetching ${key} tests:`, err);
       setError(`Failed to fetch ${key} tests. Please try again later.`);
     } finally {
-      setLoading(false);
+      setLoadingStates(prev => ({
+        ...prev,
+        [key]: false
+      }));
     }
   };
 
@@ -81,13 +87,13 @@ const Adm_Dashboard = () => {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/api/stats/all-students`, {
-            withCredentials: true, // Make sure the cookie is sent with the request
+            withCredentials: true,
           }),
           axios.get(`${API_BASE_URL}/api/stats/all-tests`, {
-            withCredentials: true, // Make sure the cookie is sent with the request
+            withCredentials: true,
           }),
           axios.get(`${API_BASE_URL}/api/stats/last-test`, {
-            withCredentials: true, // Make sure the cookie is sent with the request
+            withCredentials: true,
           }),
         ]);
 
@@ -111,13 +117,12 @@ const Adm_Dashboard = () => {
       setLoading(true);
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        await fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted");
-        await fetchTestsData(
-          `${API_BASE_URL}/api/exams/scheduled`,
-          "scheduled"
-        );
-        await fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past");
-        await fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live");
+        await Promise.all([
+          fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live")
+        ]);
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");
@@ -128,10 +133,23 @@ const Adm_Dashboard = () => {
     fetchAllTestsData();
   }, []);
 
+  // Update overall loading state based on individual loading states
+  useEffect(() => {
+    if (!loadingStates[activeTab]) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [loadingStates, activeTab]);
+
+  // Reset loading state when tab changes
+  useEffect(() => {
+    setLoading(loadingStates[activeTab]);
+  }, [activeTab, loadingStates]);
+
   const createTestHandler = () => {
     navigate("/admin/createtest");
   };
-
 
   useEffect(() => {
     const fetchAllTpoAnalysis = async () => {
@@ -139,36 +157,36 @@ const Adm_Dashboard = () => {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         let url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
         const response = await axios.get(url, { withCredentials: true });
-        dispatch(setOverallAnalysis(response.data))
+        dispatch(setOverallAnalysis(response.data));
       }
       catch(err){
-        console.log(err)
+        console.log(err);
       }
-    }
+    };
     fetchAllTpoAnalysis();
-  }, [])
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchDepartmentAnalysis = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         let response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/CMPN`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "CMPN", data: response.data}))
+        dispatch(setDepartmentAnalysis({department: "CMPN", data: response.data}));
         response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/INFT`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "INFT", data: response.data}))
+        dispatch(setDepartmentAnalysis({department: "INFT", data: response.data}));
         response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/EXTC`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "EXTC", data: response.data}))
+        dispatch(setDepartmentAnalysis({department: "EXTC", data: response.data}));
         response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/ECS`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "ECS", data: response.data}))
+        dispatch(setDepartmentAnalysis({department: "ECS", data: response.data}));
         response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/ELEC`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "ELEC", data: response.data}))
+        dispatch(setDepartmentAnalysis({department: "ELEC", data: response.data}));
       }
       catch(err){
-        console.log(err)
+        console.log(err);
       }
-    }
+    };
     fetchDepartmentAnalysis();
-  }, [])
+  }, [dispatch]);
 
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);
@@ -214,10 +232,10 @@ const Adm_Dashboard = () => {
       >
         <Adm_Sidebar testsData={testsData} />
       </div>
-
+  
       <div className="flex-1 bg-gray-100">
-        <Adm_Navbar />
-
+        <Adm_Navbar setSidebarOpen={setSidebarOpen} />
+  
         <div className="flex items-center justify-between mt-5">
           <button
             className="xl:hidden text-gray-800"
@@ -245,7 +263,7 @@ const Adm_Dashboard = () => {
           <h1 className="text-2xl font-bold text-gray-700 ml-5">
             Admin Dashboard
           </h1>
-
+  
           <button
             onClick={createTestHandler}
             className="bg-[#1349C5] text-white px-4 py-2 rounded hover:bg-blue-300 hover:text-black border border-blue-700 opacity-90 hover:opacity-100 mr-4"
@@ -253,11 +271,11 @@ const Adm_Dashboard = () => {
             + Create Test
           </button>
         </div>
-
+  
         <div className="p-0 w-full flex justify-center">
           <Adm_DashboardTiles tileData={tileData} />
         </div>
-
+  
         <div className="p-4 w-[97%] xl:w-[98%] mt-8 ml-4 rounded-xl bg-white">
           <div className="flex space-x-4 border-b pb-2">
             {["live", "drafted", "scheduled", "past"].map((tab) => (
@@ -268,25 +286,27 @@ const Adm_Dashboard = () => {
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-600"
                 }`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setCurrentPage(1);
+                }}
               >
                 {`${tab.charAt(0).toUpperCase()}${tab.slice(1)} Tests`}
               </button>
             ))}
           </div>
-
+  
           <div className="relative min-h-[150px] grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {loading ? (
-              <Loader />
+              <div className="absolute inset-0 flex justify-center items-center col-span-full">
+                <Loader />
+              </div>
             ) : error ? (
-              <p>{error}</p>
-            ) : paginatedData.length === 0 ? ( //  ADDED: Show message when no tests are available
-              <p className="text-gray-500 text-center w-full">No tests available.</p>
-            ) :(
-              paginatedData?.map((test) => {
+              <p className="col-span-full text-center">{error}</p>
+            ) : paginatedData && paginatedData.length > 0 ? (
+              paginatedData.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-            
-
+                
                 if (activeTab === "live") {
                   return <Adm_LiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
@@ -298,46 +318,49 @@ const Adm_Dashboard = () => {
                 }
                 return null;
               })
+            ) : (
+              <p className="col-span-full text-gray-500 text-center">No tests available.</p>
             )}
           </div>
-          {totalPages > 1 && (  // ✅ ADDED: Hide pagination if only one page exists
-          <div className="flex justify-center items-center mt-6">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              className={`p-2 mx-1  rounded ${
-                currentPage === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-200"
-              }`}
-              disabled={currentPage === 1}
-            >
-              &lt; {/* Left Arrow */}
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => (
+  
+          {!loading && totalPages > 1 && (
+            <div className="flex justify-center items-center mt-6">
               <button
-                key={i + 1}
-                onClick={() => handlePageChange(i + 1)}
-                className={`px-3 py-1 mx-1  rounded ${
-                  currentPage === i + 1
-                    ? "bg-blue-500 text-white"
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`p-2 mx-1 rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-200"
                 }`}
+                disabled={currentPage === 1}
               >
-                {i + 1}
+                &lt;
               </button>
-            ))}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              className={`p-2 mx-1  rounded ${
-                currentPage === totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-200"
-              }`}
-              disabled={currentPage === totalPages}
-            >
-              &gt; {/* Right Arrow */}
-            </button>
-          </div>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 mx-1 rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`p-2 mx-1 rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                &gt;
+              </button>
+            </div>
           )}
         </div>
       </div>
