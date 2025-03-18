@@ -209,7 +209,7 @@ const Dep_TestStudentList = () => {
           </button>
         </div>
         <h1 className="ml-12 mt-7 flex flex-row justify-between">
-          <div className="font-bold text-2xl">Test:{name} </div>
+          <div className="font-bold text-2xl">Test: {name} </div>
           <div className="flex flex-row justify-between">
             {/* <button onClick={handleExportCSV} className=" px-3 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                         Export to CSV
@@ -288,6 +288,7 @@ const Dep_TestStudentList = () => {
                 ))}
             </tbody>
           </table>
+         {numberofpages > 1 && (
           <div className="flex justify-center items-center mt-5">
             <svg
               onClick={() => page > 1 && setPage(page - 1)}
@@ -333,6 +334,7 @@ const Dep_TestStudentList = () => {
               />
             </svg>
           </div>
+         )}
         </div>
       </div>
     </div>

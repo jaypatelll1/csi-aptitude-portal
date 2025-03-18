@@ -127,6 +127,10 @@ const Dep_PresidentScheduledTest = () => {
           <p>Loading scheduled tests...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
+        ) : scheduledTests.length === 0 ? (
+          <p className="text-center mt-8 text-gray-600">
+            No tests available.
+          </p>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-8">
@@ -136,6 +140,7 @@ const Dep_PresidentScheduledTest = () => {
             </div>
 
             {/* Pagination Controls */}
+            {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -173,6 +178,7 @@ const Dep_PresidentScheduledTest = () => {
                 &gt;
               </button>
             </div>
+            )}
           </>
         )}
       </div>
