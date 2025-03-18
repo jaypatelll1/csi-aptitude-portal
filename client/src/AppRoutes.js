@@ -59,7 +59,7 @@ import Dep_PresidentPastTest from "./pages/depPresident/Dep_PresidentPastTest";
 import Dep_PresidentScheduleTest from "./pages/depPresident/Dep_PresidentScheduleTest";
 import Dep_PresidentInputQuestions from "./pages/depPresident/Dep_PresidentInputQuestions";
 import Dep_PresidentTeacherList from "./pages/depPresident/Dep_PresidentTeacherList";
-import Dep_PresidentTestTeacherList from "./pages/depPresident/Dep_PresidentTestStudentList";
+import Dep_PresidentTestTeacherList from "./pages/depPresident/Dep_PresidentTestTeacherList";
 import Dep_PresidentViewQuestions from "./pages/depPresident/Dep_PresidentViewQuestions";
 
 // Protected Route Component
