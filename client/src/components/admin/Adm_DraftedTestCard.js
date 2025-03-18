@@ -211,13 +211,13 @@ const Adm_DraftedTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button
-          className=" text-[#1aab07] px-3 lg:px-4 py-2 rounded border border-[#1aab07] opacity-90 hover:opacity-100"
-          onClick={handlePublishClick}
-          disabled={requestInProgress}
-        >
-          Edit
-        </button>
+      <button
+       className="text-[#1aab07] px-3 lg:px-4 py-2 rounded border border-[#1aab07] opacity-90 hover:bg-[#a9f4a1] hover:text-[#1aab07] hover:opacity-100"
+       onClick={handlePublishClick}
+       disabled={requestInProgress}
+      >
+       Edit
+      </button>
         <button
           onClick={() => setIsScheduling(true)}
           className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"

@@ -172,7 +172,7 @@ const Dep_StudentAnalysis = () => {
               Student wise Analysis
             </h1>
             <div className="flex items-center gap-4">
-              <div className="relative">
+              <div className="relative flex items-center mr-7  rounded-sm hover:scale-110 hover:bg-gray-100 transition-transform duration-100">
                 <input
                   type="text"
                   value={searchTerm}

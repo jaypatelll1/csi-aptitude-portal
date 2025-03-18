@@ -225,7 +225,9 @@ const Adm_TestStudentList = () => {
             <h1 className="text-black font-roboto text-[22px] font-semibold">
               Students List
             </h1>
-            <div className="relative flex items-center max-w-md ml-auto">
+            <div className="flex ml-auto"></div>
+            <div className="w-full max-w-md "></div>
+            <div className="relative flex items-center mr-7  rounded-sm hover:scale-110 hover:bg-gray-100 transition-transform duration-100">
               <input
                 type="text"
                 value={searchTerm}

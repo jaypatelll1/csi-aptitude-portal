@@ -220,13 +220,13 @@ const Dep_ViewQuestions = () => {
             </button>
             <button
               onClick={handleSchedulePost}
-              className="bg-white border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg"
+              className="bg-white border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg hover:bg-gray-100"
             >
               Schedule Post
             </button>
             <button
               onClick={handleDelete}
-              className="bg-red-600 border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg"
+              className="bg-red-600 border border-gray-300 text-gray-700 py-1 sm:py-2 px-1 sm:px-4 rounded-lg hover:bg-red-500"
             >
               Delete Exam
             </button>

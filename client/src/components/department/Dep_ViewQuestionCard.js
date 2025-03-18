@@ -57,7 +57,7 @@ const Dep_ViewQuestionCard = ({
 {/* {handle edit } */}
       <button
         onClick={handleEditQuestion}
-        className="text-[#0044AB] hover:text-blue-700 font-medium"
+        className="text-[#0044AB] hover:text-blue-700 font-medium hover:underline"
       >
         Edit Question
       </button>
@@ -65,7 +65,7 @@ const Dep_ViewQuestionCard = ({
       {/* {handle delete } */}
       <button
         onClick={handleDeleteQuestion}
-        className="text-[#0044AB] hover:text-blue-700 font-medium ml-5"
+        className="text-[#0044AB] hover:text-blue-700 font-medium hover:underline ml-5"
       >
         Delete Question 
       </button>
