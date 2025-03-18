@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
@@ -17,8 +17,14 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
   const [year, setYear] = useState(student.year);
   const [rollno, setRollno] = useState(student.rollno);
   const [claass, setClaass] = useState(student.class);
+  const [loading, setLoading] = useState(false); // Disable buttons during request
+  const requestRef = useRef(false);
 
   const handleSaveStudent = async () => {
+    if (requestRef.current) return; // Prevent multiple clicks
+    requestRef.current = true;
+    setLoading(true);
+    
     const newStudent = {
       name: `${firstName} ${lastName}`,
       email: `${email}`,
@@ -32,7 +38,7 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.put(
-        `${API_BASE_URL}/api/users/update/${user_id}`,
+        `${API_BASE_URL}/api/users/update/${student.user_id}`,
         newStudent,
         { withCredentials: true }
       );
@@ -42,14 +48,22 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
     } catch (error) {
       console.error("Error updating student:", error);
       alert("Failed to update student. Please try again.");
+    } finally {
+      requestRef.current = false;
+      setLoading(false);
     }
   };
 
-  const handleDelete = async (user_id) => {
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (requestRef.current) return;
+    requestRef.current = true;
+    setLoading(true);
+
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.delete(
-        `${API_BASE_URL}/api/users/delete/${user_id}`,
+        `${API_BASE_URL}/api/users/delete/${student.user_id}`,
         { withCredentials: true }
       );
      
@@ -59,15 +73,23 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
     } catch (error) {
       console.error("Error deleting student:", error);
       alert("Failed to delete student. Please try again.");
+    } finally{
+      requestRef.current = false;
+      setLoading(false);
     }
   };
 
-  const handleReset = async (student) => {
+  const handleReset = async (e) => {
+    e.stopPropagation(); 
+    if (requestRef.current) return;
+    requestRef.current = true;
+    setLoading(true);
+
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(
         `${API_BASE_URL}/api/users/send-reset-mail`,
-        { student },
+        { user_id: student.user_id },
         { withCredentials: true }
       );
      
@@ -76,6 +98,9 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
     } catch (error) {
       console.error("Error resetting student:", error);
       alert("Failed to send reset email. Please try again.");
+    } finally{
+      requestRef.current = false;
+      setLoading(false);
     }
   };
 
@@ -173,7 +198,8 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
       <hr className="my-4 border-black" />
       <div className="flex justify-between mt-7">
         <button
-          onClick={() => handleDelete(user_id)}
+          onClick={handleDelete}
+          disabled={loading}
           className="h-10 px-2 bg-red-200 text-[#E94A47] font-bold rounded-lg flex items-center text-center"
         >
           <svg
@@ -190,7 +216,8 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
           </svg>
         </button>
         <button
-          onClick={() => handleReset(student)}
+          onClick={handleReset}
+          disabled={loading}
           className="h-10 px-2 bg-blue-200 text-blue-700 font-bold rounded-lg flex items-center text-center"
         >
           <img src="/reset.svg" alt="Reset" className="w-6 h-6" />
