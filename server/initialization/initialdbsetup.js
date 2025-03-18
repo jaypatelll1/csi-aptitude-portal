@@ -62,18 +62,17 @@ CREATE TABLE responses (
     status response_status DEFAULT 'draft'
 );
 
-CREATE TABLE text_response (
-    answer_id SERIAL PRIMARY KEY,
-    question_id INT NOT NULL,
-    response_id INT NOT NULL,
-    marks_alloted INT,
-    total_marks INT,
-    comments TEXT,
-    user_id INTEGER,
-    exam_id INTEGER,
-    FOREIGN KEY (response_id) REFERENCES responses(response_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (exam_id) REFERENCES exams(exam_id) ON DELETE CASCADE
+CREATE TABLE teacher_responses (
+    response_id SERIAL PRIMARY KEY,
+    teacher_id INTEGER REFERENCES users(user_id),
+    exam_id INTEGER REFERENCES exams(exam_id),
+    question_id INTEGER REFERENCES questions(question_id),
+    selected_option CHAR(1) NULL, -- For single-choice
+    selected_options JSONB NULL, -- For multiple-choice responses
+    text_answer TEXT NULL, -- For text-based responses
+    question_type question_type_enum NOT NULL,
+    answered_at TIMESTAMP,
+    response_status response_status DEFAULT 'draft'
 );
 
 CREATE TABLE results (
@@ -91,9 +90,10 @@ CREATE TABLE teacher_results (
     result_id SERIAL PRIMARY KEY,
     teacher_id INTEGER,
     exam_id INTEGER,
-    total_score INTEGER,
+    marks_allotted INTEGER,  
     max_score INTEGER,
     completed_at TIMESTAMP,
+    comments TEXT,  
     FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
     FOREIGN KEY (teacher_id) REFERENCES users (user_id)
 );
