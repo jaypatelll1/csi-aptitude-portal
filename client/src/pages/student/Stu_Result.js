@@ -253,7 +253,7 @@ function Stu_Result() {
                             </svg>
                             Back
                         </button>
-                        <h1 className="text-5xl font-bold text-black sm:text-base ml-5 uppercase font-bold">{category}</h1>
+                        <h1 className="text-5xl font-bold text-black sm:text-base ml-5 uppercase">{category}</h1>
                         
                         {exam
                             ?.filter((examItem) => examItem.exam_id === Number(exam_id))

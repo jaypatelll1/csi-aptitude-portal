@@ -17,7 +17,7 @@ const Dep_PresidentViewQuestions = () => {
   const [testDuration, setTestDuration] = useState();
   const sidebarRef = useRef(null);
   let examId = useSelector((state) => state.exam.examId);
-  
+  // console.log("exam_id is ", examId);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -34,7 +34,8 @@ const Dep_PresidentViewQuestions = () => {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
         );
-        
+      
+
         setQuestions(response.data || []);
       } catch (err) {
         setError(err.message || "Error fetching questions");
@@ -46,7 +47,7 @@ const Dep_PresidentViewQuestions = () => {
     const fetchDuration = async () => {
       try {
         const id = examId;
-        console.log("id is1  ", id);
+       
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(
           `${API_BASE_URL}/api/exams/find/${id}`,
@@ -54,7 +55,8 @@ const Dep_PresidentViewQuestions = () => {
             withCredentials: true, // Make sure the cookie is sent with the request
           }
         );
-       
+      
+
         setTestDuration(response.data.exam.duration);
       } catch (err) {
         console.error("Error fetching test duration:", err.message);
@@ -65,18 +67,18 @@ const Dep_PresidentViewQuestions = () => {
     fetchDuration();
   }, [examId]);
 
-  const updateQuestionText = (questionId, newText) => {
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((question) =>
-        question.question_id === questionId
-          ? { ...question, question_text: newText }
-          : question
-      )
-    );
-  };
+  // const updateQuestionText = (questionId, newText) => {
+  //   setQuestions((prevQuestions) =>
+  //     prevQuestions.map((question) =>
+  //       question.question_id === questionId
+  //         ? { ...question, question_text: newText }
+  //         : question
+  //     )
+  //   );
+  // };
 
   const handleGoBack = () => {
-    navigate("/president/input");
+    navigate("/admin/input");
   };
 
   const handleSchedulePost = () => {
@@ -94,7 +96,7 @@ const Dep_PresidentViewQuestions = () => {
 
   const handleScheduleTest = (startTime, endTime) => {
     const id = examId;
-    console.log("id is ", id);
+  
 
     if (!id) {
       alert("Exam ID is not available.");
@@ -114,9 +116,9 @@ const Dep_PresidentViewQuestions = () => {
       )
       .then(() => {
         closeScheduleModal();
-        console.log(startTime, endTime);
+      
         dispatch(clearExamId()); // Dispatch clearing examId here to ensure it runs after successful API call
-        navigate("/president"); // Navigate to /department after successful test scheduling
+        navigate("/president"); // Navigate to /admin after successful test scheduling
       })
       .catch((err) =>
         alert(
@@ -126,13 +128,13 @@ const Dep_PresidentViewQuestions = () => {
   };
 
   const handleDelete = async () => {
-   
+
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
-    const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
+    await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
-    
+ 
     navigate("/president/createtest");
   };
 
@@ -244,10 +246,13 @@ const Dep_PresidentViewQuestions = () => {
                 key={question.question_id}
                 id={question.question_id}
                 index={index}
+                question_type={question.question_type}
                 text={question.question_text}
                 options={question.options}
                 correct_option={question.correct_option}
+                correct_options={question.correct_options}
                 category={question.category}
+                image_url={question.image_url}
               />
             ))
           )}

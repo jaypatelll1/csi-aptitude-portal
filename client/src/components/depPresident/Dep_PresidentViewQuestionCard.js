@@ -1,32 +1,34 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
-const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Dep_PresidentViewQuestionCard = ({ 
+const Dep_PresidentViewQuestionCard = ({
   id,
+  question_type,
   text,
   options,
   index,
   correct_option,
-  category, }) => {
+  correct_options,
+  category,
+  image_url,
+}) => {
   const navigate = useNavigate();
- 
   const exam_id = useSelector((state) => state.exam.examId);
-
-  
-
   const handleEditQuestion = () => {
     navigate(`/president/input?category=${encodeURIComponent(category)}`, {
       state: {
         questionId: id,
+        questionType: question_type,
         questionText: text,
         questionOptions: options,
         exam_id: exam_id,
         correct_option: correct_option,
+        correct_options: correct_options,
         category: category,
+        image_url: image_url,
+        questionNumber: index + 1,
       },
     });
   };
@@ -36,7 +38,7 @@ const Dep_PresidentViewQuestionCard = ({
       `${API_BASE_URL}/api/exams/questions/${exam_id}/${id}`,
       { withCredentials: true }
     );
-   
+    // console.log('response is ',response);
     // Reload the page
     window.location.reload();
   };
@@ -45,7 +47,7 @@ const Dep_PresidentViewQuestionCard = ({
     <div className="p-4 bg-white shadow-sm rounded-lg border border-gray-300 font-poppins">
       <h3 className="text-lg font-medium mb-2">Question {index + 1}</h3>
       <p className="text-gray-600 text-sm mb-4">{text}</p>
-{/* 
+      {/* 
       <div className="mb-4">
         <h4 className="text-gray-700 text-sm font-medium mb-2">Options:</h4>
         {options.map((option, idx) => (
@@ -54,7 +56,7 @@ const Dep_PresidentViewQuestionCard = ({
           </p>
         ))}
       </div> */}
-{/* {handle edit } */}
+      {/* {handle edit } */}
       <button
         onClick={handleEditQuestion}
         className="text-[#0044AB] hover:text-blue-700 font-medium"
@@ -67,7 +69,7 @@ const Dep_PresidentViewQuestionCard = ({
         onClick={handleDeleteQuestion}
         className="text-[#0044AB] hover:text-blue-700 font-medium ml-5"
       >
-        Delete Question 
+        Delete Question
       </button>
     </div>
   );
