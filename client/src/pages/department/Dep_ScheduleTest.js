@@ -3,6 +3,7 @@ import axios from "axios";
 import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import Dep_ScheduledTestCard from "../../components/department/Dep_ScheduleTestCard";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
+import Loader from "../../components/Loader";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_ScheduledTest = () => {
@@ -82,6 +83,7 @@ const Dep_ScheduledTest = () => {
 
   return (
     <div className="min-h-screen flex">
+      {/* Sidebar Section */}
       <div
         ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
@@ -90,100 +92,120 @@ const Dep_ScheduledTest = () => {
       >
         <Dep_Sidebar />
       </div>
-
+  
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
-        <Dep_Navbar/>
-        <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="xl:hidden text-gray-800 focus:outline-none"
-          >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
-              />
-            </svg>
-          </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0  ">
-            Scheduled Tests
-          </h1>
-        </div>
-        
+        <Dep_Navbar />
+  
+        {/* Hide Header while loading */}
+        {!loading && (
+          <>
+            {/* Header Section */}
+            <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
+              {/* Sidebar Toggle Button */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="xl:hidden text-gray-800 focus:outline-none"
+              >
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d={
+                      sidebarOpen
+                        ? "M6 18L18 6M6 6l12 12"
+                        : "M4 6h16M4 12h16M4 18h16"
+                    }
+                  />
+                </svg>
+              </button>
+  
+              {/* Title */}
+              <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">
+                Scheduled Tests
+              </h1>
+            </div>
+          </>
+        )}
+  
+        {/* Loader while fetching data */}
         {loading ? (
-          <p>Loading scheduled tests...</p>
+          <div className="flex justify-center items-center h-screen">
+            <Loader />
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500 text-center mt-8">{error}</p>
         ) : scheduledTests.length === 0 ? (
-          <p className="text-center mt-8 text-gray-600">
-            No tests available.
+          <p className="text-gray-500 text-center w-full mt-8">
+            No scheduled tests available.
           </p>
         ) : (
           <>
+            {/* Scheduled Tests Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
                 <Dep_ScheduledTestCard key={index} test={test} />
               ))}
             </div>
-
+  
             {/* Pagination Controls */}
             {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-6">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === 1}
-              >
-                &lt;
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => (
+              <div className="flex justify-center items-center mt-6">
+                {/* Previous Page Button */}
                 <button
-                  key={i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 border rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === 1
+                      ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-gray-200"
                   }`}
+                  disabled={currentPage === 1}
                 >
-                  {i + 1}
+                  &lt; {/* Left Arrow */}
                 </button>
-              ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === totalPages}
-              >
-                &gt;
-              </button>
-            </div>
+  
+                {/* Page Number Buttons */}
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`px-3 py-1 mx-1 border rounded ${
+                      currentPage === i + 1
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-gray-200"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+  
+                {/* Next Page Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === totalPages
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-200"
+                  }`}
+                  disabled={currentPage === totalPages}
+                >
+                  &gt; {/* Right Arrow */}
+                </button>
+              </div>
             )}
           </>
         )}
       </div>
     </div>
   );
+  
 };
 
 export default Dep_ScheduledTest;
