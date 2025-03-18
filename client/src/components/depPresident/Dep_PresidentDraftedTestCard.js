@@ -111,7 +111,7 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
             <span className="text-black-500 text-sm">
               Created on: {test.date}
             </span>
-            <span className="text-black-500 text-xs mr-5">
+            {/* <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years ? test.target_years.replace(/[{}]/g, "") : "N/A"} -{" "}
               {test.target_branches
                 ? test.target_branches
@@ -120,7 +120,7 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
                   .find((branch) => branch.trim() === user?.department) || "N/A"
                 : "N/A"}
 
-            </span>
+            </span> */}
           </div>
         </div>
       </div>
