@@ -14,8 +14,7 @@ const {
 const router = express.Router();
 
 // Rate Limit
-const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 router.get('/overall-results/:student_id', getOverallResultsOfAStudent);
 router.get('/exam/:exam_id/:student_id', getResultOfAParticularExam);

@@ -13,8 +13,7 @@ const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const router = express.Router();
 
 // Rate Limit
-const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 // Route to create a new question
 router.post('/:exam_id',authorizeRoles, createQuestions);

@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const textResponseController = require("../controllers/textResponseController");
 
+// Rate Limiter
+const {limiter} = require('../middlewares/rateLimitMiddleware');
+
 // Create a new text response
 router.post("/", textResponseController.createTextResponse);
 

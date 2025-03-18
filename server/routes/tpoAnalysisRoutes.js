@@ -12,8 +12,7 @@ const {
 const router = express.Router();
 
 // Rate Limit
-const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 router.get('/dept-avg', getDeptAvgScores); //
 router.get('/top-scorers', getTopScorers);

@@ -5,8 +5,7 @@ const {tokenMiddleware}= require("../middlewares/jwtAuthMiddleware")
 router.post("/",tokenMiddleware);
 
 // Rate Limit
-const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 
 module.exports = router;

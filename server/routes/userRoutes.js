@@ -7,9 +7,8 @@ const {registerUserValidator, loginUserValidator, updateUserValidator} = require
 
 const router = express.Router();
 
-// // Rate Limit
-// const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+// Rate Limit
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 
 router.post('/register', registerUserValidator, jwtAuthMiddleware, authorizeRoles, registerUser);

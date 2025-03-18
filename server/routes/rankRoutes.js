@@ -7,8 +7,7 @@ const {
 const router = express.Router();
 
 // Rate Limit
-const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 router.get('/generate-rank', generateRank);
 router.get('/generate-rank-order/', GetStudentRanksInAscOrder);

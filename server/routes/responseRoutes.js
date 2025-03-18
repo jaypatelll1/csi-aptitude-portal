@@ -17,8 +17,7 @@ const {
 const router = express.Router();
 
 // Rate Limit
-// const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 
   router.post('/initialize/:exam_id', deleteExistingResponses)

@@ -599,5 +599,6 @@ module.exports = {
   getExamsForUser,
   getExamStatus,
   getExamForTeachers,
-  getExamsAttemptedByTeacherId,
+  // createExamForTeachers,
+  getExamsAttemptedByTeacherId
 };

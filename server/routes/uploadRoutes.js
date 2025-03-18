@@ -5,6 +5,9 @@ const { deleteImage } = require("../controllers/uploadController");
 
 const router = express.Router();
 
+// Rate limiter
+const {limiter} = require('../middlewares/rateLimitMiddleware');
+
 // Route for uploading an image and updating a question 
 router.post("/upload-image", upload.single("image"), uploadImage);
 

@@ -3,8 +3,7 @@ const { getAllDeptAnalysis, getAllDepartmentParams } = require("../controllers/d
 const router = express.Router();
 
 // Rate Limit
-const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 // router.get("/average-score/:department", deptController.getDepartmentAvgScore);
 // router.get("/average-score-per-exam/:department", deptController.getDepartmentAvgScorePerExam);

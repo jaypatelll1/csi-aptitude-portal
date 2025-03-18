@@ -16,8 +16,7 @@ const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const router = express.Router();
 
 // Rate Limit
-const {limiter} = require("../utils/rateLimitUtils");
-// router.use(limiter);
+const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 // CREATE: Add a new result with server-generated completed_at
 // router.post('/',jwtAuthMiddleware, authorizeRoles, createResult);

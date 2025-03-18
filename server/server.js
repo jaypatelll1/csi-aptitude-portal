@@ -6,7 +6,6 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const morgan = require('morgan');
 const { jwtAuthMiddleware } = require('./middlewares/jwtAuthMiddleware');
-const { limiter } = require('./utils/rateLimitUtils');
 const cookieParser = require('cookie-parser');
 const { initSocketHandlers } = require('./utils/socket');
 require('./utils/autoUpdateExamStatus'); // For auto-updating past exams status
@@ -78,8 +77,6 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 // app.use("/uploads", express.static(path.resolve("./uploads")));
 
-// utils
-// app.use(limiter);
 
 // Routes
 app.use('/api/users', userRoutes, fileRoutes);
