@@ -1,10 +1,23 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const teacherResponseController = require("../controllers/teacherResponseController");
+const {
+  deleteExistingTeacherResponses,
+  submitTeacherResponse,
+  submitFinalTeacherResponsesAndChangeStatus,
+  getResponsesForUsers,
+  resetUserResponse,
+  deleteResponse,
+} = require('../controllers/teacherResponseController');
 
-router.post('/initialize/:exam_id', teacherResponseController.deleteExistingTeacherResponses);
-router.put('/:exam_id', teacherResponseController.submitTeacherResponse); // Submit a single response
-router.put('/final/:exam_id', teacherResponseController.submitFinalTeacherResponsesAndChangeStatus);
+router.post('/initialize/:exam_id', deleteExistingTeacherResponses);
+router.put('/:exam_id', submitTeacherResponse); // Submit a single response
+router.put('/final/:exam_id', submitFinalTeacherResponsesAndChangeStatus);
 
+router.get('/user_id', getResponsesForUsers); // response for particular users
+router.get('/:exam_id', getPaginatedResponsesForExam) // pagination
+
+router.put("/exams/clear-response", resetUserResponse);
+
+router.delete('/questions/:exam_id', deleteResponse);
 
 module.exports = router;

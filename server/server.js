@@ -125,7 +125,7 @@ app.use(errorHandler);
 
 server.listen(PORT, () => {
  
-  console.log(`Server is running at http://${PORT}`);
+  console.log(`Server is running at http://localhost:${PORT}`);
 });
 
 // FOR SOCKET.IO TESTING
