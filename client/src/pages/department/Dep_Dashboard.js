@@ -13,7 +13,7 @@ import Loader from "../../components/Loader";
 import { setDepartmentAnalysis } from "../../redux/analysisSlice";
 
 const Dep_Dashboard = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
   const user_department = userData.department;
@@ -28,7 +28,7 @@ const Dep_Dashboard = () => {
     past: [],
     live: []
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
 
@@ -47,46 +47,43 @@ const Dep_Dashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-        const response = await axios.get(endpoint, {
-            withCredentials: true,
-        });
+      const response = await axios.get(endpoint, {
+        withCredentials: true,
+      });
 
-        setTestsData((prevData) => ({
-            ...prevData,
-            [key]: response.data.exams
-                .filter((exam) => {
-                    let targetBranches = exam.target_branches;
+      setTestsData((prevData) => ({
+        ...prevData,
+        [key]: response.data.exams
+          .filter((exam) => {
+            let targetBranches = exam.target_branches;
 
-                    if (!targetBranches || targetBranches.includes("All")) {
-                        return true; // Show if target_branches is undefined or includes "All"
-                    }
+            if (!targetBranches || targetBranches.includes("All")) {
+              return true; // Show if target_branches is undefined or includes "All"
+            }
 
-                    // Convert "{CMPN,INFT,EXTC,ELEC,ECS}" -> ["CMPN", "INFT", "EXTC", "ELEC", "ECS"]
-                    targetBranches = targetBranches.replace(/[{}]/g, "").split(",").map(branch => branch.trim());
+            // Convert "{CMPN,INFT,EXTC,ELEC,ECS}" -> ["CMPN", "INFT", "EXTC", "ELEC", "ECS"]
+            targetBranches = targetBranches.replace(/[{}]/g, "").split(",").map(branch => branch.trim());
 
-                    return targetBranches.includes(userData.department); // Check if the user's department is included
-                })
-                .map((exam) => ({
-                    exam_id: exam.exam_id,
-                    end_time: exam.end_time,
-                    Start_time: exam.start_time,
-                    title: exam.exam_name || "Untitled Exam",
-                    questions: exam.question_count || "N/A",
-                    duration: exam.duration ? `${exam.duration} min` : "N/A",
-                    date: formatToReadableDate(exam.created_at),
-                    target_years: exam.target_years || "N/A",
-                    target_branches: exam.target_branches || "N/A",
-                })),
-        }));
+            return targetBranches.includes(userData.department); // Check if the user's department is included
+          })
+          .map((exam) => ({
+            exam_id: exam.exam_id,
+            end_time: exam.end_time,
+            Start_time: exam.start_time,
+            title: exam.exam_name || "Untitled Exam",
+            questions: exam.question_count || "N/A",
+            duration: exam.duration ? `${exam.duration} min` : "N/A",
+            date: formatToReadableDate(exam.created_at),
+            target_years: exam.target_years || "N/A",
+            target_branches: exam.target_branches || "N/A",
+          })),
+      }));
     } catch (err) {
-        console.error(`Error fetching ${key} tests:`, err);
-        setError(`Failed to fetch ${key} tests. Please try again later.`);
-    } finally {
-        setLoading(false);
+      console.error(`Error fetching ${key} tests:`, err);
+      setError(`Failed to fetch ${key} tests. Please try again later.`);
     }
-};
-
-  
+    // Don't set loading to false here - we'll manage it after all tabs have loaded
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -124,16 +121,19 @@ const Dep_Dashboard = () => {
       setLoading(true);
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        await fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted");
-        await fetchTestsData(
-          `${API_BASE_URL}/api/exams/scheduled`,
-          "scheduled"
-        );
-        await fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past");
-        await fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live");
+        // Use Promise.all to fetch all data concurrently
+        await Promise.all([
+          fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live")
+        ]);
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");
+      } finally {
+        // Set loading to false after all data has been fetched
+        setLoading(false);
       }
     };
 
@@ -150,15 +150,14 @@ const Dep_Dashboard = () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         let response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/${user_department}`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: user_department, data: response.data}))
+        dispatch(setDepartmentAnalysis({department: user_department, data: response.data}));
       }
       catch(err){
-        console.log(err)
+        console.log(err);
       }
-    }
+    };
     fetchDepartmentAnalysis();
-  }, [])
-
+  }, [dispatch, user_department]);
 
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);
@@ -194,6 +193,11 @@ const Dep_Dashboard = () => {
     }
   };
 
+  // Reset current page when tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
+
   return (
     <div className="min-h-screen flex">
       <div
@@ -206,32 +210,9 @@ const Dep_Dashboard = () => {
       </div>
 
       <div className="flex-1 bg-gray-100">
-      <Dep_Navbar setSidebarOpen={setSidebarOpen} />
+        <Dep_Navbar setSidebarOpen={setSidebarOpen} />
 
         <div className="flex items-center justify-between mt-5">
-          {/* <button
-            className="xl:hidden text-gray-800"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <svg
-              className="w-7 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
-              />
-            </svg>
-          </button> */}
           <h1 className="text-2xl font-bold text-gray-700 ml-5">
             Department Dashboard
           </h1>
@@ -267,17 +248,15 @@ const Dep_Dashboard = () => {
 
           <div className="relative min-h-[150px] grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {loading ? (
-               
-               <Loader />
-     
+              <div className="absolute inset-0 flex justify-center items-center col-span-full">
+                <Loader />
+              </div>
             ) : error ? (
-              <p>{error}</p>
-            ) :  paginatedData.length === 0 ? ( //  ADDED: Show message when no tests are available
-              <p className="text-gray-500 text-center w-full">No tests available.</p>
-            ) :(
-              paginatedData?.map((test) => {
+              <p className="col-span-full text-center">{error}</p>
+            ) : paginatedData && paginatedData.length > 0 ? (
+              paginatedData.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-
+                
                 if (activeTab === "live") {
                   return <Dep_LiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
@@ -289,46 +268,49 @@ const Dep_Dashboard = () => {
                 }
                 return null;
               })
+            ) : (
+              <p className="col-span-full text-gray-500 text-center">No tests available.</p>
             )}
           </div>
-          {totalPages > 1 && (  // ADDED: Hide pagination if only one page exists
-          <div className="flex justify-center items-center mt-6">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              className={`p-2 mx-1  rounded ${
-                currentPage === 1
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-200"
-              }`}
-              disabled={currentPage === 1}
-            >
-              &lt; {/* Left Arrow */}
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => (
+          
+          {!loading && totalPages > 1 && (
+            <div className="flex justify-center items-center mt-6">
               <button
-                key={i + 1}
-                onClick={() => handlePageChange(i + 1)}
-                className={`px-3 py-1 mx-1  rounded ${
-                  currentPage === i + 1
-                    ? "bg-blue-500 text-white"
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`p-2 mx-1 rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-gray-200"
                 }`}
+                disabled={currentPage === 1}
               >
-                {i + 1}
+                &lt; {/* Left Arrow */}
               </button>
-            ))}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              className={`p-2 mx-1  rounded ${
-                currentPage === totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-200"
-              }`}
-              disabled={currentPage === totalPages}
-            >
-              &gt; {/* Right Arrow */}
-            </button>
-          </div>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 mx-1 rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`p-2 mx-1 rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
+                disabled={currentPage === totalPages}
+              >
+                &gt; {/* Right Arrow */}
+              </button>
+            </div>
           )}
         </div>
       </div>
