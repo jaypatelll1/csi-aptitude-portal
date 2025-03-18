@@ -24,14 +24,14 @@ function Adm_OverallScore() {
 
 
   const fetchAllTpoAnalysis =  () => {
-    try {
-
-      setAvgData(overallAnalysis.dept_avg);
-      setTopPerformers(overallAnalysis.top_performers);
-      setBottomPerformers(overallAnalysis.bottom_performers);
-      setParticipationRate(overallAnalysis.participation_rate);
-      setPerformanceOverTime(overallAnalysis.performance_over_time);
-
+    try  {
+      if (overallAnalysis) {
+        setAvgData(overallAnalysis.dept_avg || []);
+        setTopPerformers(overallAnalysis.top_performers || []);
+        setBottomPerformers(overallAnalysis.bottom_performers || []);
+        setParticipationRate(overallAnalysis.participation_rate || { participation_rate: 0 });
+        setPerformanceOverTime(overallAnalysis.performance_over_time || []);
+      }
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -174,17 +174,47 @@ function Adm_OverallScore() {
           <>
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-5 mb-5 ml-5 mr-5">
               <div className="bg-white p-6 rounded-xl shadow-md col-span-2">
+              {barChartData.chartData?.length > 0 ? (  //Ensures data is not empty or null
                 <BarChartComponent data={barChartData} />
+              ) : (
+                <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+              )}
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md col-span-3">
+              {departmentPerformanceData.chartData?.length > 0 ? ( //Ensures data is not empty or null
                 <MultiLineChartComponent data={departmentPerformanceData} />
+              ) : (
+                <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+              )}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
-              <TableComponent title="Top Performers" data={topPerformers} type="overall" />
-              <TableComponent title="Bottom Performers" data={bottomPerformers} type="overall" />
+              <TableComponent 
+              title="Top Performers"
+              data={topPerformers.length > 0 ? topPerformers : []} 
+              type="overall" />
+              {topPerformers.length === 0 && (
+             <p className="text-gray-500 text-lg font-semibold text-center">
+               No Data Available
+             </p>
+            )}
+
+              <TableComponent
+               title="Bottom Performers" 
+               data={bottomPerformers.length > 0 ? bottomPerformers : []} 
+               type="overall" />
+               {bottomPerformers.length === 0 && (
+               <p className="text-gray-500 text-lg font-semibold text-center">
+                 No Data Available
+               </p>
+             )}
+
               <div className="bg-white p-6 rounded-xl shadow-md">
+              {participationRateData.chartData?.some((item) => item.value > 0) ? ( //Ensures data is not empty or null
                 <PieChartComponent data={participationRateData} />
+              ) : (
+                <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+              )}
               </div>
             </div>
           </>
