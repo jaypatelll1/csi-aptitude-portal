@@ -186,31 +186,49 @@ function Dep_Analytics() {
                 </div>
   
                 <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
+                {performanceOverTime.length > 0 ? ( //Ensures data is not empty or null 
                   <LineChartComponent
                     data={performanceOverTimeData}
                     xAxisKey="name"
                     lineDataKey="Percentage"
                   />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p> 
+                )}
                 </div>
               </div>
   
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-6 w-full">
                 <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                {participationRateData.chartData?.some((item) => item.value > 0) ? ( //Ensures data is not empty or null
                   <PieChartComponent data={participationRateData} />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+                )}
                 </div>
                 <div>
                   <TableComponent
                     title="Top Performers"
-                    data={topPerformers}
+                    data={topPerformers.length > 0 ? topPerformers : []}  //Ensures data is not empty or null
                     type="department"
                   />
+                  {topPerformers.length === 0 && (
+             <p className="text-gray-500 text-lg font-semibold text-center">
+               No Data Available
+             </p>
+            )}
                 </div>
                 <div>
                   <TableComponent
                     title="Bottom Performers"
-                    data={bottomPerformers}
+                    data={bottomPerformers.length > 0 ? bottomPerformers : []} //Ensures data is not empty or null
                     type="department"
                   />
+                  {bottomPerformers.length === 0 && (
+               <p className="text-gray-500 text-lg font-semibold text-center">
+                 No Data Available
+               </p>
+             )}
                 </div>
               </div>
             </>

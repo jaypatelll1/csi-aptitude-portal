@@ -237,7 +237,8 @@ const Dep_StudentAnalysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents
+                {filteredStudents && filteredStudents.length > 0 ? ( // Ensure filteredStudents is not null or empty
+                    filteredStudents
                     .slice((page - 1) * limit, page * limit)
                     .map((student) => (
                       <tr
@@ -270,10 +271,17 @@ const Dep_StudentAnalysis = () => {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    ))
+                  ) : ( // If there is no data, render this row:
+                    <tr>
+                      <td colSpan="6" className="text-center py-6 text-gray-500">
+                        No data available {/* This cell spans all columns and displays the message */}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
-
+              { getPageNumbers().length > 1 && (
               <div className="flex justify-center items-center mt-5">
                 <svg
                   onClick={handlePrevPage}
@@ -321,6 +329,7 @@ const Dep_StudentAnalysis = () => {
                   />
                 </svg>
               </div>
+              )}
             </>
           )}
         </div>

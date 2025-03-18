@@ -399,6 +399,7 @@ const Dep_PresidentTeacherList = () => {
                 ))}
             </tbody>
           </table>
+          { getPageNumbers().length > 1 && (
           <div className="flex justify-center items-center mt-5">
             <svg
               onClick={handlePrevPage}
@@ -446,6 +447,7 @@ const Dep_PresidentTeacherList = () => {
               />
             </svg>
           </div>
+          )}
         </div>
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
