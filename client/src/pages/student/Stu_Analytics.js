@@ -94,7 +94,7 @@ function Stu_Analytics() {
   const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: performanceOverTime.map((exam) => ({
+    chartData: performanceOverTime?.map((exam) => ({
       name: exam?.created_on,
       Average: exam?.average_score,
     })),
