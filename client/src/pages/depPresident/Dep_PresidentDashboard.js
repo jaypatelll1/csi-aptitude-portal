@@ -9,6 +9,7 @@ import Dep_PresidentLiveTestCard from "../../components/depPresident/Dep_Preside
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import Loader from "../../components/Loader";
 
 const Dep_PresidentDashboard = () => {
   const navigate = useNavigate();

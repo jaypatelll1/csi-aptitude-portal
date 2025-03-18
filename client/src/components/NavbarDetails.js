@@ -43,8 +43,6 @@ const NavbarDetails = () => {
         {user.role !== "TPO" && user.role !== "Department" && (
           <>
             <p disabled={isDisabled}>Mobile: {user.phone}</p>
-            <p disabled={isDisabled}>Branch: {user.department}</p>
-            <p disabled={isDisabled}>Year: {user.year}</p>
           </>
         )}
       </div>

@@ -147,7 +147,7 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
         />
       </div>
 
-      <div id="Department" className="mb-4">
+      {/* <div id="Department" className="mb-4">
         <h1 className="mb-2">Department and Year</h1>
         <div className="flex space-x-4">
           {userRole === "Department" ? (
@@ -174,9 +174,9 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
             <option value="BE">BE</option>
           </select>
         </div>
-      </div>
+      </div> */}
 
-      <div id="ClassBoxes" className="mb-7">
+      {/* <div id="ClassBoxes" className="mb-7">
         <h1 className="mb-2">Class and Roll Number</h1>
         <div className="flex space-x-4">
           <input
@@ -193,7 +193,7 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
             type="number"
           />
         </div>
-      </div>
+      </div> */}
 
       <hr className="my-4 border-black" />
       <div className="flex justify-between mt-7">

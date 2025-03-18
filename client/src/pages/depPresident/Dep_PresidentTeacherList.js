@@ -360,7 +360,7 @@ const Dep_PresidentTeacherList = () => {
                 <th className="py-4 w-1/5">Name</th>
                 <th className="py-4 w-1/4">Email</th>
                 <th className="py-4 w-1/5">Mobile</th>
-                <th className="py-4 w-1/8">Department</th>
+                
                 <th className="py-4  w-1/8 text-center">Edit</th>
               </tr>
             </thead>
@@ -374,7 +374,7 @@ const Dep_PresidentTeacherList = () => {
                     <td className="py-4">{teacher.name}</td>
                     <td className="py-4">{teacher.email}</td>
                     <td className="py-4">{teacher.phone || "N/A"}</td>
-                    <td className="py-4">{teacher.department || "N/A"}</td>
+                   
                     <td className="py-4 text-center items-center justify-center flex">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
