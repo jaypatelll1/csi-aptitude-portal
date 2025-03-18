@@ -217,11 +217,12 @@ LEFT JOIN
 ON 
     e.exam_id = q.exam_id
 WHERE 
-    e.status = $1 AND e.exam_for = $2
+    e.status = $1 
 GROUP BY 
     e.exam_id, e.exam_name 
    ORDER BY created_at DESC`;
-    const result = await pool.query(query, [status,  "Teacher"]);
+    const result = await pool.query(query, [status]);
+    console.log(result.rows)
     return result.rows;
   }
 }
@@ -378,12 +379,12 @@ LEFT JOIN
 ON 
     e.exam_id = q.exam_id
 WHERE 
-    e.status = $1 AND e.exam_for = $2
+    e.status = $1 
 GROUP BY 
     e.exam_id, e.exam_name 
    ORDER BY created_at DESC`;
     const paginatedQuery = paginate(query, page, limit);
-    const result = await pool.query(paginatedQuery, [status,"Teacher"]);
+    const result = await pool.query(paginatedQuery, [status]);
     return result.rows;
   }
 }

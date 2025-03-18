@@ -42,6 +42,9 @@ const Dep_PresidentScheduledTest = () => {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled`, {
           withCredentials: true,
+          params:{
+            role: "President"
+          }
         });
 
         const fetchedTests = response.data.exams.map((exam) => ({

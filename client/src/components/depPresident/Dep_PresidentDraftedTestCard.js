@@ -3,11 +3,11 @@ import DataTime from "./Dep_PresidentDataTime";
 import axios from "axios";
 import { setExamId } from "../../redux/ExamSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentDraftedTestCard = ({ test }) => {
- 
+  console.log(test)
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
   const [questions, setQuestions] = useState([]);
@@ -22,7 +22,7 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
   const examId = test.exam_id;
   const dispatch = useDispatch();
   const navigate = useNavigate();
- 
+
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -112,11 +112,14 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
               Created on: {test.date}
             </span>
             <span className="text-black-500 text-xs mr-5">
-              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
+              Branch: {test.target_years ? test.target_years.replace(/[{}]/g, "") : "N/A"} -{" "}
               {test.target_branches
-                .replace(/[{}]/g, "")
-                .split(",")
-                .find((branch) => branch.trim() === user.department) || "N/A"}
+                ? test.target_branches
+                  .replace(/[{}]/g, "")
+                  .split(",")
+                  .find((branch) => branch.trim() === user?.department) || "N/A"
+                : "N/A"}
+
             </span>
           </div>
         </div>

@@ -258,39 +258,36 @@ const Stu_MCQExamPage = () => {
   const handleClearResponse = async (id) => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/exams/clear-response`;
-
+  
     try {
       await axios.put(
         url,
         { studentId: userId, examId: Number(examId), questionId: id },
         { withCredentials: true }
       );
-
+  
       const currentQuestion = questions[currentQuestionIndex];
-      if (
-        currentQuestion?.questionType === "single" ||
-        !currentQuestion?.questionType
-      ) {
-        dispatch(
-          setSelectedOption({ index: currentQuestionIndex, option: null })
-        );
-      } else if (currentQuestion?.questionType === "multiple") {
-        // Clear multiple options in local state
+  
+      if (currentQuestion?.question_type === "single_choice") {
+        dispatch(setSelectedOption({ index: currentQuestionIndex, option: null }));
+      } else if (currentQuestion?.question_type === "multiple_choice") {
         setMultipleAnswers({
           ...multipleAnswers,
           [id]: [],
         });
-      } else if (currentQuestion?.questionType === "text") {
-        // Clear text answer in local state
+        dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options: [] }));
+      } else if (currentQuestion?.question_type === "text") {
         setTextAnswers({
           ...textAnswers,
           [id]: "",
         });
+        dispatch(setTextAnswer({ index: currentQuestionIndex, text: "" }));
       }
     } catch (error) {
       console.error("Error clearing response:", error);
     }
   };
+  
 
   const handleMarkForReview = () => {
     dispatch(toggleMarkForReview(currentQuestionIndex));
