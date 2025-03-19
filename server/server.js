@@ -28,6 +28,7 @@ const deptRoutes = require('./routes/deptAnalysisRoutes');
 const tpoRoutes = require('./routes/tpoAnalysisRoutes');
 const rankRoutes = require('./routes/rankRoutes');
 const teacherResponseRoutes = require("./routes/teacherResponseRoutes");
+const teacherResultRoutes = require("./routes/teacherResultRoutes");
 
 const uploadRoutes = require("./routes/uploadRoutes");
 
@@ -94,6 +95,7 @@ app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
 app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
 app.use("/api/exams/teacher-responses",jwtAuthMiddleware, teacherResponseRoutes);
+app.use("/api/exams/teacher-results",jwtAuthMiddleware, teacherResultRoutes);
 
 app.use("/api",jwtAuthMiddleware, uploadRoutes);
 
