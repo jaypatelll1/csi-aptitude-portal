@@ -33,7 +33,7 @@ function Dep_Analytics() {
   const user_department = useSelector((state) => state.user.user.department);
    const departmentAnalysis = useSelector(
       (state) =>
-        state.analysis.departmentAnalysis[user_department]
+        state.analysis.departmentAnalysis[user_department]  
     ); // Fetch data from redux
 
   // Data Fetching
@@ -48,7 +48,7 @@ function Dep_Analytics() {
       setPerformanceOverTime(departmentAnalysis.performance_over_time);
   
       setDeptRank(departmentAnalysis.dept_ranks);
-      superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
+      superscript(setDSup, departmentAnalysis.dept_ranks?.department_rank);
   
       setHighestPerformer(departmentAnalysis.top_performer[0]);
       superscript(setOSup, departmentAnalysis.top_performer[0].overall_rank);
@@ -63,7 +63,7 @@ function Dep_Analytics() {
   // Effects
   useEffect(() => {
     fetchAllDeptData();
-  }, [user_department]);
+  }, [user_department, loading]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -119,8 +119,7 @@ function Dep_Analytics() {
 
   const radarChartData = {
     title: "Subject-wise Performance",
-    chartData: categoryWiseData
-      .filter((category) => category?.category && category?.category !== "null")
+    chartData: categoryWiseData?.filter((category) => category?.category && category?.category !== "null")
       .map((category) => ({
         name: category?.category,
         yourScore: Number(category?.average_category_score) || 0,
@@ -172,14 +171,14 @@ function Dep_Analytics() {
                   <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200">
                     <DisplayComponent
                       title="Overall Department Rank"
-                      rank={deptRank.department_rank || "Loading..."}
+                      rank={deptRank?.department_rank || "Loading..."}
                       superscript={dSup}
                     />
                   </div>
                   <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
                     <DisplayComponent
                       title="Overall Student Rank"
-                      rank={highestPerformer.overall_rank || "N/A"}
+                      rank={highestPerformer?.overall_rank || "N/A"}
                       superscript={oSup}
                     />
                   </div>

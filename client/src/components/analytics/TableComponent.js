@@ -13,7 +13,7 @@ const TableComponent = ({ title, data, type }) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => (
+          {data?.map((item, index) => (
             <tr key={index} className="border-b">
               {type === "overall" ? (
                 <td className="py-2 text-gray-700">
