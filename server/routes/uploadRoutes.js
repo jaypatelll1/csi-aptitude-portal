@@ -1,5 +1,5 @@
 const express = require("express");
-const { uploadImage, saveQuestion } = require("../controllers/uploadController");
+const { uploadImage } = require("../controllers/uploadController");
 const { upload } = require("../middlewares/uploadMiddleware");
 const { deleteImage } = require("../controllers/uploadController");
 
@@ -9,7 +9,7 @@ const router = express.Router();
 const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 // Route for uploading an image and updating a question 
-router.post("/upload-image", upload.single("image"), uploadImage);
+router.post("/upload-image", limiter(5), upload.single("image"), uploadImage);
 
 
 
