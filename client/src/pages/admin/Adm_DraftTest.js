@@ -15,7 +15,7 @@ const Adm_DraftTest = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9; // Number of items per page
+  const itemsPerPage = 10; // Number of items per page
 
   useEffect(() => {
     // Close the sidebar if clicked outside

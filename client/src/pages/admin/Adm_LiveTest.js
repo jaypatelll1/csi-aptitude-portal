@@ -15,7 +15,7 @@ const Adm_LiveTest = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1); // Tracks the current page
-  const itemsPerPage = 9; // Number of items to display per page
+  const itemsPerPage = 10; // Number of items to display per page
 
   const totalPages = Math.ceil(tests.length / itemsPerPage); // Total number of pages
 

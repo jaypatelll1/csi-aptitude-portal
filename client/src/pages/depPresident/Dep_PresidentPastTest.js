@@ -16,7 +16,7 @@ const Dep_PresidentPastTest = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9; // Number of items per page
+  const itemsPerPage = 10; // Number of items per page
 
   useEffect(() => {
     const handleClickOutside = (event) => {
