@@ -61,6 +61,7 @@ import Dep_PresidentInputQuestions from "./pages/depPresident/Dep_PresidentInput
 import Dep_PresidentTeacherList from "./pages/depPresident/Dep_PresidentTeacherList";
 import Dep_PresidentTestTeacherList from "./pages/depPresident/Dep_PresidentTestTeacherList";
 import Dep_PresidentViewQuestions from "./pages/depPresident/Dep_PresidentViewQuestions";
+import Dep_PresidentResult from "./pages/depPresident/Dep_PresidentResult";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -472,6 +473,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["President"]}>
             <Dep_PresidentViewQuestions />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/president/result"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentResult />
           </ProtectedRoute>
         }
       />

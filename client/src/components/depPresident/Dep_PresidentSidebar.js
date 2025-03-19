@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const Dep_Presidentsidebar = () => {
+const Dep_PresidentSidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
   const [showAnalyticsSubmenu, setShowAnalyticsSubmenu] = useState(false);
   const navigate = useNavigate();
@@ -127,4 +127,4 @@ const Dep_Presidentsidebar = () => {
   );
 };
 
-export default Dep_Presidentsidebar;
+export default Dep_PresidentSidebar;
