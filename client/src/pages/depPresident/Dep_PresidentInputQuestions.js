@@ -512,7 +512,7 @@ const Adm_InputQuestions = () => {
             </div>
             <div className="flex space-x-3">
               <button
-                className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
+                className="mr-4 bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
                 onClick={() => setModalOpen(true)}
               >
                 Upload File
