@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setExam, clearExamId } from "../../redux/ExamSlice";
 import { clearUser } from "../../redux/userSlice";
 import { clearQuestions } from "../../redux/questionSlice";
+import Loader from "../../components/Loader";
 
 function Stu_Dashboard() {
   const userData = useSelector((state) => state.user.user);
@@ -21,6 +22,8 @@ function Stu_Dashboard() {
   const [result, setResult] = useState([]);
   const detailsRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,6 +36,8 @@ function Stu_Dashboard() {
   };
   
   const fetchTests = async (filterType) => {
+    setLoading(true);
+
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let payload;
     let url = `${API_BASE_URL}/api/exams/student`; // Default for "All"
@@ -77,8 +82,11 @@ function Stu_Dashboard() {
       console.log('past tests is ', pastPaper);
       setResult(pastPaper.data.results);
       setTests(response.data.exams || []);
+
+      setLoading(false); 
     } catch (err) {
       console.error("error getting response ", err);
+      setError(`Failed to fetch tests. Please try again later.`);
     }
   };
 
@@ -231,7 +239,13 @@ function Stu_Dashboard() {
 
           {/* Test Cards - Using ternary to switch between components */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 mt-5">
-            {tests.length > 0 ? (
+          {loading ? (
+              <div className="absolute inset-0 flex justify-center items-center col-span-full">
+                <Loader />
+              </div>
+            ) : error ? (
+              <p className="col-span-full text-center">{error}</p>
+            ) : tests.length > 0 ? (
               filter === "all" ? (
                 // Show StuTestCard for "all" (live) tests
                 tests.map((test, index) => (
@@ -272,7 +286,13 @@ function Stu_Dashboard() {
               className="flex overflow-x-auto space-x-4 mt-3"
               style={{ scrollbarWidth: "none" }}
             >
-              {result.map((test, index) => (
+              {loading ? (
+              <div className="absolute inset-0 flex justify-center items-center col-span-full">
+                <Loader />
+              </div>
+            ) : error ? (
+              <p className="col-span-full text-center">{error}</p>
+            ) : result.map((test, index) => (
                 <div className="flex-shrink-0 " key={index}>
                   <StuPastTestCard
                     testName={test.exam_name}
