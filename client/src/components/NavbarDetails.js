@@ -29,20 +29,28 @@ const NavbarDetails = () => {
     navigate("/", { replace: true });
   };
 
-  const isDisabled = user.role === "TPO";
-  const Disabled = user.role === "Department";
 
   return (
     <div className="w-80 border border-gray-200 rounded-lg bg-white p-4 absolute z-50 right-5 top-12 shadow-lg">
       <h1 className="font-semibold text-xl text-gray-700">Name: {user.name}</h1>
       <div className="text-sm text-gray-500 mt-3 space-y-1">
         <p>Email: {user.email}</p>
-        {user.role === "Department" && (
-          <p disabled={isDisabled}>Branch: {user.department}</p>
+        {user.role === "TPO" && (
+          <p >Mobile: {user.phone}</p>
         )}
-        {user.role !== "TPO" && user.role !== "Department" && (
+        {user.role === "Department" && (
+          <p >Branch: {user.department}</p>
+        )}
+        {user.role === "Teacher" && (
+          <div>
+          <p >Mobile: {user.phone}</p>
+          </div>
+        )}
+        {user.role ==="Student" && (
           <>
-            <p disabled={isDisabled}>Mobile: {user.phone}</p>
+            <p >Mobile: {user.phone}</p>
+            <p >Branch: {user.department}</p>
+            <p >Year: {user.year}</p>
           </>
         )}
       </div>
