@@ -35,6 +35,7 @@ const Adm_InputQuestions = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [remaining,setRemaining] = useState(5);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -120,6 +121,12 @@ const Adm_InputQuestions = () => {
     formData.append("image", selectedImage);
   
     try {
+      if (remaining < 0) {
+        alert("Too many requests, please try again later.");
+        setImageModalOpen(false);
+        navigate("/admin/viewquestions");
+        return;
+      }
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
   
       // Upload the image and display it
@@ -134,24 +141,30 @@ const Adm_InputQuestions = () => {
         }
       );
   
-      console.log("Upload Response:", response.data);
+      // console.log("Upload Response:", response.data);
   
       if (response.data && response.data.imageUrl) {
         setImageUrl(response.data.imageUrl); // Set the image URL for display
-        alert("Image uploaded successfully!");
+        setRemaining((remaining) => remaining - 1);
+        alert(`Image uploaded successfully! You have ${remaining} attempts left.`);
+        setImageModalOpen(false);
       } else {
         alert("Image uploaded but no URL was returned.");
       }
   
     } catch (error) {
-      console.error("Upload error:", error);
-      alert("An error occurred while uploading the image.");
+      // console.error("Upload error:", error);
+      if (error?.status === 429) {
+        alert("Too many requests, please try again later.");
+        
+      } else {
+        alert("An error occurred while uploading the image.");
+      }
+      
     } finally {
       setIsImageUploading(false);
     }
   };
-  
-
   
   const {
     questionId,
