@@ -317,7 +317,8 @@ const getPaginatedScheduledExams = async (req, res) => {
   let status = 'scheduled',
     Count,
     exams;
-  const { page, limit, role } = req.query;
+  const { page, limit } = req.query;
+  const role = req.user.role;
   console.log('page is ', page, limit);
 
   try {
@@ -362,7 +363,8 @@ const getPaginatedDraftedExams = async (req, res) => {
   let status = 'draft',
     Count,
     exams;
-  const { page, limit, role } = req.query;
+  const { page, limit } = req.query;
+  const role = req.user.role;
   console.log('page is ', page, limit);
   console.log(role);
   try {
@@ -408,8 +410,10 @@ const getPaginatedLiveExams = async (req, res) => {
   let status = 'live',
     Count,
     exams;
-  const { page, limit, role } = req.query;
-  console.log('page is ', page, limit);
+  const { page, limit } = req.query;
+  const role = req.user.role;
+  console.log(role)
+  // console.log('page is ', page, limit);
 
   try {
     if (!page && !limit) {
@@ -453,7 +457,8 @@ const getPaginatedPastExams = async (req, res) => {
   let status = 'past',
     Count,
     exams;
-  const { page, limit, role } = req.query;
+  const { page, limit } = req.query;
+  const role = req.user.role;
   console.log('page is ', page, limit);
 
   try {

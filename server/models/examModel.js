@@ -91,7 +91,7 @@ const getAllPaginatedExams = async (page, limit) => {
 // count of differnt type of exams
 
 const ExamCount = async (status, role) => {
-  if (role === "President") {
+  if (role === "President" || role === "Teacher") {
     const queryTEXT = 'SELECT * FROM exams WHERE status=$1 AND exam_for = $2';
     let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
 
@@ -171,7 +171,7 @@ const getAllScheduledExams = async () => {
 
 const getExamsByStatus = async (status, role) => {
   console.log(role)
-  if (role === "President") {
+  if (role === "President" || role === "Teacher") {
     const query = `SELECT DISTINCT 
     e.exam_id, 
     e.exam_name, 
@@ -220,7 +220,6 @@ GROUP BY
     e.exam_id, e.exam_name 
    ORDER BY created_at DESC`;
     const result = await pool.query(query, [status, 'Student']);
-    console.log(result.rows)
     return result.rows;
   }
 }
@@ -242,7 +241,7 @@ const getExamsForUser = async (status, target_branches, target_years) => {
 FROM exams AS e
 JOIN questions AS q ON q.exam_id = e.exam_id
 WHERE 
-  e.status = $1                         
+  e.status = $1 AND e.exam_for = 'Student'                     
   AND e.target_branches @> $2::branch_enum[]  
   AND e.target_years @> $3::year_enum[]      
 GROUP BY e.exam_id, e.status, e.target_branches, e.target_years  
