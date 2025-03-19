@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
+import UploadImageModal from "../../upload/UploadImageModal";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const validCategories = [
@@ -28,6 +29,12 @@ const Dep_InputQuestions = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
 
+// New state variables for image upload
+  const [isImageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+
   const navigate = useNavigate();
   const location = useLocation();
   const questionData = location.state || {};
@@ -47,6 +54,23 @@ const Dep_InputQuestions = () => {
       return;
     }
     setSelectedFile(file);
+  };
+
+  // New handler for image file changes
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/jpg",
+      "image/webp",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Invalid file type. Please upload a valid image file.");
+      return;
+    }
+    setSelectedImage(file);
   };
 
   const handleQuestionSubmit = async (event) => {
@@ -80,8 +104,55 @@ const Dep_InputQuestions = () => {
     }
   };
 
+  // Handler for image submission
+    const handleImageSubmit = async (event) => {
+      event.preventDefault();
+    
+      if (!selectedImage) {
+        alert("Please select an image to upload.");
+        return;
+      }
+    
+      setIsImageUploading(true);
+    
+      const formData = new FormData();
+      formData.append("image", selectedImage);
+    
+      try {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    
+        // Upload the image and display it
+        const response = await axios.post(
+          `${API_BASE_URL}/api/upload-image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
+          }
+        );
+    
+        console.log("Upload Response:", response.data);
+    
+        if (response.data && response.data.imageUrl) {
+          setImageUrl(response.data.imageUrl); // Set the image URL for display
+          alert("Image uploaded successfully!");
+        } else {
+          alert("Image uploaded but no URL was returned.");
+        }
+    
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("An error occurred while uploading the image.");
+      } finally {
+        setIsImageUploading(false);
+      }
+    };
+
   const {
     questionId,
+    questionsType,
     questionText,
     questionOptions = {},
     exam_id,
@@ -140,6 +211,33 @@ const Dep_InputQuestions = () => {
       newToggles[index] = !newToggles[index];
     }
     setToggles(newToggles);
+  };
+
+  const handleRemoveImage = async () => {
+    if (!questionId) {
+      // alert("No question ID found");
+      setImageUrl(""); 
+      return;
+    }
+  
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      
+      // Call backend to delete image
+      const response = await axios.delete(`${API_BASE_URL}/api/delete-image/${questionId}`, {
+        withCredentials: true,
+      });
+  
+      if (response.data.success) {
+      
+        setImageUrl(""); // Clear image from UI
+      } else {
+        alert("Failed to delete image.");
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      alert("An error occurred while deleting the image.");
+    }
   };
 
   const handleSubmit = async () => {
@@ -270,13 +368,20 @@ const Dep_InputQuestions = () => {
             <div className="text-2xl font-semibold text-center text-gray-800 ml-0 xl:ml-0">
               Create Aptitude Test
             </div>
-            <div>
+            <div className="flex space-x-3">
               <button
                 className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
                 onClick={() => setModalOpen(true)}
               >
                 Upload File
               </button>
+              <button
+                className="bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
+                onClick={() => setImageModalOpen(true)}
+              >
+                Upload Image
+              </button>
+
               <UploadModal
                 isOpen={isModalOpen}
                 check="Upload Questions"
@@ -284,6 +389,15 @@ const Dep_InputQuestions = () => {
                 onFileChange={handleFileChange}
                 onSubmit={handleQuestionSubmit}
                 isUploading={isUploading}
+              />
+
+              <UploadImageModal
+                isOpen={isImageModalOpen}
+                check="Upload Image"
+                closeModal={() => setImageModalOpen(false)}
+                onFileChange={handleImageChange}
+                onSubmit={handleImageSubmit}
+                isUploading={isImageUploading}
               />
             </div>
           </div>
@@ -348,6 +462,30 @@ const Dep_InputQuestions = () => {
                 ))}
               </select>
             </div>
+
+            {/* Display uploaded image if available */}
+            {imageUrl && (
+              <div className="mb-4">
+                <label className="text-xl block text-gray-700 font-medium mb-2">
+                  Uploaded Image:
+                </label>
+                <div className="border rounded-lg p-2 max-w-md">
+                  <img
+                    src={imageUrl}
+                    alt="Question image"
+                    className="max-w-full h-auto"
+                  />
+                </div>
+                <button
+                  onClick={handleRemoveImage}
+                  className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 border border-red-400"
+                >
+                  Remove Image
+                </button>
+              </div>
+            )}
+           
+           {questionsType !== "text" && (
             <div>
               <label className="text-xl block text-gray-700 font-medium mb-2">
                 Options:
@@ -404,6 +542,7 @@ const Dep_InputQuestions = () => {
                 </button>
               )}
             </div>
+           )}
           </div>
           <div className="flex gap-4 justify-between">
             <button
