@@ -89,7 +89,7 @@ function Stu_Analytics() {
     if (user_id) {
       fetchAllData();
     }
-  }, [user_id]);
+  }, [user_id, loading]);
 
   const performanceOverTimeData = {
     title: "Performance Over Time",
@@ -112,16 +112,16 @@ function Stu_Analytics() {
     setCorrect(0);
     setTotal(0);
 
-    data.map((exam) => {
+    data?.map((exam) => {
       setCorrect((prev) => prev + exam.total_score);
     });
 
-    data.map((exam) => {
+    data?.map((exam) => {
       setTotal((prev) => prev + exam.max_score);
     });
-    if (data[0]) {
-      // console.log("categories", Object.keys(data[0]?.category).score);
-    }
+    // if (data[0]) {
+    //   // console.log("categories", Object.keys(data[0]?.category).score);
+    // }
   }, [data]);
 
   const accuracyData = {
@@ -145,20 +145,20 @@ function Stu_Analytics() {
 
     chartData: (() => {
       // Filter out exams with null/undefined category
-      const validData = data.filter(
+      const validData = data?.filter(
         (exam) => exam.category !== null && exam.category !== undefined
       );
 
       // Get a unique set of all subjects across valid exams, ignoring "null" key
       const allSubjects = [
         ...new Set(
-          validData.flatMap((exam) =>
+          validData?.flatMap((exam) =>
             Object.keys(exam.category).filter((subject) => subject !== "null")
           )
         ),
       ];
 
-      return allSubjects.map((subject) => {
+      return allSubjects?.map((subject) => {
         // Calculate total and average scores for this subject across valid exams
         const totalScore = validData.reduce(
           (sum, exam) => sum + (parseFloat(exam.category[subject]?.score) || 0),
