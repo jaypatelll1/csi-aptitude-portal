@@ -180,6 +180,7 @@ async function getCorrectIncorrect(student_id, exam_id) {
       -- Store selected response in a consistent JSONB format
       CASE 
           WHEN q.question_type = 'multiple_choice' THEN r.selected_options
+          WHEN q.question_type = 'text' THEN to_jsonb(r.text_answer)
           ELSE to_jsonb(r.selected_option)
       END AS selected_response,
 
@@ -198,14 +199,15 @@ async function getCorrectIncorrect(student_id, exam_id) {
           ELSE (r.selected_option = q.correct_option)::text
       END AS result_status
 
-    FROM responses r
-    JOIN questions q 
-    ON r.question_id = q.question_id
-    WHERE r.student_id = $1 
-    AND r.exam_id = $2;
+FROM responses r
+JOIN questions q 
+ON r.question_id = q.question_id
+WHERE r.student_id = $1 
+AND r.exam_id = $2;
   `;
 
   try {
+    console.log(`Exam id: ${exam_id} Student id: ${student_id}`);
     const res = await query(queryText, [student_id, exam_id]);
     return res.rows;
   } catch (err) {
