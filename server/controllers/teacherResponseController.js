@@ -241,7 +241,6 @@ const getPaginatedResponsesForExam = async (req, res) => {
 
     const responses = await teacherResponseModel.getPaginatedResponses(
       exam_id,
-      teacher_id,
       page,
       limit
     );
@@ -259,9 +258,6 @@ const getPaginatedResponsesForExam = async (req, res) => {
     }
 
     return res.status(200).json({
-      page: page || 'All',
-      limit: limit || 'All',
-      student_id: teacher_id,
       responses,
     });
   } catch (error) {
