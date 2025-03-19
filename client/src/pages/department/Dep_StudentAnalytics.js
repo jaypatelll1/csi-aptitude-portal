@@ -65,7 +65,8 @@ function Dep_StudentAnalytics() {
         superscript(setDSup, response.data.rank.department_rank);
         superscript(setOSup, response.data.rank.overall_rank);
       }
-  
+      
+      if(response.data.test_completion_data){
       const { attempted, total } = response.data.test_completion_data;
       setTestCompletionData({
         title: "Test Completion Rate",
@@ -74,6 +75,7 @@ function Dep_StudentAnalytics() {
           { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
         ],
       });
+    }
   
       setPerformanceOverTime(response.data.performance_over_time);
   
@@ -89,12 +91,12 @@ function Dep_StudentAnalytics() {
     if (user_id) {
       fetchAllData();
     }
-  }, [user_id]);
+  }, [user_id, loading]);
 
   const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: performanceOverTime.map((exam) => ({
+    chartData: performanceOverTime?.map((exam) => ({
       name: exam?.created_on,
       Average: exam?.average_score,
     })),
@@ -112,15 +114,13 @@ function Dep_StudentAnalytics() {
     setCorrect(0);
     setTotal(0);
 
-    data.map((exam) => {
+    data?.map((exam) => {
       setCorrect((prev) => prev + exam.total_score);
     });
 
-    data.map((exam) => {
+    data?.map((exam) => {
       setTotal((prev) => prev + exam.max_score);
     });
-    if (data[0]) {
-    }
   }, [data]);
 
   const accuracyData = {
@@ -144,20 +144,20 @@ function Dep_StudentAnalytics() {
 
     chartData: (() => {
       // Filter out exams with null/undefined category
-      const validData = data.filter(
+      const validData = data?.filter(
         (exam) => exam.category !== null && exam.category !== undefined
       );
 
       // Get a unique set of all subjects across valid exams, ignoring "null" key
       const allSubjects = [
         ...new Set(
-          validData.flatMap((exam) =>
+          validData?.flatMap((exam) =>
             Object.keys(exam.category).filter((subject) => subject !== "null")
           )
         ),
       ];
 
-      return allSubjects.map((subject) => {
+      return allSubjects?.map((subject) => {
         // Calculate total and average scores for this subject across valid exams
         const totalScore = validData.reduce(
           (sum, exam) => sum + (parseFloat(exam.category[subject]?.score) || 0),
