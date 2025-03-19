@@ -127,25 +127,25 @@ const ExamCount = async (status, role) => {
     }
   } else {
 
-    const queryTEXT = 'SELECT * FROM exams WHERE status=$1';
+    const queryTEXT = 'SELECT * FROM exams WHERE status=$1 AND exam_for = $2';
     let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
 
     try {
       // Query for each status
       if (status === 'draft') {
-        const result = await pool.query(queryTEXT, [status]);
+        const result = await pool.query(queryTEXT, [status, 'Student']);
         draft_count = result.rowCount || 0;
       }
       if (status === 'scheduled') {
-        const result = await pool.query(queryTEXT, [status]);
+        const result = await pool.query(queryTEXT, [status, 'Student']);
         scheduled_count = result.rowCount || 0;
       }
       if (status === 'past') {
-        const result = await pool.query(queryTEXT, [status]);
+        const result = await pool.query(queryTEXT, [status, 'Student']);
         past_count = result.rowCount || 0;
       }
       if (status === 'live') {
-        const result = await pool.query(queryTEXT, [status]);
+        const result = await pool.query(queryTEXT, [status, 'Student']);
         live_count = result.rowCount || 0;
       }
 
@@ -162,8 +162,6 @@ const ExamCount = async (status, role) => {
     }
   }
 };
-
-
 
 const getAllScheduledExams = async () => {
   const query = 'SELECT * FROM exams WHERE status = $1';
@@ -217,11 +215,11 @@ LEFT JOIN
 ON 
     e.exam_id = q.exam_id
 WHERE 
-    e.status = $1 
+    e.status = $1 AND e.exam_for = $2
 GROUP BY 
     e.exam_id, e.exam_name 
    ORDER BY created_at DESC`;
-    const result = await pool.query(query, [status]);
+    const result = await pool.query(query, [status, 'Student']);
     console.log(result.rows)
     return result.rows;
   }
@@ -379,12 +377,12 @@ LEFT JOIN
 ON 
     e.exam_id = q.exam_id
 WHERE 
-    e.status = $1 
+    e.status = $1 AND e.exam_for = $2
 GROUP BY 
     e.exam_id, e.exam_name 
    ORDER BY created_at DESC`;
     const paginatedQuery = paginate(query, page, limit);
-    const result = await pool.query(paginatedQuery, [status]);
+    const result = await pool.query(paginatedQuery, [status, 'Student']);
     return result.rows;
   }
 }
