@@ -90,13 +90,16 @@ CREATE TABLE teacher_results (
     result_id SERIAL PRIMARY KEY,
     teacher_id INTEGER,
     exam_id INTEGER,
+    question_id INTEGER, 
     marks_allotted INTEGER,  
     max_score INTEGER,
-    completed_at TIMESTAMP,
     comments TEXT,  
+    completed_at TIMESTAMP,
     FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
-    FOREIGN KEY (teacher_id) REFERENCES users (user_id)
+    FOREIGN KEY (teacher_id) REFERENCES users (user_id),
+    FOREIGN KEY (question_id) REFERENCES questions (question_id) 
 );
+
 
 CREATE TABLE student_analysis (
     analysis_id SERIAL PRIMARY KEY,
