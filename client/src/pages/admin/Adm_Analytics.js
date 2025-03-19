@@ -30,7 +30,7 @@ function Adm_Analytics() {
 
   const departmentAnalysis = useSelector(
     (state) =>
-      state.analysis.departmentAnalysis[selectedDepartment]
+      state.analysis.departmentAnalysis[selectedDepartment].analyticsData
   ); // Fetch data from redux
 
   const fetchAllTpoAnalysis = async () => {
@@ -65,7 +65,7 @@ function Adm_Analytics() {
 
   useEffect(() => {
     fetchAllTpoAnalysis();
-  }, [selectedDepartment]);
+  }, [selectedDepartment, isLoading]);
 
   const handleDepartmentChange = (dept) => {
     setSelectedDepartment(dept);
@@ -86,7 +86,7 @@ function Adm_Analytics() {
   const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: performanceOverTime.map((exam) => ({
+    chartData: performanceOverTime?.map((exam) => ({
       name: exam?.created_on,
       Average: exam?.average_score,
     })),
@@ -96,7 +96,7 @@ function Adm_Analytics() {
   const donutChartData = {
     title: "Accuracy Rate",
     chartData:
-      filteredAccuracyData.length > 0
+      filteredAccuracyData?.length > 0
         ? filteredAccuracyData
         : [
             { name: "Correct", value: 0, fill: "#4CAF50" },
@@ -124,8 +124,7 @@ function Adm_Analytics() {
 
   const radarChartData = {
     title: "Subject-wise Performance",
-    chartData: categoryWiseData
-      .filter(
+    chartData: categoryWiseData?.filter(
         (category) =>
           category?.category != null && category?.category !== "null"
       )
@@ -245,7 +244,7 @@ function Adm_Analytics() {
                 </div>
               </div>
               <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-              {performanceOverTime.length > 0 ? ( //Ensures data is not empty or null 
+              {performanceOverTime?.length > 0 ? ( //Ensures data is not empty or null 
                 <LineChartComponent
                   data={performanceOverTimeData}
                   xAxisKey="name"
@@ -267,7 +266,7 @@ function Adm_Analytics() {
               )}
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">
-              {radarChartData.chartData.length > 0 ? (
+              {radarChartData.chartData?.length > 0 ? (
                 <RadarChartComponent data={radarChartData} />
               ) : (
                 <p className="text-gray-500 text-lg font-semibold text-center">

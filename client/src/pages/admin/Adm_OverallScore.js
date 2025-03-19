@@ -41,7 +41,7 @@ function Adm_OverallScore() {
 
   useEffect(() => {
     fetchAllTpoAnalysis();
-  }, []);
+  }, [loading]);
 
   const participationRateData = {
     title: "Participation Rate",
