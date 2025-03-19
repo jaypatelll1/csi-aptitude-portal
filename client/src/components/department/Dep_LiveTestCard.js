@@ -30,13 +30,13 @@ const Dep_LiveTestCard = ({ test }) => {
             <span className="text-black-500 text-sm">
               Created on: {test.date}
             </span>
-            {/* <span className="text-black-500 text-xs mr-5">
-              Branch: {test.target_years.replace(/[{}]/g, "")} -{" "}
+            <span className="text-black-500 text-xs mr-5">
+              Branch: {test.target_years?.replace(/[{}]/g, "")} -{" "}
               {test.target_branches
-                .replace(/[{}]/g, "")
+                ?.replace(/[{}]/g, "")
                 .split(",")
                 .find((branch) => branch.trim() === user.department) || "N/A"}
-            </span> */}
+            </span>
           </div>
         </div>
       </div>
