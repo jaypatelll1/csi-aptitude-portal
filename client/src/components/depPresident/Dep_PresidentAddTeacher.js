@@ -11,10 +11,7 @@ const Dep_PresidentAddTeacher = ({ closeModal }) => {
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [mobile, setMobile] = useState("");
-    const [year, setYear] = useState('FE');
-    const [rollno, setRollno] = useState();
-    const [claass, setClaass] = useState("");
-    const { department: userDepartment } = useSelector((state) => state.user.user);
+   
 
     // Generate a random password
     const generatePassword = () => {
@@ -29,11 +26,7 @@ const Dep_PresidentAddTeacher = ({ closeModal }) => {
             name: `${firstName} ${lastName}`,
             email: `${email}`,
             phone: `${mobile}`,
-            department: userDepartment,
-            rollno: Number(rollno),
-            role: "Student",
-            password: password,
-            year: `${year}`,
+            role: "Teacher",
         };
 
         try {
@@ -55,7 +48,7 @@ const Dep_PresidentAddTeacher = ({ closeModal }) => {
 
     return (
         <div className="bg-white rounded-lg border w-[554px] px-6 py-6 mb-10 ml-10">
-            <h1 className="text-xl font-medium">Add Student</h1>
+            <h1 className="text-xl font-medium">Add Teacher</h1>
             <hr className="my-4 border-black" />
 
             <div id="NameBoxes" className="mb-4">
@@ -96,44 +89,7 @@ const Dep_PresidentAddTeacher = ({ closeModal }) => {
                 />
             </div>
 
-            <div id="Department" className="mb-4">
-                <h1 className="mb-2">Department and Year</h1>
-                <div className="flex space-x-4">
-                    {/* Show department name instead of dropdown */}
-                    <div className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2 flex items-center">
-                        {userDepartment}
-                    </div>
-                    <select
-                        className="h-10 w-full border border-gray-300 bg-white rounded-lg pl-2"
-                        value={year}
-                        onChange={(e) => setYear(e.target.value)}
-                    >
-                        <option value="FE">FE</option>
-                        <option value="SE">SE</option>
-                        <option value="TE">TE</option>
-                        <option value="BE">BE</option>
-                    </select>
-                </div>
-            </div>
-            <div id="ClassBoxes" className="mb-7">
-                <h1 className="mb-2">Class and Roll Number</h1>
-                <div className="flex space-x-4">
-                    <input
-                        className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-                        placeholder="Class"
-                        value={claass}
-                        onChange={(e) => setClaass(e.target.value)}
-                    
-                    />
-                    <input
-                        className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-                        placeholder="Roll Number"
-                        value={rollno}
-                        onChange={(e) => setRollno(e.target.value)}
-                        type="number"
-                    />
-                </div>
-            </div>  
+        
 
 
             <div className="flex justify-between">
@@ -147,7 +103,7 @@ const Dep_PresidentAddTeacher = ({ closeModal }) => {
                     onClick={handleSaveStudent}
                     className="h-10 px-6 bg-purple-200 text-purple-700 rounded-lg"
                 >
-                    Save Student
+                    Save Teacher
                 </button>
             </div>
         </div>
