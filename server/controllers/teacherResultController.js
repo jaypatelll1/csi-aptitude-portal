@@ -172,10 +172,10 @@ const deleteTeacherResult = async (req, res) => {
 
 // Get detailed correct/incorrect result
 const getCorrectIncorrectForTeacher = async (req, res) => {
-  const { exam_id, question_id, teacher_id } = req.params;
+  const { exam_id, teacher_id } = req.params;
 
   try {
-    const results = await teacherResultModel.getCorrectIncorrectForTeacher(teacher_id, exam_id, question_id);
+    const results = await teacherResultModel.getCorrectIncorrectForTeacher(teacher_id, exam_id);
 
     if (results.length === 0) {
       return res.status(404).json({ error: 'No results found' });
