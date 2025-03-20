@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from 'react-redux';
 
 const Stu_SidebarViewResult = ({ 
   questions = [],
@@ -6,9 +7,12 @@ const Stu_SidebarViewResult = ({
   onQuestionClick,
   totalMarks = 0,
   obtainedMarks = 0,
-  userName = "Student",
   name = "Test"
 }) => {
+  // Get user data from Redux store
+  const user = useSelector((state) => state.user.user);
+  const userName = user ? user.name : "Student";
+  
   // Process questions to match the expected format for this component
   // Handle text, single answer, and multiple answer questions
   const processedQuestions = questions.map(question => {
