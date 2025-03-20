@@ -40,6 +40,6 @@ router.put('/:exam_id/:question_id', authorizeRoles, updateTeacherResult);
 router.delete('/:exam_id/:question_id', authorizeRoles, deleteTeacherResult);
 
 // Get detailed result (correct/incorrect)
-router.get('/correct-incorrect/:exam_id/:question_id/:teacher_id', getCorrectIncorrectForTeacher);
+router.get('/correct-incorrect/:exam_id/:teacher_id', getCorrectIncorrectForTeacher);
 
 module.exports = router;
