@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-
+import Loader from "../../components/Loader";
 const Adm_CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
@@ -14,6 +14,7 @@ const Adm_CreateTestPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
+  const [Loading, setLoading] = useState(false)
 
   const sidebarRef = useRef(null);
   const branchRef = useRef(null);
@@ -25,8 +26,9 @@ const Adm_CreateTestPage = () => {
   const years = ["FE", "SE", "TE", "BE"];
 
   const handleCreateQuestions = async (e) => {
-    e.preventDefault();
 
+    e.preventDefault();
+    setLoading(true);
     if (!testName || !duration || branch.length === 0 || year.length === 0) {
       alert("Please fill in all the fields.");
       return;
@@ -54,6 +56,7 @@ const Adm_CreateTestPage = () => {
         error.response?.data || error.message
       );
     }
+    setLoading(false);
   };
 
   const handleBranchChange = (selectedBranch) => {
@@ -357,7 +360,7 @@ const Adm_CreateTestPage = () => {
             className="bg-[#1349C5] text-white px-3 lg:px-4 py-2 rounded hover:bg-[#4d75d2] border-[#2c54b2] opacity-90 hover:opacity-100"
             onClick={handleCreateQuestions}
           >
-            Create questions
+            {Loading? <Loader/> : "Create Questions"}
           </button>
           <button
             type="button"

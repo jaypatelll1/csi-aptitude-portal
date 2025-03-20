@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import UploadImageModal from "../../upload/UploadImageModal";
-
+import {Loader} from "lucide-react"
 const validCategories = [
   "quantitative aptitude",
   "logical reasoning",
@@ -41,7 +41,7 @@ const Adm_InputQuestions = () => {
   const location = useLocation();
   const questionData = location.state || {};
   const [category, setCategory] = useState(questionData.category || "");
-
+  const [Loading, setLoading] = useState(false)
   const examId = useSelector((state) => state.exam.examId);
 
   const handleFileChange = (event) => {
@@ -302,6 +302,7 @@ const Adm_InputQuestions = () => {
       alert("Please select at least one correct answer!");
       return;
     }
+    setLoading(true)
   
     // Finding correct answer indices
     const correctIndices = toggles
@@ -369,6 +370,7 @@ const Adm_InputQuestions = () => {
       console.error("Error creating test:", error.response?.data || error.message);
       alert("Error submitting question, please try again.");
     }
+    setLoading(false)
   };
 
   // const handleSubmit = async () => {
@@ -719,7 +721,7 @@ const Adm_InputQuestions = () => {
               onClick={handleSubmit}
               className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100"
             >
-              Save and Add Next
+              {Loading ? <Loader className="animate-spin" /> : "Save and Next"}
             </button>
             <button
               className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
