@@ -66,7 +66,7 @@ const Adm_StudentList = () => {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
      
       let response = await axios.post(
-        `${API_BASE_URL}/api/users/upload`,
+        `${API_BASE_URL}/api/users/upload?role=Student`,
         formData,
         {
           headers: {

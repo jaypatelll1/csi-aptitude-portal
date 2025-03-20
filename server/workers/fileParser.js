@@ -51,11 +51,10 @@ async function processUsers() {
                     INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 `;
-                const values = [name, email, passwordHash, role, createdAt, 'NOTACTIVE', department, year, rollno, phone.toString()];
 
+                const values = [name, email, passwordHash, role, createdAt, 'NOTACTIVE', department, year, rollno, phone.toString()];
                 await query(queryText, values);
                 await sendBulkEmailToUsers(email, password);
-
                 warnings.push(`Row ${index + 1}: Successfully processed - ${email}`);
 
             } catch (error) {

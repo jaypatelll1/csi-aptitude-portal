@@ -6,8 +6,7 @@ const { Worker } = require("worker_threads");
 
 const uploadFile = async (req, res) => {
     try {
-        const userRole = req.user.role; // Get the logged-in user's role
-        const role = userRole === "President" ? "Teacher" : "Student"; 
+       const {role} = req.query;
 
         if (!req.file) {
             return res.status(400).json({ status: "error", message: "No file uploaded" });
