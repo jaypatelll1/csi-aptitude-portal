@@ -23,33 +23,6 @@ const Adm_TestStudentList = () => {
   const examId = location.state?.examId;
 
 
-  // Function to handle CSV download
-  // const handleExportCSV = async () => {
-  //   try {
-  //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  //     const response = await axios.get(
-  //       `${API_BASE_URL}/api/export/result/csv/${examId}`,
-  //       {
-  //         responseType: "blob", // Important for downloading files
-  //         withCredentials: true, // Make sure the cookie is sent with the request
-  //       }
-  //     );
-
-  //     // Create a URL for the file blob and trigger download
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.setAttribute("download", "result.csv"); // Specify file name
-  //     document.body.appendChild(link);
-  //     link.click();
-
-  //     // Clean up the URL object after download
-  //     window.URL.revokeObjectURL(url);
-  //   } catch (error) {
-  //     console.error("Error downloading CSV:", error);
-  //   }
-  // };
-
   // Function to handle Excel download
   const handleExportExcel = async () => {
     try {

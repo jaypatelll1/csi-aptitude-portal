@@ -510,7 +510,7 @@ const Adm_InputQuestions = () => {
             <div className="text-2xl font-semibold text-center text-gray-800 ml-0 xl:ml-0">
               Create Aptitude Test
             </div>
-            <div className="flex space-x-3">
+            <div className="flex">
               <button
                 className="mr-4 bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
                 onClick={() => setModalOpen(true)}
