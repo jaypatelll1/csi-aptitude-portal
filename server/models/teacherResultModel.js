@@ -12,8 +12,26 @@ async function createResultForTeachers(
 ) {
   try {
     const completed_at = new Date().toISOString();
-    const queryText = `INSERT INTO teacher_results (teacher_id, exam_id, question_id, marks_allotted, max_score, comments, completed_at)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`;
+    const queryText =
+      `
+      WITH existing AS (
+        SELECT result_id FROM teacher_results
+        WHERE teacher_id = $1 AND exam_id = $2 AND question_id = $3
+        ORDER BY completed_at DESC
+        LIMIT 1
+      )
+      UPDATE teacher_results 
+      SET marks_allotted = $4, max_score = $5, comments = $6, completed_at = $7
+      WHERE result_id = (SELECT result_id FROM existing)
+      RETURNING *;
+
+      INSERT INTO teacher_results (teacher_id, exam_id, question_id, marks_allotted, max_score, comments, completed_at)
+      SELECT $1, $2, $3, $4, $5, $6, $7
+      WHERE NOT EXISTS (SELECT 1 FROM existing)
+      RETURNING *;
+    `;
+
+
     const values = [
       teacher_id,
       exam_id,
@@ -44,7 +62,18 @@ async function getAllTeacherResults() {
 // READ: Fetch results by teacher ID
 async function getResultsByTeacher(teacher_id) {
   try {
-    const queryText = 'SELECT * FROM teacher_results WHERE teacher_id=$1;';
+    const queryText = `
+    SELECT 
+        tr.teacher_id,
+        tr.exam_id,
+        SUM(tr.marks_allotted) AS total_marks_allotted,
+        SUM(tr.max_score) AS total_max_score,
+        COUNT(tr.question_id) AS total_questions_graded,
+        MAX(tr.completed_at) AS last_evaluation_time
+    FROM teacher_results tr
+    WHERE tr.teacher_id = $1
+    GROUP BY tr.teacher_id, tr.exam_id
+    ORDER BY last_evaluation_time DESC;`;
     const res = await query(queryText, [teacher_id]);
     return res.rows;
   } catch (err) {
@@ -53,11 +82,11 @@ async function getResultsByTeacher(teacher_id) {
 }
 
 // READ: Fetch a single result by exam and question ID
-async function getTeacherResultById(exam_id, question_id) {
+async function getTeacherResultById(exam_id) {
   try {
     const queryText =
-      'SELECT * FROM teacher_results WHERE exam_id=$1 AND question_id=$2;';
-    const res = await query(queryText, [exam_id, question_id]);
+      'SELECT * FROM teacher_results WHERE exam_id=$1;';
+    const res = await query(queryText, [exam_id]);
     return res.rows.length === 0 ? 'No Result Found' : res.rows[0];
   } catch (err) {
     console.error('Error fetching teacher result:', err);
@@ -103,13 +132,32 @@ async function deleteTeacherResult(teacher_id, exam_id, question_id) {
   }
 }
 
-// Pagination: Get paginated results for an exam
 async function getPaginatedTeacherResultsByExam(exam_id, page, limit) {
-  const queryText = `SELECT * FROM teacher_results WHERE exam_id=${exam_id}`;
-  const paginatedQuery = paginate(queryText, page, limit);
-  const result = await query(paginatedQuery);
-  return result.rows;
+  try {
+    const baseQuery = `
+      SELECT 
+          tr.teacher_id,
+          tr.exam_id,
+          SUM(tr.marks_allotted) AS total_marks_allotted,
+          SUM(tr.max_score) AS total_max_score,
+          COUNT(tr.question_id) AS total_questions_graded,
+          MAX(tr.completed_at) AS last_evaluation_time
+      FROM teacher_results tr
+      WHERE tr.exam_id = $1
+      GROUP BY tr.teacher_id, tr.exam_id
+      ORDER BY last_evaluation_time DESC
+    `;
+
+    // Wrap the query inside a subquery to apply pagination properly
+    const paginatedQuery = paginate(`SELECT * FROM (${baseQuery}) AS grouped_results`, page, limit);
+    const result = await query(paginatedQuery, [exam_id]);
+    return result.rows;
+  } catch (err) {
+    console.error('Error fetching paginated teacher results:', err);
+    return [];
+  }
 }
+
 
 // Get past results for an exam
 async function pastTeacherResult(exam_id) {

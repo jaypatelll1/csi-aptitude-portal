@@ -27,11 +27,8 @@ router.get('/teacher/:teacher_id', getResultsByTeacher);
 // READ: Get paginated results for an exam
 router.get('/all/:exam_id', authorizeRoles, getPaginatedTeacherResultsByExam);
 
-// Get past results when a test is clicked
-router.get('/allpast/:exam_id', authorizeRoles, pastTeacherResult);
-
 // READ: Get a specific result by teacher_id, exam_id, and question_id
-router.get('/:exam_id/:question_id', getTeacherResultById);
+router.get('/:exam_id', getTeacherResultById);
 
 // UPDATE: Update a result
 router.put('/:exam_id/:question_id', authorizeRoles, updateTeacherResult);
