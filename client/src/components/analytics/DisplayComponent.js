@@ -6,7 +6,7 @@ const DisplayComponent = ({ title, rank, superscript }) => {
       <h2 className="text-xl font-medium text-[#1349C5] self-start">{title}</h2>
       <span className="text-5xl flex items-center  font-bold text-gray-900">
         {rank}
-        <sup className="text-xl">{superscript}</sup>
+        {superscript ? <sup className="text-xl">{superscript}</sup> : null}
       </span>
     </div>
   );

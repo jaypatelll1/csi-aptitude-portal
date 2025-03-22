@@ -23,14 +23,12 @@ function Adm_Analytics() {
   const [participationRate, setParticipationRate] = useState([]);
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
   const [deptRank, setDeptRank] = useState([]);
-  const [highestPerformer, setHighestPerformer] = useState([]); // For dispalying overall_rank of top student
   const [isLoading, setIsLoading] = useState(true);
+  const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
-  const [oSup, setOSup] = useState("");
 
   const departmentAnalysis = useSelector(
-    (state) =>
-      state.analysis.departmentAnalysis[selectedDepartment]
+    (state) => state.analysis.departmentAnalysis[selectedDepartment]
   ); // Fetch data from redux
 
   const fetchAllTpoAnalysis = async () => {
@@ -45,8 +43,7 @@ function Adm_Analytics() {
       setDeptRank(departmentAnalysis.dept_ranks);
       superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
 
-      setHighestPerformer(departmentAnalysis.top_performer[0]);
-      superscript(setOSup, departmentAnalysis.top_performer[0].overall_rank);
+      setStudentCount(departmentAnalysis.studentCount.student_count);
 
       setIsLoading(false); // Set loading to false after data is loaded
     } catch (error) {
@@ -124,7 +121,8 @@ function Adm_Analytics() {
 
   const radarChartData = {
     title: "Subject-wise Performance",
-    chartData: categoryWiseData?.filter(
+    chartData: categoryWiseData
+      ?.filter(
         (category) =>
           category?.category != null && category?.category !== "null"
       )
@@ -230,49 +228,52 @@ function Adm_Analytics() {
               <div>
                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200">
                   <DisplayComponent
-                    title="Overall Department Rank"
+                    title="Department Rank"
                     rank={deptRank?.department_rank || "Loading..."}
                     superscript={dSup}
                   />
                 </div>
                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
                   <DisplayComponent
-                    title="Overall Student Rank"
-                    rank={highestPerformer?.overall_rank || "Loading..."}
-                    superscript={oSup}
+                    title="Total Students"
+                    rank={studentCount || "Loading..."}
                   />
                 </div>
               </div>
               <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-              {performanceOverTime?.length > 0 ? ( //Ensures data is not empty or null 
-                <LineChartComponent
-                  data={performanceOverTimeData}
-                  xAxisKey="name"
-                  lineDataKey="Percentage"
-                />
-              ) : (
-                <p className="text-gray-500 text-lg font-semibold">No Data Available</p> 
-              )}
+                {performanceOverTime?.length > 0 ? ( //Ensures data is not empty or null
+                  <LineChartComponent
+                    data={performanceOverTimeData}
+                    xAxisKey="name"
+                    lineDataKey="Percentage"
+                  />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">
+                    No Data Available
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Other Components */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5 ml-5 mr-5">
               <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
-              {accuracyData?.accuracy_rate !== undefined ? (
-                <DonutChartComponent data={donutChartData} />
-              ) : (
-                <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
-              )}
+                {accuracyData?.accuracy_rate !== undefined ? (
+                  <DonutChartComponent data={donutChartData} />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">
+                    No Data Available
+                  </p>
+                )}
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">
-              {radarChartData.chartData?.length > 0 ? (
-                <RadarChartComponent data={radarChartData} />
-              ) : (
-                <p className="text-gray-500 text-lg font-semibold text-center">
-                  No Data Available
-                </p>
-              )}
+                {radarChartData.chartData?.length > 0 ? (
+                  <RadarChartComponent data={radarChartData} />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold text-center">
+                    No Data Available
+                  </p>
+                )}
               </div>
             </div>
           </>
