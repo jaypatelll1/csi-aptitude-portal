@@ -175,7 +175,6 @@ module.exports = {
   getAllTeacherResults,
   getResultsByTeacher,
   getPaginatedTeacherResultsByExam,
-  pastTeacherResult,
   getTeacherResultById,
   updateTeacherResult,
   deleteTeacherResult,
