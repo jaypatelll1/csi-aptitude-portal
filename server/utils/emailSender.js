@@ -87,7 +87,7 @@ const sendResetPasswordEmail = async (email, resettoken) => {
       <hr style="border: 0; height: 1px; background: #007bff; margin: 15px 0;">
   
     
-      <a href="https://csi-aptitude-portal-client.onrender.com/reset-password/${resettoken}" 
+      <a href="${process.env.FRONTEND_URL}/reset-password/${resettoken}" 
         style="display: inline-block; margin-top: 20px; padding: 10px 20px; background: #ff5733; 
                color: white; text-decoration: none; font-weight: bold; border-radius: 5px; margin-bottom: 20px;">
         Reset Your Password
