@@ -3,9 +3,9 @@ const pool = require('../config/db');
 // Initialize connection pool
 
 const query = ` 
-CREATE TYPE role_enum AS ENUM ('TPO','Student', 'Teacher', 'Department');
+CREATE TYPE role_enum AS ENUM ('TPO','Student', 'Teacher', 'Department', 'President');
 CREATE TYPE user_status AS ENUM ('NOTACTIVE', 'ACTIVE');
-CREATE TYPE branch_enum AS ENUM ('CMPM', 'INFT', 'ECS', 'EXTC', 'ELEC');
+CREATE TYPE branch_enum AS ENUM ('CMPN', 'INFT', 'ECS', 'EXTC', 'ELEC');
 CREATE TYPE year_enum AS ENUM ('FE', 'SE', 'TE', 'BE');
 CREATE TYPE exam_status AS ENUM ('draft', 'scheduled', 'live', 'past');
 CREATE TYPE response_status AS ENUM ('draft', 'submitted');
@@ -35,6 +35,8 @@ CREATE TABLE exams (
     end_time TIMESTAMP,
     created_at TIMESTAMP without time zone DEFAULT CURRENT_TIMESTAMP,
     status exam_status DEFAULT 'draft',
+    target_year year_enum NOT NULL,
+    target_branches branch_enum NOT NULL,
     exam_for role_enum NOT NULL DEFAULT 'Student' -- Defines if exam is for students or teachers
 );
 
