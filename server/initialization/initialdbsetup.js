@@ -35,9 +35,9 @@ CREATE TABLE exams (
     end_time TIMESTAMP,
     created_at TIMESTAMP without time zone DEFAULT CURRENT_TIMESTAMP,
     status exam_status DEFAULT 'draft',
-    target_year year_enum NOT NULL,
+    target_years year_enum NOT NULL,
     target_branches branch_enum NOT NULL,
-    exam_for role_enum NOT NULL DEFAULT 'Student' -- Defines if exam is for students or teachers
+    exam_for role_enum NOT NULL DEFAULT 'Student'
 );
 
 CREATE TABLE questions (
@@ -45,10 +45,10 @@ CREATE TABLE questions (
     exam_id INTEGER REFERENCES exams (exam_id),
     question_text TEXT,
     question_type question_type_enum NOT NULL DEFAULT 'single_choice',
-    options JSONB, -- Store options in JSON (for single/multiple-choice)
-    correct_option CHAR(1) NULL, -- For single-choice questions
-    correct_options JSONB NULL, -- For multiple-choice questions
-    image_url TEXT NULL -- For image-based questions
+    options JSONB,
+    correct_option CHAR(1) NULL,
+    correct_options JSONB NULL,
+    image_url TEXT NULL
 );
 
 CREATE TABLE responses (
@@ -56,9 +56,9 @@ CREATE TABLE responses (
     student_id INTEGER REFERENCES users(user_id),
     exam_id INTEGER REFERENCES exams (exam_id),
     question_id INTEGER REFERENCES questions (question_id),
-    selected_option CHAR(1) NULL, -- For single-choice
-    selected_options JSONB NULL, -- For multiple-choice responses
-    text_answer TEXT NULL -- For text-based responses
+    selected_option CHAR(1) NULL,
+    selected_options JSONB NULL,
+    text_answer TEXT NULL,
     question_type question_type_enum NOT NULL,
     answered_at TIMESTAMP,
     status response_status DEFAULT 'draft'
@@ -69,9 +69,9 @@ CREATE TABLE teacher_responses (
     teacher_id INTEGER REFERENCES users(user_id),
     exam_id INTEGER REFERENCES exams(exam_id),
     question_id INTEGER REFERENCES questions(question_id),
-    selected_option CHAR(1) NULL, -- For single-choice
-    selected_options JSONB NULL, -- For multiple-choice responses
-    text_answer TEXT NULL, -- For text-based responses
+    selected_option CHAR(1) NULL,
+    selected_options JSONB NULL,
+    text_answer TEXT NULL,
     question_type question_type_enum NOT NULL,
     answered_at TIMESTAMP,
     response_status response_status DEFAULT 'draft'
