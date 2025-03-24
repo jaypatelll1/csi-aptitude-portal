@@ -126,7 +126,10 @@ const getResponsesForUsers = async (req, res) => {
   const user_id = req.user.id; // Assume the student ID is available via JWT
 
   try {
-    const responses = await teacherResponseModel.getExamIdByResponse(status, user_id);
+    const responses = await teacherResponseModel.getExamIdByResponse(
+      status,
+      user_id
+    );
     if (!responses) {
       await logActivity({
         user_id: user_id,
@@ -217,19 +220,17 @@ const deleteResponse = async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting response:', error);
-    res
-      .status(500)
-      .json({
-        error:
-          'An error occurred while deleting the response. Please try again later.',
-      });
+    res.status(500).json({
+      error:
+        'An error occurred while deleting the response. Please try again later.',
+    });
   }
 };
 
 const getPaginatedResponsesForExam = async (req, res) => {
   const { exam_id } = req.params;
-  let { page, limit } = req.query;
-  const teacher_id = req.user.id; // Retrieved from JWT
+  let { page, limit, teacher_id } = req.query;
+  // const teacher_id = req.user.id; // Retrieved from JWT
 
   try {
     // Convert query params to integers and handle missing values
@@ -240,6 +241,7 @@ const getPaginatedResponsesForExam = async (req, res) => {
     if (isNaN(limit) || limit < 1) limit = null;
 
     const responses = await teacherResponseModel.getPaginatedResponses(
+      teacher_id,
       exam_id,
       page,
       limit
@@ -273,5 +275,5 @@ module.exports = {
   getResponsesForUsers,
   resetUserResponse,
   deleteResponse,
-  getPaginatedResponsesForExam
+  getPaginatedResponsesForExam,
 };

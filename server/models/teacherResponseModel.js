@@ -196,14 +196,15 @@ const clearResponse = async (teacherId, examId, questionId) => {
   }
 };
 
-const getPaginatedResponses = async (exam_id, page, limit) => {
+const getPaginatedResponses = async (teacher_id, exam_id, page, limit) => {
   let query = 
-   `SELECT DISTINCT u.user_id AS teacher_id, u.name, u.email, u.phone
-FROM teacher_responses tr
-JOIN users u ON tr.teacher_id = u.user_id
-WHERE tr.exam_id=$1;`;
+   `SELECT response_id, selected_option, selected_options, text_answer, answered_at, teacher_responses.question_id, q.question_text,q.options  
+    FROM teacher_responses
+    INNER JOIN questions AS q ON teacher_responses.question_id = q.question_id
+    WHERE q.exam_id = $1 AND teacher_responses.teacher_id = $2
+    order by response_id`;
 
-  const values = [exam_id];
+  const values = [exam_id, teacher_id];
 
   if (page && limit) {
     query = paginate(query, page, limit); // Use pagination function

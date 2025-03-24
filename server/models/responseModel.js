@@ -234,7 +234,7 @@ const deleteResponse = async (response_id) => {
 
 const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
   let query = `
-    SELECT response_id, selected_option, answered_at, responses.question_id, q.question_text,q.options  
+    SELECT response_id, selected_option, selected_options, text_answer, answered_at, responses.question_id, q.question_text,q.options  
     FROM responses
     INNER JOIN questions AS q ON responses.question_id = q.question_id
     WHERE q.exam_id = $1 AND responses.student_id = $2
