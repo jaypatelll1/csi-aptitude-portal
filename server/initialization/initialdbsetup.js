@@ -119,7 +119,7 @@ CREATE TABLE student_analysis (
 
 CREATE TABLE student_rank (
     rank_id SERIAL PRIMARY KEY,
-    student_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    student_id INT UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
     department_name branch_enum NOT NULL,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_score INTEGER,

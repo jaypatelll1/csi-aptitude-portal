@@ -16,8 +16,16 @@ const generateRank = async () => {
     let results = await query(queryText);
     results = results.rows;
 
-    results.map(async (ranking) => {
-      const { student_id, student_name, department, total_score, overall_rank, department_rank } = ranking;
+    for (const ranking of results) {
+      const {
+        student_id,
+        student_name,
+        department,
+        total_score,
+        overall_rank,
+        department_rank,
+      } = ranking;
+      // console.log(student_id, student_name, department, total_score, overall_rank, department_rank);
       try {
         queryText = `
           INSERT INTO student_rank (student_id, student_name, department_name, total_score,overall_rank,department_rank, last_updated)
@@ -31,12 +39,25 @@ const generateRank = async () => {
             department_rank = EXCLUDED.department_rank,
             last_updated = CURRENT_TIMESTAMP;
         `;
-        await query(queryText, [student_id, student_name, department, total_score, overall_rank, department_rank]);
+
+        await query(queryText, [
+          student_id,
+          student_name,
+          department,
+          total_score,
+          overall_rank,
+          department_rank,
+        ]);
+
+        // console.log(`Rank updated succesfully for ${student_id}`);
       } catch (updateError) {
-        console.log(typeof student_id)
-        console.error(`Error updating/inserting student_id ${student_id}:`, updateError);
+        console.log(typeof student_id);
+        console.error(
+          `Error updating/inserting student_id ${student_id}:`,
+          updateError
+        );
       }
-    });
+    }
 
     return results;
   } catch (error) {
@@ -46,12 +67,11 @@ const generateRank = async () => {
 
 async function getStudentRanksInOrder(data) {
   try {
-
-    let queryText = "SELECT * FROM student_rank";
+    let queryText = 'SELECT * FROM student_rank';
     let queryParams = [];
 
     if (data.department) {
-      queryText += " WHERE department_name = $1";
+      queryText += ' WHERE department_name = $1';
       queryParams.push(data.department);
     }
 
@@ -62,7 +82,7 @@ async function getStudentRanksInOrder(data) {
     } else {
       queryText += data.department ? " ORDER BY department_rank ASC" : " ORDER BY  overall_rank ASC";
     }
-    console.log(queryText, queryParams)
+    console.log(queryText, queryParams);
     if (data.department) {
       const result = await query(queryText, queryParams);
       return result.rows;
@@ -70,11 +90,9 @@ async function getStudentRanksInOrder(data) {
       const result = await query(queryText);
       return result.rows;
     }
-
   } catch (error) {
-    console.log("Error fetching data", error);
+    console.log('Error fetching data', error);
   }
 }
-
 
 module.exports = { generateRank, getStudentRanksInOrder };
