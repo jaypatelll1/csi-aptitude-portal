@@ -5,7 +5,10 @@ import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavb
 import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSidebar";
 import Details from "../../components/NavbarDetails";
 import axios from "axios";
-
+import { Loader } from "lucide-react"
+import { useSelector,useDispatch } from "react-redux";
+import { FetchTeacherExam } from "../../redux/TeacherExamSlice";
+import { storeComments } from "../../redux/TeacherExamSlice";
 function Dep_PresidentResult() {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -14,6 +17,7 @@ function Dep_PresidentResult() {
   const [selectedMark, setSelectedMark] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [Saving, setSaving] = useState(false)
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -24,7 +28,10 @@ function Dep_PresidentResult() {
   const exam_name = location.state?.exam_name;
   const [teacherData, setTeacherData] = useState({});
   const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+  const ExamData = useSelector((state)=>state.teacherExam.AllExams)
+  const AllComments = useSelector((state)=>state.teacherExam.comments)
 
+  const dispatch = useDispatch()
   useEffect(() => {
     if (location.state?.teacher) {
       setTeacherData(location.state.teacher);
@@ -34,24 +41,18 @@ function Dep_PresidentResult() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(
-        `${API_BASE_URL}/api/exams/teacher-results/correct-incorrect/${exam_id}/${teacher_id}`,
-        { withCredentials: true }
-      );
-      setQuestions(response.data);
-      console.log(response.data);
-      setLoading(false);
+     await dispatch(FetchTeacherExam({exam_id,teacher_id})).unwrap()
     } catch (error) {
       setError("An error occurred. Please try again later.");
+    }finally{
+      setLoading(false);
     }
   };
-
   useEffect(() => {
     if (teacher_id && exam_id) {
       fetchData();
     }
-  }, []);
+  }, [teacher_id, exam_id, ExamData.length === 0]);
 
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);
@@ -67,38 +68,73 @@ function Dep_PresidentResult() {
   const handleMarkSelection = (mark) => {
     setSelectedMark(mark);
   };
-
   const handleNextQuestion = async () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      // Save current question data
-      console.log("Option selected:", selectedOption);
-      console.log("Mark assigned:", selectedMark);
-      console.log("Comment:", comment);
+    if (currentQuestionIndex >= ExamData.length) {
+      alert("This is the last question. Data saved.");
+      return;
+    }
 
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const currentQuestion = ExamData[currentQuestionIndex];
+
+    let marksAllotted = 0;
+
+    if (currentQuestion.question_type === "text") {
+      marksAllotted = selectedMark;
+    } else {
+      const correctAnswer = currentQuestion.correct_answer;
+      const selectedResponse = currentQuestion.selected_response;
+
+      const areEqual = (a, b) => {
+        if (a === null || b === null) return false;
+        if (typeof a === "string" && typeof b === "string") return a === b;
+        if (Array.isArray(a) && Array.isArray(b))
+          return a.length === b.length && a.sort().join(",") === b.sort().join(",");
+        if (typeof a === "string" && Array.isArray(b)) return b.includes(a);
+        if (typeof b === "string" && Array.isArray(a)) return a.includes(b);
+        return false;
+      };
+
+      marksAllotted = areEqual(correctAnswer, selectedResponse) ? 1 : 0;
+    }
+
+
+    try {
+      setSaving(true);
       const response = await axios.post(
-        `${API_BASE_URL}/api/exams/teacher-results/create-result/${exam_id}/${questions[currentQuestionIndex].question_id}`,
+        `${API_BASE_URL}/api/exams/teacher-results/create-result/${exam_id}/${currentQuestion.question_id}`,
         {
           teacher_id,
-          marks_allotted: selectedMark,
-          max_score: 5,
+          marks_allotted: marksAllotted,
+          max_score: currentQuestion.question_type === "text" ? 5 : 1,
           comments: comment,
         },
         { withCredentials: true }
       );
+      dispatch(storeComments({question_id:currentQuestion.question_id,comment:comment}))
 
-      console.log(response.data);
-
-      // Move to next question
-      setCurrentQuestionIndex((prev) => prev + 1);
-
-      // Reset form for next question
-      setSelectedMark(1);
-      setComment("");
-    } else {
-      alert("This is the last question. Data saved.");
+    } catch (error) {
+      console.error("Error submitting response:", error);
+    } finally {
+      setSaving(false);
     }
+
+    if (currentQuestionIndex === ExamData.length - 1) {
+      alert("This was the last question. Data saved.");
+      return; // Stop execution here
+    }
+
+    // Move to next question
+    setCurrentQuestionIndex((prev) => prev + 1);
+    
+
+    // Reset form for next question
+    setSelectedMark(1);
+    setComment("");
   };
+
+
 
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -150,6 +186,12 @@ function Dep_PresidentResult() {
     setSelectedMark(1);
     setComment("");
   };
+  useEffect(() => {
+    const existingComment = AllComments.find(
+      (c) => c.question_id === currentQuestion?.question_id
+    );
+    setComment(existingComment ? existingComment.comment : "");
+  }, [currentQuestionIndex]);
 
   if (loading) {
     return (
@@ -175,16 +217,15 @@ function Dep_PresidentResult() {
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = ExamData[currentQuestionIndex];
 
   return (
     <div className={`flex h-screen`}>
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-white text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-        } transition-transform duration-300 w-64 xl:block`}
+        className={`fixed top-0 left-0 h-full bg-white text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+          } transition-transform duration-300 w-64 xl:block`}
       >
         <Dep_PresidentSidebar />
       </div>
@@ -240,12 +281,7 @@ function Dep_PresidentResult() {
               <span className="font-semibold mr-2">Email-Id:</span>
               <span>{teacherData.email}</span>
             </div>
-            {/* <div>
-              <div className="flex items-center">
-                <span className="font-semibold mr-2">Branch:</span>
-                <span>INFT</span>
-              </div>
-            </div> */}
+            
           </div>
           <h1 className="text-xl font-bold text-black px-10  mb-1">
             {exam_name}
@@ -255,7 +291,7 @@ function Dep_PresidentResult() {
 
             <div className="w-full md:w-9/12 h-screen px-6  bg-[#F5F6F8]">
               <div className="bg-white p-6 rounded-lg shadow-md h-5/6 mt-2 overflow-hidden">
-                {questions.length > 0 ? (
+                {ExamData.length > 0 ? (
                   <>
                     <h2 className="text-lg font-semibold text-black select-none mb-6">
                       {currentQuestionIndex + 1}.{" "}
@@ -263,50 +299,87 @@ function Dep_PresidentResult() {
                     </h2>
 
                     <div className="space-y-4 mb-8">
-                      {currentQuestion.options &&
-                        Object.entries(currentQuestion.options).map(
-                          ([key, value]) => {
-                            const isSelected = selectedOption === key;
+                      {currentQuestion.options ?
+                        Object.entries(currentQuestion.options).map(([key, value]) => {
+                          const isSingleChoice = currentQuestion.question_type === "single_choice";
+                          const isMultipleChoice = currentQuestion.question_type === "multiple_choice";
 
-                            let circleClass =
-                              "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
-                            let optionClass =
-                              "flex items-center p-2 rounded-lg hover:bg-gray-100 transition";
-                            let symbol = "";
+                          // Convert correct_answer & selected_response to arrays if they are not already
+                          const correctAnswers = Array.isArray(currentQuestion.correct_answer)
+                            ? currentQuestion.correct_answer
+                            : [currentQuestion.correct_answer];
 
-                            if (isSelected) {
-                              circleClass =
-                                "w-5 h-5 inline-block mr-2 rounded-full bg-blue-500 text-white flex justify-center items-center";
-                              symbol = "✓";
-                              optionClass += " bg-blue-50";
-                            }
+                          const selectedResponses = Array.isArray(currentQuestion.selected_response)
+                            ? currentQuestion.selected_response
+                            : [currentQuestion.selected_response];
 
-                            return (
-                              <div key={key} className={optionClass}>
-                                <input
-                                  type="radio"
-                                  id={`option-${key}`}
-                                  name="question-option"
-                                  value={key}
-                                  checked={isSelected}
-                                  onChange={handleOptionChange}
-                                  className="hidden"
-                                />
-                                <label
-                                  htmlFor={`option-${key}`}
-                                  className="flex items-center w-full cursor-pointer"
-                                >
-                                  <span className={circleClass}>
-                                    <span className="text-xs font-bold">
-                                      {symbol}
-                                    </span>
-                                  </span>
-                                  <span className="ml-2">{value}</span>
-                                </label>
-                              </div>
-                            );
+                          // Check if this option is correct
+                          const isCorrect = correctAnswers.includes(key);
+                          // Check if this option is selected
+                          const isSelected = selectedResponses.includes(key);
+
+                          let circleClass =
+                            "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
+                          let optionClass =
+                            "flex items-center p-2 rounded-lg hover:bg-gray-100 transition";
+                          let symbol = "";
+
+                          if (isCorrect) {
+                            circleClass =
+                              "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
+                            symbol = "✓";
+                            optionClass += " bg-green-50"; // Highlight correct answers in green
                           }
-                        )}
+
+                          if (isSelected && !isCorrect) {
+                            // Incorrect selected answers in red
+                            circleClass =
+                              "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
+                            symbol = "✗";
+                            optionClass += " bg-red-50"; // Highlight incorrect selections in red
+                          }
+
+                          return (
+                            <div key={key} className={optionClass}>
+                              <input
+                                type={isMultipleChoice ? "checkbox" : "radio"}
+                                id={`option-${key}`}
+                                name="question-option"
+                                value={key}
+                                readOnly
+                                checked={isSelected} // Mark selected option(s)
+                                className="hidden"
+                              />
+                              <label
+                                htmlFor={`option-${key}`}
+                                className="flex items-center w-full cursor-pointer"
+                              >
+                                <span className={circleClass}>
+                                  <span className="text-xs font-bold">{symbol}</span>
+                                </span>
+                                <span className="ml-2">{value}</span>
+                              </label>
+                            </div>
+                          );
+                        }) : <div className="flex items-center">
+                          <div className="text-xl w-full p-2">{currentQuestion.selected_response}</div>
+                        </div>}
+                      {/* Marks section for text-type questions */}
+                      {currentQuestion.question_type === "text" && (
+                        <div className="flex justify-end items-center mt-4 space-x-2">
+                          <p className="font-bold">Allot Marks:</p>
+                          {[1, 2, 3, 4, 5].map((mark) => (
+                            <button
+                              key={mark}
+                              className={`px-3 py-2 rounded-lg text-white transition ${selectedMark == mark ? "bg-blue-700" : "bg-blue-500"
+                                }`}
+                              onClick={() => setSelectedMark(mark)}
+                            >
+                              {mark}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* Comment and Marks sections side by side */}
@@ -324,24 +397,52 @@ function Dep_PresidentResult() {
                       </div>
 
                       {/* Marks section (right) */}
-                      <div className="text-center">
-                        <p className="font-bold pt-20 text-center">Marks</p>
-                        <div className="space-y-2">
-                          {[1, 2, 3, 4, 5].map((mark) => (
-                            <button
-                              key={mark}
-                              className={`w-12 h-10 rounded mx-auto block ${
-                                selectedMark === mark
-                                  ? "bg-blue-600 text-white"
-                                  : "bg-gray-200 text-black"
-                              }`}
-                              onClick={() => handleMarkSelection(mark)}
-                            >
-                              {mark}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                      {currentQuestion.options &&
+                        Object.entries(currentQuestion.options).map(([key, value]) => {
+                          const selectedResponses = Array.isArray(currentQuestion.selected_response)
+                            ? currentQuestion.selected_response
+                            : [currentQuestion.selected_response];
+
+                          // Check if this option is selected
+                          const isSelected = selectedResponses.includes(key);
+                          if (!isSelected) return null; // Only show selected options
+
+                          // Check if this option is correct
+                          const correctAnswers = Array.isArray(currentQuestion.correct_answer)
+                            ? currentQuestion.correct_answer
+                            : [currentQuestion.correct_answer];
+                          const isCorrect = correctAnswers.includes(key);
+
+                          let optionClass =
+                            "flex items-center p-2 rounded-lg hover:bg-gray-100 transition";
+                          let circleClass =
+                            "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
+                          let symbol = "";
+
+                          if (isCorrect) {
+                            circleClass =
+                              "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
+                            symbol = "✓";
+                            optionClass += " bg-green-50"; // Green background for correct answers
+                          } else {
+                            circleClass =
+                              "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
+                            symbol = "✗";
+                            optionClass += " bg-red-50"; // Red background for incorrect answers
+                          }
+
+                          return (
+                            <div key={key} className={optionClass}>
+                              <label className="flex items-center w-full cursor-pointer">
+                                <span className={circleClass}>
+                                  <span className="text-xs font-bold">{symbol}</span>
+                                </span>
+                                <span className="ml-2">{value}</span>
+                              </label>
+                            </div>
+                          );
+                        })}
+
                     </div>
 
                     <div className="flex justify-between mt-8">
@@ -356,7 +457,9 @@ function Dep_PresidentResult() {
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg"
                         onClick={handleNextQuestion}
                       >
-                        Save and Next
+                        {Saving ? (<div className="flex items-center">
+                          <Loader className="animate-spin mr-2" /> Saving...
+                        </div>) : "Save & Next"}
                       </button>
                     </div>
                   </>
@@ -364,7 +467,7 @@ function Dep_PresidentResult() {
                   <div className="flex flex-col items-center justify-center h-full">
                     <p>No questions available for this exam.</p>
                     <button
-                      onClick={() => setQuestions([...questions])}
+                      onClick={() => fetchData()}
                       className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
                     >
                       Retry Loading Questions
@@ -375,7 +478,7 @@ function Dep_PresidentResult() {
             </div>
             <div className="hidden md:block pl-4 pt-2 md:w-3/12">
               <Dep_PresidentViewResult
-                questions={questions}
+                questions={ExamData}
                 currentIndex={currentQuestionIndex}
                 onQuestionClick={handleQuestionNavigation}
                 currentExamId={exam_id}
