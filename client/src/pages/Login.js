@@ -6,7 +6,7 @@ import { setUser } from "../redux/userSlice";
 import doodle from "../assets/sidebar/doodle.svg";
 import csi from "../assets/csi.svg";
 import ace from "../assets/ace.svg";
-
+import {Eye,EyeClosed} from 'lucide-react'
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -159,7 +159,7 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-gray-500"
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? <EyeClosed/> : <Eye/>}
                   </button>
                 </div>
                 <button

@@ -4,6 +4,8 @@ import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSid
 import { useLocation } from "react-router-dom";
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import { useNavigate } from "react-router-dom";
+import pdf from "../../assets/pdf.svg";
+import right from "../../assets/right.svg";
 
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
@@ -204,7 +206,7 @@ const Dep_PresidentTestTeacherList = () => {
         <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center w-full mb-5">
             <h2 className="text-xl font-semibold text-gray-800">
-              Teachers who took the exam: {name}
+              Test name: {name}
             </h2>
             <div className="flex space-x-4 items-center">
               <div className="relative w-64">
@@ -274,29 +276,12 @@ const Dep_PresidentTestTeacherList = () => {
                         }
                         className="p-2"
                       >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M7 17l9.2-9.2M17 17V8h-9" />
-                        </svg>
+                        <img src={right} alt
+                        ="right" className="w-8 h-8"/>
                       </button>
                     </td>
                     <td className="py-4 px-4">
-                      <svg
-                        className="w-5 h-5 text-gray-600 cursor-pointer"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 2L12 15M12 2L16 6M12 2L8 6" />
-                        <rect x="4" y="6" width="16" height="14" rx="2" />
-                      </svg>
+                      <img src={pdf} alt="pdf" className="w-8 h-8"/>
                     </td>
                   </tr>
                 ))}

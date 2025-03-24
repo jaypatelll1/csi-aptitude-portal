@@ -32,17 +32,29 @@ dotenv.config();
 const registerUser = async (req, res) => {
   const { name, email, role, year, department, rollno, phone } =
     req.body;
-  if (
-    !name ||
-    !email ||
-    !role ||
-    !year ||
-    !department ||
-    !rollno ||
-    !phone
-  ) {
-    console.log('All fields are required!');
-    return res.status(400).json({ error: 'All fields are required' });
+  if(role === "Teacher"){
+    if (
+      !name ||
+      !email ||
+      !role ||
+      !phone
+    ) {
+      console.log('All fields are required!');
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+  }else{
+    if (
+      !name ||
+      !email ||
+      !role ||
+      !year ||
+      !department ||
+      !rollno ||
+      !phone
+    ) {
+      console.log('All fields are required!');
+      return res.status(400).json({ error: 'All fields are required' });
+    }
   }
   try {
 

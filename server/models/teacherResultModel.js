@@ -10,43 +10,62 @@ async function createResultForTeachers(
   max_score,
   comments
 ) {
+
   try {
     const completed_at = new Date().toISOString();
-    const queryText =
-      `
-      WITH existing AS (
-        SELECT result_id FROM teacher_results
-        WHERE teacher_id = $1 AND exam_id = $2 AND question_id = $3
-        ORDER BY completed_at DESC
-        LIMIT 1
-      )
-      UPDATE teacher_results 
-      SET marks_allotted = $4, max_score = $5, comments = $6, completed_at = $7
-      WHERE result_id = (SELECT result_id FROM existing)
-      RETURNING *;
 
-      INSERT INTO teacher_results (teacher_id, exam_id, question_id, marks_allotted, max_score, comments, completed_at)
-      SELECT $1, $2, $3, $4, $5, $6, $7
-      WHERE NOT EXISTS (SELECT 1 FROM existing)
-      RETURNING *;
+    // Step 1: Check if a result already exists
+    const checkQuery = `
+      SELECT result_id FROM teacher_results
+      WHERE teacher_id = $1 AND exam_id = $2 AND question_id = $3
+      ORDER BY completed_at DESC
+      LIMIT 1;
     `;
+    const checkRes = await query(checkQuery, [teacher_id, exam_id, question_id]);
 
+    let result;
+    if (checkRes.rows.length > 0) {
+      // Step 2: If it exists, update it
+      const updateQuery = `
+        UPDATE teacher_results 
+        SET marks_allotted = $1, max_score = $2, comments = $3, completed_at = $4
+        WHERE result_id = $5
+        RETURNING *;
+      `;
+      const updateValues = [
+        marks_allotted,
+        max_score,
+        comments,
+        completed_at,
+        checkRes.rows[0].result_id,
+      ];
+      result = await query(updateQuery, updateValues);
+    } else {
+      // Step 3: If it does not exist, insert a new result
+      const insertQuery = `
+        INSERT INTO teacher_results (teacher_id, exam_id, question_id, marks_allotted, max_score, comments, completed_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING *;
+      `;
+      const insertValues = [
+        teacher_id,
+        exam_id,
+        question_id,
+        marks_allotted,
+        max_score,
+        comments,
+        completed_at,
+      ];
+      result = await query(insertQuery, insertValues);
+    }
 
-    const values = [
-      teacher_id,
-      exam_id,
-      question_id,
-      marks_allotted,
-      max_score,
-      comments,
-      completed_at,
-    ];
-    const res = await query(queryText, values);
-    return res.rows[0];
+    return result.rows[0];
   } catch (err) {
     console.error('Error inserting teacher result:', err);
+    throw err;
   }
 }
+
 
 // READ: Fetch all results for teachers
 async function getAllTeacherResults() {

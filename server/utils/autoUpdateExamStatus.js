@@ -13,16 +13,19 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
     );
 
     if (result.rows.length > 0) {
+      let generate_rank = true;
       console.log(`${result.rows.length} exams updated to 'past'.`);
 
       // Process each exam that was updated
       for (const row of result.rows) {
         const examId = row.exam_id;
         const examType = row.exam_for;
-        
+
         // Check if the exam is for teacher
-        if(examType === 'Teacher'){
+        if (examType === 'Teacher') {
           console.log(`Skipping the result generation for teacher exam ${examId}`);
+          generate_rank = false;
+          console.log('generate_rank is set to false');
           continue;
         }
 
@@ -41,7 +44,10 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
           await student_analysis(examId, studentId);
         }
       }
-      await generateRank();
+      if (generateRank === true) {
+        console.log('generate_rank is true');
+        await generateRank();
+      }
     } else {
       console.log('No exams were updated.');
     }
