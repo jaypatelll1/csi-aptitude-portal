@@ -4,8 +4,6 @@ import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSid
 import { useLocation } from "react-router-dom";
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import { useNavigate } from "react-router-dom";
-import pdf from "../../assets/pdf.svg";
-import right from "../../assets/right.svg";
 
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
@@ -81,21 +79,38 @@ const Dep_PresidentTestTeacherList = () => {
   //   }
   // };
 
+  // const handleSearch = (e) => {
+  //   setPage(1);
+  //   const term = e.target.value.toLowerCase();
+  //   setSearchTerm(term);
+
+  //   const searchResults = term
+  //     ? teachers.filter(
+  //         (teacher) =>
+  //           teacher.teacher_name?.toLowerCase().includes(term) ||
+  //           teacher.teacher_email?.toLowerCase().includes(term) ||
+  //           teacher.Date?.toLowerCase().includes(term) ||
+  //           teacher.status?.toLowerCase().includes(term)
+  //       ) 
+  //     : teachers;
+
+  //   setFilteredTeachers(searchResults);
+  // };
+
   const handleSearch = (e) => {
     setPage(1);
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-
+  
     const searchResults = term
       ? teachers.filter(
           (teacher) =>
-            teacher.teacher_name?.toLowerCase().includes(term) ||
-            teacher.teacher_email?.toLowerCase().includes(term) ||
-            teacher.Date?.toLowerCase().includes(term) ||
-            teacher.status?.toLowerCase().includes(term)
-        )
+            teacher.name?.toLowerCase().includes(term) ||
+            teacher.email?.toLowerCase().includes(term) ||
+            teacher.phone?.toLowerCase().includes(term)
+        ) 
       : teachers;
-
+  
     setFilteredTeachers(searchResults);
   };
 
@@ -195,7 +210,9 @@ const Dep_PresidentTestTeacherList = () => {
         </div>
         <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center w-full mb-5">
-            <h2 className="text-xl font-semibold text-gray-800">Test name: {name}</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Teachers who took the exam: {name}
+            </h2>
             <div className="flex space-x-4 items-center">
               <div className="relative w-64">
                 <input
@@ -218,7 +235,7 @@ const Dep_PresidentTestTeacherList = () => {
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
               </div>
-              <button className="flex items-center px-4 h-10 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+              {/* <button className="flex items-center px-4 h-10 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
                 <svg
                   className="w-4 h-4 mr-2"
                   fill="none"
@@ -231,7 +248,7 @@ const Dep_PresidentTestTeacherList = () => {
                   <line x1="10" y1="18" x2="14" y2="18" />
                 </svg>
                 Filters
-              </button>
+              </button> */}
             </div>
           </div>
           <table className="min-w-full leading-normal">
@@ -246,25 +263,50 @@ const Dep_PresidentTestTeacherList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTeachers.slice((page - 1) * limit, page * limit).map((teacher, index) => (
-                <tr key={teacher.result_id || index} className="hover:bg-gray-50">
-                  <td className="py-4 px-4">{index + 1}</td>
-                  <td className="py-4 px-4">{teacher.name}</td>
-                  <td className="py-4 px-4">{teacher.email}</td>
-                  <td className="py-4 px-4">{teacher.phone}</td>
-                  <td className="py-4 px-4">
-                    <button
-                      onClick={(e) => handleClick(teacher, examId, exam_name)}
-                      className="p-2"
-                    >
-                      <img src={right} alt="right" className="w-8 h-8" />
-                    </button>
-                  </td>
-                  <td className="py-4 px-4">
-                    <img src={pdf} alt="pdf" className="w-8 h-8" />
-                  </td>
-                </tr>
-              ))}
+              {filteredTeachers
+                .slice((page - 1) * limit, page * limit)
+                .map((teacher, index) => (
+                  <tr
+                    key={teacher.result_id || index}
+                    className="hover:bg-gray-50"
+                  >
+                    <td className="py-4 px-4">{index + 1}</td>
+                    <td className="py-4 px-4">{teacher.name}</td>
+                    <td className="py-4 px-4">{teacher.email}</td>
+                    <td className="py-4 px-4">{teacher.phone}</td>
+                    <td className="py-4 px-4">
+                      <button
+                        onClick={(e) =>
+                          handleClick(teacher, examId, exam_name)
+                        }
+                        className="p-2"
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M7 17l9.2-9.2M17 17V8h-9" />
+                        </svg>
+                      </button>
+                    </td>
+                    <td className="py-4 px-4">
+                      <svg
+                        className="w-5 h-5 text-gray-600 cursor-pointer"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 2L12 15M12 2L16 6M12 2L8 6" />
+                        <rect x="4" y="6" width="16" height="14" rx="2" />
+                      </svg>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
 
