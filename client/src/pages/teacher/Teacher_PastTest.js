@@ -103,7 +103,6 @@ const Teacher_PastTest = () => {
 
       {/* Main Content Section */}
       <div className="flex-1">
-        <Teacher_Sidebar />
         <div className="flex-1 p-4 sm:p-6">
           <div className="flex items-center  mb-4 sm:mb-6">
             {/* Burger Icon Button */}

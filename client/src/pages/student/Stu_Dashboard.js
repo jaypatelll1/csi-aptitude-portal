@@ -164,6 +164,15 @@ function Stu_Dashboard() {
     setFilter(e.target.value); // Update filter
   };
 
+
+  const getInitials = (name) => {
+    if (!name) return "";
+    const nameParts = name.trim().split(" ");
+    const firstInitial = nameParts[0]?.charAt(0) || "";
+    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "";
+    return (firstInitial + lastInitial).toUpperCase();
+  };
+
   return (
     <div className={`flex h-screen`}>
       {/* Sidebar */}
@@ -214,7 +223,7 @@ function Stu_Dashboard() {
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}
           >
-            AM
+            {getInitials(userData.name)}
           </div>
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>

@@ -9,6 +9,8 @@ import RadarChartComponent from "../../components/analytics/RadarChartComponent"
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Loader from "../../components/Loader";
+import { useSelector} from "react-redux";
+
 
 function Adm_StudentAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,7 +27,7 @@ function Adm_StudentAnalytics() {
   const [loading, setLoading] = useState(true);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
-  // const user_id = useSelector((state) => state.user.user.id);
+  const userData = useSelector((state) => state.user.user);
   // const { user_id } = useParams();
 
   const location = useLocation();
@@ -191,6 +193,13 @@ function Adm_StudentAnalytics() {
       maxMarks: "#D3D3D3",
     },
   };
+  const getInitials = (name) => {
+    if (!name) return "";
+    const nameParts = name.trim().split(" ");
+    const firstInitial = nameParts[0]?.charAt(0) || "";
+    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "";
+    return (firstInitial + lastInitial).toUpperCase();
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-100 mb-4 overflow-x-hidden">
@@ -235,7 +244,7 @@ function Adm_StudentAnalytics() {
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
           >
-            AM
+            {getInitials(userData.name)}
           </div>
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
