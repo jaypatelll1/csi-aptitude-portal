@@ -9,7 +9,7 @@ import RadarChartComponent from "../../components/analytics/RadarChartComponent"
 import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Loader from "../../components/Loader";
-import { useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 
 function Dep_StudentAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,8 +26,8 @@ function Dep_StudentAnalytics() {
   const [loading, setLoading] = useState(true);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
-    const userData = useSelector((state) => state.user.user);
-  
+  const userData = useSelector((state) => state.user.user);
+
   // const user_id = useSelector((state) => state.user.user.id);
   // const { user_id } = useParams();
 
@@ -59,36 +59,35 @@ function Dep_StudentAnalytics() {
           "x-user-id": user_id,
         },
       });
-      
+
       setData(response.data.overall_resultS);
       setAvgData(response.data.avg_results);
       setRankData(response.data.rank);
-  
+
       if (response.data.rank) {
         superscript(setDSup, response.data.rank.department_rank);
         superscript(setOSup, response.data.rank.overall_rank);
       }
-      
-      if(response.data.test_completion_data){
-      const { attempted, total } = response.data.test_completion_data;
-      setTestCompletionData({
-        title: "Test Completion Rate",
-        chartData: [
-          { name: "Completed", value: attempted, fill: "#1349C5 " },
-          { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
-        ],
-      });
-    }
-  
+
+      if (response.data.test_completion_data) {
+        const { attempted, total } = response.data.test_completion_data;
+        setTestCompletionData({
+          title: "Test Completion Rate",
+          chartData: [
+            { name: "Completed", value: attempted, fill: "#1349C5 " },
+            { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
+          ],
+        });
+      }
+
       setPerformanceOverTime(response.data.performance_over_time);
-  
+
       // ✅ Set loading to false after data is fetched
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-  
 
   useEffect(() => {
     if (user_id) {
@@ -167,19 +166,14 @@ function Dep_StudentAnalytics() {
           0
         );
         const totalMaxScore = validData.reduce(
-          (sum, exam) =>
-            sum + (parseFloat(exam.category[subject]?.max_score) || 0),
+          (sum, exam) => sum + (parseFloat(exam.category[subject]?.max_score) || 0),
           0
         );
 
-        const attemptedExams = validData.filter(
-          (exam) => subject in exam.category
-        ).length;
+        const attemptedExams = validData.filter((exam) => subject in exam.category).length;
 
         const averageScore =
-          totalMaxScore > 0
-            ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2))
-            : 0;
+          totalMaxScore > 0 ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2)) : 0;
 
         return {
           name: subject, // Renamed from "subject" to "name" for RadarChart
@@ -204,7 +198,6 @@ function Dep_StudentAnalytics() {
     return (firstInitial + lastInitial).toUpperCase();
   };
 
-
   return (
     <div className="min-h-screen flex bg-gray-100 mb-4 overflow-x-hidden">
       {/* Sidebar (Always Visible) */}
@@ -214,16 +207,15 @@ function Dep_StudentAnalytics() {
       >
         <Dep_Sidebar />
       </div>
-  
+
       {/* Main Content */}
       <div className="flex flex-col flex-1 xl:ml-64">
         {/* Show only "Loading..." while data is being fetched */}
         {loading ? (
-  <div className="flex items-center justify-center h-96">
-    <Loader />
-  </div>
-) : (
-
+          <div className="flex items-center justify-center h-96">
+            <Loader />
+          </div>
+        ) : (
           <>
             {/* Analytics Dashboard UI (Shown After Loading Completes) */}
             <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
@@ -242,11 +234,7 @@ function Dep_StudentAnalytics() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d={
-                      sidebarOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
+                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                   />
                 </svg>
               </button>
@@ -254,14 +242,12 @@ function Dep_StudentAnalytics() {
                 className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
                 onClick={() => setIsDetailsOpen(!isDetailsOpen)}
               >
-            {getInitials(userData.name)}
+                {getInitials(userData.name)}
               </div>
               <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">
-              Analytics
-            </h1>
-  
+            <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">Analytics</h1>
+
             {/* Analytics Dashboard Content */}
             <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
               {/* Rank Display */}
@@ -281,7 +267,7 @@ function Dep_StudentAnalytics() {
                   />
                 </div>
               </div>
-  
+
               {/* Line Chart - Overall Score */}
               <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
                 <div className="w-full">
@@ -294,14 +280,14 @@ function Dep_StudentAnalytics() {
                 </div>
               </div>
             </div>
-  
+
             {/* Charts Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-6 mt-6 mb-8">
               {/* Accuracy Rate - Donut Chart */}
               <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
                 <DonutChartComponent data={accuracyData} />
               </div>
-  
+
               {/* Subject-wise Performance - Radar Chart */}
               <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 flex items-center justify-center col-span-3">
                 {subjectPerformanceData.chartData.length > 0 ? (
@@ -310,15 +296,13 @@ function Dep_StudentAnalytics() {
                   <p className="text-center text-gray-500">No Data Available</p>
                 )}
               </div>
-  
+
               {/* Test Completion Rate - Pie Chart */}
               <div className="bg-white shadow-lg rounded-lg p-6 border mr-4 border-gray-200 flex items-center justify-center col-span-2">
                 {testCompletionData ? (
                   <PieChartComponent data={testCompletionData} />
                 ) : (
-                  <p className="text-center text-gray-500">
-                    Loading Test Completion Data...
-                  </p>
+                  <p className="text-center text-gray-500">Loading Test Completion Data...</p>
                 )}
               </div>
             </div>
@@ -327,7 +311,6 @@ function Dep_StudentAnalytics() {
       </div>
     </div>
   );
-  
 }
 
 export default Dep_StudentAnalytics;

@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 const Dep_PresidentLiveTestCard = ({ test }) => {
   let user = useSelector((state) => state.user.user);
 
-
   return (
     <div className="bg-white ml-4 w-[96%] rounded-lg p-4 border border-gray-400 flex flex-col">
       {/* Card Header */}
@@ -27,9 +26,7 @@ const Dep_PresidentLiveTestCard = ({ test }) => {
         </span>
         <div className="text-right">
           <div className="flex flex-col items-center">
-            <span className="text-black-500 text-sm">
-              Created on: {test.date}
-            </span>
+            <span className="text-black-500 text-sm">Created on: {test.date}</span>
             {/* <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years ? test.target_years.replace(/[{}]/g, "") : "N/A"} -{" "}
               {test.target_branches

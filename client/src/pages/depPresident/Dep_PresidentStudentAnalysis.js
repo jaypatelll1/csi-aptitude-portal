@@ -49,16 +49,13 @@ const Dep_PresidentStudentAnalysis = () => {
   const handleFilter = async (filter) => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(
-        `${API_BASE_URL}/api/rank/generate-rank-order`,
-        {
-          withCredentials: true,
-          params: {
-            filter: filter === "" ? "all" : filter,
-            department: currentUser?.department,
-          },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
+        withCredentials: true,
+        params: {
+          filter: filter === "" ? "all" : filter,
+          department: currentUser?.department,
+        },
+      });
       if (response) {
         setFilteredStudents(response.data);
         setNumberofpages(Math.ceil(response.data.length / limit));
@@ -168,9 +165,7 @@ const Dep_PresidentStudentAnalysis = () => {
 
         <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-blue-600 text-2xl font-bold">
-              Student wise Analysis
-            </h1>
+            <h1 className="text-blue-600 text-2xl font-bold">Student wise Analysis</h1>
             <div className="flex items-center gap-4">
               <div className="relative">
                 <input
@@ -211,10 +206,7 @@ const Dep_PresidentStudentAnalysis = () => {
                   <span>Filter</span>
                 </button>
                 {filterOpen && (
-                  <Dep_PresidentFilter
-                    toggleFilter={toggleFilter}
-                    handleFilter={handleFilter}
-                  />
+                  <Dep_PresidentFilter toggleFilter={toggleFilter} handleFilter={handleFilter} />
                 )}
               </div>
             </div>
@@ -237,40 +229,31 @@ const Dep_PresidentStudentAnalysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents
-                    .slice((page - 1) * limit, page * limit)
-                    .map((student) => (
-                      <tr
-                        key={student.user_id}
-                        className="border-b hover:bg-gray-50"
-                      >
-                        <td className="py-4 px-4">{student.student_id}</td>
-                        <td className="py-4 px-4">{student.student_name}</td>
-                        <td className="py-4 px-4">
-                          {student.department_name || "N/A"}
-                        </td>
-                        <td className="py-4 px-4">{student.department_rank}</td>
-                        <td className="py-4 px-4 text-center">
-                          <button
-                            onClick={() =>
-                              handleAnalyticsClick(student.student_id)
-                            }
-                            className="p-2"
+                  {filteredStudents.slice((page - 1) * limit, page * limit).map((student) => (
+                    <tr key={student.user_id} className="border-b hover:bg-gray-50">
+                      <td className="py-4 px-4">{student.student_id}</td>
+                      <td className="py-4 px-4">{student.student_name}</td>
+                      <td className="py-4 px-4">{student.department_name || "N/A"}</td>
+                      <td className="py-4 px-4">{student.department_rank}</td>
+                      <td className="py-4 px-4 text-center">
+                        <button
+                          onClick={() => handleAnalyticsClick(student.student_id)}
+                          className="p-2"
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
                           >
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M7 17l9.2-9.2M17 17V8h-9" />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                            <path d="M7 17l9.2-9.2M17 17V8h-9" />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
 

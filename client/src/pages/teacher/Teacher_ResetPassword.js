@@ -18,9 +18,10 @@ const Teacher_ResetPassword = () => {
         await axios.get(`${API_BASE_URL}/api/users/verify-reset-token`, {
           headers: {
             resettoken: resettoken,
-            'Content-Type': 'application/json',
-          }
-        });        setTokenValid(true);
+            "Content-Type": "application/json",
+          },
+        });
+        setTokenValid(true);
       } catch (err) {
         setError("Invalid or expired reset token.");
       }
@@ -41,9 +42,10 @@ const Teacher_ResetPassword = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      await axios.post(`${API_BASE_URL}/api/users/reset-password`, { 
-        resettoken : resettoken,
-        password: newPassword });
+      await axios.post(`${API_BASE_URL}/api/users/reset-password`, {
+        resettoken: resettoken,
+        password: newPassword,
+      });
       navigate("/"); // Redirect to login after successful password reset
     } catch (err) {
       setError("Failed to reset password. Please try again.");
@@ -68,10 +70,7 @@ const Teacher_ResetPassword = () => {
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleResetPassword}>
           <div className="mb-1">
-            <label
-              htmlFor="new-password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
               New Password
             </label>
             <input
@@ -85,10 +84,7 @@ const Teacher_ResetPassword = () => {
           </div>
 
           <div className="mb-6">
-            <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
               Confirm Password
             </label>
             <input

@@ -23,14 +23,14 @@ const Dep_PresidentDashboard = () => {
     drafted: [],
     scheduled: [],
     past: [],
-    live: []
+    live: [],
   });
   const [loading, setLoading] = useState(true);
   const [loadingStates, setLoadingStates] = useState({
     drafted: true,
     scheduled: true,
     past: true,
-    live: true
+    live: true,
   });
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
@@ -50,47 +50,50 @@ const Dep_PresidentDashboard = () => {
   // Fetch tests data function
   const fetchTestsData = async (endpoint, key) => {
     try {
-        const response = await axios.get(endpoint, {
-            withCredentials: true,
-        });
+      const response = await axios.get(endpoint, {
+        withCredentials: true,
+      });
 
-        setTestsData((prevData) => ({
-            ...prevData,
-            [key]: response.data.exams
-                .filter((exam) => {
-                    let targetBranches = exam.target_branches;
+      setTestsData((prevData) => ({
+        ...prevData,
+        [key]: response.data.exams
+          .filter((exam) => {
+            let targetBranches = exam.target_branches;
 
-                    if (!targetBranches || targetBranches.includes("All")) {
-                        return true; // Show if target_branches is undefined or includes "All"
-                    }
+            if (!targetBranches || targetBranches.includes("All")) {
+              return true; // Show if target_branches is undefined or includes "All"
+            }
 
-                    // Convert "{CMPN,INFT,EXTC,ELEC,ECS}" -> ["CMPN", "INFT", "EXTC", "ELEC", "ECS"]
-                    targetBranches = targetBranches.replace(/[{}]/g, "").split(",").map(branch => branch.trim());
+            // Convert "{CMPN,INFT,EXTC,ELEC,ECS}" -> ["CMPN", "INFT", "EXTC", "ELEC", "ECS"]
+            targetBranches = targetBranches
+              .replace(/[{}]/g, "")
+              .split(",")
+              .map((branch) => branch.trim());
 
-                    return targetBranches.includes(userData.department); // Check if the user's department is included
-                })
-                .map((exam) => ({
-                    exam_id: exam.exam_id,
-                    end_time: exam.end_time,
-                    Start_time: exam.start_time,
-                    title: exam.exam_name || "Untitled Exam",
-                    questions: exam.question_count || "N/A",
-                    duration: exam.duration ? `${exam.duration} min` : "N/A",
-                    date: formatToReadableDate(exam.created_at),
-                    target_years: exam.target_years || "N/A",
-                    target_branches: exam.target_branches || "N/A",
-                })),
-        }));
+            return targetBranches.includes(userData.department); // Check if the user's department is included
+          })
+          .map((exam) => ({
+            exam_id: exam.exam_id,
+            end_time: exam.end_time,
+            Start_time: exam.start_time,
+            title: exam.exam_name || "Untitled Exam",
+            questions: exam.question_count || "N/A",
+            duration: exam.duration ? `${exam.duration} min` : "N/A",
+            date: formatToReadableDate(exam.created_at),
+            target_years: exam.target_years || "N/A",
+            target_branches: exam.target_branches || "N/A",
+          })),
+      }));
     } catch (err) {
-        console.error(`Error fetching ${key} tests:`, err);
-        setError(`Failed to fetch ${key} tests. Please try again later.`);
+      console.error(`Error fetching ${key} tests:`, err);
+      setError(`Failed to fetch ${key} tests. Please try again later.`);
     } finally {
-        setLoadingStates(prev => ({
-            ...prev,
-            [key]: false
-        }));
+      setLoadingStates((prev) => ({
+        ...prev,
+        [key]: false,
+      }));
     }
-};
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -131,7 +134,7 @@ const Dep_PresidentDashboard = () => {
           fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
           fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
           fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live")
+          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live"),
         ]);
       } catch (err) {
         console.error("Error fetching test data:", err);
@@ -181,9 +184,7 @@ const Dep_PresidentDashboard = () => {
   const ITEMS_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(
-    (testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil((testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE);
   const paginatedData = testsData[activeTab]?.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -205,15 +206,13 @@ const Dep_PresidentDashboard = () => {
       >
         <Dep_PresidentSidebar testsData={testsData} />
       </div>
-  
+
       <div className="flex-1 bg-gray-100">
         <Dep_PresidentNavbar setSidebarOpen={setSidebarOpen} />
-  
+
         <div className="flex items-center justify-between mt-5">
-          <h1 className="text-2xl font-bold text-gray-700 ml-5">
-            Department Dashboard
-          </h1>
-  
+          <h1 className="text-2xl font-bold text-gray-700 ml-5">Department Dashboard</h1>
+
           <button
             onClick={createTestHandler}
             className="bg-[#1349C5] text-white px-4 py-2 rounded hover:bg-blue-300 hover:text-black border border-blue-700 opacity-90 hover:opacity-100 mr-4"
@@ -221,20 +220,18 @@ const Dep_PresidentDashboard = () => {
             + Create Test
           </button>
         </div>
-  
+
         <div className="p-0 w-full flex justify-center">
           <Dep_PresidentDashboardTiles tileData={tileData} />
         </div>
-  
+
         <div className="p-4 w-[97%] xl:w-[98%] mt-8 ml-4 rounded-xl bg-white">
           <div className="flex space-x-4 border-b pb-2">
             {["live", "drafted", "scheduled", "past"].map((tab) => (
               <button
                 key={tab}
                 className={`text-lg font-semibold ${
-                  activeTab === tab
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600"
+                  activeTab === tab ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
                 }`}
                 onClick={() => {
                   setActiveTab(tab);
@@ -245,7 +242,7 @@ const Dep_PresidentDashboard = () => {
               </button>
             ))}
           </div>
-  
+
           <div className="relative min-h-[150px] grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {loading ? (
               <div className="absolute inset-0 flex justify-center items-center">
@@ -256,7 +253,7 @@ const Dep_PresidentDashboard = () => {
             ) : paginatedData && paginatedData.length > 0 ? (
               paginatedData.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-                
+
                 if (activeTab === "live") {
                   return <Dep_PresidentLiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
@@ -272,15 +269,13 @@ const Dep_PresidentDashboard = () => {
               <p className="col-span-full text-gray-500 text-center">No tests available.</p>
             )}
           </div>
-  
+
           {!loading && totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 className={`p-2 mx-1 rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === 1}
               >
@@ -291,9 +286,7 @@ const Dep_PresidentDashboard = () => {
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
                   className={`px-3 py-1 mx-1 rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
-                      : "hover:bg-gray-200"
+                    currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                   }`}
                 >
                   {i + 1}
@@ -302,9 +295,7 @@ const Dep_PresidentDashboard = () => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`p-2 mx-1 rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === totalPages}
               >

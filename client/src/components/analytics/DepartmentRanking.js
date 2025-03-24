@@ -15,10 +15,7 @@ const DepartmentRanking = () => {
       <h2 className="ttext-xl font-medium text-[#1349C5] self-start">Department Ranking</h2>
       <div className="border rounded-lg p-2">
         {departmentData.map((dept, index) => (
-          <div
-            key={index}
-            className="flex justify-between p-3 border rounded-lg mb-2 shadow-sm"
-          >
+          <div key={index} className="flex justify-between p-3 border rounded-lg mb-2 shadow-sm">
             <span className="font-semibold">{dept.rank}</span>
             <span>{dept.name}</span>
           </div>

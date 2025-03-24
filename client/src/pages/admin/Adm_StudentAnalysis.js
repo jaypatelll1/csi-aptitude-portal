@@ -72,16 +72,12 @@ const Adm_StudentAnalysis = () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
-      let response = await axios.post(
-        `${API_BASE_URL}/api/users/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true, // Make sure the cookie is sent with the request
-        }
-      );
+      let response = await axios.post(`${API_BASE_URL}/api/users/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
 
       if (response.data.status === "success") {
         // If there are warnings, display them to the user
@@ -96,10 +92,7 @@ const Adm_StudentAnalysis = () => {
       alert("File uploaded successfully!"); // Notify the user of success
       setModalOpen(false); // Close modal after successful upload
     } catch (error) {
-      console.error(
-        "Error uploading file:",
-        error.response ? error.response.data : error.message
-      );
+      console.error("Error uploading file:", error.response ? error.response.data : error.message);
       alert("An error occurred while uploading the file.");
     } finally {
       setIsUploading(false); // Unlock the upload button after the process finishes
@@ -139,12 +132,9 @@ const Adm_StudentAnalysis = () => {
     const fetchStudents = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/users/?role=Student`,
-          {
-            withCredentials: true, // Make sure the cookie is sent with the request
-          }
-        );
+        const response = await axios.get(`${API_BASE_URL}/api/users/?role=Student`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
         const studentData = response.data.users;
         setStudents(studentData);
       } catch (error) {
@@ -159,9 +149,7 @@ const Adm_StudentAnalysis = () => {
 
     // Apply department filter
     if (selectedDepartment) {
-      filtered = filtered.filter(
-        (student) => student.department === selectedDepartment
-      );
+      filtered = filtered.filter((student) => student.department === selectedDepartment);
     }
 
     // Apply rank filter
@@ -193,9 +181,7 @@ const Adm_StudentAnalysis = () => {
         (student) =>
           student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          student.department
-            ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
+          student.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           student.phone?.toString().includes(searchTerm) ||
           student.user_id.toString().includes(searchTerm)
       );
@@ -235,16 +221,13 @@ const Adm_StudentAnalysis = () => {
   const handleFilterChange = async (department, rank) => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(
-        `${API_BASE_URL}/api/rank/generate-rank-order`,
-        {
-          withCredentials: true,
-          params: {
-            filter: rank === "" ? "all" : rank,
-            department,
-          },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
+        withCredentials: true,
+        params: {
+          filter: rank === "" ? "all" : rank,
+          department,
+        },
+      });
       if (response) {
         setFilteredStudents(response.data);
         const totalPages = Math.ceil(response.data.length / limit);
@@ -326,13 +309,8 @@ const Adm_StudentAnalysis = () => {
           id="listSection"
           className="bg-white my-6 mx-10 pt-5 pb-5 pl-9 pr-9 rounded-lg border border-gray-300"
         >
-          <div
-            id="headerBar"
-            className="flex justify-between items-center w-full mb-5"
-          >
-            <h1 className="text-blue-600 text-2xl font-bold">
-              Students Wise Analysis
-            </h1>
+          <div id="headerBar" className="flex justify-between items-center w-full mb-5">
+            <h1 className="text-blue-600 text-2xl font-bold">Students Wise Analysis</h1>
             <div className="flex ml-auto">
               <div className="flex items-center gap-4 mr-5">
                 <div className="relative flex items-center mr-7  rounded-sm hover:scale-110 hover:bg-gray-100 transition-transform duration-100">
@@ -381,10 +359,7 @@ const Adm_StudentAnalysis = () => {
                   <h1 className="ml-1 text-sm text-gray-500">Filter</h1>
                 </div>
                 {showFilter && (
-                  <Filter
-                    toggleFilter={toggleFilter}
-                    handleFilter={handleFilterChange}
-                  />
+                  <Filter toggleFilter={toggleFilter} handleFilter={handleFilterChange} />
                 )}
               </div>
             </div>
@@ -401,19 +376,12 @@ const Adm_StudentAnalysis = () => {
               </tr>
             </thead>
             <tbody>
-            {filteredStudents && filteredStudents.length > 0 ? ( // Ensure filteredStudents is not null or empty
-               filteredStudents
-                .slice((page - 1) * limit, page * limit)
-                .map((student) => (
-                  <tr
-                    key={student.user_id}
-                    className="border-b hover:bg-gray-50"
-                  >
+              {filteredStudents && filteredStudents.length > 0 ? ( // Ensure filteredStudents is not null or empty
+                filteredStudents.slice((page - 1) * limit, page * limit).map((student) => (
+                  <tr key={student.user_id} className="border-b hover:bg-gray-50">
                     <td className="py-4 px-4">{student.student_id}</td>
                     <td className="py-4 px-4">{student.student_name}</td>
-                    <td className="py-4 px-4">
-                      {student.department_name || "N/A"}
-                    </td>
+                    <td className="py-4 px-4">{student.department_name || "N/A"}</td>
                     <td className="py-4 px-4 text-center">
                       {getOrdinalSuffix(student.department_rank)}
                     </td>
@@ -422,9 +390,7 @@ const Adm_StudentAnalysis = () => {
                     </td>
                     <td className="py-4 px-4 text-center">
                       <button
-                        onClick={(e) =>
-                          handleAnalyticsClick(student.student_id)
-                        }
+                        onClick={(e) => handleAnalyticsClick(student.student_id)}
                         className="p-2"
                       >
                         <svg
@@ -441,7 +407,8 @@ const Adm_StudentAnalysis = () => {
                     </td>
                   </tr>
                 ))
-              ) : ( // If there is no data, render this row:
+              ) : (
+                // If there is no data, render this row:
                 <tr>
                   <td colSpan="6" className="text-center py-6 text-gray-500">
                     No data available {/* This cell spans all columns and displays the message */}
@@ -450,54 +417,54 @@ const Adm_StudentAnalysis = () => {
               )}
             </tbody>
           </table>
-          { getPageNumbers().length > 1 && (
-          <div className="flex justify-center items-center mt-5">
-            <svg
-              onClick={handlePrevPage}
-              className="cursor-pointer mr-2"
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="24"
-              viewBox="0 0 12 24"
-              fill="none"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z"
-                fill="black"
-              />
-            </svg>
-            <div className="flex">
-              {getPageNumbers().map((p) => (
-                <div
-                  key={p}
-                  className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
-                    page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                  }`}
-                  onClick={() => setPage(p)}
-                >
-                  {p}
-                </div>
-              ))}
+          {getPageNumbers().length > 1 && (
+            <div className="flex justify-center items-center mt-5">
+              <svg
+                onClick={handlePrevPage}
+                className="cursor-pointer mr-2"
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="24"
+                viewBox="0 0 12 24"
+                fill="none"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z"
+                  fill="black"
+                />
+              </svg>
+              <div className="flex">
+                {getPageNumbers().map((p) => (
+                  <div
+                    key={p}
+                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
+                      page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                    }`}
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </div>
+                ))}
+              </div>
+              <svg
+                onClick={handleNextPage}
+                className="cursor-pointer ml-2"
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="24"
+                viewBox="0 0 12 24"
+                fill="none"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z"
+                  fill="black"
+                />
+              </svg>
             </div>
-            <svg
-              onClick={handleNextPage}
-              className="cursor-pointer ml-2"
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="24"
-              viewBox="0 0 12 24"
-              fill="none"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z"
-                fill="black"
-              />
-            </svg>
-          </div>
           )}
         </div>
       </div>

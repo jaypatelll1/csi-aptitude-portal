@@ -28,13 +28,9 @@ const Adm_ViewQuestions = () => {
           throw new Error("Exam ID is not defined");
         }
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/questions/${examId}`,
-          {
-            withCredentials: true, // Make sure the cookie is sent with the request
-          }
-        );
-      
+        const response = await axios.get(`${API_BASE_URL}/api/exams/questions/${examId}`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
 
         setQuestions(response.data || []);
       } catch (err) {
@@ -47,15 +43,11 @@ const Adm_ViewQuestions = () => {
     const fetchDuration = async () => {
       try {
         const id = examId;
-       
+
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/find/${id}`,
-          {
-            withCredentials: true, // Make sure the cookie is sent with the request
-          }
-        );
-      
+        const response = await axios.get(`${API_BASE_URL}/api/exams/find/${id}`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
 
         setTestDuration(response.data.exam.duration);
       } catch (err) {
@@ -96,7 +88,6 @@ const Adm_ViewQuestions = () => {
 
   const handleScheduleTest = (startTime, endTime) => {
     const id = examId;
-  
 
     if (!id) {
       alert("Exam ID is not available.");
@@ -116,25 +107,22 @@ const Adm_ViewQuestions = () => {
       )
       .then(() => {
         closeScheduleModal();
-      
+
         dispatch(clearExamId()); // Dispatch clearing examId here to ensure it runs after successful API call
         navigate("/admin"); // Navigate to /admin after successful test scheduling
       })
       .catch((err) =>
-        alert(
-          `Error scheduling test: ${err.response?.data?.message || err.message}`
-        )
+        alert(`Error scheduling test: ${err.response?.data?.message || err.message}`)
       );
   };
 
   const handleDelete = async () => {
-
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
     await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
- 
+
     navigate("/admin/createtest");
   };
 
@@ -179,11 +167,7 @@ const Adm_ViewQuestions = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
@@ -205,11 +189,7 @@ const Adm_ViewQuestions = () => {
               stroke="currentColor"
               strokeWidth={2}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <h2 className="text-lg font-semibold">Question Summary</h2>

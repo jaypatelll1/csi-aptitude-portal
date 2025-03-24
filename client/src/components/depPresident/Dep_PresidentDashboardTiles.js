@@ -5,7 +5,7 @@ const Dep_PresidentDashboardTiles = ({ tileData }) => {
     "Active Students": "bg-[#3B35C3]",
     "Live Tests": "bg-[#CD0606]",
     "Scheduled Tests": "bg-[#EF9B2D]",
-    "Teachers": "bg-[#EF9B2D]",
+    Teachers: "bg-[#EF9B2D]",
   };
 
   return (

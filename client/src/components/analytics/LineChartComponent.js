@@ -1,5 +1,14 @@
 import React from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 const LineChartComponent = ({ data }) => {
   // Custom XAxis tick component
@@ -21,10 +30,10 @@ const LineChartComponent = ({ data }) => {
   const CustomLabel = (props) => {
     const { x, y, value } = props;
     return (
-      <text 
-        x={x} 
-        y={y - 10}  // Position above the point
-        textAnchor="middle" 
+      <text
+        x={x}
+        y={y - 10} // Position above the point
+        textAnchor="middle"
         fill="#666"
         fontSize="14"
       >
@@ -35,10 +44,10 @@ const LineChartComponent = ({ data }) => {
 
   return (
     <div className="flex flex-col items-start w-full">
-  <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
+      <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
       <div className="w-full max-w-[800px]  ">
         <ResponsiveContainer width="100%" height={260}>
-          <LineChart  data={data.chartData}>
+          <LineChart data={data.chartData}>
             <CartesianGrid strokeDasharray="4 4" />
             <XAxis dataKey="name" tick={<CustomTick />} />
             <YAxis domain={[0, 100]} fontSize={14} />
@@ -50,7 +59,7 @@ const LineChartComponent = ({ data }) => {
               stroke={data.color || "#1349C5"}
               activeDot={{ r: 8 }}
               y1={10}
-              label={<CustomLabel />}  // Add labels to data points
+              label={<CustomLabel />} // Add labels to data points
             />
           </LineChart>
         </ResponsiveContainer>

@@ -19,7 +19,9 @@ const Sidebar = ({ name, onSubmitTest }) => {
           <div className="flex items-center text-center">
             <div className="px-8 py-2 flex flex-row border border-[#1349C5] mr-5 rounded-md text-black">
               <h2 className="font-medium">Attempted:</h2>
-              <p className="font-bold">{attemptedCount}/{total}</p>
+              <p className="font-bold">
+                {attemptedCount}/{total}
+              </p>
             </div>
             <div className="px-4 py-2 flex flex-row border border-[#1349C5] rounded-md text-black">
               <h2 className="font-medium">Remaining:</h2>
@@ -86,7 +88,9 @@ const Sidebar = ({ name, onSubmitTest }) => {
 
         <button
           className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
-          onClick={() => { if (visitedCount === total || attemptedCount !== total) onSubmitTest(); }}
+          onClick={() => {
+            if (visitedCount === total || attemptedCount !== total) onSubmitTest();
+          }}
           disabled={visitedCount !== total}
         >
           Submit Test

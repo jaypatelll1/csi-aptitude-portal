@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import UploadImageModal from "../../upload/UploadImageModal";
-import {Loader} from "lucide-react"
+import { Loader } from "lucide-react";
 const validCategories = [
   "quantitative aptitude",
   "logical reasoning",
@@ -35,13 +35,13 @@ const Adm_InputQuestions = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
-  const [remaining,setRemaining] = useState(5);
+  const [remaining, setRemaining] = useState(5);
 
   const navigate = useNavigate();
   const location = useLocation();
   const questionData = location.state || {};
   const [category, setCategory] = useState(questionData.category || "");
-  const [Loading, setLoading] = useState(false)
+  const [Loading, setLoading] = useState(false);
   const examId = useSelector((state) => state.exam.examId);
 
   const handleFileChange = (event) => {
@@ -61,13 +61,7 @@ const Adm_InputQuestions = () => {
   // New handler for image file changes
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/jpg",
-      "image/webp",
-    ];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       alert("Invalid file type. Please upload a valid image file.");
       return;
@@ -87,16 +81,12 @@ const Adm_InputQuestions = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(
-        `${API_BASE_URL}/api/exams/${examId}/questions`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/exams/${examId}/questions`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
       alert("File uploaded successfully!");
       setModalOpen(false);
     } catch (error) {
@@ -109,17 +99,17 @@ const Adm_InputQuestions = () => {
   // Handler for image submission
   const handleImageSubmit = async (event) => {
     event.preventDefault();
-  
+
     if (!selectedImage) {
       alert("Please select an image to upload.");
       return;
     }
-  
+
     setIsImageUploading(true);
-  
+
     const formData = new FormData();
     formData.append("image", selectedImage);
-  
+
     try {
       if (remaining < 0) {
         alert("Too many requests, please try again later.");
@@ -128,21 +118,17 @@ const Adm_InputQuestions = () => {
         return;
       }
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  
+
       // Upload the image and display it
-      const response = await axios.post(
-        `${API_BASE_URL}/api/upload-image`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-  
+      const response = await axios.post(`${API_BASE_URL}/api/upload-image`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
       // console.log("Upload Response:", response.data);
-  
+
       if (response.data && response.data.imageUrl) {
         setImageUrl(response.data.imageUrl); // Set the image URL for display
         setRemaining((remaining) => remaining - 1);
@@ -151,21 +137,18 @@ const Adm_InputQuestions = () => {
       } else {
         alert("Image uploaded but no URL was returned.");
       }
-  
     } catch (error) {
       // console.error("Upload error:", error);
       if (error?.status === 429) {
         alert("Too many requests, please try again later.");
-        
       } else {
         alert("An error occurred while uploading the image.");
       }
-      
     } finally {
       setIsImageUploading(false);
     }
   };
-  
+
   const {
     questionId,
     questionType,
@@ -202,9 +185,7 @@ const Adm_InputQuestions = () => {
             .filter((index) => index >= 0);
         }
 
-        setToggles(
-          validOptions.map((_, index) => correctOptionIndexes.includes(index))
-        );
+        setToggles(validOptions.map((_, index) => correctOptionIndexes.includes(index)));
       }
 
       if (location.state?.questionNumber) {
@@ -259,20 +240,19 @@ const Adm_InputQuestions = () => {
   const handleRemoveImage = async () => {
     if (!questionId) {
       // alert("No question ID found");
-      setImageUrl(""); 
+      setImageUrl("");
       return;
     }
-  
+
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      
+
       // Call backend to delete image
       const response = await axios.delete(`${API_BASE_URL}/api/delete-image/${questionId}`, {
         withCredentials: true,
       });
-  
+
       if (response.data.success) {
-      
         setImageUrl(""); // Clear image from UI
       } else {
         alert("Failed to delete image.");
@@ -282,7 +262,6 @@ const Adm_InputQuestions = () => {
       alert("An error occurred while deleting the image.");
     }
   };
-  
 
   const handleSubmit = async () => {
     // Trim values to avoid spaces being considered as input
@@ -302,20 +281,20 @@ const Adm_InputQuestions = () => {
       alert("Please select at least one correct answer!");
       return;
     }
-    setLoading(true)
-  
+    setLoading(true);
+
     // Finding correct answer indices
     const correctIndices = toggles
       .map((toggle, index) => (toggle ? index : -1))
       .filter((index) => index !== -1);
-  
+
     const correctOption =
       correctIndices.length === 1 ? String.fromCharCode(97 + correctIndices[0]) : null;
     const correctOptions =
       correctIndices.length > 1
         ? correctIndices.map((index) => String.fromCharCode(97 + index))
         : null;
-  
+
     const payload = {
       question_type: correctIndices.length === 1 ? "single_choice" : questionsType,
       question_text: question,
@@ -330,47 +309,43 @@ const Adm_InputQuestions = () => {
       category: category,
       image_url: imageUrl, // Include the image URL in the payload
     };
-  
+
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  
-  
 
       if (!questionId) {
         await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, {
           withCredentials: true,
         });
-  
+
         // Reset the form after submission
         setQuestion("");
         setOptions(["", "", "", ""]);
         setToggles([false, false, false, false]);
         setCategory("");
         setImageUrl(null); // Corrected image reset
-  
+
         setQuestionCount((prevCount) => prevCount + 1);
-  
+
         // Ensure state updates before navigating
         setTimeout(() => navigate("/admin/input?category="), 200);
       } else {
-        await axios.put(
-          `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
-          payload,
-          { withCredentials: true }
-        );
-  
+        await axios.put(`${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`, payload, {
+          withCredentials: true,
+        });
+
         setQuestion("");
         setOptions(["", "", "", ""]);
         setToggles([false, false, false, false]);
         setImageUrl(null);
-  
+
         setTimeout(() => navigate("/admin/viewquestions"), 200);
       }
     } catch (error) {
       console.error("Error creating test:", error.response?.data || error.message);
       alert("Error submitting question, please try again.");
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   // const handleSubmit = async () => {
@@ -510,11 +485,7 @@ const Adm_InputQuestions = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
+                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
@@ -573,15 +544,11 @@ const Adm_InputQuestions = () => {
               </svg>
               View Questions
             </button>
-            <span className="text-xl text-gray-500 font-medium">
-              Question {questionCount}
-            </span>
+            <span className="text-xl text-gray-500 font-medium">Question {questionCount}</span>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <div className="mb-4">
-              <label className="text-xl block text-gray-700 font-medium mb-2">
-                Question Type:
-              </label>
+              <label className="text-xl block text-gray-700 font-medium mb-2">Question Type:</label>
               <select
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={questionsType}
@@ -595,10 +562,7 @@ const Adm_InputQuestions = () => {
               </select>
             </div>
             <div className="mb-4">
-              <label
-                htmlFor="question"
-                className="text-xl block text-gray-700 font-medium mb-2"
-              >
+              <label htmlFor="question" className="text-xl block text-gray-700 font-medium mb-2">
                 Enter Question:
               </label>
               <textarea
@@ -637,11 +601,7 @@ const Adm_InputQuestions = () => {
                   Uploaded Image:
                 </label>
                 <div className="border rounded-lg p-2 max-w-md">
-                  <img
-                    src={imageUrl}
-                    alt="Question image"
-                    className="max-w-full h-auto"
-                  />
+                  <img src={imageUrl} alt="Question image" className="max-w-full h-auto" />
                 </div>
                 <button
                   onClick={handleRemoveImage}
@@ -654,20 +614,13 @@ const Adm_InputQuestions = () => {
 
             {questionsType !== "text" && (
               <div>
-                <label className="text-xl block text-gray-700 font-medium mb-2">
-                  Options:
-                </label>
+                <label className="text-xl block text-gray-700 font-medium mb-2">Options:</label>
                 {options.map((answer, index) => (
-                  <div
-                    key={index}
-                    className="group flex items-center gap-4 mb-2 p-3 rounded-lg"
-                  >
+                  <div key={index} className="group flex items-center gap-4 mb-2 p-3 rounded-lg">
                     <input
                       type="text"
                       value={answer}
-                      onChange={(e) =>
-                        handleAnswerChange(index, e.target.value)
-                      }
+                      onChange={(e) => handleAnswerChange(index, e.target.value)}
                       placeholder={`Enter option ${index + 1}`}
                       className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />

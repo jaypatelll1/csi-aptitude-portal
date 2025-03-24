@@ -8,7 +8,7 @@ import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard";
 import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import axios from "axios";
-import {setDepartmentAnalysis, setOverallAnalysis} from "../../redux/analysisSlice"
+import { setDepartmentAnalysis, setOverallAnalysis } from "../../redux/analysisSlice";
 import { useSelector, useDispatch } from "react-redux";
 import Loader from "../../components/Loader";
 
@@ -24,14 +24,14 @@ const Adm_Dashboard = () => {
     drafted: [],
     scheduled: [],
     past: [],
-    live: []
+    live: [],
   });
   const [loading, setLoading] = useState(true);
   const [loadingStates, setLoadingStates] = useState({
     drafted: true,
     scheduled: true,
     past: true,
-    live: true
+    live: true,
   });
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
@@ -55,7 +55,7 @@ const Adm_Dashboard = () => {
       const response = await axios.get(endpoint, {
         withCredentials: true,
       });
-      
+
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams.map((exam) => ({
@@ -74,9 +74,9 @@ const Adm_Dashboard = () => {
       console.error(`Error fetching ${key} tests:`, err);
       setError(`Failed to fetch ${key} tests. Please try again later.`);
     } finally {
-      setLoadingStates(prev => ({
+      setLoadingStates((prev) => ({
         ...prev,
-        [key]: false
+        [key]: false,
       }));
     }
   };
@@ -121,7 +121,7 @@ const Adm_Dashboard = () => {
           fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
           fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
           fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live")
+          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live"),
         ]);
       } catch (err) {
         console.error("Error fetching test data:", err);
@@ -158,8 +158,7 @@ const Adm_Dashboard = () => {
         let url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
         const response = await axios.get(url, { withCredentials: true });
         dispatch(setOverallAnalysis(response.data));
-      }
-      catch(err){
+      } catch (err) {
         console.log(err);
       }
     };
@@ -170,18 +169,32 @@ const Adm_Dashboard = () => {
     const fetchDepartmentAnalysis = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        let response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/CMPN`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "CMPN", data: response.data}));
-        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/INFT`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "INFT", data: response.data}));
-        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/EXTC`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "EXTC", data: response.data}));
-        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/ECS`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "ECS", data: response.data}));
-        response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/ELEC`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: "ELEC", data: response.data}));
-      }
-      catch(err){
+        let response = await axios.get(
+          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/CMPN`,
+          { withCredentials: true }
+        );
+        dispatch(setDepartmentAnalysis({ department: "CMPN", data: response.data }));
+        response = await axios.get(
+          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/INFT`,
+          { withCredentials: true }
+        );
+        dispatch(setDepartmentAnalysis({ department: "INFT", data: response.data }));
+        response = await axios.get(
+          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/EXTC`,
+          { withCredentials: true }
+        );
+        dispatch(setDepartmentAnalysis({ department: "EXTC", data: response.data }));
+        response = await axios.get(
+          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/ECS`,
+          { withCredentials: true }
+        );
+        dispatch(setDepartmentAnalysis({ department: "ECS", data: response.data }));
+        response = await axios.get(
+          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/ELEC`,
+          { withCredentials: true }
+        );
+        dispatch(setDepartmentAnalysis({ department: "ELEC", data: response.data }));
+      } catch (err) {
         console.log(err);
       }
     };
@@ -208,9 +221,7 @@ const Adm_Dashboard = () => {
   const ITEMS_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(
-    (testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil((testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE);
   const paginatedData = testsData[activeTab]?.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -232,15 +243,12 @@ const Adm_Dashboard = () => {
       >
         <Adm_Sidebar testsData={testsData} />
       </div>
-  
+
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar setSidebarOpen={setSidebarOpen} />
-  
+
         <div className="flex items-center justify-between mt-5">
-          <button
-            className="xl:hidden text-gray-800"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
+          <button className="xl:hidden text-gray-800" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <svg
               className="w-7 h-8"
               fill="none"
@@ -252,18 +260,12 @@ const Adm_Dashboard = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold text-gray-700 ml-5">
-            Admin Dashboard
-          </h1>
-  
+          <h1 className="text-2xl font-bold text-gray-700 ml-5">Admin Dashboard</h1>
+
           <button
             onClick={createTestHandler}
             className="bg-[#1349C5] text-white px-4 py-2 rounded hover:bg-blue-300 hover:text-black border border-blue-700 opacity-90 hover:opacity-100 mr-4"
@@ -271,20 +273,18 @@ const Adm_Dashboard = () => {
             + Create Test
           </button>
         </div>
-  
+
         <div className="p-0 w-full flex justify-center">
           <Adm_DashboardTiles tileData={tileData} />
         </div>
-  
+
         <div className="p-4 w-[97%] xl:w-[98%] mt-8 ml-4 rounded-xl bg-white">
           <div className="flex space-x-4 border-b pb-2">
             {["live", "drafted", "scheduled", "past"].map((tab) => (
               <button
                 key={tab}
                 className={`text-lg font-semibold ${
-                  activeTab === tab
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600"
+                  activeTab === tab ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
                 }`}
                 onClick={() => {
                   setActiveTab(tab);
@@ -295,7 +295,7 @@ const Adm_Dashboard = () => {
               </button>
             ))}
           </div>
-  
+
           <div className="relative min-h-[150px] grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4">
             {loading ? (
               <div className="absolute inset-0 flex justify-center items-center col-span-full">
@@ -306,7 +306,7 @@ const Adm_Dashboard = () => {
             ) : paginatedData && paginatedData.length > 0 ? (
               paginatedData.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-                
+
                 if (activeTab === "live") {
                   return <Adm_LiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
@@ -322,15 +322,13 @@ const Adm_Dashboard = () => {
               <p className="col-span-full text-gray-500 text-center">No tests available.</p>
             )}
           </div>
-  
+
           {!loading && totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 className={`p-2 mx-1 rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === 1}
               >
@@ -341,9 +339,7 @@ const Adm_Dashboard = () => {
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
                   className={`px-3 py-1 mx-1 rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
-                      : "hover:bg-gray-200"
+                    currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                   }`}
                 >
                   {i + 1}
@@ -352,9 +348,7 @@ const Adm_Dashboard = () => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`p-2 mx-1 rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === totalPages}
               >

@@ -54,17 +54,17 @@ const Dep_InputQuestions = () => {
     correct_option,
     correct_options,
     image_url,
-   category: existingCategory,
+    category: existingCategory,
   } = location.state || {};
 
   // Load question data when editing
   useEffect(() => {
     if (location.state) {
       // Destructure all needed values from location.state for clarity
-      const { 
-        questionText, 
-        questionType, 
-       
+      const {
+        questionText,
+        questionType,
+
         questionId,
         options: existingOptions,
         toggles: existingToggles,
@@ -72,15 +72,15 @@ const Dep_InputQuestions = () => {
         correct_option,
         correct_options,
         questionNumber,
-        image_url
+        image_url,
       } = location.state;
-  
+
       // Set basic fields
       setQuestion(questionText || "");
       const qType = questionType || "single_choice";
       setQuestionsType(qType);
       setCategory(existingCategory || "");
-  
+
       if (qType === "text") {
         // For text questions
         if (questionId) {
@@ -97,13 +97,12 @@ const Dep_InputQuestions = () => {
         const { a = "", b = "", c = "", d = "" } = questionOptions || {};
         const optionsArray = [a, b, c, d];
         setOptions(optionsArray);
-        
-  
+
         // Handle correct options for both single and multiple choice
         const validOptions = ["a", "b", "c", "d"];
         setCategory(existingCategory || "");
         let correctOptionIndexes = [];
-  
+
         if (qType === "single_choice" && correct_option) {
           // For single choice
           correctOptionIndexes = [validOptions.indexOf(correct_option)];
@@ -113,18 +112,16 @@ const Dep_InputQuestions = () => {
             .map((opt) => validOptions.indexOf(opt))
             .filter((index) => index >= 0);
         }
-  
+
         // Create an array of booleans representing which options are correct
-        setToggles(
-          validOptions.map((_, index) => correctOptionIndexes.includes(index))
-        );
+        setToggles(validOptions.map((_, index) => correctOptionIndexes.includes(index)));
       }
-  
+
       // Set question number if available
       if (questionNumber) {
         setQuestionCount(questionNumber);
       }
-  
+
       // Set image URL if available
       if (image_url) {
         setImageUrl(image_url);
@@ -149,13 +146,7 @@ const Dep_InputQuestions = () => {
   // Handler for image file changes
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/jpg",
-      "image/webp",
-    ];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       alert("Invalid file type. Please upload a valid image file.");
       return;
@@ -175,16 +166,12 @@ const Dep_InputQuestions = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(
-        `${API_BASE_URL}/api/exams/${examId}/questions`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/exams/${examId}/questions`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
       alert("File uploaded successfully!");
       setModalOpen(false);
     } catch (error) {
@@ -218,16 +205,12 @@ const Dep_InputQuestions = () => {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       // Upload the image and display it
-      const response = await axios.post(
-        `${API_BASE_URL}/api/upload-image`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/upload-image`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
 
       if (response.data && response.data.imageUrl) {
         setImageUrl(response.data.imageUrl); // Set the image URL for display
@@ -318,7 +301,7 @@ const Dep_InputQuestions = () => {
       alert("Please select a category!");
       return;
     }
-    
+
     // Only validate options for non-text questions
     if (questionsType !== "text") {
       if (options.some((option) => !option.trim())) {
@@ -330,7 +313,7 @@ const Dep_InputQuestions = () => {
         return;
       }
     }
-    
+
     setLoading(true);
 
     // Finding correct answer indices - only for non-text questions
@@ -354,12 +337,15 @@ const Dep_InputQuestions = () => {
     const payload = {
       question_type: questionsType,
       question_text: question,
-      options: questionsType === "text" ? {} : {
-        a: options[0] || "",
-        b: options[1] || "",
-        c: options[2] || "",
-        d: options[3] || "",
-      },
+      options:
+        questionsType === "text"
+          ? {}
+          : {
+              a: options[0] || "",
+              b: options[1] || "",
+              c: options[2] || "",
+              d: options[3] || "",
+            },
       correct_option: correctOption,
       correct_options: correctOptions,
       category: category,
@@ -393,11 +379,9 @@ const Dep_InputQuestions = () => {
         setTimeout(() => navigate("/department/input?category="), 200);
       } else {
         // Update existing question
-        await axios.put(
-          `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
-          payload,
-          { withCredentials: true }
-        );
+        await axios.put(`${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`, payload, {
+          withCredentials: true,
+        });
 
         // Reset form and navigate to view questions
         setQuestion("");
@@ -416,7 +400,7 @@ const Dep_InputQuestions = () => {
       console.error("Error submitting question:", error.response?.data || error.message);
       alert("Error submitting question, please try again.");
     }
-    
+
     setLoading(false);
   };
 
@@ -467,7 +451,7 @@ const Dep_InputQuestions = () => {
         setToggles([]);
       }
     };
-    
+
     updateUI();
   }, [questionsType]);
 
@@ -502,11 +486,7 @@ const Dep_InputQuestions = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
+                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
@@ -567,16 +547,11 @@ const Dep_InputQuestions = () => {
               </svg>
               View Questions
             </button>
-            <span className="text-xl text-gray-500 font-medium">
-              Question {questionCount}
-            </span>
+            <span className="text-xl text-gray-500 font-medium">Question {questionCount}</span>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          
             <div className="mb-4">
-              <label className="text-xl block text-gray-700 font-medium mb-2">
-                Question Type:
-              </label>
+              <label className="text-xl block text-gray-700 font-medium mb-2">Question Type:</label>
               <select
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={questionsType}
@@ -590,10 +565,7 @@ const Dep_InputQuestions = () => {
               </select>
             </div>
             <div className="mb-4">
-              <label
-                htmlFor="question"
-                className="text-xl block text-gray-700 font-medium mb-2"
-              >
+              <label htmlFor="question" className="text-xl block text-gray-700 font-medium mb-2">
                 Enter Question:
               </label>
               <textarea
@@ -631,11 +603,7 @@ const Dep_InputQuestions = () => {
                   Uploaded Image:
                 </label>
                 <div className="border rounded-lg p-2 max-w-md">
-                  <img
-                    src={imageUrl}
-                    alt="Question image"
-                    className="max-w-full h-auto"
-                  />
+                  <img src={imageUrl} alt="Question image" className="max-w-full h-auto" />
                 </div>
                 <button
                   onClick={handleRemoveImage}
@@ -645,18 +613,13 @@ const Dep_InputQuestions = () => {
                 </button>
               </div>
             )}
-           
+
             {/* Only render options section for non-text questions */}
             {questionsType !== "text" && (
               <div>
-                <label className="text-xl block text-gray-700 font-medium mb-2">
-                  Options:
-                </label>
+                <label className="text-xl block text-gray-700 font-medium mb-2">Options:</label>
                 {options.map((answer, index) => (
-                  <div
-                    key={index}
-                    className="group flex items-center gap-4 mb-2 p-3 rounded-lg "
-                  >
+                  <div key={index} className="group flex items-center gap-4 mb-2 p-3 rounded-lg ">
                     <input
                       type="text"
                       value={answer}

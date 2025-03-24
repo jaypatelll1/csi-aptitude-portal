@@ -56,7 +56,7 @@ const Adm_LiveTest = () => {
           },
           { params: { page: currentPage, limit: itemsPerPage } }
         );
-        
+
         const fetchedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
@@ -81,11 +81,11 @@ const Adm_LiveTest = () => {
   }, []);
 
   //  Reset pagination when no tests are available
-useEffect(() => {
-  if (tests.length === 0) {
-    setCurrentPage(1);
-  }
-}, [tests]);
+  useEffect(() => {
+    if (tests.length === 0) {
+      setCurrentPage(1);
+    }
+  }, [tests]);
 
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
@@ -94,10 +94,7 @@ useEffect(() => {
   };
 
   // Items to display for the current page
-  const currentItems = tests.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const currentItems = tests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="min-h-screen flex">
@@ -110,11 +107,11 @@ useEffect(() => {
       >
         <Adm_Sidebar />
       </div>
-  
+
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar />
-  
+
         {/* Top Section - Hidden when loading */}
         {!loading && (
           <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
@@ -134,22 +131,16 @@ useEffect(() => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
+                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
-            <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
-              Live Tests
-            </h1>
+            <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">Live Tests</h1>
           </div>
         )}
-  
+
         <hr className="mb-4" />
-  
+
         {/* Loader while fetching data */}
         {loading ? (
           <div className="flex items-center justify-center h-screen">
@@ -167,7 +158,7 @@ useEffect(() => {
                 <Adm_LiveTestCard key={index} test={test} />
               ))}
             </div>
-  
+
             {/* Pagination Controls */}
             {tests.length > 0 && totalPages > 1 && (
               <div className="flex justify-center mt-6">
@@ -176,9 +167,7 @@ useEffect(() => {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     className={`p-2 mx-1 border rounded ${
-                      currentPage === 1
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-200"
+                      currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                     }`}
                     disabled={currentPage === 1}
                   >
@@ -194,22 +183,20 @@ useEffect(() => {
                     </svg>
                   </button>
                 )}
-  
+
                 {/* Page Number Buttons */}
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
                     className={`px-3 py-1 mx-1 text-sm border rounded ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-200"
+                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                     }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-  
+
                 {/* Right Arrow Button */}
                 {currentPage < totalPages && totalPages > 1 && (
                   <button
@@ -240,7 +227,6 @@ useEffect(() => {
       </div>
     </div>
   );
-  
 };
 
 export default Adm_LiveTest;

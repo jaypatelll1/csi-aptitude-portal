@@ -1,11 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null, // Holds user data
 };
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     setUser: (state, action) => {

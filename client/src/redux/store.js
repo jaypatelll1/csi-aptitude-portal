@@ -3,9 +3,9 @@ import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage/session";
 import questionReducer from "./questionSlice";
 import userReducer from "./userSlice";
-import examReducer from './ExamSlice';
-import analysisSlice from './analysisSlice'
-import teacherExamReducer from './TeacherExamSlice'
+import examReducer from "./ExamSlice";
+import analysisSlice from "./analysisSlice";
+import teacherExamReducer from "./TeacherExamSlice";
 
 const userPersistConfig = {
   key: "user",
@@ -41,10 +41,9 @@ const store = configureStore({
   reducer: {
     questions: persistedQuestionReducer, // Persisted for questions
     user: persistedUserReducer, // Persisted user reducer
-    exam: persistedExamReducer, 
+    exam: persistedExamReducer,
     analysis: persistedAnalysisReducer,
     teacherExam: persistedTeacherExamReducer,
-
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -4,27 +4,25 @@ import { useNavigate } from "react-router-dom";
 
 const Adm_Sidebar = () => {
   const [showSubmenu, setShowSubmenu] = useState(false);
-    const [showAnalyticsSubmenu, setShowAnalyticsSubmenu] = useState(false);
-    const navigate = useNavigate();
+  const [showAnalyticsSubmenu, setShowAnalyticsSubmenu] = useState(false);
+  const navigate = useNavigate();
 
-    const handleNavigation = (path) => {
-      navigate(path);
-    };
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
 
   const toggleSubmenu = () => {
     setShowSubmenu(!showSubmenu);
   };
-  const toggleAnalyticsSubmenu = () =>
-    setShowAnalyticsSubmenu(!showAnalyticsSubmenu);
+  const toggleAnalyticsSubmenu = () => setShowAnalyticsSubmenu(!showAnalyticsSubmenu);
 
   return (
     <div className="fixed left-0 top-0 w-64 h-full   p-5 font-sans z-50">
-      <h2 className="text-blue-700 text-4xl font-bold mb-12 font-sans">
-        Aptitude
-      </h2>
+      <h2 className="text-blue-700 text-4xl font-bold mb-12 font-sans">Aptitude</h2>
       <ul className="list-none p-0 m-0">
-        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
-        onClick={() => handleNavigation("/admin")}
+        <li
+          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
+          onClick={() => handleNavigation("/admin")}
         >
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
             <svg
@@ -45,8 +43,9 @@ const Adm_Sidebar = () => {
           </span>
           <Link to="/admin">Home</Link>
         </li>
-        <li className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
-        onClick={() => handleNavigation("/admin/studentlist")}
+        <li
+          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
+          onClick={() => handleNavigation("/admin/studentlist")}
         >
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
             <svg
@@ -142,9 +141,7 @@ const Adm_Sidebar = () => {
             </svg>
           </span>
           Analytics
-          <span
-            className={`ml-auto ${showAnalyticsSubmenu ? "rotate-180" : ""}`}
-          >
+          <span className={`ml-auto ${showAnalyticsSubmenu ? "rotate-180" : ""}`}>
             <svg
               width="10"
               height="6"
@@ -174,7 +171,6 @@ const Adm_Sidebar = () => {
             <li className="p-1 ml-4 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500">
               <Link to="/admin/student-analysis">Student Analysis</Link>
             </li>
-            
           </ul>
         )}
       </ul>

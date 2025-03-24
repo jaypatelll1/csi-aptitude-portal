@@ -42,10 +42,7 @@ const Dep_PresidentCreateTestPage = () => {
       navigate("/president/input");
     } catch (error) {
       alert("Invalid Input. Please check all fields and try again.");
-      console.error(
-        "Error creating test:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating test:", error.response?.data || error.message);
     }
   };
 
@@ -100,17 +97,11 @@ const Dep_PresidentCreateTestPage = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-6">
-            Create Aptitude Test
-          </h1>
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-6">Create Aptitude Test</h1>
         </div>
 
         <div className="flex items-center mb-6 ml-5">
@@ -126,25 +117,16 @@ const Dep_PresidentCreateTestPage = () => {
               stroke="currentColor"
               strokeWidth={2}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h2 className="text-lg font-semibold text-gray-700">
-            Basic create test info.
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-700">Basic create test info.</h2>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
             <div className="mb-6">
-              <label
-                htmlFor="testName"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="testName" className="block text-sm font-medium text-gray-700 mb-2">
                 Test name
               </label>
               <input
@@ -159,10 +141,7 @@ const Dep_PresidentCreateTestPage = () => {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="duration"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
                 Duration (in minutes)
               </label>
               <input
@@ -172,14 +151,11 @@ const Dep_PresidentCreateTestPage = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={duration === 0 ? "" : duration}
                 onChange={(e) => {
-                  const value =
-                    e.target.value === ""
-                      ? ""
-                      : Math.max(0, Number(e.target.value));
+                  const value = e.target.value === "" ? "" : Math.max(0, Number(e.target.value));
                   setDuration(value);
                 }}
                 onBlur={() => {
-                  if (duration === "") setDuration(0); 
+                  if (duration === "") setDuration(0);
                 }}
                 min="0"
                 required

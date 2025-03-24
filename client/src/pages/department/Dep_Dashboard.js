@@ -26,7 +26,7 @@ const Dep_Dashboard = () => {
     drafted: [],
     scheduled: [],
     past: [],
-    live: []
+    live: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,7 +62,10 @@ const Dep_Dashboard = () => {
             }
 
             // Convert "{CMPN,INFT,EXTC,ELEC,ECS}" -> ["CMPN", "INFT", "EXTC", "ELEC", "ECS"]
-            targetBranches = targetBranches.replace(/[{}]/g, "").split(",").map(branch => branch.trim());
+            targetBranches = targetBranches
+              .replace(/[{}]/g, "")
+              .split(",")
+              .map((branch) => branch.trim());
 
             return targetBranches.includes(userData.department); // Check if the user's department is included
           })
@@ -126,7 +129,7 @@ const Dep_Dashboard = () => {
           fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
           fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
           fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live")
+          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live"),
         ]);
       } catch (err) {
         console.error("Error fetching test data:", err);
@@ -149,10 +152,12 @@ const Dep_Dashboard = () => {
     const fetchDepartmentAnalysis = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        let response = await axios.get(`${API_BASE_URL}/api/department-analysis/all-dept-analysis/${user_department}`, { withCredentials: true });
-        dispatch(setDepartmentAnalysis({department: user_department, data: response.data}));
-      }
-      catch(err){
+        let response = await axios.get(
+          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${user_department}`,
+          { withCredentials: true }
+        );
+        dispatch(setDepartmentAnalysis({ department: user_department, data: response.data }));
+      } catch (err) {
         console.log(err);
       }
     };
@@ -179,9 +184,7 @@ const Dep_Dashboard = () => {
   const ITEMS_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(
-    (testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil((testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE);
   const paginatedData = testsData[activeTab]?.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -213,9 +216,7 @@ const Dep_Dashboard = () => {
         <Dep_Navbar setSidebarOpen={setSidebarOpen} />
 
         <div className="flex items-center justify-between mt-5">
-          <h1 className="text-2xl font-bold text-gray-700 ml-5">
-            Department Dashboard
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-700 ml-5">Department Dashboard</h1>
 
           <button
             onClick={createTestHandler}
@@ -235,9 +236,7 @@ const Dep_Dashboard = () => {
               <button
                 key={tab}
                 className={`text-lg font-semibold ${
-                  activeTab === tab
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600"
+                  activeTab === tab ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
                 }`}
                 onClick={() => setActiveTab(tab)}
               >
@@ -256,7 +255,7 @@ const Dep_Dashboard = () => {
             ) : paginatedData && paginatedData.length > 0 ? (
               paginatedData.map((test) => {
                 const key = test.exam_id || test.id || test.name;
-                
+
                 if (activeTab === "live") {
                   return <Dep_LiveTestCard key={key} test={test} />;
                 } else if (activeTab === "scheduled") {
@@ -272,15 +271,13 @@ const Dep_Dashboard = () => {
               <p className="col-span-full text-gray-500 text-center">No tests available.</p>
             )}
           </div>
-          
+
           {!loading && totalPages > 1 && (
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 className={`p-2 mx-1 rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === 1}
               >
@@ -291,9 +288,7 @@ const Dep_Dashboard = () => {
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
                   className={`px-3 py-1 mx-1 rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
-                      : "hover:bg-gray-200"
+                    currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                   }`}
                 >
                   {i + 1}
@@ -302,9 +297,7 @@ const Dep_Dashboard = () => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`p-2 mx-1 rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === totalPages}
               >

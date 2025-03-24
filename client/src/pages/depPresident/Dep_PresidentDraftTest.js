@@ -46,9 +46,9 @@ const Dep_PresidentDraftTest = () => {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
           withCredentials: true,
-          params:{
-            role: "President"
-          }
+          params: {
+            role: "President",
+          },
         });
 
         console.log("response", response);
@@ -77,10 +77,7 @@ const Dep_PresidentDraftTest = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(tests.length / itemsPerPage);
-  const paginatedTests = tests.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedTests = tests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -99,11 +96,11 @@ const Dep_PresidentDraftTest = () => {
       >
         <Dep_PresidentSidebar />
       </div>
-  
+
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Dep_PresidentNavbar />
-  
+
         {/* Hide Header while loading */}
         {!loading && (
           <>
@@ -125,23 +122,17 @@ const Dep_PresidentDraftTest = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d={
-                      sidebarOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
+                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                   />
                 </svg>
               </button>
-  
+
               {/* Title */}
-              <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:ml-0">
-                Drafted Tests
-              </h1>
+              <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:ml-0">Drafted Tests</h1>
             </div>
           </>
         )}
-  
+
         {/* Loader while fetching data */}
         {loading ? (
           <div className="flex justify-center items-center h-screen">
@@ -150,9 +141,7 @@ const Dep_PresidentDraftTest = () => {
         ) : error ? (
           <p className="text-red-500 text-center mt-8">{error}</p>
         ) : tests.length === 0 ? (
-          <p className="text-gray-500 text-center w-full mt-8">
-            No drafted tests available.
-          </p>
+          <p className="text-gray-500 text-center w-full mt-8">No drafted tests available.</p>
         ) : (
           <>
             {/* Drafted Tests Grid */}
@@ -162,12 +151,10 @@ const Dep_PresidentDraftTest = () => {
                   <Dep_PresidentDraftedTestCard key={index} test={test} />
                 ))
               ) : (
-                <p className="text-lg text-gray-500 mx-auto">
-                  No draft tests available
-                </p>
+                <p className="text-lg text-gray-500 mx-auto">No draft tests available</p>
               )}
             </div>
-  
+
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-6">
@@ -175,30 +162,26 @@ const Dep_PresidentDraftTest = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   className={`p-2 mx-1 rounded ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-200"
+                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                   }`}
                   disabled={currentPage === 1}
                 >
                   &lt; {/* Left Arrow */}
                 </button>
-  
+
                 {/* Page Number Buttons */}
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
                     className={`px-3 py-1 mx-1 rounded ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-200"
+                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                     }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-  
+
                 {/* Next Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
@@ -218,7 +201,6 @@ const Dep_PresidentDraftTest = () => {
       </div>
     </div>
   );
-  
 };
 
 export default Dep_PresidentDraftTest;

@@ -16,18 +16,12 @@ const TableComponent = ({ title, data, type }) => {
           {data?.map((item, index) => (
             <tr key={index} className="border-b">
               {type === "overall" ? (
-                <td className="py-2 text-gray-700">
-                  {item?.overall_rank || "N/A"}
-                </td>
+                <td className="py-2 text-gray-700">{item?.overall_rank || "N/A"}</td>
               ) : (
-                <td className="py-4 text-gray-700 text-md">
-                  {item?.department_rank || "N/A"}
-                </td>
+                <td className="py-4 text-gray-700 text-md">{item?.department_rank || "N/A"}</td>
               )}
 
-              <td className="py-4 text-gray-700 text-md">
-                {item?.student_name || "N/A"}
-              </td>
+              <td className="py-4 text-gray-700 text-md">{item?.student_name || "N/A"}</td>
             </tr>
           ))}
         </tbody>

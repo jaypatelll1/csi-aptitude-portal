@@ -82,13 +82,11 @@ function Stu_Result() {
       }
 
       // Set other data from response if available
-      if (res.data.exam)
-        setExam(Array.isArray(res.data.exam) ? res.data.exam : [res.data.exam]);
+      if (res.data.exam) setExam(Array.isArray(res.data.exam) ? res.data.exam : [res.data.exam]);
       if (res.data.exam_id) setExamId(res.data.exam_id);
       if (res.data.userEmail) setUserEmail(res.data.userEmail);
       if (res.data.totalMarks !== undefined) setTotalMarks(res.data.totalMarks);
-      if (res.data.obtainedMarks !== undefined)
-        setObtainedMarks(res.data.obtainedMarks);
+      if (res.data.obtainedMarks !== undefined) setObtainedMarks(res.data.obtainedMarks);
       if (res.data.isPassed !== undefined) setIsPassed(res.data.isPassed);
       if (res.data.userName) setUserName(res.data.userName);
 
@@ -114,15 +112,13 @@ function Stu_Result() {
     processed.questionText = question.question_text || question.questionText;
 
     // Ensure question_id is available
-    processed.question_id =
-      question.question_id || question.questionId || question.id || 0;
+    processed.question_id = question.question_id || question.questionId || question.id || 0;
 
     // Ensure category is preserved from the original question
     processed.category = question.category || "TEST";
 
     // Determine the question type
-    processed.questionType =
-      question.question_type || question.questionType || "mcq";
+    processed.questionType = question.question_type || question.questionType || "mcq";
 
     // For text type questions
     if (processed.questionType === "text") {
@@ -138,8 +134,7 @@ function Stu_Result() {
             processed.correctTextAnswer.trim().toLowerCase();
 
       // Mark as unanswered if textAnswer is empty
-      processed.isUnanswered =
-        !processed.textAnswer || processed.textAnswer.trim() === "";
+      processed.isUnanswered = !processed.textAnswer || processed.textAnswer.trim() === "";
 
       return processed;
     }
@@ -176,14 +171,13 @@ function Stu_Result() {
         question.selected_response !== undefined
           ? question.selected_response
           : question.selectedOption !== undefined
-          ? question.selectedOption
-          : question.selectedAnswer;
+            ? question.selectedOption
+            : question.selectedAnswer;
     }
 
     // Ensure correct handling of unanswered questions
     if (processed.isMultipleAnswer) {
-      processed.isUnanswered =
-        !processed.selectedOptions || processed.selectedOptions.length === 0;
+      processed.isUnanswered = !processed.selectedOptions || processed.selectedOptions.length === 0;
     } else {
       processed.isUnanswered =
         processed.selectedOption === null ||
@@ -203,10 +197,7 @@ function Stu_Result() {
       } else {
         // Fallback to empty array if no correct answers found
         processed.correctAnswers = [];
-        console.warn(
-          "Multiple answer question without correct answers array:",
-          question
-        );
+        console.warn("Multiple answer question without correct answers array:", question);
       }
     } else {
       // For single answer questions
@@ -214,16 +205,12 @@ function Stu_Result() {
         question.correct_answer !== undefined
           ? question.correct_answer
           : question.correctAnswer !== undefined
-          ? question.correctAnswer
-          : question.correctOption;
+            ? question.correctAnswer
+            : question.correctOption;
     }
 
     // Handle options - convert array to object if needed
-    if (
-      !processed.options &&
-      question.options &&
-      Array.isArray(question.options)
-    ) {
+    if (!processed.options && question.options && Array.isArray(question.options)) {
       const optionsObj = {};
       // Map numeric array to letter keys: [92, 96, 98, 100] → {'a': 92, 'b': 96, ...}
       question.options.forEach((value, index) => {
@@ -252,8 +239,7 @@ function Stu_Result() {
     setCurrentQuestionIndex(index);
   };
 
-  const examName =
-    exam.find((e) => e.exam_id === Number(exam_id))?.exam_name || "Test";
+  const examName = exam.find((e) => e.exam_id === Number(exam_id))?.exam_name || "Test";
 
   if (loading) {
     return (
@@ -268,10 +254,7 @@ function Stu_Result() {
       <div className="flex justify-center items-center h-screen">
         <div className="text-red-500">
           <p>Error: {error}</p>
-          <button
-            onClick={fetchData}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
-          >
+          <button onClick={fetchData} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
             Retry
           </button>
         </div>
@@ -320,10 +303,7 @@ function Stu_Result() {
             {exam
               ?.filter((examItem) => examItem.exam_id === Number(exam_id))
               .map((examItem) => (
-                <h1
-                  key={examItem.exam_id}
-                  className="text-xl font-bold text-gray-800 mb-4"
-                >
+                <h1 key={examItem.exam_id} className="text-xl font-bold text-gray-800 mb-4">
                   {examItem.exam_name}
                 </h1>
               ))}
@@ -342,8 +322,7 @@ function Stu_Result() {
                         Multiple Answer Question
                       </span>
                     )}
-                    {questions[currentQuestionIndex]?.questionType ===
-                      "text" && (
+                    {questions[currentQuestionIndex]?.questionType === "text" && (
                       <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
                         Text Answer Question
                       </span>
@@ -363,9 +342,7 @@ function Stu_Result() {
                               {questions[currentQuestionIndex].textAnswer}
                             </p>
                           ) : (
-                            <p className="text-gray-400 italic">
-                              No answer provided
-                            </p>
+                            <p className="text-gray-400 italic">No answer provided</p>
                           )}
                         </div>
                       </div>
@@ -375,8 +352,8 @@ function Stu_Result() {
                           questions[currentQuestionIndex].isUnanswered
                             ? "bg-gray-50 border-gray-300 text-gray-700"
                             : questions[currentQuestionIndex].isCorrect
-                            ? "bg-green-50 border-green-300 text-green-700"
-                            : "bg-red-50 border-red-300 text-red-700"
+                              ? "bg-green-50 border-green-300 text-green-700"
+                              : "bg-red-50 border-red-300 text-red-700"
                         }`}
                       >
                         {questions[currentQuestionIndex].isUnanswered ? (
@@ -433,115 +410,108 @@ function Stu_Result() {
                   ) : (
                     <div className="space-y-4">
                       {questions[currentQuestionIndex]?.options &&
-                        Object.entries(
-                          questions[currentQuestionIndex].options
-                        ).map(([key, value]) => {
-                          const currentQuestion =
-                            questions[currentQuestionIndex];
+                        Object.entries(questions[currentQuestionIndex].options).map(
+                          ([key, value]) => {
+                            const currentQuestion = questions[currentQuestionIndex];
 
-                          // Handle display logic differently based on question type
-                          if (currentQuestion.isMultipleAnswer) {
-                            // Multiple answer question
-                            const isSelected =
-                              currentQuestion.selectedOptions &&
-                              currentQuestion.selectedOptions.includes(key);
-                            const isCorrectAnswer =
-                              currentQuestion.correctAnswers &&
-                              currentQuestion.correctAnswers.includes(key);
+                            // Handle display logic differently based on question type
+                            if (currentQuestion.isMultipleAnswer) {
+                              // Multiple answer question
+                              const isSelected =
+                                currentQuestion.selectedOptions &&
+                                currentQuestion.selectedOptions.includes(key);
+                              const isCorrectAnswer =
+                                currentQuestion.correctAnswers &&
+                                currentQuestion.correctAnswers.includes(key);
 
-                            let checkboxClass =
-                              "w-5 h-5 inline-block mr-2 rounded border border-gray-400 flex justify-center items-center";
-                            let optionClass =
-                              "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
-                            let symbol = "";
+                              let checkboxClass =
+                                "w-5 h-5 inline-block mr-2 rounded border border-gray-400 flex justify-center items-center";
+                              let optionClass =
+                                "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
+                              let symbol = "";
 
-                            if (isSelected) {
-                              if (isCorrectAnswer) {
+                              if (isSelected) {
+                                if (isCorrectAnswer) {
+                                  checkboxClass =
+                                    "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center";
+                                  symbol = "✓";
+                                  optionClass += " bg-green-50";
+                                } else {
+                                  checkboxClass =
+                                    "w-5 h-5 inline-block mr-2 rounded bg-red-500 text-white flex justify-center items-center";
+                                  symbol = "✗";
+                                  optionClass += " bg-red-50";
+                                }
+                              } else if (isCorrectAnswer) {
+                                // Highlight missed correct answers
                                 checkboxClass =
-                                  "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center";
+                                  "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center opacity-70";
                                 symbol = "✓";
                                 optionClass += " bg-green-50";
-                              } else {
-                                checkboxClass =
-                                  "w-5 h-5 inline-block mr-2 rounded bg-red-500 text-white flex justify-center items-center";
-                                symbol = "✗";
-                                optionClass += " bg-red-50";
                               }
-                            } else if (isCorrectAnswer) {
-                              // Highlight missed correct answers
-                              checkboxClass =
-                                "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center opacity-70";
-                              symbol = "✓";
-                              optionClass += " bg-green-50";
-                            }
 
-                            return (
-                              <div key={key} className={optionClass}>
-                                <span className={checkboxClass}>
-                                  <span className="text-xs font-bold">
-                                    {symbol}
+                              return (
+                                <div key={key} className={optionClass}>
+                                  <span className={checkboxClass}>
+                                    <span className="text-xs font-bold">{symbol}</span>
                                   </span>
-                                </span>
-                                <span className="ml-2">{value}</span>
-                                {isCorrectAnswer && !isSelected && (
-                                  <span className="ml-2 text-sm text-green-600 font-medium">
-                                    (Correct Answer - Missed)
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          } else {
-                            // Single answer question (existing logic)
-                            const isSelected =
-                              String(currentQuestion?.selectedOption) ===
-                              String(key);
-                            const isCorrectAnswer =
-                              String(key) ===
-                              String(currentQuestion?.correctAnswer);
+                                  <span className="ml-2">{value}</span>
+                                  {isCorrectAnswer && !isSelected && (
+                                    <span className="ml-2 text-sm text-green-600 font-medium">
+                                      (Correct Answer - Missed)
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            } else {
+                              // Single answer question (existing logic)
+                              const isSelected =
+                                String(currentQuestion?.selectedOption) === String(key);
+                              const isCorrectAnswer =
+                                String(key) === String(currentQuestion?.correctAnswer);
 
-                            let circleClass =
-                              "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
-                            let optionClass =
-                              "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
-                            let symbol = "";
+                              let circleClass =
+                                "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
+                              let optionClass =
+                                "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
+                              let symbol = "";
 
-                            if (isSelected) {
-                              if (isCorrectAnswer) {
+                              if (isSelected) {
+                                if (isCorrectAnswer) {
+                                  circleClass =
+                                    "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
+                                  symbol = "✓";
+                                  optionClass += " bg-green-50";
+                                } else {
+                                  circleClass =
+                                    "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
+                                  symbol = "✗";
+                                  optionClass += " bg-red-50";
+                                }
+                              } else if (isCorrectAnswer) {
+                                // Always highlight the correct answer
                                 circleClass =
                                   "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
                                 symbol = "✓";
                                 optionClass += " bg-green-50";
-                              } else {
-                                circleClass =
-                                  "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
-                                symbol = "✗";
-                                optionClass += " bg-red-50";
                               }
-                            } else if (isCorrectAnswer) {
-                              // Always highlight the correct answer
-                              circleClass =
-                                "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
-                              symbol = "✓";
-                              optionClass += " bg-green-50";
-                            }
 
-                            return (
-                              <div key={key} className={optionClass}>
-                                <span className={circleClass}>
-                                  <span className="text-xs font-bold">
-                                    {symbol}
+                              return (
+                                <div key={key} className={optionClass}>
+                                  <span className={circleClass}>
+                                    <span className="text-xs font-bold">{symbol}</span>
                                   </span>
-                                </span>
-                                <span className="ml-2">{value}</span>
-                                {isCorrectAnswer && !isSelected && (
-                                  <span className="ml-2 text-sm text-green-600 font-medium">
-                                    (Correct Answer)
-                                  </span>
-                                )}
-                              </div>
-                            );
+                                  <span className="ml-2">{value}</span>
+                                  {isCorrectAnswer && !isSelected && (
+                                    <span className="ml-2 text-sm text-green-600 font-medium">
+                                      (Correct Answer)
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            }
                           }
-                        })}
+                        )}
                     </div>
                   )}
 
@@ -549,9 +519,8 @@ function Stu_Result() {
                   {questions[currentQuestionIndex]?.isMultipleAnswer && (
                     <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-sm text-blue-800">
-                        <strong>Note:</strong> This question requires multiple
-                        correct answers. All correct answers are highlighted in
-                        green.
+                        <strong>Note:</strong> This question requires multiple correct answers. All
+                        correct answers are highlighted in green.
                       </p>
                     </div>
                   )}
@@ -559,8 +528,8 @@ function Stu_Result() {
                   {questions[currentQuestionIndex]?.questionType === "text" && (
                     <div className="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
                       <p className="text-sm text-purple-800">
-                        <strong>Note:</strong> This is a text answer question.
-                        Your answer is compared with the correct answer.
+                        <strong>Note:</strong> This is a text answer question. Your answer is
+                        compared with the correct answer.
                       </p>
                     </div>
                   )}

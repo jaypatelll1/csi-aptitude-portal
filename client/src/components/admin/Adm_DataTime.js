@@ -33,15 +33,8 @@ const Adm_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
 
     const currentDateTime = new Date();
     if (startDateTime < currentDateTime) {
-      setFeedback(
-        "The selected start time is in the past. Please choose a future time."
-      );
-      console.error(
-        "Invalid startDateTime:",
-        startDateTime,
-        "Current DateTime:",
-        currentDateTime
-      );
+      setFeedback("The selected start time is in the past. Please choose a future time.");
+      console.error("Invalid startDateTime:", startDateTime, "Current DateTime:", currentDateTime);
       return;
     }
     if (isNaN(startDateTime.getTime())) {
@@ -63,8 +56,7 @@ const Adm_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
     // startDateTime.setMinutes(startDateTime.getMinutes() - 30);
 
     // Calculate endDateTime
-    const endTimestamp =
-      startDateTime.getTime() + (numericDuration * 60000 + 30 * 60000); // Add duration in ms
+    const endTimestamp = startDateTime.getTime() + (numericDuration * 60000 + 30 * 60000); // Add duration in ms
     const endDateTime = new Date(endTimestamp);
 
     if (isNaN(endDateTime.getTime())) {
@@ -87,8 +79,7 @@ const Adm_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
     resetInputs();
   };
 
-  const formatDateTime = (date) =>
-    date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+  const formatDateTime = (date) => date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
   const resetInputs = () => {
     setSelectedDate(null);
@@ -108,10 +99,7 @@ const Adm_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
         <div className="flex space-x-4 mb-6">
           {/* Date Picker */}
           <div className="flex-1">
-            <label
-              htmlFor="date-picker"
-              className="block text-gray-600 text-sm mb-2"
-            >
+            <label htmlFor="date-picker" className="block text-gray-600 text-sm mb-2">
               Date
             </label>
             <DatePicker
@@ -125,10 +113,7 @@ const Adm_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
           </div>
           {/* Time Input */}
           <div className="flex-1">
-            <label
-              htmlFor="time-input"
-              className="block text-gray-600 text-sm mb-2"
-            >
+            <label htmlFor="time-input" className="block text-gray-600 text-sm mb-2">
               Time
             </label>
             <input
@@ -140,9 +125,7 @@ const Adm_DataTime = ({ onCancel, onSchedule, duration = 60 }) => {
             />
           </div>
         </div>
-        {feedback && (
-          <div className="text-sm text-red-500 mb-4">{feedback}</div>
-        )}
+        {feedback && <div className="text-sm text-red-500 mb-4">{feedback}</div>}
         <div className="flex justify-between">
           <button
             onClick={handleCancel}

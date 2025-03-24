@@ -44,7 +44,7 @@ const Adm_PastTest = () => {
         const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
           withCredentials: true, // Make sure the cookie is sent with the request
         });
-        const formattedTests =response.data.exams.map((exam) => ({
+        const formattedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -55,7 +55,7 @@ const Adm_PastTest = () => {
           target_years: exam.target_years,
           target_branches: exam.target_branches,
         }));
-   
+
         setPastTests(formattedTests);
       } catch (err) {
         console.error("Error fetching past tests:", err);
@@ -70,12 +70,12 @@ const Adm_PastTest = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(pastTests.length / itemsPerPage);
-  
+
   const paginatedTests = pastTests.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
- 
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -93,11 +93,11 @@ const Adm_PastTest = () => {
       >
         <Adm_Sidebar />
       </div>
-  
+
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar />
-  
+
         {/* Header Section */}
         {!loading && (
           <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
@@ -116,22 +116,16 @@ const Adm_PastTest = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
+                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
-            <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">
-              Past Tests
-            </h1>
+            <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">Past Tests</h1>
           </div>
         )}
-  
+
         <hr />
-  
+
         {/* Loader while fetching data */}
         {loading ? (
           <div className="flex items-center justify-center h-screen">
@@ -149,7 +143,7 @@ const Adm_PastTest = () => {
                 <Adm_PastTestCard key={index} test={test} />
               ))}
             </div>
-  
+
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-6">
@@ -157,30 +151,26 @@ const Adm_PastTest = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   className={`p-2 mx-1 border rounded ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-200"
+                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                   }`}
                   disabled={currentPage === 1}
                 >
                   &lt;
                 </button>
-  
+
                 {/* Page Number Buttons */}
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
                     className={`px-3 py-1 mx-1 border rounded ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-200"
+                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                     }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-  
+
                 {/* Right Arrow */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
@@ -200,7 +190,6 @@ const Adm_PastTest = () => {
       </div>
     </div>
   );
-  
 };
 
 export default Adm_PastTest;

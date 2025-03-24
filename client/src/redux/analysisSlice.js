@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   overallAnalysis: null, // Stores overall analysis
@@ -6,7 +6,7 @@ const initialState = {
 };
 
 const analysisSlice = createSlice({
-  name: 'analysis',
+  name: "analysis",
   initialState,
   reducers: {
     setOverallAnalysis: (state, action) => {
@@ -30,11 +30,11 @@ const analysisSlice = createSlice({
   },
 });
 
-export const { 
-  setOverallAnalysis, 
-  clearOverallAnalysis, 
-  setDepartmentAnalysis, 
-  clearDepartmentAnalysis 
+export const {
+  setOverallAnalysis,
+  clearOverallAnalysis,
+  setDepartmentAnalysis,
+  clearDepartmentAnalysis,
 } = analysisSlice.actions;
 
 export default analysisSlice.reducer;

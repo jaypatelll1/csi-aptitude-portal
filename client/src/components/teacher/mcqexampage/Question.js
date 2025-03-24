@@ -1,25 +1,28 @@
-import React from 'react';
+import React from "react";
 
-const Question = ({ 
-  questionNumber, 
-  question, 
+const Question = ({
+  questionNumber,
+  question,
   questionType,
-  options, 
+  options,
   selectedOption,
   selectedOptions,
   textAnswer,
   imageUrl,
-  onSelectOption, 
+  onSelectOption,
   onSelectMultipleOptions,
-  onTextChange
+  onTextChange,
 }) => {
   const renderQuestionInput = () => {
     switch (questionType) {
-      case 'single_choice':
+      case "single_choice":
         return (
           <div className="mt-4 space-y-3">
             {Object.entries(options).map(([key, value], index) => (
-              <label key={index} className="flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-100">
+              <label
+                key={index}
+                className="flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-100"
+              >
                 <input
                   type="radio"
                   name={`question-${questionNumber}`}
@@ -33,12 +36,15 @@ const Question = ({
             ))}
           </div>
         );
-      
-      case 'multiple_choice':
+
+      case "multiple_choice":
         return (
           <div className="mt-4 space-y-3">
             {Object.entries(options).map(([key, value], index) => (
-              <label key={index} className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100">
+              <label
+                key={index}
+                className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100"
+              >
                 <input
                   type="checkbox"
                   name={`option-${questionNumber}-${index}`}
@@ -46,7 +52,7 @@ const Question = ({
                   checked={selectedOptions?.includes(key)}
                   onChange={() => {
                     if (selectedOptions?.includes(key)) {
-                      onSelectMultipleOptions(selectedOptions.filter(item => item !== key));
+                      onSelectMultipleOptions(selectedOptions.filter((item) => item !== key));
                     } else {
                       onSelectMultipleOptions([...(selectedOptions || []), key]);
                     }
@@ -58,20 +64,20 @@ const Question = ({
             ))}
           </div>
         );
-      
-      case 'text':
+
+      case "text":
         return (
           <div className="mt-4">
             <textarea
               className="w-full p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
               rows="4"
-              value={textAnswer || ''}
+              value={textAnswer || ""}
               onChange={(e) => onTextChange(e.target.value)}
               placeholder="Type your answer here..."
             />
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -84,17 +90,17 @@ const Question = ({
           {questionNumber}. {question}
         </h3>
       </div>
-      
+
       {imageUrl && (
         <div className="mb-4">
-          <img 
-            src={imageUrl} 
-            alt={`Image for question ${questionNumber}`} 
+          <img
+            src={imageUrl}
+            alt={`Image for question ${questionNumber}`}
             className="w-full max-w-lg h-auto rounded-md"
           />
         </div>
       )}
-      
+
       {renderQuestionInput()}
     </div>
   );

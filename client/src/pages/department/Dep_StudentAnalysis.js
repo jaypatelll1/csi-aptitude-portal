@@ -49,16 +49,13 @@ const Dep_StudentAnalysis = () => {
   const handleFilter = async (filter) => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(
-        `${API_BASE_URL}/api/rank/generate-rank-order`,
-        {
-          withCredentials: true,
-          params: {
-            filter: filter === "" ? "all" : filter,
-            department: currentUser?.department,
-          },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
+        withCredentials: true,
+        params: {
+          filter: filter === "" ? "all" : filter,
+          department: currentUser?.department,
+        },
+      });
       if (response) {
         setFilteredStudents(response.data);
         setNumberofpages(Math.ceil(response.data.length / limit));
@@ -168,9 +165,7 @@ const Dep_StudentAnalysis = () => {
 
         <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-blue-600 text-2xl font-bold">
-              Student wise Analysis
-            </h1>
+            <h1 className="text-blue-600 text-2xl font-bold">Student wise Analysis</h1>
             <div className="flex items-center gap-4">
               <div className="relative flex items-center mr-7  rounded-sm hover:scale-110 hover:bg-gray-100 transition-transform duration-100">
                 <input
@@ -211,10 +206,7 @@ const Dep_StudentAnalysis = () => {
                   <span>Filter</span>
                 </button>
                 {filterOpen && (
-                  <Dep_Filter
-                    toggleFilter={toggleFilter}
-                    handleFilter={handleFilter}
-                  />
+                  <Dep_Filter toggleFilter={toggleFilter} handleFilter={handleFilter} />
                 )}
               </div>
             </div>
@@ -237,25 +229,16 @@ const Dep_StudentAnalysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                {filteredStudents && filteredStudents.length > 0 ? ( // Ensure filteredStudents is not null or empty
-                    filteredStudents
-                    .slice((page - 1) * limit, page * limit)
-                    .map((student) => (
-                      <tr
-                        key={student.user_id}
-                        className="border-b hover:bg-gray-50"
-                      >
+                  {filteredStudents && filteredStudents.length > 0 ? ( // Ensure filteredStudents is not null or empty
+                    filteredStudents.slice((page - 1) * limit, page * limit).map((student) => (
+                      <tr key={student.user_id} className="border-b hover:bg-gray-50">
                         <td className="py-4 px-4">{student.student_id}</td>
                         <td className="py-4 px-4">{student.student_name}</td>
-                        <td className="py-4 px-4">
-                          {student.department_name || "N/A"}
-                        </td>
+                        <td className="py-4 px-4">{student.department_name || "N/A"}</td>
                         <td className="py-4 px-4">{student.department_rank}</td>
                         <td className="py-4 px-4 text-center">
                           <button
-                            onClick={() =>
-                              handleAnalyticsClick(student.student_id)
-                            }
+                            onClick={() => handleAnalyticsClick(student.student_id)}
                             className="p-2"
                           >
                             <svg
@@ -272,63 +255,65 @@ const Dep_StudentAnalysis = () => {
                         </td>
                       </tr>
                     ))
-                  ) : ( // If there is no data, render this row:
+                  ) : (
+                    // If there is no data, render this row:
                     <tr>
                       <td colSpan="6" className="text-center py-6 text-gray-500">
-                        No data available {/* This cell spans all columns and displays the message */}
+                        No data available{" "}
+                        {/* This cell spans all columns and displays the message */}
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
-              { getPageNumbers().length > 1 && (
-              <div className="flex justify-center items-center mt-5">
-                <svg
-                  onClick={handlePrevPage}
-                  className="cursor-pointer mr-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="24"
-                  viewBox="0 0 12 24"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z"
-                    fill="black"
-                  />
-                </svg>
-                <div className="flex">
-                  {getPageNumbers().map((p) => (
-                    <div
-                      key={p}
-                      className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
-                        page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                      }`}
-                      onClick={() => setPage(p)}
-                    >
-                      {p}
-                    </div>
-                  ))}
+              {getPageNumbers().length > 1 && (
+                <div className="flex justify-center items-center mt-5">
+                  <svg
+                    onClick={handlePrevPage}
+                    className="cursor-pointer mr-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="24"
+                    viewBox="0 0 12 24"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z"
+                      fill="black"
+                    />
+                  </svg>
+                  <div className="flex">
+                    {getPageNumbers().map((p) => (
+                      <div
+                        key={p}
+                        className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
+                          page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                        }`}
+                        onClick={() => setPage(p)}
+                      >
+                        {p}
+                      </div>
+                    ))}
+                  </div>
+                  <svg
+                    onClick={handleNextPage}
+                    className="cursor-pointer ml-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="24"
+                    viewBox="0 0 12 24"
+                    fill="none"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z"
+                      fill="black"
+                    />
+                  </svg>
                 </div>
-                <svg
-                  onClick={handleNextPage}
-                  className="cursor-pointer ml-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="24"
-                  viewBox="0 0 12 24"
-                  fill="none"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z"
-                    fill="black"
-                  />
-                </svg>
-              </div>
               )}
             </>
           )}

@@ -13,7 +13,7 @@ const Adm_TestStudentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const [ userDetails, setUserDetails] = useState([]); // Store fetched user details
+  const [userDetails, setUserDetails] = useState([]); // Store fetched user details
   // const [examName, setExamName] = useState(""); // Store the exam name
   const location = useLocation();
   // const [status, setStatus] = useState("");
@@ -22,18 +22,14 @@ const Adm_TestStudentList = () => {
   const duration = location.state?.duration;
   const examId = location.state?.examId;
 
-
   // Function to handle Excel download
   const handleExportExcel = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(
-        `${API_BASE_URL}/api/export/result/excel/${examId}`,
-        {
-          responseType: "blob", // Important for downloading files
-          withCredentials: true, // Make sure the cookie is sent with the request
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/export/result/excel/${examId}`, {
+        responseType: "blob", // Important for downloading files
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
 
       // Create a URL for the file blob and trigger download
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -54,7 +50,6 @@ const Adm_TestStudentList = () => {
     setPage(1);
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-
 
     const searchResults = term
       ? students.filter(
@@ -80,16 +75,11 @@ const Adm_TestStudentList = () => {
     const fetchUserDetails = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/results/allpast/${examId}`,
-          {
-            params: { page: 1, limit : 1000 },
-            withCredentials: true, // Make sure the cookie is sent with the request
-          },
-         
-        );
+        const response = await axios.get(`${API_BASE_URL}/api/exams/results/allpast/${examId}`, {
+          params: { page: 1, limit: 1000 },
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
         const data = response.data.response;
-
 
         // Ensure data is an array
         const normalizedData = Array.isArray(data) ? data : data ? [data] : [];
@@ -97,9 +87,6 @@ const Adm_TestStudentList = () => {
         setUserDetails(normalizedData);
         setStudents(normalizedData);
         setFilteredStudents(normalizedData);
-
-
-       
       } catch (error) {
         console.error("Error fetching data:", error);
 
@@ -138,10 +125,7 @@ const Adm_TestStudentList = () => {
   const numberofpages = Math.ceil(filteredStudents.length / limit);
   const startPage = Math.max(1, page - 3);
   const endPage = Math.min(numberofpages, page + 3);
-  const pageNumbers = Array.from(
-    { length: endPage - startPage + 1 },
-    (_, i) => startPage + i
-  );
+  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   return (
     <div className="min-h-screen flex">
@@ -170,11 +154,7 @@ const Adm_TestStudentList = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
@@ -195,9 +175,7 @@ const Adm_TestStudentList = () => {
         </h1>
         <div className="bg-white my-6 mx-10 pt-5 pb-5 pl-9 pr-9 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center w-full mb-5">
-            <h1 className="text-black font-roboto text-[22px] font-semibold">
-              Students List
-            </h1>
+            <h1 className="text-black font-roboto text-[22px] font-semibold">Students List</h1>
             <div className="flex ml-auto"></div>
             <div className="w-full max-w-md "></div>
             <div className="relative flex items-center mr-7  rounded-sm hover:scale-110 hover:bg-gray-100 transition-transform duration-100">
@@ -235,78 +213,76 @@ const Adm_TestStudentList = () => {
             </thead>
 
             <tbody>
-              {filteredStudents
-                .slice((page - 1) * limit, page * limit)
-                .map((student) => (
-                  <tr key={student.result_id} className="hover:bg-gray-50">
-                    {/* Loop through the user details of the student if users is an array */}
-                    <td className="py-4 w-1/5">{student.student_name}</td>
-                    <td className="py-4 w-1/5">{student.student_email}</td>
+              {filteredStudents.slice((page - 1) * limit, page * limit).map((student) => (
+                <tr key={student.result_id} className="hover:bg-gray-50">
+                  {/* Loop through the user details of the student if users is an array */}
+                  <td className="py-4 w-1/5">{student.student_name}</td>
+                  <td className="py-4 w-1/5">{student.student_email}</td>
 
-                    {/* Other student properties like date, results, etc. */}
-                    <td className="py-4 w-1/6">{student.Date}</td>
-                    <td className="py-4 w-1/6">
-                      <span className={getResultStyle(student.status)}>
-                        {student.status === "Passed" ? "Passed" : "Failed"}
-                      </span>
-                    </td>
-                    <td className="py-4 w-1/6">
-                      {student.total_score}/{student.max_score}
-                    </td>
-                    <td className="py-4 w-1/6">{duration}</td>
-                    {/* <td className="py-4 w-1/6 text-blue-600 whitespace-nowrap text-sm cursor-pointer">
+                  {/* Other student properties like date, results, etc. */}
+                  <td className="py-4 w-1/6">{student.Date}</td>
+                  <td className="py-4 w-1/6">
+                    <span className={getResultStyle(student.status)}>
+                      {student.status === "Passed" ? "Passed" : "Failed"}
+                    </span>
+                  </td>
+                  <td className="py-4 w-1/6">
+                    {student.total_score}/{student.max_score}
+                  </td>
+                  <td className="py-4 w-1/6">{duration}</td>
+                  {/* <td className="py-4 w-1/6 text-blue-600 whitespace-nowrap text-sm cursor-pointer">
                                             view more
                                         </td> */}
-                  </tr>
-                ))}
+                </tr>
+              ))}
             </tbody>
           </table>
           {numberofpages > 1 && (
-          <div className="flex justify-center items-center mt-5">
-            <svg
-              onClick={() => page > 1 && setPage(page - 1)}
-              className="cursor-pointer mr-2"
-              width="12"
-              height="24"
-              viewBox="0 0 12 24"
-              fill="none"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z"
-                fill="black"
-              />
-            </svg>
-            <div className="flex">
-              {pageNumbers.map((p) => (
-                <div
-                  key={p}
-                  className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
-                    page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                  }`}
-                  onClick={() => setPage(p)}
-                >
-                  {p}
-                </div>
-              ))}
+            <div className="flex justify-center items-center mt-5">
+              <svg
+                onClick={() => page > 1 && setPage(page - 1)}
+                className="cursor-pointer mr-2"
+                width="12"
+                height="24"
+                viewBox="0 0 12 24"
+                fill="none"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M1.84306 11.2884L7.50006 5.63137L8.91406 7.04537L3.96406 11.9954L8.91406 16.9454L7.50006 18.3594L1.84306 12.7024C1.65559 12.5148 1.55028 12.2605 1.55028 11.9954C1.55028 11.7302 1.65559 11.4759 1.84306 11.2884Z"
+                  fill="black"
+                />
+              </svg>
+              <div className="flex">
+                {pageNumbers.map((p) => (
+                  <div
+                    key={p}
+                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
+                      page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                    }`}
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </div>
+                ))}
+              </div>
+              <svg
+                onClick={() => page < numberofpages && setPage(page + 1)}
+                className="cursor-pointer ml-2"
+                width="12"
+                height="24"
+                viewBox="0 0 12 24"
+                fill="none"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z"
+                  fill="black"
+                />
+              </svg>
             </div>
-            <svg
-              onClick={() => page < numberofpages && setPage(page + 1)}
-              className="cursor-pointer ml-2"
-              width="12"
-              height="24"
-              viewBox="0 0 12 24"
-              fill="none"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M10.1569 11.2884L4.49994 5.63137L3.08594 7.04537L8.03594 11.9954L3.08594 16.9454L4.49994 18.3594L10.1569 12.7024C10.3444 12.5148 10.4497 12.2605 10.4497 11.9954C10.4497 11.7302 10.3444 11.4759 10.1569 11.2884Z"
-                fill="black"
-              />
-            </svg>
-          </div>
           )}
         </div>
       </div>

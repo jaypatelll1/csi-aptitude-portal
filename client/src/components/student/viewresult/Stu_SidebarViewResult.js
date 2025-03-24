@@ -1,27 +1,27 @@
 import React from "react";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 
-const Stu_SidebarViewResult = ({ 
+const Stu_SidebarViewResult = ({
   questions = [],
   currentIndex = 0,
   onQuestionClick,
   totalMarks = 0,
   obtainedMarks = 0,
-  name = "Test"
+  name = "Test",
 }) => {
   // Get user data from Redux store
   const user = useSelector((state) => state.user.user);
   const userName = user ? user.name : "Student";
-  
+
   // Process questions to match the expected format for this component
   // Handle text, single answer, and multiple answer questions
-  const processedQuestions = questions.map(question => {
+  const processedQuestions = questions.map((question) => {
     // For text type questions
-    if (question.questionType === 'text') {
+    if (question.questionType === "text") {
       // For text questions, isCorrect comes from backend
       // isUnanswered is determined by whether there's any text response
-      const isUnanswered = !question.textResponse || question.textResponse.trim() === '';
-      
+      const isUnanswered = !question.textResponse || question.textResponse.trim() === "";
+
       return {
         question_id: question.question_id || question.questionId,
         isCorrect: !isUnanswered && question.isCorrect,
@@ -29,30 +29,31 @@ const Stu_SidebarViewResult = ({
         isUnanswered: isUnanswered,
         category: question.category || "TEST",
         isMultipleAnswer: false,
-        isTextQuestion: true
+        isTextQuestion: true,
       };
     } else if (question.isMultipleAnswer) {
       // For multiple answer questions
       const selectedOptions = question.selectedOptions || [];
       const correctAnswers = question.correctAnswers || [];
-      
+
       // A question is correct if all correct answers are selected and no incorrect answers are selected
-      const allCorrectAnswersSelected = correctAnswers.every(answer => 
+      const allCorrectAnswersSelected = correctAnswers.every((answer) =>
         selectedOptions.includes(answer)
       );
-      
-      const noIncorrectAnswersSelected = selectedOptions.every(option => 
+
+      const noIncorrectAnswersSelected = selectedOptions.every((option) =>
         correctAnswers.includes(option)
       );
-      
-      const isCorrect = allCorrectAnswersSelected && noIncorrectAnswersSelected && selectedOptions.length > 0;
-      
+
+      const isCorrect =
+        allCorrectAnswersSelected && noIncorrectAnswersSelected && selectedOptions.length > 0;
+
       // A question is unanswered if nothing is selected
       const isUnanswered = selectedOptions.length === 0;
-      
+
       // A question is incorrect if it's not correct and not unanswered
       const isIncorrect = !isCorrect && !isUnanswered;
-      
+
       return {
         question_id: question.question_id || question.questionId,
         isCorrect,
@@ -60,60 +61,64 @@ const Stu_SidebarViewResult = ({
         isUnanswered,
         category: question.category || "TEST",
         isMultipleAnswer: true,
-        isTextQuestion: false
+        isTextQuestion: false,
       };
     } else {
       // For single answer questions (original logic)
       return {
         question_id: question.question_id || question.questionId,
-        isCorrect: question.selectedOption !== null && 
-                  question.selectedOption !== undefined && 
-                  question.selectedOption === question.correctAnswer,
-        isIncorrect: question.selectedOption !== null && 
-                    question.selectedOption !== undefined && 
-                    question.selectedOption !== question.correctAnswer,
-        isUnanswered: question.selectedOption === null || 
-                    question.selectedOption === undefined,
+        isCorrect:
+          question.selectedOption !== null &&
+          question.selectedOption !== undefined &&
+          question.selectedOption === question.correctAnswer,
+        isIncorrect:
+          question.selectedOption !== null &&
+          question.selectedOption !== undefined &&
+          question.selectedOption !== question.correctAnswer,
+        isUnanswered: question.selectedOption === null || question.selectedOption === undefined,
         category: question.category || "TEST",
         isMultipleAnswer: false,
-        isTextQuestion: false
+        isTextQuestion: false,
       };
     }
   });
-  
+
   // Calculate stats
-  const displayQuestions = processedQuestions.length > 0 ? 
-    processedQuestions.slice(0, 30) : // Limit to 30 questions
-    Array.from({ length: 30 }, (_, i) => ({
-      question_id: i + 1,
-      isCorrect: false,
-      isIncorrect: false,
-      isUnanswered: true,
-      isMultipleAnswer: false,
-      isTextQuestion: false
-    }));
-    
-  const correctCount = displayQuestions.filter(q => q.isCorrect).length;
-  const incorrectCount = displayQuestions.filter(q => q.isIncorrect).length;
-  const unansweredCount = displayQuestions.filter(q => q.isUnanswered).length;
+  const displayQuestions =
+    processedQuestions.length > 0
+      ? processedQuestions.slice(0, 30) // Limit to 30 questions
+      : Array.from({ length: 30 }, (_, i) => ({
+          question_id: i + 1,
+          isCorrect: false,
+          isIncorrect: false,
+          isUnanswered: true,
+          isMultipleAnswer: false,
+          isTextQuestion: false,
+        }));
+
+  const correctCount = displayQuestions.filter((q) => q.isCorrect).length;
+  const incorrectCount = displayQuestions.filter((q) => q.isIncorrect).length;
+  const unansweredCount = displayQuestions.filter((q) => q.isUnanswered).length;
   const total = displayQuestions.length;
-  const multipleAnswerCount = displayQuestions.filter(q => q.isMultipleAnswer).length;
-  const textQuestionCount = displayQuestions.filter(q => q.isTextQuestion).length;
-  
+  const multipleAnswerCount = displayQuestions.filter((q) => q.isMultipleAnswer).length;
+  const textQuestionCount = displayQuestions.filter((q) => q.isTextQuestion).length;
+
   // Calculate marks based on correct answers
   const calculatedObtainedMarks = correctCount;
   const calculatedTotalMarks = total;
-  
+
   // Determine pass/fail status (typically 60% is passing)
   const isPassed = correctCount >= Math.ceil(total * 0.6);
-  
+
   // Get the current question's category or use test name as default
-  const currentCategory = currentIndex < questions.length && questions[currentIndex].category ? 
-    questions[currentIndex].category : name || "TEST";
+  const currentCategory =
+    currentIndex < questions.length && questions[currentIndex].category
+      ? questions[currentIndex].category
+      : name || "TEST";
 
   // Count questions by category
   const categoryCounts = {};
-  displayQuestions.forEach(q => {
+  displayQuestions.forEach((q) => {
     if (!categoryCounts[q.category]) {
       categoryCounts[q.category] = 1;
     } else {
@@ -127,12 +132,16 @@ const Stu_SidebarViewResult = ({
         <div className="mb-4">
           <p className="text-lg sm:text-xl font-semibold mb-2">{userName}</p>
           <div className="flex justify-between items-center">
-            <h1 className="text-sm sm:text-base text-gray-700 uppercase font-bold">{currentCategory}</h1>
-            <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm ${isPassed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            <h1 className="text-sm sm:text-base text-gray-700 uppercase font-bold">
+              {currentCategory}
+            </h1>
+            <span
+              className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm ${isPassed ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+            >
               {isPassed ? "Passed" : "Failed"}
             </span>
           </div>
-          
+
           <div className="flex mt-2">
             <div className="px-1 sm:px-2 py-1 sm:py-2 flex-1 flex flex-row border border-[#07C31D] mr-2 rounded-md text-black">
               <h2 className="text-sm sm:text-base font-medium mr-1">Correct:</h2>
@@ -174,12 +183,12 @@ const Stu_SidebarViewResult = ({
         </div>
 
         {/* Responsive grid with auto-sizing for different screen sizes */}
-        <div className="grid grid-cols-5 gap-x-1 gap-y-2 mb-6 w-full px-2">  
+        <div className="grid grid-cols-5 gap-x-1 gap-y-2 mb-6 w-full px-2">
           {displayQuestions.map((question, index) => {
             let bgColor = "bg-gray-200"; // Default for unanswered
             let text = "text-black";
             let borderStyle = "";
-            
+
             if (question.isCorrect) {
               bgColor = "bg-[#07C31D]"; // Green for correct
               text = "text-white";
@@ -187,21 +196,21 @@ const Stu_SidebarViewResult = ({
               bgColor = "bg-[#C82F2F]"; // Red for incorrect
               text = "text-white";
             }
-            
+
             // Add special indicator for multiple answer questions
             if (question.isMultipleAnswer) {
               borderStyle = "border-2 border-blue-500";
             }
-            
+
             // Add special indicator for text questions
             if (question.isTextQuestion) {
               borderStyle = "border-2 border-purple-500";
             }
-            
+
             return (
               <button
                 key={index}
-                className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? 'ring-2 ring-blue-500' : ''}`}
+                className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? "ring-2 ring-blue-500" : ""}`}
                 onClick={() => onQuestionClick(index)}
                 title={`${displayQuestions[index].category || "Unknown"} - ${question.isTextQuestion ? "Text Question" : question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}`}
               >
@@ -214,21 +223,25 @@ const Stu_SidebarViewResult = ({
         </div>
 
         <div className="mb-4 p-2 sm:p-3 bg-gray-50 shadow rounded-lg text-xs sm:text-sm">
-          <p className="font-semibold">Marks: {calculatedObtainedMarks}/{calculatedTotalMarks}</p>
+          <p className="font-semibold">
+            Marks: {calculatedObtainedMarks}/{calculatedTotalMarks}
+          </p>
           <p>Total no. questions: {total}</p>
           <p>No. of answered questions: {correctCount + incorrectCount}</p>
           <p>No. of unanswered questions: {unansweredCount}</p>
         </div>
-        
+
         <div className="mb-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm">
           {multipleAnswerCount > 0 && (
             <p className="text-blue-800 mb-1">
-              <span className="font-semibold">Note:</span> Questions marked with <span className="text-blue-500">*</span> and blue borders require multiple answers.
+              <span className="font-semibold">Note:</span> Questions marked with{" "}
+              <span className="text-blue-500">*</span> and blue borders require multiple answers.
             </p>
           )}
           {textQuestionCount > 0 && (
             <p className="text-purple-800">
-              <span className="font-semibold">Note:</span> Questions marked with <span className="text-purple-500">T</span> and purple borders are text questions.
+              <span className="font-semibold">Note:</span> Questions marked with{" "}
+              <span className="text-purple-500">T</span> and purple borders are text questions.
             </p>
           )}
         </div>

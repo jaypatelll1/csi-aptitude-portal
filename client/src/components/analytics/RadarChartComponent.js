@@ -15,7 +15,7 @@ const RadarChartComponent = ({ data }) => {
   }
 
   // Preprocess data to add line breaks
-  const processedData = data.chartData.map(item => ({
+  const processedData = data.chartData.map((item) => ({
     ...item,
     name: item.name.replace(" ", "\n"), // Replace space with newline (e.g., "general knowledge" -> "general\nknowledge")
   }));
@@ -23,7 +23,7 @@ const RadarChartComponent = ({ data }) => {
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
-      <ResponsiveContainer  width={500} height={350}>
+      <ResponsiveContainer width={500} height={350}>
         <RadarChart cx="50%" cy="50%" outerRadius="85%" data={processedData}>
           <PolarGrid />
           <PolarAngleAxis
@@ -39,12 +39,7 @@ const RadarChartComponent = ({ data }) => {
               const newY = y + offset * Math.sin(angle);
 
               return (
-                <text
-                  x={newX}
-                  y={newY}
-                  textAnchor={textAnchor}
-                  style={{ fontSize: "14px" }}
-                >
+                <text x={newX} y={newY} textAnchor={textAnchor} style={{ fontSize: "14px" }}>
                   {value.split("\n").map((line, i) => (
                     <tspan key={i} x={newX} dy={i * 12}>
                       {line}

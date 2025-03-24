@@ -77,8 +77,7 @@ const NoCopyComponent = ({ onPermissionGranted }) => {
                 To proceed, please agree to the following:
                 <br />
                 - Copying, cutting, and pasting will be disabled for this exam.
-                <br />
-                - Right-click functionality will also be restricted.
+                <br />- Right-click functionality will also be restricted.
               </p>
               <button
                 onClick={handleGrantPermission}

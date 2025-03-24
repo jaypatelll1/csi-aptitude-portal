@@ -74,10 +74,7 @@ const Dep_DraftTest = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(tests.length / itemsPerPage);
-  const paginatedTests = tests.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedTests = tests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -96,11 +93,11 @@ const Dep_DraftTest = () => {
       >
         <Dep_Sidebar />
       </div>
-  
+
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Dep_Navbar />
-  
+
         {/* Hide Header when loading */}
         {!loading && (
           <>
@@ -122,25 +119,19 @@ const Dep_DraftTest = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d={
-                      sidebarOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
+                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                   />
                 </svg>
               </button>
-  
+
               {/* Title */}
-              <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
-                Drafted Tests
-              </h1>
+              <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">Drafted Tests</h1>
             </div>
-  
+
             <hr className="mb-4" />
           </>
         )}
-  
+
         {/* Loader while fetching data */}
         {loading ? (
           <div className="flex justify-center items-center h-screen">
@@ -158,7 +149,7 @@ const Dep_DraftTest = () => {
                 <Dep_DraftedTestCard key={index} test={test} />
               ))}
             </div>
-  
+
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-6">
@@ -166,30 +157,26 @@ const Dep_DraftTest = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   className={`p-2 mx-1 rounded ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-200"
+                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                   }`}
                   disabled={currentPage === 1}
                 >
                   &lt;
                 </button>
-  
+
                 {/* Page Number Buttons */}
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
                     className={`px-3 py-1 mx-1 rounded ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-200"
+                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                     }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-  
+
                 {/* Next Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
@@ -209,8 +196,6 @@ const Dep_DraftTest = () => {
       </div>
     </div>
   );
-  
-  
 };
 
 export default Dep_DraftTest;

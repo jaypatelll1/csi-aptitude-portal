@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentDraftedTestCard = ({ test }) => {
-  console.log(test)
+  console.log(test);
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
   const [questions, setQuestions] = useState([]);
@@ -27,7 +27,6 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
-
 
   // Handle limit change (optional)
   const handleLimitChange = (newLimit) => {
@@ -75,9 +74,7 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
       setScheduledTime({ start, end });
       setIsScheduling(false);
     } catch (err) {
-      alert(
-        `Error scheduling test: ${err.response?.data?.message || err.message}`
-      );
+      alert(`Error scheduling test: ${err.response?.data?.message || err.message}`);
     } finally {
       setRequestInProgress(false); // Reset request state
     }
@@ -108,9 +105,7 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
         </span>
         <div className="text-right">
           <div className="flex flex-col ">
-            <span className="text-black-500 text-sm">
-              Created on: {test.date}
-            </span>
+            <span className="text-black-500 text-sm">Created on: {test.date}</span>
             {/* <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years ? test.target_years.replace(/[{}]/g, "") : "N/A"} -{" "}
               {test.target_branches
@@ -213,13 +208,13 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-      <button
-       className="text-[#1aab07] px-3 lg:px-4 py-2 rounded border border-[#1aab07] opacity-90 hover:bg-[#a9f4a1] hover:text-[#1aab07] hover:opacity-100"
-       onClick={handlePublishClick}
-       disabled={requestInProgress}
-      >
-       Edit
-      </button>
+        <button
+          className="text-[#1aab07] px-3 lg:px-4 py-2 rounded border border-[#1aab07] opacity-90 hover:bg-[#a9f4a1] hover:text-[#1aab07] hover:opacity-100"
+          onClick={handlePublishClick}
+          disabled={requestInProgress}
+        >
+          Edit
+        </button>
         <button
           onClick={() => setIsScheduling(true)}
           className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
@@ -231,19 +226,15 @@ const Dep_PresidentDraftedTestCard = ({ test }) => {
       <div className="relative">
         {/* Conditionally render the DataTime component for scheduling */}
         {isScheduling && (
-          <DataTime
-            onSchedule={handleSchedule}
-            onCancel={handleCancel}
-            duration={test.duration}
-          />
+          <DataTime onSchedule={handleSchedule} onCancel={handleCancel} duration={test.duration} />
         )}
 
         {/* Display scheduled time */}
         {scheduledTime.start && scheduledTime.end && (
           <div className="mt-4 text-sm text-gray-600">
             <p>
-              Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
-              to {new Date(scheduledTime.end).toLocaleString()}
+              Scheduled from: {new Date(scheduledTime.start).toLocaleString()} to{" "}
+              {new Date(scheduledTime.end).toLocaleString()}
             </p>
           </div>
         )}

@@ -111,9 +111,7 @@ function Adm_Analytics() {
       },
       {
         name: "Not Participated",
-        value:
-          +Number(100 - participationRate?.participation_rate).toFixed(2) ||
-          100, // to convert this from string to floating point
+        value: +Number(100 - participationRate?.participation_rate).toFixed(2) || 100, // to convert this from string to floating point
         fill: "#6F91F0",
       },
     ],
@@ -122,10 +120,7 @@ function Adm_Analytics() {
   const radarChartData = {
     title: "Subject-wise Performance",
     chartData: categoryWiseData
-      ?.filter(
-        (category) =>
-          category?.category != null && category?.category !== "null"
-      )
+      ?.filter((category) => category?.category != null && category?.category !== "null")
       .map((category) => ({
         name: category?.category,
         yourScore: Number(category?.average_category_score),
@@ -195,17 +190,11 @@ function Adm_Analytics() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d={
-                      sidebarOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
+                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                   />
                 </svg>
               </button>
-              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">
-                Branch Analytics
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">Branch Analytics</h1>
               <div className="flex justify-center space-x-4 mr-10">
                 {departments.map((dept) => (
                   <button
@@ -234,10 +223,7 @@ function Adm_Analytics() {
                   />
                 </div>
                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
-                  <DisplayComponent
-                    title="Total Students"
-                    rank={studentCount || "Loading..."}
-                  />
+                  <DisplayComponent title="Total Students" rank={studentCount || "Loading..."} />
                 </div>
               </div>
               <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
@@ -248,9 +234,7 @@ function Adm_Analytics() {
                     lineDataKey="Percentage"
                   />
                 ) : (
-                  <p className="text-gray-500 text-lg font-semibold">
-                    No Data Available
-                  </p>
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
                 )}
               </div>
             </div>
@@ -261,9 +245,7 @@ function Adm_Analytics() {
                 {accuracyData?.accuracy_rate !== undefined ? (
                   <DonutChartComponent data={donutChartData} />
                 ) : (
-                  <p className="text-gray-500 text-lg font-semibold">
-                    No Data Available
-                  </p>
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
                 )}
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">

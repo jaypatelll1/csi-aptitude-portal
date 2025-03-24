@@ -8,24 +8,22 @@ const Dep_PresidentViewResult = ({
   onQuestionClick,
   currentExamId,
   teacher_id,
-  API_BASE_URL
+  API_BASE_URL,
 }) => {
   const [responseData, setResponseData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedMark, setselectedMark] = useState(null)
+  const [selectedMark, setselectedMark] = useState(null);
 
   const getQuestionStatus = (question) => {
     if (!question || !question.question_id) return "unanswered";
 
-    
     if (!Array.isArray(questions)) {
       console.error("responseData is not an array:", responseData);
       return "unanswered";
     }
 
-    
-    const response = questions.find(r => r && r.question_id === question.question_id);
+    const response = questions.find((r) => r && r.question_id === question.question_id);
 
     if (response.question_type === "text") {
       if (response.selected_response === null) {
@@ -35,21 +33,17 @@ const Dep_PresidentViewResult = ({
       }
     }
 
-    if (!response) return "unanswered"; 
+    if (!response) return "unanswered";
 
     const { correct_answer, selected_response, result_status } = response;
 
-    
     if (!selected_response) return "unanswered";
 
-    
     if (result_status === "true") return "correct";
     if (result_status === "false") return "incorrect";
 
-    
     return correct_answer === selected_response ? "correct" : "incorrect";
   };
-
 
   const handleSubmitResults = async () => {
     if (!currentExamId || !teacher_id || !API_BASE_URL) {
@@ -66,9 +60,6 @@ const Dep_PresidentViewResult = ({
       alert("Submission failed. Please try again.");
     }
   };
-
-  
-
 
   if (loading) return <div className="p-4 text-center">Loading teacher results...</div>;
 
@@ -95,7 +86,6 @@ const Dep_PresidentViewResult = ({
           <div className="w-3 h-3 rounded-full bg-gray-300 mr-1"></div>
           <span className="text-xs">Unattempted</span>
         </div>
-
       </div>
 
       <div className="grid grid-cols-5 gap-2 mb-6">
@@ -109,17 +99,25 @@ const Dep_PresidentViewResult = ({
             console.error("Error getting question status:", e);
           }
 
-          let bgColor = "bg-gray-200"; 
+          let bgColor = "bg-gray-200";
 
           switch (status) {
-            case "correct": bgColor = "bg-blue-500"; break; 
-            case "incorrect": bgColor = "bg-yellow-500"; break; 
-            case "visited": bgColor = "bg-green-500"; break; 
-            case "answered": bgColor = "bg-blue-500"; break; 
-            default: bgColor = "bg-gray-200"; 
+            case "correct":
+              bgColor = "bg-blue-500";
+              break;
+            case "incorrect":
+              bgColor = "bg-yellow-500";
+              break;
+            case "visited":
+              bgColor = "bg-green-500";
+              break;
+            case "answered":
+              bgColor = "bg-blue-500";
+              break;
+            default:
+              bgColor = "bg-gray-200";
           }
 
-          
           const isCurrentQuestion = index === currentIndex;
           const buttonColor = isCurrentQuestion ? "bg-blue-600" : bgColor;
           const textColor = "text-white";
@@ -136,11 +134,7 @@ const Dep_PresidentViewResult = ({
         })}
       </div>
 
-
-
-      <button
-        className="w-full bg-blue-600 text-white py-2 rounded-md font-medium mb-2"
-      >
+      <button className="w-full bg-blue-600 text-white py-2 rounded-md font-medium mb-2">
         Save And End
       </button>
 

@@ -42,9 +42,10 @@ const Stu_ResetPassword = () => {
         await axios.get(`${API_BASE_URL}/api/users/verify-reset-token`, {
           headers: {
             resettoken: resettoken,
-            'Content-Type': 'application/json',
-          }
-        });        setTokenValid(true);
+            "Content-Type": "application/json",
+          },
+        });
+        setTokenValid(true);
       } catch (err) {
         setError("Invalid or expired reset token.");
       }
@@ -66,9 +67,10 @@ const Stu_ResetPassword = () => {
     try {
       const encryptedPassword = await encryptPassword(newPassword);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      await axios.post(`${API_BASE_URL}/api/users/reset-password`, { 
-        resettoken : resettoken,
-        password: encryptedPassword });
+      await axios.post(`${API_BASE_URL}/api/users/reset-password`, {
+        resettoken: resettoken,
+        password: encryptedPassword,
+      });
       navigate("/"); // Redirect to login after successful password reset
     } catch (err) {
       setError("Failed to reset password. Please try again.");
@@ -93,10 +95,7 @@ const Stu_ResetPassword = () => {
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleResetPassword}>
           <div className="mb-1">
-            <label
-              htmlFor="new-password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
               New Password
             </label>
             <input
@@ -110,10 +109,7 @@ const Stu_ResetPassword = () => {
           </div>
 
           <div className="mb-6">
-            <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
               Confirm Password
             </label>
             <input

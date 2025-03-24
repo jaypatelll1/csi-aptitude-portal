@@ -50,10 +50,7 @@ const Adm_CreateTestPage = () => {
       navigate("/admin/input");
     } catch (error) {
       alert("Invalid Input");
-      console.error(
-        "Error creating test:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating test:", error.response?.data || error.message);
     }
     setLoading(false);
   };
@@ -139,17 +136,11 @@ const Adm_CreateTestPage = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-6">
-            Create Aptitude Test
-          </h1>
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-6">Create Aptitude Test</h1>
         </div>
 
         <div className="flex items-center mb-6 ml-5">
@@ -165,16 +156,10 @@ const Adm_CreateTestPage = () => {
               stroke="currentColor"
               strokeWidth={2}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h2 className="text-lg font-semibold text-gray-700">
-            Basic create test info.
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-700">Basic create test info.</h2>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
@@ -182,9 +167,7 @@ const Adm_CreateTestPage = () => {
             <div className="grid grid-cols-2 gap-4 my-5">
               {/* Branch Dropdown */}
               <div ref={branchRef}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Branch
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Branch</label>
                 <div className="relative">
                   <div
                     onClick={() => setShowBranchDropdown(!showBranchDropdown)}
@@ -194,8 +177,7 @@ const Adm_CreateTestPage = () => {
                       <span className="text-gray-500">Select branches</span>
                     ) : (
                       <div className="flex flex-wrap gap-1">
-                        {branch.length === branches.length ||
-                        branch.includes("All") ? (
+                        {branch.length === branches.length || branch.includes("All") ? (
                           <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
                             All Branches
                           </span>
@@ -247,9 +229,7 @@ const Adm_CreateTestPage = () => {
 
               {/* Year Dropdown */}
               <div ref={yearRef}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
                 <div className="relative">
                   <div
                     onClick={() => setShowYearDropdown(!showYearDropdown)}
@@ -259,8 +239,7 @@ const Adm_CreateTestPage = () => {
                       <span className="text-gray-500">Select years</span>
                     ) : (
                       <div className="flex flex-wrap gap-1">
-                        {year.length === years.length ||
-                        year.includes("All") ? (
+                        {year.length === years.length || year.includes("All") ? (
                           <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
                             All Years
                           </span>
@@ -312,10 +291,7 @@ const Adm_CreateTestPage = () => {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="testName"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="testName" className="block text-sm font-medium text-gray-700 mb-2">
                 Test name
               </label>
               <input
@@ -330,10 +306,7 @@ const Adm_CreateTestPage = () => {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="duration"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
                 Duration (in minutes)
               </label>
               <input
@@ -343,14 +316,11 @@ const Adm_CreateTestPage = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={duration === 0 ? "" : duration}
                 onChange={(e) => {
-                  const value =
-                    e.target.value === ""
-                      ? ""
-                      : Math.max(0, Number(e.target.value));
+                  const value = e.target.value === "" ? "" : Math.max(0, Number(e.target.value));
                   setDuration(value);
                 }}
                 onBlur={() => {
-                  if (duration === "") setDuration(0); 
+                  if (duration === "") setDuration(0);
                 }}
                 min="0"
                 required

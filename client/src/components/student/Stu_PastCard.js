@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import DataTime from "../admin/Adm_DataTime";
 import axios from "axios";
 
-
 const Stu_PastCard = ({ test }) => {
   const navigate = useNavigate();
   const [isScheduling, setIsScheduling] = useState(false);
@@ -12,11 +11,10 @@ const Stu_PastCard = ({ test }) => {
   const handlePublishClick = async (test) => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     try {
-  
       // Navigate to the results page with exam_id in state
       navigate(`/student/results`, { state: { exam_id: test.exam_id } });
     } catch (error) {
-      console.error('Error during Put request:', error);
+      console.error("Error during Put request:", error);
     }
   };
 
@@ -118,7 +116,7 @@ const Stu_PastCard = ({ test }) => {
               />
             </g>
           </svg>
-          <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
+          <h4>Number of Questions: {test ? test.questions : "Loading..."}</h4>
         </p>
         <p className="font-bold flex items-center">
           <svg
@@ -149,8 +147,8 @@ const Stu_PastCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button 
-          className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border opacity-90 hover:opacity-100" 
+        <button
+          className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border opacity-90 hover:opacity-100"
           onClick={() => handlePublishClick(test)}
         >
           View Result

@@ -5,8 +5,8 @@ import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavb
 import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSidebar";
 import Details from "../../components/NavbarDetails";
 import axios from "axios";
-import { Loader } from "lucide-react"
-import { useSelector,useDispatch } from "react-redux";
+import { Loader } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
 import { FetchTeacherExam } from "../../redux/TeacherExamSlice";
 import { storeComments } from "../../redux/TeacherExamSlice";
 function Dep_PresidentResult() {
@@ -17,7 +17,7 @@ function Dep_PresidentResult() {
   const [selectedMark, setSelectedMark] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [Saving, setSaving] = useState(false)
+  const [Saving, setSaving] = useState(false);
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -28,10 +28,10 @@ function Dep_PresidentResult() {
   const exam_name = location.state?.exam_name;
   const [teacherData, setTeacherData] = useState({});
   const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  const ExamData = useSelector((state)=>state.teacherExam.AllExams)
-  const AllComments = useSelector((state)=>state.teacherExam.comments)
+  const ExamData = useSelector((state) => state.teacherExam.AllExams);
+  const AllComments = useSelector((state) => state.teacherExam.comments);
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   useEffect(() => {
     if (location.state?.teacher) {
       setTeacherData(location.state.teacher);
@@ -41,10 +41,10 @@ function Dep_PresidentResult() {
   const fetchData = async () => {
     setLoading(true);
     try {
-     await dispatch(FetchTeacherExam({exam_id,teacher_id})).unwrap()
+      await dispatch(FetchTeacherExam({ exam_id, teacher_id })).unwrap();
     } catch (error) {
       setError("An error occurred. Please try again later.");
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -74,7 +74,6 @@ function Dep_PresidentResult() {
       return;
     }
 
-
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const currentQuestion = ExamData[currentQuestionIndex];
 
@@ -99,7 +98,6 @@ function Dep_PresidentResult() {
       marksAllotted = areEqual(correctAnswer, selectedResponse) ? 1 : 0;
     }
 
-
     try {
       setSaving(true);
       const response = await axios.post(
@@ -112,8 +110,7 @@ function Dep_PresidentResult() {
         },
         { withCredentials: true }
       );
-      dispatch(storeComments({question_id:currentQuestion.question_id,comment:comment}))
-
+      dispatch(storeComments({ question_id: currentQuestion.question_id, comment: comment }));
     } catch (error) {
       console.error("Error submitting response:", error);
     } finally {
@@ -127,14 +124,11 @@ function Dep_PresidentResult() {
 
     // Move to next question
     setCurrentQuestionIndex((prev) => prev + 1);
-    
 
     // Reset form for next question
     setSelectedMark(1);
     setComment("");
   };
-
-
 
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -187,9 +181,7 @@ function Dep_PresidentResult() {
     setComment("");
   };
   useEffect(() => {
-    const existingComment = AllComments.find(
-      (c) => c.question_id === currentQuestion?.question_id
-    );
+    const existingComment = AllComments.find((c) => c.question_id === currentQuestion?.question_id);
     setComment(existingComment ? existingComment.comment : "");
   }, [currentQuestionIndex]);
 
@@ -224,8 +216,9 @@ function Dep_PresidentResult() {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-white text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-          } transition-transform duration-300 w-64 xl:block`}
+        className={`fixed top-0 left-0 h-full bg-white text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+        } transition-transform duration-300 w-64 xl:block`}
       >
         <Dep_PresidentSidebar />
       </div>
@@ -281,11 +274,8 @@ function Dep_PresidentResult() {
               <span className="font-semibold mr-2">Email-Id:</span>
               <span>{teacherData.email}</span>
             </div>
-            
           </div>
-          <h1 className="text-xl font-bold text-black px-10  mb-1">
-            {exam_name}
-          </h1>
+          <h1 className="text-xl font-bold text-black px-10  mb-1">{exam_name}</h1>
           <div className="px-1 py-2 h-full flex ">
             {/* Main content area */}
 
@@ -294,15 +284,15 @@ function Dep_PresidentResult() {
                 {ExamData.length > 0 ? (
                   <>
                     <h2 className="text-lg font-semibold text-black select-none mb-6">
-                      {currentQuestionIndex + 1}.{" "}
-                      {currentQuestion.question_text}
+                      {currentQuestionIndex + 1}. {currentQuestion.question_text}
                     </h2>
 
                     <div className="space-y-4 mb-8">
-                      {currentQuestion.options ?
+                      {currentQuestion.options ? (
                         Object.entries(currentQuestion.options).map(([key, value]) => {
                           const isSingleChoice = currentQuestion.question_type === "single_choice";
-                          const isMultipleChoice = currentQuestion.question_type === "multiple_choice";
+                          const isMultipleChoice =
+                            currentQuestion.question_type === "multiple_choice";
 
                           // Convert correct_answer & selected_response to arrays if they are not already
                           const correctAnswers = Array.isArray(currentQuestion.correct_answer)
@@ -361,9 +351,14 @@ function Dep_PresidentResult() {
                               </label>
                             </div>
                           );
-                        }) : <div className="flex items-center">
-                          <div className="text-xl w-full p-2">{currentQuestion.selected_response}</div>
-                        </div>}
+                        })
+                      ) : (
+                        <div className="flex items-center">
+                          <div className="text-xl w-full p-2">
+                            {currentQuestion.selected_response}
+                          </div>
+                        </div>
+                      )}
                       {/* Marks section for text-type questions */}
                       {currentQuestion.question_type === "text" && (
                         <div className="flex justify-end items-center mt-4 space-x-2">
@@ -371,8 +366,9 @@ function Dep_PresidentResult() {
                           {[1, 2, 3, 4, 5].map((mark) => (
                             <button
                               key={mark}
-                              className={`px-3 py-2 rounded-lg text-white transition ${selectedMark == mark ? "bg-blue-700" : "bg-blue-500"
-                                }`}
+                              className={`px-3 py-2 rounded-lg text-white transition ${
+                                selectedMark == mark ? "bg-blue-700" : "bg-blue-500"
+                              }`}
                               onClick={() => setSelectedMark(mark)}
                             >
                               {mark}
@@ -442,7 +438,6 @@ function Dep_PresidentResult() {
                             </div>
                           );
                         })}
-
                     </div>
 
                     <div className="flex justify-between mt-8">
@@ -457,9 +452,13 @@ function Dep_PresidentResult() {
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg"
                         onClick={handleNextQuestion}
                       >
-                        {Saving ? (<div className="flex items-center">
-                          <Loader className="animate-spin mr-2" /> Saving...
-                        </div>) : "Save & Next"}
+                        {Saving ? (
+                          <div className="flex items-center">
+                            <Loader className="animate-spin mr-2" /> Saving...
+                          </div>
+                        ) : (
+                          "Save & Next"
+                        )}
                       </button>
                     </div>
                   </>

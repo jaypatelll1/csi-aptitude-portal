@@ -17,7 +17,7 @@ const Dep_ViewQuestions = () => {
   const [testDuration, setTestDuration] = useState();
   const sidebarRef = useRef(null);
   let examId = useSelector((state) => state.exam.examId);
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -28,13 +28,10 @@ const Dep_ViewQuestions = () => {
           throw new Error("Exam ID is not defined");
         }
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/questions/${examId}`,
-          {
-            withCredentials: true, // Make sure the cookie is sent with the request
-          }
-        );
-        
+        const response = await axios.get(`${API_BASE_URL}/api/exams/questions/${examId}`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
+
         setQuestions(response.data || []);
       } catch (err) {
         setError(err.message || "Error fetching questions");
@@ -48,13 +45,10 @@ const Dep_ViewQuestions = () => {
         const id = examId;
         console.log("id is1  ", id);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/find/${id}`,
-          {
-            withCredentials: true, // Make sure the cookie is sent with the request
-          }
-        );
-       
+        const response = await axios.get(`${API_BASE_URL}/api/exams/find/${id}`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
+
         setTestDuration(response.data.exam.duration);
       } catch (err) {
         console.error("Error fetching test duration:", err.message);
@@ -68,9 +62,7 @@ const Dep_ViewQuestions = () => {
   const updateQuestionText = (questionId, newText) => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((question) =>
-        question.question_id === questionId
-          ? { ...question, question_text: newText }
-          : question
+        question.question_id === questionId ? { ...question, question_text: newText } : question
       )
     );
   };
@@ -119,20 +111,17 @@ const Dep_ViewQuestions = () => {
         navigate("/department"); // Navigate to /department after successful test scheduling
       })
       .catch((err) =>
-        alert(
-          `Error scheduling test: ${err.response?.data?.message || err.message}`
-        )
+        alert(`Error scheduling test: ${err.response?.data?.message || err.message}`)
       );
   };
 
   const handleDelete = async () => {
-   
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
     const response = await axios.delete(`${API_BASE_URL}/api/exams/${examId}`, {
       withCredentials: true, // Make sure the cookie is sent with the request
     });
-    
+
     navigate("/department/createtest");
   };
 
@@ -177,11 +166,7 @@ const Dep_ViewQuestions = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
@@ -203,11 +188,7 @@ const Dep_ViewQuestions = () => {
               stroke="currentColor"
               strokeWidth={2}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <h2 className="text-lg font-semibold">Question Summary</h2>
@@ -241,17 +222,16 @@ const Dep_ViewQuestions = () => {
           ) : (
             questions.map((question, index) => (
               <Dep_ViewQuestionCard
-              key={question.question_id}
-              id={question.question_id}
-              index={index}
-              question_type={question.question_type}
-              text={question.question_text}
-              options={question.options}
-              correct_option={question.correct_option}
-              correct_options={question.correct_options}
-              category={question.category}
-              image_url={question.image_url}
-
+                key={question.question_id}
+                id={question.question_id}
+                index={index}
+                question_type={question.question_type}
+                text={question.question_text}
+                options={question.options}
+                correct_option={question.correct_option}
+                correct_options={question.correct_options}
+                category={question.category}
+                image_url={question.image_url}
               />
             ))
           )}

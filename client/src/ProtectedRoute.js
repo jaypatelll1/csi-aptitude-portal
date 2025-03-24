@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate,  } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
@@ -11,13 +11,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     const verifyResetToken = async () => {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/api/users/verify-reset-token`,
-          {
-            withCredentials: true
-          }
-        );
-        if (response.data.message === 'Token is valid') {
+        const response = await axios.get(`${API_BASE_URL}/api/users/verify-reset-token`, {
+          withCredentials: true,
+        });
+        if (response.data.message === "Token is valid") {
           setIsVerified(true);
         }
       } catch (error) {
@@ -45,7 +42,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     // Redirect to reset password page with reset token in params
     return <Navigate to={`/reset-password/${user.resetToken}`} replace />;
   }
-
 
   if (!allowedRoles.includes(user.role)) {
     // If the user's role is not allowed, redirect to an unauthorized page or home

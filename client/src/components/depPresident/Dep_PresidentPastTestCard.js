@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentPastTestCard = ({ test, onClick }) => {
-
   const [result, setResult] = useState([]);
   const navigate = useNavigate();
   let user = useSelector((state) => state.user.user);
@@ -51,9 +50,7 @@ const Dep_PresidentPastTestCard = ({ test, onClick }) => {
 
         <div className="text-right">
           <div className="flex flex-col items-center">
-            <span className="text-black-500 text-sm font-sans">
-              Conducted on: {test.date}
-            </span>
+            <span className="text-black-500 text-sm font-sans">Conducted on: {test.date}</span>
             {/* <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years?.replace(/[{}]/g, "")} -{" "}
               {test.target_branches?.replace(/[{}]/g, "")
@@ -65,9 +62,7 @@ const Dep_PresidentPastTestCard = ({ test, onClick }) => {
       </div>
 
       {/* Test Info */}
-      <h2 className="text-lg font-bold text-gray-900 font-sans">
-        {test.title}
-      </h2>
+      <h2 className="text-lg font-bold text-gray-900 font-sans">{test.title}</h2>
       <div className="text-gray-600 text-sm mt-4">
         <p className="mb-2 font-bold flex items-center">
           <svg
@@ -153,9 +148,7 @@ const Dep_PresidentPastTestCard = ({ test, onClick }) => {
       <div className="flex justify-end -mt-5 space-x-4">
         <button
           className="bg-gray-200 text-[#1349c5] px-4 py-2 rounded hover:bg-blue-300 border border-[#1349c5] opacity-90 hover:opacity-100"
-          onClick={(testId) =>
-            handleSubmit(test, (id) => console.log("Test clicked:", id))
-          }
+          onClick={(testId) => handleSubmit(test, (id) => console.log("Test clicked:", id))}
         >
           View Results
         </button>

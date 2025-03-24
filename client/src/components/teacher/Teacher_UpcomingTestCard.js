@@ -3,21 +3,17 @@ import DataTime from "../admin/Adm_DataTime";
 import axios from "axios";
 const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-
 const Teacher_UpcomingTestCard = ({ test }) => {
-
-
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
-  const [questions, setQuestions] = useState([])
+  const [questions, setQuestions] = useState([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10); // You can set the default limit to 10 or any number
   const [totalPages, setTotalPages] = useState(1); // Total number of pages from the backend
   const [loading, setLoading] = useState(false);
 
-
   const examId = test.exam_id;
- 
+
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -29,42 +25,38 @@ const Teacher_UpcomingTestCard = ({ test }) => {
     setPage(1); // Reset to first page whenever the limit changes
   };
 
-
-
-
-
   const handlePublishClick = async (test) => {
     try {
       // Log the ID
-     
-      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`,{
-        withCredentials: true,  // Make sure the cookie is sent with the request
-    });
 
-     
+      const response = await axios.put(`${API_BASE_URL}/api/exams/live-exam/${test.exam_id}`, {
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
+
       window.location.reload();
-
-
     } catch (error) {
-      console.error('Error during Put request:', error);
+      console.error("Error during Put request:", error);
     }
   };
 
   const handleSchedule = (start, end) => {
     setScheduledTime({ start, end });
-    axios.put(`${API_BASE_URL}/api/exams/publish/${examId}`, {
-      start_time: start,
-      end_time: end,
-    },{
-      withCredentials: true,  // Make sure the cookie is sent with the request
-  })
+    axios
+      .put(
+        `${API_BASE_URL}/api/exams/publish/${examId}`,
+        {
+          start_time: start,
+          end_time: end,
+        },
+        {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      )
       .then(() => {
         setIsScheduling(false);
       })
       .catch((err) =>
-        alert(
-          `Error scheduling test: ${err.response?.data?.message || err.message}`
-        )
+        alert(`Error scheduling test: ${err.response?.data?.message || err.message}`)
       );
   };
 
@@ -98,7 +90,7 @@ const Teacher_UpcomingTestCard = ({ test }) => {
       <h2 className="text-lg font-bold text-gray-900">{test.title}</h2>
       <div className="text-gray-600 text-sm mt-4">
         <p className="mb-2 font-bold flex items-center">
-        <svg
+          <svg
             width="22"
             height="22"
             viewBox="0 0 22 22"
@@ -151,7 +143,7 @@ const Teacher_UpcomingTestCard = ({ test }) => {
           </svg>
           {/* Display the question count */}
 
-          <h4>Number of Questions: {test ? test.questions : 'Loading...'}</h4>
+          <h4>Number of Questions: {test ? test.questions : "Loading..."}</h4>
         </p>
         <p className="font-bold flex items-center">
           <svg
@@ -182,10 +174,10 @@ const Teacher_UpcomingTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-blue-200 text-blue-900 px-3 lg:px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100" onClick={(testId) => handlePublishClick(test, (id) => console.log('Test clicked:', id))}
+        <button
+          className="bg-blue-200 text-blue-900 px-3 lg:px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
+          onClick={(testId) => handlePublishClick(test, (id) => console.log("Test clicked:", id))}
         >
-
-
           Start Test
         </button>
         {/* <button
@@ -198,25 +190,20 @@ const Teacher_UpcomingTestCard = ({ test }) => {
       <div className="relative">
         {/* Conditionally render the DataTime component for scheduling */}
         {isScheduling && (
-          <DataTime
-            onSchedule={handleSchedule}
-            onCancel={handleCancel}
-            duration={test.duration}
-          />
+          <DataTime onSchedule={handleSchedule} onCancel={handleCancel} duration={test.duration} />
         )}
 
         {/* Display scheduled time */}
         {scheduledTime.start && scheduledTime.end && (
           <div className="mt-4 text-sm text-gray-600">
             <p>
-              Scheduled from: {new Date(scheduledTime.start).toLocaleString()}{" "}
-              to {new Date(scheduledTime.end).toLocaleString()}
+              Scheduled from: {new Date(scheduledTime.start).toLocaleString()} to{" "}
+              {new Date(scheduledTime.end).toLocaleString()}
             </p>
           </div>
         )}
       </div>
     </div>
-    
   );
 };
 

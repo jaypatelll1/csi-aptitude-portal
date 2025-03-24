@@ -16,9 +16,7 @@ const MultiLineChart = ({ data }) => {
   const [selected, setSelected] = useState([]);
 
   const handleLegendClick = (dept) => {
-    setSelected((prev) =>
-      prev.includes(dept) ? prev.filter((d) => d !== dept) : [...prev, dept]
-    );
+    setSelected((prev) => (prev.includes(dept) ? prev.filter((d) => d !== dept) : [...prev, dept]));
   };
 
   const formatDate = (dateString) => {
@@ -62,19 +60,19 @@ const MultiLineChart = ({ data }) => {
   return (
     <div className="flex flex-col items-center w-full">
       <h2 className="text-xl font-medium text-[#1349C5] self-start mb-4">{data.title}</h2>
-      
+
       {/* Responsive container that adjusts based on screen size */}
       <div className="w-full h-auto">
         {/* Height is proportional to width with different responsive breakpoints */}
         <div className="w-full h-[300px]  lg:h-[340px] xl:h-[340px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
-              data={chartData} 
-              margin={{ 
-                top: 10, 
-                right: 10, 
-                left: 0, 
-                bottom: 30 
+            <LineChart
+              data={chartData}
+              margin={{
+                top: 10,
+                right: 10,
+                left: 0,
+                bottom: 30,
               }}
             >
               <CartesianGrid strokeDasharray="4 4" />
@@ -83,9 +81,9 @@ const MultiLineChart = ({ data }) => {
                 tick={<CustomTick />}
                 height={60} // Ensure enough height for date labels
               />
-              <YAxis 
-                domain={[0, 150]} 
-                tick={{ fontSize: 12 }} 
+              <YAxis
+                domain={[0, 150]}
+                tick={{ fontSize: 12 }}
                 width={35} // Ensure consistent width for y-axis
               />
               <Tooltip labelFormatter={(label) => formatDate(label)} />

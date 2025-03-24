@@ -60,13 +60,7 @@ const Adm_InputQuestions = () => {
   // New handler for image file changes
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/jpg",
-      "image/webp",
-    ];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       alert("Invalid file type. Please upload a valid image file.");
       return;
@@ -86,16 +80,12 @@ const Adm_InputQuestions = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(
-        `${API_BASE_URL}/api/exams/${examId}/questions`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/exams/${examId}/questions`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
       alert("File uploaded successfully!");
       setModalOpen(false);
     } catch (error) {
@@ -123,16 +113,12 @@ const Adm_InputQuestions = () => {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       // Upload the image and display it
-      const response = await axios.post(
-        `${API_BASE_URL}/api/upload-image`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/upload-image`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
 
       if (response.data && response.data.imageUrl) {
         setImageUrl(response.data.imageUrl); // Set the image URL for display
@@ -184,9 +170,7 @@ const Adm_InputQuestions = () => {
             .filter((index) => index >= 0);
         }
 
-        setToggles(
-          validOptions.map((_, index) => correctOptionIndexes.includes(index))
-        );
+        setToggles(validOptions.map((_, index) => correctOptionIndexes.includes(index)));
       }
 
       if (location.state?.questionNumber) {
@@ -249,12 +233,9 @@ const Adm_InputQuestions = () => {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       // Call backend to delete image
-      const response = await axios.delete(
-        `${API_BASE_URL}/api/delete-image/${questionId}`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.delete(`${API_BASE_URL}/api/delete-image/${questionId}`, {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
         setImageUrl(""); // Clear image from UI
@@ -292,17 +273,14 @@ const Adm_InputQuestions = () => {
       .filter((index) => index !== -1);
 
     const correctOption =
-      correctIndices.length === 1
-        ? String.fromCharCode(97 + correctIndices[0])
-        : null;
+      correctIndices.length === 1 ? String.fromCharCode(97 + correctIndices[0]) : null;
     const correctOptions =
       correctIndices.length > 1
         ? correctIndices.map((index) => String.fromCharCode(97 + index))
         : null;
 
     const payload = {
-      question_type:
-        correctIndices.length === 1 ? "single_choice" : questionsType,
+      question_type: correctIndices.length === 1 ? "single_choice" : questionsType,
       question_text: question,
       options: {
         a: options[0] || "",
@@ -320,13 +298,9 @@ const Adm_InputQuestions = () => {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       if (!questionId) {
-        await axios.post(
-          `${API_BASE_URL}/api/exams/questions/${examId}`,
-          payload,
-          {
-            withCredentials: true,
-          }
-        );
+        await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, {
+          withCredentials: true,
+        });
 
         // Reset the form after submission
         setQuestion("");
@@ -340,11 +314,9 @@ const Adm_InputQuestions = () => {
         // Ensure state updates before navigating
         setTimeout(() => navigate("/president/input?category="), 200);
       } else {
-        await axios.put(
-          `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
-          payload,
-          { withCredentials: true }
-        );
+        await axios.put(`${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`, payload, {
+          withCredentials: true,
+        });
 
         setQuestion("");
         setOptions(["", "", "", ""]);
@@ -354,10 +326,7 @@ const Adm_InputQuestions = () => {
         setTimeout(() => navigate("/president/viewquestions"), 200);
       }
     } catch (error) {
-      console.error(
-        "Error creating test:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating test:", error.response?.data || error.message);
       alert("Error submitting question, please try again.");
     }
   };
@@ -499,11 +468,7 @@ const Adm_InputQuestions = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
+                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
@@ -562,15 +527,11 @@ const Adm_InputQuestions = () => {
               </svg>
               View Questions
             </button>
-            <span className="text-xl text-gray-500 font-medium">
-              Question {questionCount}
-            </span>
+            <span className="text-xl text-gray-500 font-medium">Question {questionCount}</span>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <div className="mb-4">
-              <label className="text-xl block text-gray-700 font-medium mb-2">
-                Question Type:
-              </label>
+              <label className="text-xl block text-gray-700 font-medium mb-2">Question Type:</label>
               <select
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={questionsType}
@@ -584,10 +545,7 @@ const Adm_InputQuestions = () => {
               </select>
             </div>
             <div className="mb-4">
-              <label
-                htmlFor="question"
-                className="text-xl block text-gray-700 font-medium mb-2"
-              >
+              <label htmlFor="question" className="text-xl block text-gray-700 font-medium mb-2">
                 Enter Question:
               </label>
               <textarea
@@ -626,11 +584,7 @@ const Adm_InputQuestions = () => {
                   Uploaded Image:
                 </label>
                 <div className="border rounded-lg p-2 max-w-md">
-                  <img
-                    src={imageUrl}
-                    alt="Question image"
-                    className="max-w-full h-auto"
-                  />
+                  <img src={imageUrl} alt="Question image" className="max-w-full h-auto" />
                 </div>
                 <button
                   onClick={handleRemoveImage}
@@ -643,20 +597,13 @@ const Adm_InputQuestions = () => {
 
             {questionsType !== "text" && (
               <div>
-                <label className="text-xl block text-gray-700 font-medium mb-2">
-                  Options:
-                </label>
+                <label className="text-xl block text-gray-700 font-medium mb-2">Options:</label>
                 {options.map((answer, index) => (
-                  <div
-                    key={index}
-                    className="group flex items-center gap-4 mb-2 p-3 rounded-lg"
-                  >
+                  <div key={index} className="group flex items-center gap-4 mb-2 p-3 rounded-lg">
                     <input
                       type="text"
                       value={answer}
-                      onChange={(e) =>
-                        handleAnswerChange(index, e.target.value)
-                      }
+                      onChange={(e) => handleAnswerChange(index, e.target.value)}
                       placeholder={`Enter option ${index + 1}`}
                       className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />

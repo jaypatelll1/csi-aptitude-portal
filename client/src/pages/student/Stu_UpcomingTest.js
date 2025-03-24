@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar"; // Sidebar component
-import Stu_UpcomingTestCard from "../../components/student/Stu_UpcomingTestCard"; 
-import { useSelector } from 'react-redux';
-
+import Stu_UpcomingTestCard from "../../components/student/Stu_UpcomingTestCard";
+import { useSelector } from "react-redux";
 
 const Stu_UpcomingTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -47,12 +46,12 @@ const Stu_UpcomingTest = () => {
         setError(null);
         let url = "api/exams/student";
         let payload = {
-            status: "scheduled",
-            target_branches: `{${userData.department}}`,
-            target_years: `{${userData.year}}`
-          }
+          status: "scheduled",
+          target_branches: `{${userData.department}}`,
+          target_years: `{${userData.year}}`,
+        };
 
-        const response = await axios.post(url,payload, {
+        const response = await axios.post(url, payload, {
           withCredentials: true,
         });
         const fetchedTests = response.data.exams.map((exam) => ({
@@ -78,10 +77,7 @@ const Stu_UpcomingTest = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(tests.length / itemsPerPage);
-  const paginatedTests = tests.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedTests = tests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -120,17 +116,11 @@ const Stu_UpcomingTest = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">
-            Upcoming Tests
-          </h1>
+          <h1 className="text-xl sm:text-2xl font-bold ml-52 xl:m-0">Upcoming Tests</h1>
         </div>
 
         <hr className="mb-4" />
@@ -151,9 +141,7 @@ const Stu_UpcomingTest = () => {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 className={`p-2 mx-1 border rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === 1}
               >
@@ -164,9 +152,7 @@ const Stu_UpcomingTest = () => {
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
                   className={`px-3 py-1 mx-1 border rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
-                      : "hover:bg-gray-200"
+                    currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                   }`}
                 >
                   {i + 1}
@@ -175,9 +161,7 @@ const Stu_UpcomingTest = () => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`p-2 mx-1 border rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
+                  currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                 }`}
                 disabled={currentPage === totalPages}
               >

@@ -50,11 +50,7 @@ const Dep_ScheduledTestCard = ({ test }) => {
       .then(() => {
         setIsScheduling(false);
       })
-      .catch((err) =>
-        alert(
-          `Error scheduling test: ${err.response?.data?.message || err.message}`
-        )
-      )
+      .catch((err) => alert(`Error scheduling test: ${err.response?.data?.message || err.message}`))
       .finally(() => {
         setIsSchedulingLoading(false); // Re-enable the scheduling
       });
@@ -87,9 +83,7 @@ const Dep_ScheduledTestCard = ({ test }) => {
 
         <div className="text-right">
           <div className="flex flex-col items-center">
-            <span className="text-black-500 text-sm">
-              Scheduled for: {test.date}
-            </span>
+            <span className="text-black-500 text-sm">Scheduled for: {test.date}</span>
             <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years?.replace(/[{}]/g, "")} -{" "}
               {test.target_branches

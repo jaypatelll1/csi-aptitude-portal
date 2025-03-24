@@ -116,9 +116,7 @@ function Dep_Analytics() {
   const radarChartData = {
     title: "Subject-wise Performance",
     chartData: categoryWiseData
-      ?.filter(
-        (category) => category?.category && category?.category !== "null"
-      )
+      ?.filter((category) => category?.category && category?.category !== "null")
       .map((category) => ({
         name: category?.category,
         yourScore: Number(category?.average_category_score) || 0,
@@ -158,9 +156,7 @@ function Dep_Analytics() {
           ) : (
             <>
               <div className="flex items-center mt-4">
-                <h1 className="text-3xl font-bold text-gray-800 ml-4 xl:ml-0">
-                  Branch Analytics
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-800 ml-4 xl:ml-0">Branch Analytics</h1>
               </div>
 
               {/* Dashboard Content */}
@@ -174,10 +170,7 @@ function Dep_Analytics() {
                     />
                   </div>
                   <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
-                    <DisplayComponent
-                      title="Total Students"
-                      rank={studentCount || 0}
-                    />
+                    <DisplayComponent title="Total Students" rank={studentCount || 0} />
                   </div>
                 </div>
 
@@ -189,23 +182,17 @@ function Dep_Analytics() {
                       lineDataKey="Percentage"
                     />
                   ) : (
-                    <p className="text-gray-500 text-lg font-semibold">
-                      No Data Available
-                    </p>
+                    <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-6 w-full">
                 <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                  {participationRateData.chartData?.some(
-                    (item) => item.value > 0
-                  ) ? ( //Ensures data is not empty or null
+                  {participationRateData.chartData?.some((item) => item.value > 0) ? ( //Ensures data is not empty or null
                     <PieChartComponent data={participationRateData} />
                   ) : (
-                    <p className="text-gray-500 text-lg font-semibold">
-                      No Data Available
-                    </p>
+                    <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
                   )}
                 </div>
                 <div>

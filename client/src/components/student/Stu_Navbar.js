@@ -68,9 +68,7 @@ function Stu_Navbar({ hideTitle = false }) {
           </button>
 
           {!hideTitle && (
-            <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
-              Dashboard
-            </h1>
+            <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
           )}
 
           {/* User Initials Button */}

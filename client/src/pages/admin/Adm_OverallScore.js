@@ -20,11 +20,10 @@ function Adm_OverallScore() {
   const [participationRate, setParticipationRate] = useState([]);
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
 
-  const overallAnalysis = useSelector((state)=> state.analysis.overallAnalysis) // Fetch data from redux
+  const overallAnalysis = useSelector((state) => state.analysis.overallAnalysis); // Fetch data from redux
 
-
-  const fetchAllTpoAnalysis =  () => {
-    try  {
+  const fetchAllTpoAnalysis = () => {
+    try {
       if (overallAnalysis) {
         setAvgData(overallAnalysis.dept_avg || []);
         setTopPerformers(overallAnalysis.top_performers || []);
@@ -53,10 +52,7 @@ function Adm_OverallScore() {
       },
       {
         name: "Not Participated",
-        value:
-          +Number(100 - (participationRate?.participation_rate || 0)).toFixed(
-            2
-          ) || 100,
+        value: +Number(100 - (participationRate?.participation_rate || 0)).toFixed(2) || 100,
         fill: "#6F91F0",
       },
     ],
@@ -86,14 +82,9 @@ function Adm_OverallScore() {
     const dataPoint = { date };
     Object.entries(performanceOverTime).forEach(([deptKey, entries]) => {
       const deptName = deptKey.replace("dept_", "").toUpperCase();
-      const sameDayEntries = entries.filter(
-        (entry) => entry.created_on === date
-      );
+      const sameDayEntries = entries.filter((entry) => entry.created_on === date);
       if (sameDayEntries.length > 0) {
-        const totalScore = sameDayEntries.reduce(
-          (sum, entry) => sum + entry.average_score,
-          0
-        );
+        const totalScore = sameDayEntries.reduce((sum, entry) => sum + entry.average_score, 0);
         const avgScore = totalScore / sameDayEntries.length;
         dataPoint[deptName] = Number(avgScore.toFixed(1));
       } else {
@@ -151,70 +142,61 @@ function Adm_OverallScore() {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
+                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
-            <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 ml-60">
-              Overall Analytics
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 ml-60">Overall Analytics</h1>
           </div>
         )}
 
-{loading ? (
-  <div className="flex items-center justify-center h-screen">
-    <Loader />
-  </div>
-) : (
-
+        {loading ? (
+          <div className="flex items-center justify-center h-screen">
+            <Loader />
+          </div>
+        ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mt-5 mb-5 ml-5 mr-5">
               <div className="bg-white p-6 rounded-xl shadow-md col-span-2">
-              {barChartData.chartData?.length > 0 ? (  //Ensures data is not empty or null
-                <BarChartComponent data={barChartData} />
-              ) : (
-                <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
-              )}
+                {barChartData.chartData?.length > 0 ? ( //Ensures data is not empty or null
+                  <BarChartComponent data={barChartData} />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+                )}
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md col-span-3">
-              {departmentPerformanceData.chartData?.length > 0 ? ( //Ensures data is not empty or null
-                <MultiLineChartComponent data={departmentPerformanceData} />
-              ) : (
-                <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
-              )}
+                {departmentPerformanceData.chartData?.length > 0 ? ( //Ensures data is not empty or null
+                  <MultiLineChartComponent data={departmentPerformanceData} />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5">
-              <TableComponent 
-              title="Top Performers"
-              data={topPerformers.length > 0 ? topPerformers : []} 
-              type="overall" />
+              <TableComponent
+                title="Top Performers"
+                data={topPerformers.length > 0 ? topPerformers : []}
+                type="overall"
+              />
               {topPerformers.length === 0 && (
-             <p className="text-gray-500 text-lg font-semibold text-center">
-               No Data Available
-             </p>
-            )}
+                <p className="text-gray-500 text-lg font-semibold text-center">No Data Available</p>
+              )}
 
               <TableComponent
-               title="Bottom Performers" 
-               data={bottomPerformers.length > 0 ? bottomPerformers : []} 
-               type="overall" />
-               {bottomPerformers.length === 0 && (
-               <p className="text-gray-500 text-lg font-semibold text-center">
-                 No Data Available
-               </p>
-             )}
+                title="Bottom Performers"
+                data={bottomPerformers.length > 0 ? bottomPerformers : []}
+                type="overall"
+              />
+              {bottomPerformers.length === 0 && (
+                <p className="text-gray-500 text-lg font-semibold text-center">No Data Available</p>
+              )}
 
               <div className="bg-white p-6 rounded-xl shadow-md">
-              {participationRateData.chartData?.some((item) => item.value > 0) ? ( //Ensures data is not empty or null
-                <PieChartComponent data={participationRateData} />
-              ) : (
-                <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
-              )}
+                {participationRateData.chartData?.some((item) => item.value > 0) ? ( //Ensures data is not empty or null
+                  <PieChartComponent data={participationRateData} />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+                )}
               </div>
             </div>
           </>

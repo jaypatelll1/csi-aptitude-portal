@@ -22,7 +22,7 @@ function Stu_Dashboard() {
   const [result, setResult] = useState([]);
   const detailsRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
@@ -34,7 +34,7 @@ function Stu_Dashboard() {
     const options = { day: "2-digit", month: "short", year: "numeric" };
     return date.toLocaleDateString("en-IN", options);
   };
-  
+
   const fetchTests = async (filterType) => {
     setLoading(true);
 
@@ -60,11 +60,11 @@ function Stu_Dashboard() {
         params: {
           status: payload.status,
           target_branches: payload.target_branches,
-          target_years: payload.target_years
+          target_years: payload.target_years,
         },
         withCredentials: true, // Make sure the cookie is sent with the request
       });
-      
+
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const pastPaper = await axios.get(
         `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
@@ -79,11 +79,11 @@ function Stu_Dashboard() {
       );
 
       dispatch(setExam(response.data.exams));
-      console.log('past tests is ', pastPaper);
+      console.log("past tests is ", pastPaper);
       setResult(pastPaper.data.results);
       setTests(response.data.exams || []);
 
-      setLoading(false); 
+      setLoading(false);
     } catch (err) {
       console.error("error getting response ", err);
       setError(`Failed to fetch tests. Please try again later.`);
@@ -134,12 +134,9 @@ function Stu_Dashboard() {
     try {
       alert("You are online!");
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(
-        `${API_BASE_URL}/api/users/logout`,
-        {
-          withCredentials: true, // Make sure the cookie is sent with the request
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/users/logout`, {
+        withCredentials: true, // Make sure the cookie is sent with the request
+      });
       dispatch(clearUser());
       dispatch(clearExamId(examId));
       dispatch(clearQuestions());
@@ -152,18 +149,17 @@ function Stu_Dashboard() {
 
   useEffect(() => {
     // Add the 'online' event listener when the component mounts
-    window.addEventListener('online', handleOnline);
+    window.addEventListener("online", handleOnline);
 
     // Clean up the event listener when the component unmounts
     return () => {
-      window.removeEventListener('online', handleOnline);
+      window.removeEventListener("online", handleOnline);
     };
   }, []);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value); // Update filter
   };
-
 
   const getInitials = (name) => {
     if (!name) return "";
@@ -216,9 +212,7 @@ function Stu_Dashboard() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
-            Dashboard
-          </h1>
+          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}
@@ -248,7 +242,7 @@ function Stu_Dashboard() {
 
           {/* Test Cards - Using ternary to switch between components */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 mt-5">
-          {loading ? (
+            {loading ? (
               <div className="absolute inset-0 flex justify-center items-center col-span-full">
                 <Loader />
               </div>
@@ -278,7 +272,7 @@ function Stu_Dashboard() {
                       title: test.exam_name,
                       duration: test.duration,
                       questions: test.total_questions,
-                      date: formatToReadableDate(test.created_at)
+                      date: formatToReadableDate(test.created_at),
                     }}
                   />
                 ))
@@ -291,28 +285,27 @@ function Stu_Dashboard() {
           {/* Analytics Section */}
           <div className="mt-5">
             <h1 className="font-semibold text-black text-lg">Analytics</h1>
-            <div
-              className="flex overflow-x-auto space-x-4 mt-3"
-              style={{ scrollbarWidth: "none" }}
-            >
+            <div className="flex overflow-x-auto space-x-4 mt-3" style={{ scrollbarWidth: "none" }}>
               {loading ? (
-              <div className="absolute inset-0 flex justify-center items-center col-span-full">
-                <Loader />
-              </div>
-            ) : error ? (
-              <p className="col-span-full text-center">{error}</p>
-            ) : result.map((test, index) => (
-                <div className="flex-shrink-0 " key={index}>
-                  <StuPastTestCard
-                    testName={test.exam_name}
-                    submittedOn={test.Date}
-                    time={test.duration}
-                    total_score={test.total_score}
-                    max_score={test.max_score}
-                    status={test.status}
-                  />
+                <div className="absolute inset-0 flex justify-center items-center col-span-full">
+                  <Loader />
                 </div>
-              ))}
+              ) : error ? (
+                <p className="col-span-full text-center">{error}</p>
+              ) : (
+                result.map((test, index) => (
+                  <div className="flex-shrink-0 " key={index}>
+                    <StuPastTestCard
+                      testName={test.exam_name}
+                      submittedOn={test.Date}
+                      time={test.duration}
+                      total_score={test.total_score}
+                      max_score={test.max_score}
+                      status={test.status}
+                    />
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

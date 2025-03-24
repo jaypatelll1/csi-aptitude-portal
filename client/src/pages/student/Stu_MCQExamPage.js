@@ -30,9 +30,7 @@ const Stu_MCQExamPage = () => {
   const userId = useSelector((state) => state.user.user.id);
   const userName = useSelector((state) => state.user.user.name);
   const userEmail = useSelector((state) => state.user.user.email);
-  const { questions, currentQuestionIndex } = useSelector(
-    (state) => state.questions
-  );
+  const { questions, currentQuestionIndex } = useSelector((state) => state.questions);
 
   const [fullscreenError, setFullscreenError] = useState(false);
   const [testSubmitted, setTestSubmitted] = useState(false);
@@ -149,11 +147,7 @@ const Stu_MCQExamPage = () => {
   const handleOptionSelect = (option) => {
     const currentQuestion = questions[currentQuestionIndex];
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
-    singleResponse(
-      option,
-      currentQuestion?.question_id,
-      currentQuestion?.question_type
-    );
+    singleResponse(option, currentQuestion?.question_id, currentQuestion?.question_type);
   };
 
   const handleMultipleOptionsSelect = (options) => {
@@ -165,9 +159,7 @@ const Stu_MCQExamPage = () => {
       ...multipleAnswers,
       [questionId]: options,
     });
-    dispatch(
-      setMultipleSelectedOption({ index: currentQuestionIndex, options })
-    );
+    dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options }));
     multipleResponse(options, questionId, currentQuestion?.question_type);
   };
 
@@ -258,16 +250,16 @@ const Stu_MCQExamPage = () => {
   const handleClearResponse = async (id) => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/exams/clear-response`;
-  
+
     try {
       await axios.put(
         url,
         { studentId: userId, examId: Number(examId), questionId: id },
         { withCredentials: true }
       );
-  
+
       const currentQuestion = questions[currentQuestionIndex];
-  
+
       if (currentQuestion?.question_type === "single_choice") {
         dispatch(setSelectedOption({ index: currentQuestionIndex, option: null }));
       } else if (currentQuestion?.question_type === "multiple_choice") {
@@ -287,7 +279,6 @@ const Stu_MCQExamPage = () => {
       console.error("Error clearing response:", error);
     }
   };
-  
 
   const handleMarkForReview = () => {
     dispatch(toggleMarkForReview(currentQuestionIndex));
@@ -328,9 +319,7 @@ const Stu_MCQExamPage = () => {
     if (currentQuestion?.question_type === "multiple_choice") {
       return multipleAnswers[questionId] || [];
     } else {
-      return currentQuestion?.selectedOption
-        ? [currentQuestion.selectedOption]
-        : [];
+      return currentQuestion?.selectedOption ? [currentQuestion.selectedOption] : [];
     }
   };
 
@@ -346,12 +335,9 @@ const Stu_MCQExamPage = () => {
         {fullscreenError && !testSubmitted && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
-              <h2 className="text-lg font-semibold mb-4 text-red-500">
-                Fullscreen Mode Required
-              </h2>
+              <h2 className="text-lg font-semibold mb-4 text-red-500">Fullscreen Mode Required</h2>
               <p className="text-sm text-gray-600 mb-6">
-                You have exited fullscreen mode. Please return to fullscreen to
-                continue the exam.
+                You have exited fullscreen mode. Please return to fullscreen to continue the exam.
               </p>
               <button
                 onClick={() => {
@@ -370,10 +356,7 @@ const Stu_MCQExamPage = () => {
           {exam
             ?.filter((examItem) => examItem.exam_id === Number(examId))
             .map((examItem) => (
-              <h1
-                key={examItem.exam_id}
-                className="text-xl font-bold text-gray-800 mb-4"
-              >
+              <h1 key={examItem.exam_id} className="text-xl font-bold text-gray-800 mb-4">
                 {examItem.exam_name}
               </h1>
             ))}
@@ -423,9 +406,7 @@ const Stu_MCQExamPage = () => {
                 </button>
                 <button
                   className="px-4 py-2 bg-[#D0150ACC] text-white rounded-lg"
-                  onClick={() =>
-                    handleClearResponse(currentQuestion?.question_id)
-                  }
+                  onClick={() => handleClearResponse(currentQuestion?.question_id)}
                 >
                   Clear
                 </button>
@@ -433,9 +414,7 @@ const Stu_MCQExamPage = () => {
                   className="px-4 py-2 rounded-lg bg-[#8A2BE2CC] text-white"
                   onClick={handleMarkForReview}
                 >
-                  {currentQuestion?.markedForReview
-                    ? "Unmark Review"
-                    : "Mark for Review"}
+                  {currentQuestion?.markedForReview ? "Unmark Review" : "Mark for Review"}
                 </button>
               </div>
               <button

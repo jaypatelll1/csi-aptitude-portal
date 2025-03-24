@@ -11,16 +11,16 @@ const UploadForm = ({ onFileChange, onSubmit, isUploading }) => {
           type="file"
           id="file-upload"
           name="file"
-          accept=".csv, .xls, .xlsx"  // Allowed file types
+          accept=".csv, .xls, .xlsx" // Allowed file types
           onChange={onFileChange}
           className="border border-gray-300 rounded-md px-3 py-2"
-          disabled={isUploading}  // Disable file input while uploading
+          disabled={isUploading} // Disable file input while uploading
         />
       </div>
       <button
         type="submit"
         className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        disabled={isUploading}  // Disable the button while uploading
+        disabled={isUploading} // Disable the button while uploading
       >
         {isUploading ? "Uploading..." : "Upload"}
       </button>

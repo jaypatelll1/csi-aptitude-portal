@@ -10,10 +10,9 @@ import { setExam, clearExamId } from "../../redux/ExamSlice";
 import { clearUser } from "../../redux/userSlice";
 import { clearQuestions } from "../../redux/questionSlice";
 
-
 function Teacher_Dashboard() {
   const userData = useSelector((state) => state.user.user);
-  let examId = useSelector((state) => state.exam.examId)
+  let examId = useSelector((state) => state.exam.examId);
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -25,7 +24,7 @@ function Teacher_Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-   console.log(userData)
+  console.log(userData);
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
@@ -44,9 +43,9 @@ function Teacher_Dashboard() {
     try {
       const response = await axios.get(url, {
         params: {
-          status
+          status,
         },
-        withCredentials: true,  // Make sure the cookie is sent with the request
+        withCredentials: true, // Make sure the cookie is sent with the request
       });
       // console.log('response is ', response.data);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
@@ -71,8 +70,7 @@ function Teacher_Dashboard() {
     } catch (err) {
       console.error("error getting response ", err);
     }
-
-  }
+  };
 
   useEffect(() => {
     // Close the sidebar if clicked outside
@@ -92,7 +90,7 @@ function Teacher_Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetchTestsMadeForTeachers(filter)
+    fetchTestsMadeForTeachers(filter);
   }, [filter]);
 
   const openDetails = () => setIsDetailsOpen(true);
@@ -114,18 +112,16 @@ function Teacher_Dashboard() {
     };
   }, []);
 
-
-
   const handleOnline = async () => {
     try {
       alert("You are online!");
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.post(`${API_BASE_URL}/api/users/logout`, {
-        withCredentials: true,  // Make sure the cookie is sent with the request
+        withCredentials: true, // Make sure the cookie is sent with the request
       });
       dispatch(clearUser());
-      dispatch(clearExamId(examId))
-      dispatch(clearQuestions())
+      dispatch(clearExamId(examId));
+      dispatch(clearQuestions());
 
       navigate("/", { replace: true });
     } catch (error) {
@@ -135,20 +131,17 @@ function Teacher_Dashboard() {
 
   useEffect(() => {
     // Add the 'online' event listener when the component mounts
-    window.addEventListener('online', handleOnline);
+    window.addEventListener("online", handleOnline);
 
     // Clean up the event listener when the component unmounts
     return () => {
-      window.removeEventListener('online', handleOnline);
+      window.removeEventListener("online", handleOnline);
     };
   }, []);
-
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value); // Update filter
   };
-
-
 
   const getInitials = (name) => {
     if (!name) return "";
@@ -158,14 +151,14 @@ function Teacher_Dashboard() {
     return (firstInitial + lastInitial).toUpperCase();
   };
 
-
   return (
     <div className={`flex h-screen`}>
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-          } transition-transform duration-300 w-64 xl:block`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+        } transition-transform duration-300 w-64 xl:block`}
       >
         <Teacher_Sidebar />
       </div>
@@ -201,9 +194,7 @@ function Teacher_Dashboard() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
-            Dashboard
-          </h1>
+          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}
@@ -231,7 +222,6 @@ function Teacher_Dashboard() {
               <option value="scheduled">Upcoming</option>
               <option value="past">Past</option>
             </select>
-
           </div>
 
           {/* Test Cards */}
@@ -256,10 +246,7 @@ function Teacher_Dashboard() {
           {/* Analytics Section */}
           <div className="mt-5">
             <h1 className="font-semibold text-black text-lg">Analytics</h1>
-            <div
-              className="flex overflow-x-auto space-x-4 mt-3"
-              style={{ scrollbarWidth: "none" }}
-            >
+            <div className="flex overflow-x-auto space-x-4 mt-3" style={{ scrollbarWidth: "none" }}>
               {result.map((test, index) => (
                 <div className="flex-shrink-0 ">
                   <TeacherPastTestCard

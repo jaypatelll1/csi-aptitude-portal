@@ -43,9 +43,9 @@ const Dep_PresidentScheduledTest = () => {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled`, {
           withCredentials: true,
-          params:{
-            role: "President"
-          }
+          params: {
+            role: "President",
+          },
         });
 
         const fetchedTests = response.data.exams.map((exam) => ({
@@ -97,7 +97,7 @@ const Dep_PresidentScheduledTest = () => {
 
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
-        <Dep_PresidentNavbar/>
+        <Dep_PresidentNavbar />
         <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -114,19 +114,13 @@ const Dep_PresidentScheduledTest = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0  ">
-            Scheduled Tests
-          </h1>
+          <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0  ">Scheduled Tests</h1>
         </div>
-        
+
         {loading ? (
           <div className="flex justify-center items-center h-screen">
             <Loader />
@@ -134,56 +128,54 @@ const Dep_PresidentScheduledTest = () => {
         ) : error ? (
           <p className="text-red-500 text-center mt-8">{error}</p>
         ) : scheduledTests.length === 0 ? (
-          <p className="text-center mt-8 text-gray-600">
-            No tests available.
-          </p>
+          <p className="text-center mt-8 text-gray-600">No tests available.</p>
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-y-5 mt-8">
-              {paginatedTests.length !== 0 ? paginatedTests.map((test, index) => (
-                <Dep_PresidentScheduledTestCard key={index} test={test} />
-              )): <p className="text-lg text-gray-500 mx-auto">No scheduled tests available</p>}
+              {paginatedTests.length !== 0 ? (
+                paginatedTests.map((test, index) => (
+                  <Dep_PresidentScheduledTestCard key={index} test={test} />
+                ))
+              ) : (
+                <p className="text-lg text-gray-500 mx-auto">No scheduled tests available</p>
+              )}
             </div>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-6">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === 1}
-              >
-                &lt;
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => (
+              <div className="flex justify-center items-center mt-6">
                 <button
-                  key={i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 border rounded ${
-                    currentPage === i + 1
-                      ? "bg-blue-500 text-white"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
+                  }`}
+                  disabled={currentPage === 1}
+                >
+                  &lt;
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`px-3 py-1 mx-1 border rounded ${
+                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={`p-2 mx-1 border rounded ${
+                    currentPage === totalPages
+                      ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-gray-200"
                   }`}
+                  disabled={currentPage === totalPages}
                 >
-                  {i + 1}
+                  &gt;
                 </button>
-              ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 border rounded ${
-                  currentPage === totalPages
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-200"
-                }`}
-                disabled={currentPage === totalPages}
-              >
-                &gt;
-              </button>
-            </div>
+              </div>
             )}
           </>
         )}

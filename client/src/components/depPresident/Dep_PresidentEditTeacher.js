@@ -3,9 +3,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
-  const { role: userRole, department: userDepartment } = useSelector(
-    (state) => state.user.user
-  );
+  const { role: userRole, department: userDepartment } = useSelector((state) => state.user.user);
   const firstname = student.name.split(" ")[0];
   const lastname = student.name.split(" ")[1];
   const user_id = student.user_id;
@@ -24,7 +22,7 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
     if (requestRef.current) return; // Prevent multiple clicks
     requestRef.current = true;
     setLoading(true);
-    
+
     const newStudent = {
       name: `${firstName} ${lastName}`,
       email: `${email}`,
@@ -42,7 +40,7 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
         newStudent,
         { withCredentials: true }
       );
-      
+
       alert("Student updated successfully!");
       closeEditModal();
     } catch (error) {
@@ -62,25 +60,24 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
 
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.delete(
-        `${API_BASE_URL}/api/users/delete/${student.user_id}`,
-        { withCredentials: true }
-      );
-     
+      const response = await axios.delete(`${API_BASE_URL}/api/users/delete/${student.user_id}`, {
+        withCredentials: true,
+      });
+
       alert("Student deleted successfully!");
       counter();
       closeEditModal();
     } catch (error) {
       console.error("Error deleting student:", error);
       alert("Failed to delete student. Please try again.");
-    } finally{
+    } finally {
       requestRef.current = false;
       setLoading(false);
     }
   };
 
   const handleReset = async (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     if (requestRef.current) return;
     requestRef.current = true;
     setLoading(true);
@@ -92,13 +89,13 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
         { user_id: student.user_id },
         { withCredentials: true }
       );
-     
+
       alert("Password reset email sent successfully!");
       closeEditModal();
     } catch (error) {
       console.error("Error resetting student:", error);
       alert("Failed to send reset email. Please try again.");
-    } finally{
+    } finally {
       requestRef.current = false;
       setLoading(false);
     }

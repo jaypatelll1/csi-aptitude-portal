@@ -6,7 +6,7 @@ import { setUser } from "../redux/userSlice";
 import doodle from "../assets/sidebar/doodle.svg";
 import csi from "../assets/csi.svg";
 import ace from "../assets/ace.svg";
-import {Eye,EyeClosed} from 'lucide-react'
+import { Eye, EyeClosed } from "lucide-react";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -130,9 +130,7 @@ const Login = () => {
                 Aptitude <br />
                 <span>Portal</span>
               </h1>
-              <p className="mt-3 text-base md:text-lg">
-                Turn your exams into success stories
-              </p>
+              <p className="mt-3 text-base md:text-lg">Turn your exams into success stories</p>
             </div>
 
             <div className="mt-20 w-full">
@@ -159,16 +157,14 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-gray-500"
                   >
-                    {showPassword ? <EyeClosed/> : <Eye/>}
+                    {showPassword ? <EyeClosed /> : <Eye />}
                   </button>
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
                   className={`w-full py-3 text-white rounded-xl shadow-md transition transform hover:scale-105 ${
-                    loading
-                      ? "bg-gray-500 cursor-not-allowed"
-                      : "bg-black hover:bg-gray-800"
+                    loading ? "bg-gray-500 cursor-not-allowed" : "bg-black hover:bg-gray-800"
                   }`}
                 >
                   {loading ? "Logging in..." : "Login"}

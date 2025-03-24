@@ -1,8 +1,6 @@
 import React from "react";
 
 const PerformanceComponent = () => {
-  
-
   return (
     <div className="border rounded-lg p-4">
       <h2 className="text-xl font-medium text-[#1349C5] self-start">Top Performers</h2>

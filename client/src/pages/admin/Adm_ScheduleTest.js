@@ -92,11 +92,11 @@ const Adm_ScheduledTest = () => {
       >
         <Adm_Sidebar />
       </div>
-  
+
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Adm_Navbar />
-  
+
         {/* Top Section - Hidden when loading */}
         {!loading && (
           <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
@@ -116,20 +116,14 @@ const Adm_ScheduledTest = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
+                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
-            <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">
-              Scheduled Tests
-            </h1>
+            <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">Scheduled Tests</h1>
           </div>
         )}
-  
+
         {/* Loader while fetching data */}
         {loading ? (
           <div className="flex items-center justify-center h-screen">
@@ -147,16 +141,14 @@ const Adm_ScheduledTest = () => {
                 <Adm_ScheduledTestCard key={index} test={test} />
               ))}
             </div>
-  
+
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-6">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   className={`p-2 mx-1 border rounded ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-200"
+                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                   }`}
                   disabled={currentPage === 1}
                 >
@@ -167,9 +159,7 @@ const Adm_ScheduledTest = () => {
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
                     className={`px-3 py-1 mx-1 border rounded ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-200"
+                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                     }`}
                   >
                     {i + 1}
@@ -193,7 +183,6 @@ const Adm_ScheduledTest = () => {
       </div>
     </div>
   );
-  
 };
 
 export default Adm_ScheduledTest;

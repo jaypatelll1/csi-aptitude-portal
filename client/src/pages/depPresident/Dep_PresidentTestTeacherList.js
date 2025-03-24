@@ -103,12 +103,9 @@ const Dep_PresidentTestTeacherList = () => {
     const fetchTeacherDetails = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/teacher-responses/${examId}`,
-          {
-            withCredentials: true, // Make sure the cookie is sent with the request
-          }
-        );
+        const response = await axios.get(`${API_BASE_URL}/api/exams/teacher-responses/${examId}`, {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        });
         const data = response.data.responses;
         console.log(response.data);
 
@@ -131,7 +128,7 @@ const Dep_PresidentTestTeacherList = () => {
     };
     fetchTeacherDetails();
   }, [examId]);
-  const handleClick= (teacher, exam_id, exam_name) => {
+  const handleClick = (teacher, exam_id, exam_name) => {
     navigate(`/president/result`, { state: { teacher, exam_id, exam_name } });
   };
 
@@ -162,10 +159,7 @@ const Dep_PresidentTestTeacherList = () => {
   const numberofpages = Math.ceil(filteredTeachers.length / limit);
   const startPage = Math.max(1, page - 3);
   const endPage = Math.min(numberofpages, page + 3);
-  const pageNumbers = Array.from(
-    { length: endPage - startPage + 1 },
-    (_, i) => startPage + i
-  );
+  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   return (
     <div className="min-h-screen flex">
@@ -194,20 +188,14 @@ const Dep_PresidentTestTeacherList = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
         </div>
         <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center w-full mb-5">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Test name: {name}
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-800">Test name: {name}</h2>
             <div className="flex space-x-4 items-center">
               <div className="relative w-64">
                 <input
@@ -258,33 +246,25 @@ const Dep_PresidentTestTeacherList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTeachers
-                .slice((page - 1) * limit, page * limit)
-                .map((teacher, index) => (
-                  <tr
-                    key={teacher.result_id || index}
-                    className="hover:bg-gray-50"
-                  >
-                    <td className="py-4 px-4">{index + 1}</td>
-                    <td className="py-4 px-4">{teacher.name}</td>
-                    <td className="py-4 px-4">{teacher.email}</td>
-                    <td className="py-4 px-4">{teacher.phone}</td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={(e) =>
-                          handleClick(teacher, examId, exam_name)
-                        }
-                        className="p-2"
-                      >
-                        <img src={right} alt
-                        ="right" className="w-8 h-8"/>
-                      </button>
-                    </td>
-                    <td className="py-4 px-4">
-                      <img src={pdf} alt="pdf" className="w-8 h-8"/>
-                    </td>
-                  </tr>
-                ))}
+              {filteredTeachers.slice((page - 1) * limit, page * limit).map((teacher, index) => (
+                <tr key={teacher.result_id || index} className="hover:bg-gray-50">
+                  <td className="py-4 px-4">{index + 1}</td>
+                  <td className="py-4 px-4">{teacher.name}</td>
+                  <td className="py-4 px-4">{teacher.email}</td>
+                  <td className="py-4 px-4">{teacher.phone}</td>
+                  <td className="py-4 px-4">
+                    <button
+                      onClick={(e) => handleClick(teacher, examId, exam_name)}
+                      className="p-2"
+                    >
+                      <img src={right} alt="right" className="w-8 h-8" />
+                    </button>
+                  </td>
+                  <td className="py-4 px-4">
+                    <img src={pdf} alt="pdf" className="w-8 h-8" />
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
 

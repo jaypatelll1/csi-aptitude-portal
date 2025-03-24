@@ -18,18 +18,18 @@ const questionsSlice = createSlice({
     visitQuestion(state, action) {
       const questionIndex = action.payload;
       state.currentQuestionIndex = questionIndex;
-    
+
       // Debugging log to track when a question is visited
       // console.log(`Visiting question: ${questionIndex}`);
-    
+
       // Mark the specific question as visited if it's not visited yet
       const currentQuestion = state.questions[questionIndex];
       if (!currentQuestion.visited) {
         // console.log(`Marking question ${questionIndex} as visited`);
         state.questions[questionIndex].visited = true;
-      } 
+      }
     },
-    
+
     setSelectedOption(state, action) {
       const { index, option } = action.payload;
       state.questions[index].selectedOption = option;
@@ -57,13 +57,21 @@ const questionsSlice = createSlice({
         state.questions[index].markedForReview = !state.questions[index].markedForReview;
       }
     },
-    clearQuestions(state,action){
+    clearQuestions(state, action) {
       state.questions = [];
-      state.currentQuestionIndex = 0
-    }, 
+      state.currentQuestionIndex = 0;
+    },
   },
 });
 
-export const { setQuestions, markAnswered, visitQuestion, setSelectedOption, setMultipleSelectedOption, setTextAnswer, clearQuestions, toggleMarkForReview} =
-  questionsSlice.actions;
+export const {
+  setQuestions,
+  markAnswered,
+  visitQuestion,
+  setSelectedOption,
+  setMultipleSelectedOption,
+  setTextAnswer,
+  clearQuestions,
+  toggleMarkForReview,
+} = questionsSlice.actions;
 export default questionsSlice.reducer;

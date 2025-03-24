@@ -9,8 +9,7 @@ import RadarChartComponent from "../../components/analytics/RadarChartComponent"
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Loader from "../../components/Loader";
-import { useSelector} from "react-redux";
-
+import { useSelector } from "react-redux";
 
 function Adm_StudentAnalytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -168,15 +167,12 @@ function Adm_StudentAnalytics() {
           0
         );
         const totalMaxScore = validData.reduce(
-          (sum, exam) =>
-            sum + (parseFloat(exam.category[subject]?.max_score) || 0),
+          (sum, exam) => sum + (parseFloat(exam.category[subject]?.max_score) || 0),
           0
         );
 
         const averageScore =
-          totalMaxScore > 0
-            ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2))
-            : 0;
+          totalMaxScore > 0 ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2)) : 0;
 
         return {
           name: subject, // Renamed from "subject" to "name" for RadarChart
@@ -231,11 +227,7 @@ function Adm_StudentAnalytics() {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
               />
             </svg>
           </button>
@@ -256,9 +248,7 @@ function Adm_StudentAnalytics() {
           </div>
         ) : (
           <>
-            <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">
-              Analytics
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">Analytics</h1>
 
             {/* Analytics Content */}
             <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">
@@ -310,9 +300,7 @@ function Adm_StudentAnalytics() {
                 {testCompletionData ? (
                   <PieChartComponent data={testCompletionData} />
                 ) : (
-                  <p className="text-center text-gray-500">
-                    Loading Test Completion Data...
-                  </p>
+                  <p className="text-center text-gray-500">Loading Test Completion Data...</p>
                 )}
               </div>
             </div>

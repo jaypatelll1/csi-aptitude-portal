@@ -13,7 +13,6 @@ import Stu_TestInstruction from "./pages/student/Stu_TestInstruction";
 import Stu_Analytics from "./pages/student/Stu_Analytics";
 import Stu_Result from "./pages/student/Stu_Result";
 
-
 import Adm_Dashboard from "./pages/admin/Adm_Dashboard";
 import Adm_CreateTestForm from "./pages/admin/Adm_CreateTestForm";
 import Adm_DraftTest from "./pages/admin/Adm_DraftTest";
@@ -42,14 +41,12 @@ import Dep_Analytics from "./pages/department/Dep_Analytics";
 import Dep_StudentAnalysis from "./pages/department/Dep_StudentAnalysis";
 import Dep_StudentAnalytics from "./pages/department/Dep_StudentAnalytics";
 
-
 import Teacher_Dashboard from "./pages/teacher/Teacher_Dashboard";
 import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
 import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
 import Teacher_UpcomingTest from "./pages/teacher/Teacher_UpcomingTest";
 import Teacher_Result from "./pages/teacher/Teacher_Result";
 import Adm_OverallScore from "./pages/admin/Adm_OverallScore";
-
 
 import Dep_PresidentDashboard from "./pages/depPresident/Dep_PresidentDashboard";
 import Dep_PresidentCreateTestForm from "./pages/depPresident/Dep_PresidentCreateTestForm";
@@ -393,7 +390,6 @@ const AppRoutes = () => {
         }
       />
 
-
       {/* Department President Routes */}
       <Route
         path="/president"
@@ -476,7 +472,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-       <Route
+      <Route
         path="/president/result"
         element={
           <ProtectedRoute allowedRoles={["President"]}>

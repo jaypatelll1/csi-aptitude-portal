@@ -44,7 +44,7 @@ const Dep_PastTest = () => {
         const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
           withCredentials: true, // Make sure the cookie is sent with the request
         });
-        const formattedTests =response.data.exams.map((exam) => ({
+        const formattedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
@@ -70,12 +70,12 @@ const Dep_PastTest = () => {
 
   // Pagination logic
   const totalPages = Math.ceil(pastTests.length / itemsPerPage);
-  
+
   const paginatedTests = pastTests.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -93,11 +93,11 @@ const Dep_PastTest = () => {
       >
         <Dep_Sidebar />
       </div>
-  
+
       {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Dep_Navbar />
-  
+
         {/* Hide Header while loading */}
         {!loading && (
           <>
@@ -119,25 +119,19 @@ const Dep_PastTest = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d={
-                      sidebarOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
+                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                   />
                 </svg>
               </button>
-  
+
               {/* Title */}
-              <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">
-                Past Tests
-              </h1>
+              <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">Past Tests</h1>
             </div>
-  
+
             <hr />
           </>
         )}
-  
+
         {/* Loader while fetching data */}
         {loading ? (
           <div className="flex justify-center items-center h-screen">
@@ -146,9 +140,7 @@ const Dep_PastTest = () => {
         ) : error ? (
           <p className="text-red-500 text-center mt-8">{error}</p>
         ) : pastTests.length === 0 ? (
-          <p className="text-gray-500 text-center w-full mt-8">
-            No past tests available.
-          </p>
+          <p className="text-gray-500 text-center w-full mt-8">No past tests available.</p>
         ) : (
           <>
             {/* Past Tests Grid */}
@@ -157,7 +149,7 @@ const Dep_PastTest = () => {
                 <Dep_PastTestCard key={index} test={test} />
               ))}
             </div>
-  
+
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-6">
@@ -165,30 +157,26 @@ const Dep_PastTest = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   className={`p-2 mx-1 border rounded ${
-                    currentPage === 1
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-200"
+                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
                   }`}
                   disabled={currentPage === 1}
                 >
                   &lt; {/* Left Arrow */}
                 </button>
-  
+
                 {/* Page Number Buttons */}
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
                     className={`px-3 py-1 mx-1 border rounded ${
-                      currentPage === i + 1
-                        ? "bg-blue-500 text-white"
-                        : "hover:bg-gray-200"
+                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
                     }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-  
+
                 {/* Next Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
@@ -208,7 +196,6 @@ const Dep_PastTest = () => {
       </div>
     </div>
   );
-  
 };
 
 export default Dep_PastTest;
