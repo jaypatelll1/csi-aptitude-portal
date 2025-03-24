@@ -373,3 +373,26 @@
 [2025-03-20 15:20:59] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
 [2025-03-20 15:21:00] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
 [2025-03-20 15:21:00] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-24 09:49:03] info: User ID: 122, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-03-24 09:50:40] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:51:59] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:52:01] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:52:04] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:53:28] info: User ID: 295, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-03-24 09:53:28] info: User ID: 295, Activity: Viewed exams for teachers, Status: success, Details: Filters applied: Status = all
+[2025-03-24 09:53:29] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:53:29] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:53:29] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:53:30] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:53:30] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:53:30] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:53:31] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:57:05] info: User ID: 295, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-03-24 09:57:06] info: User ID: 295, Activity: Viewed exams for teachers, Status: success, Details: Filters applied: Status = all
+[2025-03-24 09:57:06] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:57:07] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:57:07] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:57:07] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:57:08] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:57:08] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-24 09:57:08] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
