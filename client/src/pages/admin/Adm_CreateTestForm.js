@@ -14,7 +14,7 @@ const Adm_CreateTestPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
   const [showYearDropdown, setShowYearDropdown] = useState(false);
-  const [Loading, setLoading] = useState(false)
+  const [Loading, setLoading] = useState(false);
 
   const sidebarRef = useRef(null);
   const branchRef = useRef(null);
@@ -26,7 +26,6 @@ const Adm_CreateTestPage = () => {
   const years = ["FE", "SE", "TE", "BE"];
 
   const handleCreateQuestions = async (e) => {
-
     e.preventDefault();
     setLoading(true);
     if (!testName || !duration || branch.length === 0 || year.length === 0) {
@@ -342,12 +341,18 @@ const Adm_CreateTestPage = () => {
                 id="duration"
                 placeholder="Eg. 30"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={duration}
+                value={duration === 0 ? "" : duration}
                 onChange={(e) => {
-                  const value = Math.max(0, Number(e.target.value)); // Prevent negative values
+                  const value =
+                    e.target.value === ""
+                      ? ""
+                      : Math.max(0, Number(e.target.value));
                   setDuration(value);
                 }}
-                min="0" // Prevents manual negative input
+                onBlur={() => {
+                  if (duration === "") setDuration(0); 
+                }}
+                min="0"
                 required
               />
             </div>
@@ -360,7 +365,7 @@ const Adm_CreateTestPage = () => {
             className="bg-[#1349C5] text-white px-3 lg:px-4 py-2 rounded hover:bg-[#4d75d2] border-[#2c54b2] opacity-90 hover:opacity-100"
             onClick={handleCreateQuestions}
           >
-            {Loading? <Loader/> : "Create Questions"}
+            {Loading ? <Loader /> : "Create Questions"}
           </button>
           <button
             type="button"

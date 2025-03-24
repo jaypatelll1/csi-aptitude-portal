@@ -1,4 +1,4 @@
-import React, { useState,useRef } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
@@ -7,7 +7,6 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
   const lastname = student.name.split(" ")[1];
 
   const user_id = student.user_id;
-
 
   const [firstName, setFirstName] = useState(firstname);
   const [lastName, setLastName] = useState(lastname);
@@ -39,11 +38,12 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       await axios.put(
         `${API_BASE_URL}/api/users/update/${student.user_id}`,
-        newStudent,{
+        newStudent,
+        {
           withCredentials: true, // Make sure the cookie is sent with the request
-        } 
+        }
       );
-    
+
       alert("Student registered successfully!");
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
@@ -55,7 +55,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
     }
   };
 
-  const handleDelete = async (e)=> {
+  const handleDelete = async (e) => {
     e.stopPropagation();
     if (requestRef.current) return;
     requestRef.current = true;
@@ -63,9 +63,12 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
 
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      await axios.delete(`${API_BASE_URL}/api/users/delete/${student.user_id}`,{
-        withCredentials: true, // Make sure the cookie is sent with the request
-      });
+      await axios.delete(
+        `${API_BASE_URL}/api/users/delete/${student.user_id}`,
+        {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      );
 
       alert("Student deleted successfully!");
       counter();
@@ -79,18 +82,21 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
     }
   };
 
-  const handleReset = async (e)=> {
-    e.stopPropagation(); 
+  const handleReset = async (e) => {
+    e.stopPropagation();
     if (requestRef.current) return;
     requestRef.current = true;
     setLoading(true);
 
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      await axios.post(`${API_BASE_URL}/api/users/send-reset-mail` ,
-         {user_id: student.user_id},{
-        withCredentials: true, // Make sure the cookie is sent with the request
-      });
+      await axios.post(
+        `${API_BASE_URL}/api/users/send-reset-mail`,
+        { student },
+        {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      );
 
       alert("Student reset mail sent successfully!");
       closeEditModal(); // Close modal after successful registration
@@ -193,7 +199,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
       <hr className="my-4 border-black" />
       <div className="flex justify-between mt-7">
         <button
-          onClick={handleDelete} 
+          onClick={handleDelete}
           disabled={loading}
           className="h-10 px-2 bg-red-200 text-[#E94A47] font-bold rounded-lg flex items-center text-center"
         >
@@ -212,7 +218,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
         </button>
         <button
           onClick={handleReset}
-          disabled= {loading}
+          disabled={loading}
           className="h-10 px-2 bg-blue-200 text-blue-700 font-bold rounded-lg flex items-center text-center"
         >
           <img src="/reset.svg" alt="Reset" className="w-6 h-6" />

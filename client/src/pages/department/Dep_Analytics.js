@@ -24,42 +24,38 @@ function Dep_Analytics() {
   const [participationRate, setParticipationRate] = useState([]);
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
   const [deptRank, setDeptRank] = useState([]);
-  const [highestPerformer, setHighestPerformer] = useState([]); // For dispalying overall_rank of top student
+  const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
-  const [oSup, setOSup] = useState("");
 
   // Refs and Redux State
   const sidebarRef = useRef(null);
   const user_department = useSelector((state) => state.user.user.department);
-   const departmentAnalysis = useSelector(
-      (state) =>
-        state.analysis.departmentAnalysis[user_department]  
-    ); // Fetch data from redux
+  const departmentAnalysis = useSelector(
+    (state) => state.analysis.departmentAnalysis[user_department]
+  ); // Fetch data from redux
 
   // Data Fetching
   const fetchAllDeptData = async () => {
     try {
-  
       setCategoryWiseData(departmentAnalysis.category_performance);
       setTopPerformers(departmentAnalysis.top_performer);
       setBottomPerformers(departmentAnalysis.bottom_performer);
       setParticipationRate(departmentAnalysis.participation_rate);
       setAccuracyData(departmentAnalysis.accuracy_rate);
       setPerformanceOverTime(departmentAnalysis.performance_over_time);
-  
+
       setDeptRank(departmentAnalysis.dept_ranks);
       superscript(setDSup, departmentAnalysis.dept_ranks?.department_rank);
-  
-      setHighestPerformer(departmentAnalysis.top_performer[0]);
-      superscript(setOSup, departmentAnalysis.top_performer[0].overall_rank);
-  
-      setLoading(false);  // Set loading to false once all data is fetched
+
+      setStudentCount(departmentAnalysis.studentCount.student_count);
+
+      setLoading(false); // Set loading to false once all data is fetched
     } catch (error) {
       console.error("Error fetching data:", error);
-      setLoading(false);  // Ensure loading is disabled even if an error occurs
+      setLoading(false); // Ensure loading is disabled even if an error occurs
     }
   };
-  
+
   // Effects
   useEffect(() => {
     fetchAllDeptData();
@@ -119,7 +115,10 @@ function Dep_Analytics() {
 
   const radarChartData = {
     title: "Subject-wise Performance",
-    chartData: categoryWiseData?.filter((category) => category?.category && category?.category !== "null")
+    chartData: categoryWiseData
+      ?.filter(
+        (category) => category?.category && category?.category !== "null"
+      )
       .map((category) => ({
         name: category?.category,
         yourScore: Number(category?.average_category_score) || 0,
@@ -145,77 +144,81 @@ function Dep_Analytics() {
       >
         <Dep_Sidebar />
       </div>
-  
+
       {/* Main Content */}
       <div className="flex flex-col flex-1 xl:ml-64">
         <Dep_Navbar />
-  
+
         <div className="px-5">
           {/* Show "Loading..." if data is not loaded */}
           {loading ? (
-  <div className="flex items-center justify-center h-96">
-    <Loader />
-  </div>
-) : (
-
+            <div className="flex items-center justify-center h-96">
+              <Loader />
+            </div>
+          ) : (
             <>
               <div className="flex items-center mt-4">
                 <h1 className="text-3xl font-bold text-gray-800 ml-4 xl:ml-0">
                   Branch Analytics
                 </h1>
               </div>
-  
+
               {/* Dashboard Content */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div>
                   <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200">
                     <DisplayComponent
-                      title="Overall Department Rank"
+                      title="Department Rank"
                       rank={deptRank?.department_rank || "Loading..."}
                       superscript={dSup}
                     />
                   </div>
                   <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
                     <DisplayComponent
-                      title="Overall Student Rank"
-                      rank={highestPerformer?.overall_rank || "N/A"}
-                      superscript={oSup}
+                      title="Total Students"
+                      rank={studentCount || 0}
                     />
                   </div>
                 </div>
-  
+
                 <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-                {performanceOverTime.length > 0 ? ( //Ensures data is not empty or null 
-                  <LineChartComponent
-                    data={performanceOverTimeData}
-                    xAxisKey="name"
-                    lineDataKey="Percentage"
-                  />
-                ) : (
-                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p> 
-                )}
+                  {performanceOverTime.length > 0 ? ( //Ensures data is not empty or null
+                    <LineChartComponent
+                      data={performanceOverTimeData}
+                      xAxisKey="name"
+                      lineDataKey="Percentage"
+                    />
+                  ) : (
+                    <p className="text-gray-500 text-lg font-semibold">
+                      No Data Available
+                    </p>
+                  )}
                 </div>
               </div>
-  
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-6 w-full">
                 <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                {participationRateData.chartData?.some((item) => item.value > 0) ? ( //Ensures data is not empty or null
-                  <PieChartComponent data={participationRateData} />
-                ) : (
-                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
-                )}
+                  {participationRateData.chartData?.some(
+                    (item) => item.value > 0
+                  ) ? ( //Ensures data is not empty or null
+                    <PieChartComponent data={participationRateData} />
+                  ) : (
+                    <p className="text-gray-500 text-lg font-semibold">
+                      No Data Available
+                    </p>
+                  )}
                 </div>
                 <div>
                   <TableComponent
                     title="Top Performers"
-                    data={topPerformers.length > 0 ? topPerformers : []}  //Ensures data is not empty or null
+                    data={topPerformers.length > 0 ? topPerformers : []} //Ensures data is not empty or null
                     type="department"
                   />
                   {topPerformers.length === 0 && (
-             <p className="text-gray-500 text-lg font-semibold text-center">
-               No Data Available
-             </p>
-            )}
+                    <p className="text-gray-500 text-lg font-semibold text-center">
+                      No Data Available
+                    </p>
+                  )}
                 </div>
                 <div>
                   <TableComponent
@@ -224,10 +227,10 @@ function Dep_Analytics() {
                     type="department"
                   />
                   {bottomPerformers.length === 0 && (
-               <p className="text-gray-500 text-lg font-semibold text-center">
-                 No Data Available
-               </p>
-             )}
+                    <p className="text-gray-500 text-lg font-semibold text-center">
+                      No Data Available
+                    </p>
+                  )}
                 </div>
               </div>
             </>
@@ -236,7 +239,6 @@ function Dep_Analytics() {
       </div>
     </div>
   );
-  
 }
 
 export default Dep_Analytics;

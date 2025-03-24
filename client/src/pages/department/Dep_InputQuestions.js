@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import UploadModal from "../../upload/UploadModal";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import UploadImageModal from "../../upload/UploadImageModal";
-// const API_BASE_URL = process.env.BACKEND_BASE_URL;
+import { Loader } from "lucide-react";
 
 const validCategories = [
   "quantitative aptitude",
@@ -17,9 +17,11 @@ const validCategories = [
   "general knowledge",
 ];
 
+const validQusetionTypes = ["single_choice", "multiple_choice", "text"];
+
 const Dep_InputQuestions = () => {
   const [question, setQuestion] = useState("");
-  const [questionType, setQuestionType] = useState("single");
+  const [questionsType, setQuestionsType] = useState("single_choice");
   const [options, setOptions] = useState(["", "", "", ""]);
   const [toggles, setToggles] = useState([false, false, false, false]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -29,18 +31,106 @@ const Dep_InputQuestions = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [questionCount, setQuestionCount] = useState(1);
 
-// New state variables for image upload
+  // New state variables for image upload
   const [isImageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [remaining, setRemaining] = useState(5);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const questionData = location.state || {};
-  const [category, setCategory] = useState(questionData.category || "");
-
+  const [category, setCategory] = useState("");
+  const [loading, setLoading] = useState(false);
   const examId = useSelector((state) => state.exam.examId);
+
+  // Extract data from location state
+  const {
+    questionId,
+    questionType,
+    questionText,
+    questionOptions = {},
+    exam_id,
+    correct_option,
+    correct_options,
+    image_url,
+   category: existingCategory,
+  } = location.state || {};
+
+  // Load question data when editing
+  useEffect(() => {
+    if (location.state) {
+      // Destructure all needed values from location.state for clarity
+      const { 
+        questionText, 
+        questionType, 
+       
+        questionId,
+        options: existingOptions,
+        toggles: existingToggles,
+        questionOptions,
+        correct_option,
+        correct_options,
+        questionNumber,
+        image_url
+      } = location.state;
+  
+      // Set basic fields
+      setQuestion(questionText || "");
+      const qType = questionType || "single_choice";
+      setQuestionsType(qType);
+      setCategory(existingCategory || "");
+  
+      if (qType === "text") {
+        // For text questions
+        if (questionId) {
+          // If editing, use the existing options and toggles
+          setOptions(existingOptions || []);
+          setToggles(existingToggles || []);
+        } else {
+          // For new text questions
+          setOptions([]);
+          setToggles([]);
+        }
+      } else {
+        // For choice-based questions (single or multiple)
+        const { a = "", b = "", c = "", d = "" } = questionOptions || {};
+        const optionsArray = [a, b, c, d];
+        setOptions(optionsArray);
+        
+  
+        // Handle correct options for both single and multiple choice
+        const validOptions = ["a", "b", "c", "d"];
+        setCategory(existingCategory || "");
+        let correctOptionIndexes = [];
+  
+        if (qType === "single_choice" && correct_option) {
+          // For single choice
+          correctOptionIndexes = [validOptions.indexOf(correct_option)];
+        } else if (qType === "multiple_choice" && Array.isArray(correct_options)) {
+          // For multiple choice - explicitly check for multiple_choice type
+          correctOptionIndexes = correct_options
+            .map((opt) => validOptions.indexOf(opt))
+            .filter((index) => index >= 0);
+        }
+  
+        // Create an array of booleans representing which options are correct
+        setToggles(
+          validOptions.map((_, index) => correctOptionIndexes.includes(index))
+        );
+      }
+  
+      // Set question number if available
+      if (questionNumber) {
+        setQuestionCount(questionNumber);
+      }
+  
+      // Set image URL if available
+      if (image_url) {
+        setImageUrl(image_url);
+      }
+    }
+  }, [location.state]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -56,7 +146,7 @@ const Dep_InputQuestions = () => {
     setSelectedFile(file);
   };
 
-  // New handler for image file changes
+  // Handler for image file changes
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     const allowedTypes = [
@@ -92,7 +182,7 @@ const Dep_InputQuestions = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          withCredentials: true, // Make sure the cookie is sent with the request
+          withCredentials: true,
         }
       );
       alert("File uploaded successfully!");
@@ -105,78 +195,58 @@ const Dep_InputQuestions = () => {
   };
 
   // Handler for image submission
-    const handleImageSubmit = async (event) => {
-      event.preventDefault();
-    
-      if (!selectedImage) {
-        alert("Please select an image to upload.");
+  const handleImageSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!selectedImage) {
+      alert("Please select an image to upload.");
+      return;
+    }
+
+    setIsImageUploading(true);
+
+    const formData = new FormData();
+    formData.append("image", selectedImage);
+
+    try {
+      if (remaining < 0) {
+        alert("Too many requests, please try again later.");
+        setImageModalOpen(false);
+        navigate("/department/viewquestions");
         return;
       }
-    
-      setIsImageUploading(true);
-    
-      const formData = new FormData();
-      formData.append("image", selectedImage);
-    
-      try {
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    
-        // Upload the image and display it
-        const response = await axios.post(
-          `${API_BASE_URL}/api/upload-image`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            withCredentials: true,
-          }
-        );
-    
-        console.log("Upload Response:", response.data);
-    
-        if (response.data && response.data.imageUrl) {
-          setImageUrl(response.data.imageUrl); // Set the image URL for display
-          alert("Image uploaded successfully!");
-        } else {
-          alert("Image uploaded but no URL was returned.");
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
+      // Upload the image and display it
+      const response = await axios.post(
+        `${API_BASE_URL}/api/upload-image`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         }
-    
-      } catch (error) {
-        console.error("Upload error:", error);
-        alert("An error occurred while uploading the image.");
-      } finally {
-        setIsImageUploading(false);
+      );
+
+      if (response.data && response.data.imageUrl) {
+        setImageUrl(response.data.imageUrl); // Set the image URL for display
+        setRemaining((remaining) => remaining - 1);
+        alert(`Image uploaded successfully! You have ${remaining} attempts left.`);
+        setImageModalOpen(false);
+      } else {
+        alert("Image uploaded but no URL was returned.");
       }
-    };
-
-  const {
-    questionId,
-    questionsType,
-    questionText,
-    questionOptions = {},
-    exam_id,
-    correct_option,
-    category: initialCategory,
-  } = location.state || {};
-
-  useEffect(() => {
-    if (questionText && questionOptions) {
-      setQuestion(questionText);
-      const { a = "", b = "", c = "", d = "" } = questionOptions;
-      setOptions([a, b, c, d]);
-      const validOptions = ["a", "b", "c", "d"];
-      const correctOptionIndex = validOptions.indexOf(
-        questionOptions.correct_option
-      );
-      setToggles(
-        validOptions.map(
-          (option, index) =>
-            index === (correctOptionIndex >= 0 ? correctOptionIndex : 0)
-        )
-      );
+    } catch (error) {
+      if (error?.status === 429) {
+        alert("Too many requests, please try again later.");
+      } else {
+        alert("An error occurred while uploading the image.");
+      }
+    } finally {
+      setIsImageUploading(false);
     }
-  }, [questionText, questionOptions]);
+  };
 
   const viewquestions = () => {
     navigate("/department/viewquestions");
@@ -204,7 +274,7 @@ const Dep_InputQuestions = () => {
 
   const handleToggleChange = (index) => {
     const newToggles = [...toggles];
-    if (questionType === "single") {
+    if (questionsType === "single_choice") {
       newToggles.fill(false);
       newToggles[index] = true;
     } else {
@@ -215,21 +285,19 @@ const Dep_InputQuestions = () => {
 
   const handleRemoveImage = async () => {
     if (!questionId) {
-      // alert("No question ID found");
-      setImageUrl(""); 
+      setImageUrl("");
       return;
     }
-  
+
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      
+
       // Call backend to delete image
       const response = await axios.delete(`${API_BASE_URL}/api/delete-image/${questionId}`, {
         withCredentials: true,
       });
-  
+
       if (response.data.success) {
-      
         setImageUrl(""); // Clear image from UI
       } else {
         alert("Failed to delete image.");
@@ -241,77 +309,127 @@ const Dep_InputQuestions = () => {
   };
 
   const handleSubmit = async () => {
-    if (question && options.every((option) => option.trim() !== "")) {
-      if (!toggles.includes(true)) {
-        alert("Please select at least one correct answer.");
+    // Validation
+    if (!question.trim()) {
+      alert("Question cannot be empty!");
+      return;
+    }
+    if (!category) {
+      alert("Please select a category!");
+      return;
+    }
+    
+    // Only validate options for non-text questions
+    if (questionsType !== "text") {
+      if (options.some((option) => !option.trim())) {
+        alert("Please fill all options before submitting.");
         return;
       }
-
-      const findTrueIndex = () => {
-        var a = toggles.findIndex((toggle) => toggle === true);
-        return a !== -1 ? a : "No true value found";
-      };
-
-      let b = findTrueIndex();
-      const correctOption = String.fromCharCode(97 + b);
-      console.log(correctOption);
-      const payload = {
-        question_text: `${question}`,
-        options: {
-          a: `${options[0]}`,
-          b: `${options[1]}`,
-          c: `${options[2]}`,
-          d: `${options[3]}`,
-        },
-        correct_option: `${correctOption}`,
-        category: category,
-      };
-
-      try {
-        if (!questionId) {
-          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-          await axios.post(
-            `${API_BASE_URL}/api/exams/questions/${examId}`,
-            payload,
-            {
-              withCredentials: true, // Make sure the cookie is sent with the request
-            }
-          );
-          setQuestion("");
-          setOptions(["", "", "", ""]);
-          setToggles([false, false, false, false]);
-          setCategory("");
-          setQuestionCount((prevCount) => prevCount + 1);
-          navigate("/department/input?category=");
-        } else {
-          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-          await axios.put(
-            `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
-            payload,
-            {
-              withCredentials: true, // Make sure the cookie is sent with the request
-            }
-          );
-          setQuestion("");
-          setOptions(["", "", "", ""]);
-          setToggles([false, false, false, false]);
-          navigate("/department/viewquestions");
-        }
-      } catch (error) {
-        console.error(
-          "Error creating test:",
-          error.response?.data || error.message
-        );
+      if (!toggles.includes(true)) {
+        alert("Please select at least one correct answer!");
+        return;
       }
-    } else {
-      alert("Please fill in all fields before submitting.");
     }
+    
+    setLoading(true);
+
+    // Finding correct answer indices - only for non-text questions
+    let correctOption = null;
+    let correctOptions = null;
+
+    if (questionsType !== "text") {
+      const correctIndices = toggles
+        .map((toggle, index) => (toggle ? index : -1))
+        .filter((index) => index !== -1);
+
+      // Prepare correct answer data based on question type
+      if (questionsType === "single_choice" && correctIndices.length > 0) {
+        correctOption = String.fromCharCode(97 + correctIndices[0]);
+      } else if (questionsType === "multiple_choice" && correctIndices.length > 0) {
+        correctOptions = correctIndices.map((index) => String.fromCharCode(97 + index));
+      }
+    }
+
+    // Prepare payload based on question type
+    const payload = {
+      question_type: questionsType,
+      question_text: question,
+      options: questionsType === "text" ? {} : {
+        a: options[0] || "",
+        b: options[1] || "",
+        c: options[2] || "",
+        d: options[3] || "",
+      },
+      correct_option: correctOption,
+      correct_options: correctOptions,
+      category: category,
+      image_url: imageUrl,
+    };
+
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
+      if (!questionId) {
+        // Create new question
+        await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, {
+          withCredentials: true,
+        });
+
+        // Reset the form after submission
+        setQuestion("");
+        if (questionsType !== "text") {
+          setOptions(["", "", "", ""]);
+          setToggles([false, false, false, false]);
+        } else {
+          setOptions([]);
+          setToggles([]);
+        }
+        setCategory("");
+        setImageUrl("");
+
+        setQuestionCount((prevCount) => prevCount + 1);
+
+        // Ensure state updates before navigating
+        setTimeout(() => navigate("/department/input?category="), 200);
+      } else {
+        // Update existing question
+        await axios.put(
+          `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
+          payload,
+          { withCredentials: true }
+        );
+
+        // Reset form and navigate to view questions
+        setQuestion("");
+        if (questionsType !== "text") {
+          setOptions(["", "", "", ""]);
+          setToggles([false, false, false, false]);
+        } else {
+          setOptions([]);
+          setToggles([]);
+        }
+        setImageUrl("");
+
+        setTimeout(() => navigate("/department/viewquestions"), 200);
+      }
+    } catch (error) {
+      console.error("Error submitting question:", error.response?.data || error.message);
+      alert("Error submitting question, please try again.");
+    }
+    
+    setLoading(false);
   };
 
   const handleCancel = () => {
     setQuestion("");
-    setOptions(["", "", "", ""]);
-    setToggles([false, false, false, false]);
+    if (questionsType !== "text") {
+      setOptions(["", "", "", ""]);
+      setToggles([false, false, false, false]);
+    } else {
+      setOptions([]);
+      setToggles([]);
+    }
+    setImageUrl(""); // Clear the image URL
   };
 
   useEffect(() => {
@@ -325,6 +443,33 @@ const Dep_InputQuestions = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Update options and toggles when question type changes
+  useEffect(() => {
+    if (questionsType === "text") {
+      // Always clear options and toggles for text type questions
+      setOptions([]);
+      setToggles([]);
+    } else if (options.length === 0) {
+      // Only initialize if empty (don't override existing data)
+      setOptions(["", "", "", ""]);
+      setToggles([false, false, false, false]);
+    }
+  }, [questionsType]);
+
+  // Listen for question type changes and force update UI accordingly
+  useEffect(() => {
+    // This effect forces a re-render when question type changes
+    // to ensure UI is consistent with the question type
+    const updateUI = () => {
+      if (questionsType === "text") {
+        setOptions([]);
+        setToggles([]);
+      }
+    };
+    
+    updateUI();
+  }, [questionsType]);
 
   return (
     <div className="min-h-screen flex">
@@ -368,7 +513,7 @@ const Dep_InputQuestions = () => {
             <div className="text-2xl font-semibold text-center text-gray-800 ml-0 xl:ml-0">
               Create Aptitude Test
             </div>
-            <div className="flex space-x-3">
+            <div className="flex ">
               <button
                 className="mr-4 bg-blue-200 text-blue-900 px-4 py-2 rounded hover:bg-blue-300 border border-blue-700 opacity-90 hover:opacity-100"
                 onClick={() => setModalOpen(true)}
@@ -427,6 +572,23 @@ const Dep_InputQuestions = () => {
             </span>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          
+            <div className="mb-4">
+              <label className="text-xl block text-gray-700 font-medium mb-2">
+                Question Type:
+              </label>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={questionsType}
+                onChange={(e) => setQuestionsType(e.target.value)}
+              >
+                {validQusetionTypes.map((qtype, index) => (
+                  <option key={index} value={qtype}>
+                    {qtype.replace("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="mb-4">
               <label
                 htmlFor="question"
@@ -452,8 +614,7 @@ const Dep_InputQuestions = () => {
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="" hidden disabled className="text-gray-400">
-                  {initialCategory || "Select a category"}{" "}
-                  {/* Show the existing category if editing */}
+                  Select a category
                 </option>
                 {validCategories.map((cat, index) => (
                   <option key={index} value={cat} className="text-gray-800">
@@ -485,71 +646,80 @@ const Dep_InputQuestions = () => {
               </div>
             )}
            
-           {questionsType !== "text" && (
-            <div>
-              <label className="text-xl block text-gray-700 font-medium mb-2">
-                Options:
-              </label>
-              {options.map((answer, index) => (
-                <div
-                  key={index}
-                  className="group flex items-center gap-4 mb-2 p-3 rounded-lg "
-                >
-                  <input
-                    type="text"
-                    value={answer}
-                    onChange={(e) => handleAnswerChange(index, e.target.value)}
-                    placeholder={`Enter option ${index + 1}`}
-                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    onClick={() => handleToggleChange(index)}
-                    className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                      toggles[index] ? "bg-[#449800]" : "bg-gray-300"
-                    }`}
+            {/* Only render options section for non-text questions */}
+            {questionsType !== "text" && (
+              <div>
+                <label className="text-xl block text-gray-700 font-medium mb-2">
+                  Options:
+                </label>
+                {options.map((answer, index) => (
+                  <div
+                    key={index}
+                    className="group flex items-center gap-4 mb-2 p-3 rounded-lg "
                   >
-                    <div
-                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
-                        toggles[index] ? "translate-x-6" : "translate-x-0"
-                      }`}
+                    <input
+                      type="text"
+                      value={answer}
+                      onChange={(e) => handleAnswerChange(index, e.target.value)}
+                      placeholder={`Enter option ${index + 1}`}
+                      className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                  </button>
-                  <button
-                    onClick={() => handleRemoveAnswer(index)}
-                    className="text-red-500 hover:text-red-700 ml-2"
-                  >
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                    <button
+                      onClick={() => handleToggleChange(index)}
+                      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
+                        toggles[index] ? "bg-[#449800]" : "bg-gray-300"
+                      }`}
                     >
-                      <path
-                        d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"
-                        fill="currentColor"
+                      <div
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 transform ${
+                          toggles[index] ? "translate-x-6" : "translate-x-0"
+                        }`}
                       />
-                    </svg>
+                    </button>
+                    <button
+                      onClick={() => handleRemoveAnswer(index)}
+                      className="text-red-500 hover:text-red-700 ml-2"
+                    >
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7 21C6.45 21 5.97933 20.8043 5.588 20.413C5.19667 20.0217 5.00067 19.5507 5 19V6H4V4H9V3H15V4H20V6H19V19C19 19.55 18.8043 20.021 18.413 20.413C18.0217 20.805 17.5507 21.0007 17 21H7ZM17 6H7V19H17V6ZM9 17H11V8H9V17ZM13 17H15V8H13V17Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {options.length < 4 && (
+                  <button
+                    onClick={handleAddAnswer}
+                    className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
+                  >
+                    + Add Answer
                   </button>
-                </div>
-              ))}
-              {options.length < 4 && (
-                <button
-                  onClick={handleAddAnswer}
-                  className="bg-white text-black px-4 py-2 rounded-lg mt-2 hover:border border-black "
-                >
-                  + Add Answer
-                </button>
-              )}
-            </div>
-           )}
+                )}
+              </div>
+            )}
           </div>
           <div className="flex gap-4 justify-between">
             <button
               onClick={handleSubmit}
-              className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100"
+              className="bg-green-200 text-green-900 px-3 lg:px-4 py-2 rounded hover:bg-green-300 border border-green-700 opacity-90 hover:opacity-100 flex items-center"
+              disabled={loading}
             >
-              Save and Add Next
+              {loading ? (
+                <>
+                  <Loader className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save and Add Next"
+              )}
             </button>
             <button
               className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"

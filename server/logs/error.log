@@ -1,0 +1,9 @@
+[2025-03-20 11:22:18] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-20 11:50:11] error: User ID: 115, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-20 15:02:10] error: User ID: 122, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-20 15:02:11] error: User ID: 122, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-20 15:02:13] error: User ID: 122, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:50:40] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:51:59] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:52:01] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-03-24 09:52:04] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password

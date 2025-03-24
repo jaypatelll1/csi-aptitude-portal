@@ -93,30 +93,12 @@ const getPaginatedTeacherResultsByExam = async (req, res) => {
   }
 };
 
-// READ: Get past teacher results
-const pastTeacherResult = async (req, res) => {
-  const { exam_id } = req.params;
-  const { page = 1, limit = 10 } = req.query;
-
-  try {
-    const response = await viewResult(exam_id, parseInt(page), parseInt(limit));
-
-    if (!response) {
-      return res.status(404).json({ message: 'Results not found.' });
-    }
-
-    res.status(200).json({ page: parseInt(page), limit: parseInt(limit), response });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
 // READ: Get a specific teacher result by exam_id and question_id
 const getTeacherResultById = async (req, res) => {
-  const { exam_id, question_id } = req.params;
+  const { exam_id } = req.params;
 
   try {
-    const result = await teacherResultModel.getTeacherResultById(exam_id, question_id);
+    const result = await teacherResultModel.getTeacherResultById(exam_id);
     if (!result) {
       return res.status(404).json({ error: 'Result not found' });
     }
@@ -172,10 +154,10 @@ const deleteTeacherResult = async (req, res) => {
 
 // Get detailed correct/incorrect result
 const getCorrectIncorrectForTeacher = async (req, res) => {
-  const { exam_id, question_id, teacher_id } = req.params;
+  const { exam_id, teacher_id } = req.params;
 
   try {
-    const results = await teacherResultModel.getCorrectIncorrectForTeacher(teacher_id, exam_id, question_id);
+    const results = await teacherResultModel.getCorrectIncorrectForTeacher(teacher_id, exam_id);
 
     if (results.length === 0) {
       return res.status(404).json({ error: 'No results found' });
@@ -193,7 +175,6 @@ module.exports = {
   getAllTeacherResults,
   getResultsByTeacher,
   getPaginatedTeacherResultsByExam,
-  pastTeacherResult,
   getTeacherResultById,
   updateTeacherResult,
   deleteTeacherResult,

@@ -77,7 +77,7 @@ const Dep_PresidentViewQuestions = () => {
   // };
 
   const handleGoBack = () => {
-    navigate("/admin/input");
+    navigate("/president/input");
   };
 
   const handleSchedulePost = () => {

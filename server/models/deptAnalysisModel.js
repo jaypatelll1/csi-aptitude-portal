@@ -16,6 +16,18 @@ const getDepartmentAvgScore = async (department) => {
   return result.rows[0];
 };
 
+const getStudentCountByDepartment = async (department) => {
+  const result = await pool.query(
+    `
+    SELECT COUNT(*) AS student_count 
+    FROM users 
+    WHERE department = $1 AND role = 'Student';
+    `,
+    [department]
+  );
+  return result.rows[0];
+};
+
 const getDepartmentAvgScorePerExam = async (department) => {
   const result = await pool.query(
     `
@@ -276,4 +288,5 @@ module.exports = {
   getWeakAreas,
   getPerformanceOverTime,
   deptRanks,
+  getStudentCountByDepartment,
 };

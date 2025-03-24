@@ -19,6 +19,7 @@ const getAllDepartmentParams = async (req, res) => {
       accuracyRate,
       weakAreas,
       performanceOverTime,
+      studentCount
     ] = await Promise.all([
       deptModel.getDepartmentAvgScore(department),
       deptModel.getDepartmentAvgScorePerExam(department),
@@ -30,6 +31,7 @@ const getAllDepartmentParams = async (req, res) => {
       deptModel.getAccuracyRate(department),
       deptModel.getWeakAreas(department),
       deptModel.getPerformanceOverTime(department),
+      deptModel.getStudentCountByDepartment(department),
     ]);
 
     res.status(200).json({
@@ -44,6 +46,7 @@ const getAllDepartmentParams = async (req, res) => {
       accuracyRate,
       weakAreas,
       performanceOverTime,
+      studentCount
     });
   } catch (error) {
     console.error('Error fetching student performance:', error);
@@ -71,17 +74,14 @@ const getAllDeptAnalysis = async (req, res) => {
       //  Cache Miss: Fetch from DB
       console.log(`Cache Miss: Fetching analytics for ${cacheKey} from DB`);
 
-      const category_performance =
-        await deptModel.getCategoryPerformance(department);
+      const category_performance = await deptModel.getCategoryPerformance(department);
       const top_performer = await deptModel.getTopPerformer(department);
       const bottom_performer = await deptModel.getBottomPerformer(department);
-      const participation_rate =
-        await deptModel.getParticipationRate(department);
+      const participation_rate = await deptModel.getParticipationRate(department);
       const accuracy_rate = await deptModel.getAccuracyRate(department);
-      const performance_over_time =
-        await deptModel.getPerformanceOverTime(department);
-
+      const performance_over_time = await deptModel.getPerformanceOverTime(department);
       const dept_ranks = await deptModel.deptRanks(department);
+      const studentCount = await deptModel.getStudentCountByDepartment(department);
 
       const analyticsData = {
         category_performance,
@@ -91,6 +91,7 @@ const getAllDeptAnalysis = async (req, res) => {
         accuracy_rate,
         performance_over_time,
         dept_ranks,
+        studentCount
       };
 
       // Cache the data

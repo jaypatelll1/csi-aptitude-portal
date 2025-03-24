@@ -56,7 +56,6 @@ const Dep_CreateTestPage = () => {
       );
     }
   };
-  
 
   useEffect(() => {
     const fetchUserBranch = async () => {
@@ -182,7 +181,7 @@ const Dep_CreateTestPage = () => {
             Basic create test info.
           </h2>
         </div>
-{/* <>User Type</> */}
+        {/* <>User Type</> */}
         <div className="bg-white rounded-lg shadow-md p-5 ml-5 w-[96%]">
           <form>
             <div className="grid grid-cols-2 gap-4 my-5">
@@ -280,26 +279,32 @@ const Dep_CreateTestPage = () => {
             </div>
 
             <div className="mb-6">
-  <label
-    htmlFor="duration"
-    className="block text-sm font-medium text-gray-700 mb-2"
-  >
-    Duration (in minutes)
-  </label>
-  <input
-    type="number"
-    id="duration"
-    placeholder="Eg. 30"
-    className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-    value={duration}
-    onChange={(e) => {
-      const value = Math.max(0, Number(e.target.value)); // Prevent negative values
-      setDuration(value);
-    }}
-    min="0" // Prevents manual negative input
-    required
-  />
-</div>
+              <label
+                htmlFor="duration"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Duration (in minutes)
+              </label>
+              <input
+                type="number"
+                id="duration"
+                placeholder="Eg. 30"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={duration === 0 ? "" : duration} 
+                onChange={(e) => {
+                  const value =
+                    e.target.value === ""
+                      ? ""
+                      : Math.max(0, Number(e.target.value));
+                  setDuration(value);
+                }}
+                onBlur={() => {
+                  if (duration === "") setDuration(0); 
+                }}
+                min="0"
+                required
+              />
+            </div>
           </form>
         </div>
 

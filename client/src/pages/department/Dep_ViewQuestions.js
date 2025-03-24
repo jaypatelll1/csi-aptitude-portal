@@ -241,13 +241,17 @@ const Dep_ViewQuestions = () => {
           ) : (
             questions.map((question, index) => (
               <Dep_ViewQuestionCard
-                key={question.question_id}
-                id={question.question_id}
-                index={index}
-                text={question.question_text}
-                options={question.options}
-                correct_option={question.correct_option}
-                category={question.category}
+              key={question.question_id}
+              id={question.question_id}
+              index={index}
+              question_type={question.question_type}
+              text={question.question_text}
+              options={question.options}
+              correct_option={question.correct_option}
+              correct_options={question.correct_options}
+              category={question.category}
+              image_url={question.image_url}
+
               />
             ))
           )}
