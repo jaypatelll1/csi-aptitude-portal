@@ -116,7 +116,7 @@ const Dep_PresidentDashboard = () => {
         setTileData([
           { label: "Live Tests", value: liveTestsCount },
           { label: "Active Students", value: studentsCount },
-          { label: "Students in Last Exam", value: lastTestStudentCount },
+          { label: "Teachers", value: lastTestStudentCount },
         ]);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
