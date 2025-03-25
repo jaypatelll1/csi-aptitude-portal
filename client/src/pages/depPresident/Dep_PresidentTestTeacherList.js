@@ -91,7 +91,7 @@ const Dep_PresidentTestTeacherList = () => {
   //           teacher.teacher_email?.toLowerCase().includes(term) ||
   //           teacher.Date?.toLowerCase().includes(term) ||
   //           teacher.status?.toLowerCase().includes(term)
-  //       ) 
+  //       )
   //     : teachers;
 
   //   setFilteredTeachers(searchResults);
@@ -101,16 +101,16 @@ const Dep_PresidentTestTeacherList = () => {
     setPage(1);
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-  
+
     const searchResults = term
       ? teachers.filter(
           (teacher) =>
             teacher.name?.toLowerCase().includes(term) ||
             teacher.email?.toLowerCase().includes(term) ||
             teacher.phone?.toLowerCase().includes(term)
-        ) 
+        )
       : teachers;
-  
+
     setFilteredTeachers(searchResults);
   };
 
@@ -263,50 +263,43 @@ const Dep_PresidentTestTeacherList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTeachers
-                .slice((page - 1) * limit, page * limit)
-                .map((teacher, index) => (
-                  <tr
-                    key={teacher.result_id || index}
-                    className="hover:bg-gray-50"
-                  >
-                    <td className="py-4 px-4">{index + 1}</td>
-                    <td className="py-4 px-4">{teacher.name}</td>
-                    <td className="py-4 px-4">{teacher.email}</td>
-                    <td className="py-4 px-4">{teacher.phone}</td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={(e) =>
-                          handleClick(teacher, examId, exam_name)
-                        }
-                        className="p-2"
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M7 17l9.2-9.2M17 17V8h-9" />
-                        </svg>
-                      </button>
-                    </td>
-                    <td className="py-4 px-4">
+              {filteredTeachers.slice((page - 1) * limit, page * limit).map((teacher, index) => (
+                <tr key={teacher.result_id || index} className="hover:bg-gray-50">
+                  <td className="py-4 px-4">{index + 1}</td>
+                  <td className="py-4 px-4">{teacher.name}</td>
+                  <td className="py-4 px-4">{teacher.email}</td>
+                  <td className="py-4 px-4">{teacher.phone}</td>
+                  <td className="py-4 px-4">
+                    <button
+                      onClick={(e) => handleClick(teacher, examId, exam_name)}
+                      className="p-2"
+                    >
                       <svg
-                        className="w-5 h-5 text-gray-600 cursor-pointer"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
-                        viewBox="0 0 24 24"
                       >
-                        <path d="M12 2L12 15M12 2L16 6M12 2L8 6" />
-                        <rect x="4" y="6" width="16" height="14" rx="2" />
+                        <path d="M7 17l9.2-9.2M17 17V8h-9" />
                       </svg>
-                    </td>
-                  </tr>
-                ))}
+                    </button>
+                  </td>
+                  <td className="py-4 px-4">
+                    <svg
+                      className="w-5 h-5 text-gray-600 cursor-pointer"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2L12 15M12 2L16 6M12 2L8 6" />
+                      <rect x="4" y="6" width="16" height="14" rx="2" />
+                    </svg>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
 
