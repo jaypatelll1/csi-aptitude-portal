@@ -84,9 +84,10 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
 
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      
       const response = await axios.post(
         `${API_BASE_URL}/api/users/send-reset-mail`,
-        { user_id: student.user_id },
+        { student},
         { withCredentials: true }
       );
 
