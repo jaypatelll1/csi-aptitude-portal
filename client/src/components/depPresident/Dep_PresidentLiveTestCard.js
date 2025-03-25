@@ -1,8 +1,14 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Dep_PresidentLiveTestCard = ({ test }) => {
   let user = useSelector((state) => state.user.user);
+  let navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate("/president/livetest-list");
+  }
 
   return (
     <div className="bg-white ml-4 w-[96%] rounded-lg p-4 border border-gray-400 flex flex-col">
@@ -127,7 +133,7 @@ const Dep_PresidentLiveTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-[#ffd2d2] text-[#cd0606] font-bold px-3 lg:px-4 py-2 rounded hover:bg-red-300 border border-red-700 opacity-90 hover:opacity-100">
+        <button className="bg-[#ffd2d2] text-[#cd0606] font-bold px-3 lg:px-4 py-2 rounded hover:bg-red-300 border border-red-700 opacity-90 hover:opacity-100" onClick={handleNavigate}>
           Ongoing
         </button>
       </div>

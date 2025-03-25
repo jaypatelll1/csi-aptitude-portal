@@ -62,6 +62,7 @@ import Dep_PresidentResult from "./pages/depPresident/Dep_PresidentResult";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
+import Dep_PresidentLiveTestList from "./pages/depPresident/Dep_PresidentLiveTestList";
 
 const AppRoutes = () => {
   return (
@@ -477,6 +478,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["President"]}>
             <Dep_PresidentResult />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/president/livetest-list"
+        element={
+          <ProtectedRoute allowedRoles={["President"]}>
+            <Dep_PresidentLiveTestList/>
           </ProtectedRoute>
         }
       />

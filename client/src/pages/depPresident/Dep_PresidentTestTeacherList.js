@@ -4,6 +4,8 @@ import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSid
 import { useLocation } from "react-router-dom";
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import { useNavigate } from "react-router-dom";
+import pdf from "../../assets/pdf.svg";
+import right from "../../assets/right.svg";
 
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
@@ -317,16 +319,10 @@ const Dep_PresidentTestTeacherList = () => {
                         onClick={(e) => handleClick(teacher, examId, exam_name)}
                         className="p-2"
                       >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M7 17l9.2-9.2M17 17V8h-9" />
-                        </svg>
+                        <img
+                          src={right}
+                          alt="right"
+                          className="w-8 h-8 text-gray-600 cursor-pointer"/>
                       </button>
                     </td>
                     <td className="py-4 px-4">
@@ -334,16 +330,7 @@ const Dep_PresidentTestTeacherList = () => {
                         className="p-2"
                         onClick={(e) => handlePdfClick(teacher, examId)}
                       >
-                        <svg
-                          className="w-5 h-5 text-gray-600 cursor-pointer"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 2L12 15M12 2L16 6M12 2L8 6" />
-                          <rect x="4" y="6" width="16" height="14" rx="2" />
-                        </svg>
+                        <img src={pdf} alt="pdf" className="w-8 h-8 text-gray-600 cursor-pointer" />
                       </button>
                     </td>
                   </tr>
