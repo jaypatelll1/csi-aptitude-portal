@@ -45,7 +45,7 @@ const Teacher_TestInstruction = () => {
           });
 
           await axios.post(
-            `${API_BASE_URL}/api/exams/teacher-responses/initialize/${examId}`,
+            `${API_BASE_URL}/api/exams/teacher-responses/initialize/${examId}?teacher_id=${userId}`,
             {},
             { withCredentials: true }
           );

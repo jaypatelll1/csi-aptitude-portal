@@ -371,7 +371,7 @@ const Teacher_MCQExamPage = () => {
           </div>
         )}
 
-        <div className="w-9/12 2xl:w-11/12 h-screen px-8 py-6 bg-[#F5F6F8]">
+        <div className="w-9/12 2xl:w-11/12 h-screen px-8 py-6 bg-[#F5F6F8]">  
           {exam
             ?.filter((examItem) => examItem.exam_id === Number(examId))
             .map((examItem) => (

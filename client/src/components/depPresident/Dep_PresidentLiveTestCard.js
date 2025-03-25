@@ -7,8 +7,10 @@ const Dep_PresidentLiveTestCard = ({ test }) => {
   let navigate = useNavigate();
 
   const handleNavigate = () => {
-    navigate("/president/livetest-list");
-  }
+    navigate("/president/livetest-list", {
+      state: { exam_id: test.exam_id, name: test.title },
+    });
+  };
 
   return (
     <div className="bg-white ml-4 w-[96%] rounded-lg p-4 border border-gray-400 flex flex-col">
@@ -32,7 +34,9 @@ const Dep_PresidentLiveTestCard = ({ test }) => {
         </span>
         <div className="text-right">
           <div className="flex flex-col items-center">
-            <span className="text-black-500 text-sm">Created on: {test.date}</span>
+            <span className="text-black-500 text-sm">
+              Created on: {test.date}
+            </span>
             {/* <span className="text-black-500 text-xs mr-5">
               Branch: {test.target_years ? test.target_years.replace(/[{}]/g, "") : "N/A"} -{" "}
               {test.target_branches
@@ -133,7 +137,10 @@ const Dep_PresidentLiveTestCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button className="bg-[#ffd2d2] text-[#cd0606] font-bold px-3 lg:px-4 py-2 rounded hover:bg-red-300 border border-red-700 opacity-90 hover:opacity-100" onClick={handleNavigate}>
+        <button
+          className="bg-[#ffd2d2] text-[#cd0606] font-bold px-3 lg:px-4 py-2 rounded hover:bg-red-300 border border-red-700 opacity-90 hover:opacity-100"
+          onClick={handleNavigate}
+        >
           Ongoing
         </button>
       </div>

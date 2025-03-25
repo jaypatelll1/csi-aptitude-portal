@@ -8,11 +8,20 @@ import rigthwifi from "../../assets/rightwifi.svg";
 import clip from "../../assets/clipboard.svg";
 import blackclip from "../../assets/blackclip.svg";
 import greenright from "../../assets/greenright.svg";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 function Dep_PresidentLiveTestList() {
   const sidebarRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [retestStates, setRetestStates] = useState({});
+  const [testData, setTestData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const location = useLocation();
+  // const test = location.state?.test;
+  const exam_id = location.state?.exam_id;
+  const name = location.state?.name;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,33 +37,64 @@ function Dep_PresidentLiveTestList() {
     };
   }, []);
 
-  const testData = [
-    { id: 1, name: "Shree Shinde", email: "shreeshinde-it@gathervoice.co.in" },
-    { id: 2, name: "Shravani P.", email: "shravanip-int@gathervoice.co.in" },
-    { id: 3, name: "Wade Warren", email: "WadeWarren-int@gathervoice.co.in" },
-    { id: 4, name: "Guy Hawkins", email: "GuyhHawkins-int@gathervoice.co.in" },
-    { id: 5, name: "Robert Fox", email: "RobertFox-int@gathervoice.co.in" },
-    { id: 6, name: "Jacob Jones", email: "JacobJones-int@gathervoice.co.in" },
-    {
-      id: 7,
-      name: "Albert Flores",
-      email: "AlbertFlores-int@gathervoice.co.in",
-    },
-    { id: 8, name: "Cody Fisher", email: "CodyFisher-int@gathervoice.co.in" },
-    { id: 9, name: "Floyd Miles", email: "FloydMiles-int@gathervoice.co.in" },
-    { id: 10, name: "Jerome Bell", email: "JeromeBell-int@gathervoice.co.in" },
-  ];
+  const fetchTeacherData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(
+        `${API_BASE_URL}/api/exams/teacher-responses/president/attempted-test/${exam_id}`,
+        {
+          withCredentials: true,
+        },
+      );
+      if(response.data.message === "Teacher has already re-attempted this exam"){
+        toast.error("The selected Teacher has already re-attempted the exam.", {
+          duration: 5000,
+          position: "top-right",
+        });
+      }
+      setTestData(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching teacher data:", error);
+      toast.error("Failed to fetch teacher data", {
+        duration: 5000,
+        position: "top-right",
+      });
+    }
+  };
 
-  const handleRetest = (id) => {
-    setRetestStates((prev) => ({
-      ...prev,
-      [id]: true,
-    }));
+  useEffect(() => {
+    fetchTeacherData();
+  }, []);
+
+  const handleRetest = async (teacher_id) => {
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    try {
+      // Disable the retest button
+      setRetestStates((prev) => ({ ...prev, [teacher_id]: true }));
+      const response = await axios.post(
+        `${API_BASE_URL}/api/exams/teacher-responses/initialize/${exam_id}?teacher_id=${teacher_id}&role=President`,
+        {},
+        { withCredentials: true },
+      );
+
+       // Check if response.data.message exists and set toast accordingly
+       if (response.data.message) {
+        toast.error(response.data.message, {
+          duration: 5000,
+          position: "top-right",
+        });
+        return;
+      }
+
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error retesting teacher:", error);
+    }
 
     // Prevent duplicate toasts
-    const toastId = `retest-${id}`;
+    const toastId = `retest-${teacher_id}`;
     if (toastId in toast) return; // Ensures only one toast per user
-
 
     toast.custom(
       (t) => (
@@ -65,7 +105,7 @@ function Dep_PresidentLiveTestList() {
           style={{ width: "320px" }}
         >
           <span className="text-sm font-semibold">
-            Test is Now Ready to re-attempt for the Selected Individual
+            Test is Now Ready to re-attempt. This will be the LAST re-attempt.
           </span>
           <button
             onClick={() => toast.dismiss(t.id)}
@@ -130,7 +170,7 @@ function Dep_PresidentLiveTestList() {
                 <h1 className="text-3xl font-bold text-[#3160CC] py-8 ml-4">
                   Attempted
                 </h1>
-                <h1 className="text-lg mt-2">-Numerical reasoning test</h1>
+                <h1 className="text-lg mt-2">- {name}</h1>
               </div>
 
               <div className="flex items-center justify-center mr-10">
@@ -163,7 +203,7 @@ function Dep_PresidentLiveTestList() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {testData.map((user, index) => (
-                  <tr key={user.id}>
+                  <tr key={user.teacher_id}>
                     <td className="p-3 text-center whitespace-nowrap">
                       {index + 1}
                     </td>
@@ -177,7 +217,11 @@ function Dep_PresidentLiveTestList() {
                     {/* ✅ If the user has attempted, show green check */}
                     <td className="p-3 flex justify-center">
                       <img
-                        src={retestStates[user.id] ? greenright : right}
+                        src={
+                          user.response_status === "submitted"
+                            ? greenright
+                            : right
+                        }
                         alt="right"
                         className="w-7 h-7"
                       />
@@ -186,17 +230,26 @@ function Dep_PresidentLiveTestList() {
                     <td className="p-3 text-center">
                       <div className="flex justify-center items-center">
                         <button
-                          onClick={() => handleRetest(user.id)}
+                          onClick={() => handleRetest(user.teacher_id)}
                           className={`px-4 py-2 rounded transition-colors duration-300 flex justify-center items-center ${
-                            retestStates[user.id]
+                            user.response_status !== "submitted" ||
+                            retestStates[user.teacher_id]
                               ? "bg-gray-400 text-gray-700 cursor-default"
                               : "bg-blue-500 text-white hover:bg-blue-600"
-                          }`}
-                          disabled={retestStates[user.id]}
+                          }`} // Disable button if user has not attempted
+                          disabled={
+                            user.response_status !== "submitted" ||
+                            retestStates[user.teacher_id]
+                          }
                         >
                           {/* ✅ Change clip icon when clicked */}
                           <img
-                            src={retestStates[user.id] ? blackclip : clip}
+                            src={
+                              user.response_status !== "submitted" ||
+                              retestStates[user.teacher_id]
+                                ? blackclip
+                                : clip
+                            }
                             alt="clip"
                             className="w-5 h-5 mr-2"
                           />

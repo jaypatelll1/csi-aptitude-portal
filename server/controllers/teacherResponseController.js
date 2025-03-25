@@ -4,21 +4,27 @@ const { logActivity } = require('../utils/logActivity');
 
 const deleteExistingTeacherResponses = async (req, res) => {
   const { exam_id } = req.params;
-  // const teacher_id = req.user.id; // Get teacher ID from JWT
-  const teacher_id = req.query.teacher_id;
+  const { teacher_id, role } = req.query;
+  console.log(exam_id, teacher_id, role)
 
   if (!teacher_id || !exam_id) {
     return res.status(400).json({ message: 'All fields are required' });
   }
   try {
-    // Track teacher's attempt
-    const attempts = await trackAttempt(teacher_id);
-    if (attempts === null) {
-      return res.status(500).json({ error: 'Failed to track attempt' });
-    } else if(attempts === 2){
-      return res.json({ message: `Teacher ${teacher_id} is re-attempting this exam ${exam_id}` });
-    } else if(attempts > 2){
-      return res.json({ message: `Teacher ${teacher_id} has already re-attempted this exam` });
+    if (role === 'President') {
+      // Track teacher's attempt
+      const attempts = await trackAttempt(teacher_id);
+      if (attempts === null) {
+        return res.status(500).json({ error: 'Failed to track attempt' });
+      } else if (attempts === 2) {
+        return res.json({
+          message: `Teacher is re-attempting this exam.`,
+        });
+      } else if (attempts > 2) {
+        return res.json({
+          message: `Teacher has already re-attempted this exam`,
+        });
+      }
     }
 
     // Delete existing responses
@@ -163,11 +169,10 @@ const getResponsesForUsers = async (req, res) => {
 };
 // getResponsesForUsers
 const getAttemptedTest = async (req, res) => {
-
   const { exam_id } = req.params;
-  console.log(exam_id)
+  console.log(exam_id);
   try {
-    const responses = await teacherResponseModel.getAttemptedTest( exam_id);
+    const responses = await teacherResponseModel.getAttemptedTest(exam_id);
     if (!responses) {
       await logActivity({
         activity: 'View Responses',
@@ -350,5 +355,5 @@ module.exports = {
   deleteResponse,
   getPaginatedResponsesForExam,
   getAttemptedTeachersForExam,
-  getAttemptedTest
+  getAttemptedTest,
 };

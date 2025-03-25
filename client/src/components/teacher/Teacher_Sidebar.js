@@ -33,7 +33,7 @@ function Teacher_Sidebar() {
               />
             </svg>
           </span>
-          <Link to="/home">Dashboard</Link>
+          <Link to="/teacher">Dashboard</Link>
         </li>
 
         {/* Analytics */}
