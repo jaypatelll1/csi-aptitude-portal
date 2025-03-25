@@ -396,3 +396,39 @@
 [2025-03-24 09:57:08] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
 [2025-03-24 09:57:08] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
 [2025-03-24 09:57:08] info: User ID: 295, Activity: View Responses, Status: success, Details: Responses found
+[2025-03-25 13:19:39] info: User ID: undefined, Activity: Viewed paginated responses, Status: success, Details: Page: All, Limit: All
+[2025-03-25 13:20:05] info: User ID: undefined, Activity: Viewed paginated responses, Status: success, Details: Page: All, Limit: All
+[2025-03-25 13:22:17] info: User ID: 115, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-03-25 13:22:17] info: User ID: 115, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-03-25 13:22:19] info: User ID: 115, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-03-25 13:22:20] info: User ID: 115, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-03-25 13:22:20] info: User ID: 115, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:22:20] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:22:21] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:22:21] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:22:41] info: User ID: 115, Activity: View Results, Status: success, Details: Results found
+[2025-03-25 13:22:42] info: User ID: undefined, Activity: Viewed paginated responses, Status: success, Details: Page: All, Limit: All
+[2025-03-25 13:23:36] info: User ID: 115, Activity: Viewed paginated users, Status: success, Details: Page: All, Limit: All
+[2025-03-25 13:23:49] info: User ID: 115, Activity: Viewed paginated users, Status: success, Details: Page: All, Limit: All
+[2025-03-25 13:24:59] info: User ID: 115, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-03-25 13:24:59] info: User ID: 115, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:25:00] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:25:00] info: User ID: 115, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-03-25 13:25:01] info: User ID: 115, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-03-25 13:25:01] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:25:02] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:25:06] info: User ID: 115, Activity: View Results, Status: success, Details: Results found
+[2025-03-25 13:25:06] info: User ID: 115, Activity: Viewed paginated users, Status: success, Details: Page: All, Limit: All
+[2025-03-25 13:25:25] info: User ID: 115, Activity: Viewed Particular users, Status: success, Details: Viewed All queried users
+[2025-03-25 13:26:18] info: User ID: 578, Activity: Register user, Status: success, Details: User registered successfully
+[2025-03-25 13:26:36] info: User ID: 115, Activity: Viewed Particular users, Status: success, Details: Viewed All queried users
+[2025-03-25 13:27:28] info: User ID: 562, Activity: Update user details, Status: success, Details: User details updated successfully
+[2025-03-25 13:27:38] info: User ID: 115, Activity: Viewed Particular users, Status: success, Details: Viewed All queried users
+[2025-03-25 13:29:00] info: User ID: 115, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-03-25 13:29:01] info: User ID: 115, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-03-25 13:29:03] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:29:04] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:29:04] info: User ID: 115, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-03-25 13:29:04] info: User ID: 115, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined
+[2025-03-25 13:29:04] info: User ID: 115, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-03-25 13:29:05] info: User ID: 115, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined
