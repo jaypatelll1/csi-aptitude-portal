@@ -268,6 +268,43 @@ const getPaginatedResponsesForExam = async (req, res) => {
   }
 };
 
+const getAttemptedTeachersForExam = async (req, res) => {
+  const { exam_id } = req.params;
+  let { page, limit } = req.query;
+  const teacher_id = req.user.id; // Retrieved from JWT
+
+  try {
+    // Convert query params to integers and handle missing values
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    if (isNaN(page) || page < 1) page = null;
+    if (isNaN(limit) || limit < 1) limit = null;
+
+    const responses = await teacherResponseModel.getAttemptedTeachersForExam(
+      exam_id,
+      page,
+      limit
+    );
+
+    // Log activity but ensure it doesn't break execution
+    try {
+      await logActivity({
+        user_id: teacher_id,
+        activity: `Viewed paginated users`,
+        status: 'success',
+        details: `Page: ${page || 'All'}, Limit: ${limit || 'All'}`,
+      });
+    } catch (logError) {
+      console.error('Error logging activity:', logError);
+    }
+    return res.status(200).json(responses);
+  } catch (error) {
+    console.error('Error fetching paginated users:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   deleteExistingTeacherResponses,
   submitTeacherResponse,
@@ -276,4 +313,5 @@ module.exports = {
   resetUserResponse,
   deleteResponse,
   getPaginatedResponsesForExam,
+  getAttemptedTeachersForExam,
 };

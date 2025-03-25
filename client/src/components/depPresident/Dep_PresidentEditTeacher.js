@@ -12,9 +12,9 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
   const [lastName, setLastName] = useState(lastname);
   const [email, setEmail] = useState(student.email);
   const [mobile, setMobile] = useState(student.phone);
-  const [year, setYear] = useState(student.year);
-  const [rollno, setRollno] = useState(student.rollno);
-  const [claass, setClaass] = useState(student.class);
+  // const [year, setYear] = useState(student.year);
+  // const [rollno, setRollno] = useState(student.rollno);
+  // const [claass, setClaass] = useState(student.class);
   const [loading, setLoading] = useState(false); // Disable buttons during request
   const requestRef = useRef(false);
 
@@ -28,9 +28,9 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
       email: `${email}`,
       phone: `${mobile}`,
       department: userRole === "Department" ? userDepartment : student.department,
-      rollno: Number(rollno),
-      role: "Student",
-      year: `${year}`,
+      // rollno: Number(rollno),
+      role: "Teacher",
+      // year: `${year}`,
     };
 
     try {
@@ -41,11 +41,11 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
         { withCredentials: true }
       );
 
-      alert("Student updated successfully!");
+      alert("Teacher updated successfully!");
       closeEditModal();
     } catch (error) {
-      console.error("Error updating student:", error);
-      alert("Failed to update student. Please try again.");
+      console.error("Error updating teacher:", error);
+      alert("Failed to update teacher. Please try again.");
     } finally {
       requestRef.current = false;
       setLoading(false);
@@ -64,12 +64,12 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
         withCredentials: true,
       });
 
-      alert("Student deleted successfully!");
+      alert("Teacher deleted successfully!");
       counter();
       closeEditModal();
     } catch (error) {
-      console.error("Error deleting student:", error);
-      alert("Failed to delete student. Please try again.");
+      console.error("Error deleting teacher:", error);
+      alert("Failed to delete Teacher. Please try again.");
     } finally {
       requestRef.current = false;
       setLoading(false);
@@ -93,7 +93,7 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
       alert("Password reset email sent successfully!");
       closeEditModal();
     } catch (error) {
-      console.error("Error resetting student:", error);
+      console.error("Error resetting teacher:", error);
       alert("Failed to send reset email. Please try again.");
     } finally {
       requestRef.current = false;
@@ -103,7 +103,7 @@ const Dep_PresidentEditTeacher = ({ closeEditModal, student, counter }) => {
 
   return (
     <div className="bg-white rounded-lg border w-[554px] px-6 py-6 mb-10 ml-10">
-      <h1 className="text-xl font-medium">Edit Student</h1>
+      <h1 className="text-xl font-medium">Edit Teacher</h1>
       <hr className="my-4 border-black" />
 
       <div id="NameBoxes" className="mb-4">

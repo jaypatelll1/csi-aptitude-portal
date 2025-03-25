@@ -8,6 +8,7 @@ const {
   resetUserResponse,
   deleteResponse,
   getPaginatedResponsesForExam,
+  getAttemptedTeachersForExam,
 } = require('../controllers/teacherResponseController');
 
 router.post('/initialize/:exam_id', deleteExistingTeacherResponses);
@@ -16,6 +17,7 @@ router.put('/final/:exam_id', submitFinalTeacherResponsesAndChangeStatus);
 
 router.get('/user_id', getResponsesForUsers); // response for particular users
 router.get('/:exam_id', getPaginatedResponsesForExam) // pagination
+router.get('/attempted-teachers/:exam_id', getAttemptedTeachersForExam) // pagination
 
 router.put("/exams/clear-response", resetUserResponse);
 
