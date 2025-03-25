@@ -107,7 +107,7 @@ const Dep_PresidentTestTeacherList = () => {
           (teacher) =>
             teacher.name?.toLowerCase().includes(term) ||
             teacher.email?.toLowerCase().includes(term) ||
-            teacher.phone?.toLowerCase().includes(term)
+            teacher.phone?.toLowerCase().includes(term),
         )
       : teachers;
 
@@ -118,11 +118,13 @@ const Dep_PresidentTestTeacherList = () => {
     const fetchTeacherDetails = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/teacher-responses/attempted-teachers/${examId}`, {
-          withCredentials: true, // Make sure the cookie is sent with the request
-        });
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/teacher-responses/attempted-teachers/${examId}`,
+          {
+            withCredentials: true, // Make sure the cookie is sent with the request
+          },
+        );
         const data = response.data;
-        console.log(response.data);
 
         // Ensure data is an array
         const normalizedData = Array.isArray(data) ? data : data ? [data] : [];
@@ -130,8 +132,6 @@ const Dep_PresidentTestTeacherList = () => {
         setUserDetails(normalizedData);
         setTeachers(normalizedData);
         setFilteredTeachers(normalizedData);
-
-        console.log("Teacher Data:", normalizedData);
       } catch (error) {
         console.error("Error fetching teacher data:", error);
 
@@ -143,8 +143,39 @@ const Dep_PresidentTestTeacherList = () => {
     };
     fetchTeacherDetails();
   }, [examId]);
+
   const handleClick = (teacher, exam_id, exam_name) => {
     navigate(`/president/result`, { state: { teacher, exam_id, exam_name } });
+  };
+
+  const handlePdfClick = async (teacher, exam_id) => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(
+        `${API_BASE_URL}/generate-pdf/${teacher.teacher_id}/${exam_id}`,
+        {
+          responseType: "blob", // Important for handling files
+          withCredentials: true,
+        }
+      );
+  
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+  
+      // Create a link element and trigger a download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Teacher_Report_${teacher.name}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up the URL object
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
 
   // Remove or comment out the student fetch since we're now fetching teachers
@@ -174,7 +205,10 @@ const Dep_PresidentTestTeacherList = () => {
   const numberofpages = Math.ceil(filteredTeachers.length / limit);
   const startPage = Math.max(1, page - 3);
   const endPage = Math.min(numberofpages, page + 3);
-  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  const pageNumbers = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i,
+  );
 
   return (
     <div className="min-h-screen flex">
@@ -203,7 +237,11 @@ const Dep_PresidentTestTeacherList = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                d={
+                  sidebarOpen
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
+                }
               />
             </svg>
           </button>
@@ -263,43 +301,53 @@ const Dep_PresidentTestTeacherList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTeachers.slice((page - 1) * limit, page * limit).map((teacher, index) => (
-                <tr key={teacher.result_id || index} className="hover:bg-gray-50">
-                  <td className="py-4 px-4">{index + 1}</td>
-                  <td className="py-4 px-4">{teacher.name}</td>
-                  <td className="py-4 px-4">{teacher.email}</td>
-                  <td className="py-4 px-4">{teacher.phone}</td>
-                  <td className="py-4 px-4">
-                    <button
-                      onClick={(e) => handleClick(teacher, examId, exam_name)}
-                      className="p-2"
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
+              {filteredTeachers
+                .slice((page - 1) * limit, page * limit)
+                .map((teacher, index) => (
+                  <tr
+                    key={teacher.result_id || index}
+                    className="hover:bg-gray-50"
+                  >
+                    <td className="py-4 px-4">{index + 1}</td>
+                    <td className="py-4 px-4">{teacher.name}</td>
+                    <td className="py-4 px-4">{teacher.email}</td>
+                    <td className="py-4 px-4">{teacher.phone}</td>
+                    <td className="py-4 px-4">
+                      <button
+                        onClick={(e) => handleClick(teacher, examId, exam_name)}
+                        className="p-2"
                       >
-                        <path d="M7 17l9.2-9.2M17 17V8h-9" />
-                      </svg>
-                    </button>
-                  </td>
-                  <td className="py-4 px-4">
-                    <svg
-                      className="w-5 h-5 text-gray-600 cursor-pointer"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2L12 15M12 2L16 6M12 2L8 6" />
-                      <rect x="4" y="6" width="16" height="14" rx="2" />
-                    </svg>
-                  </td>
-                </tr>
-              ))}
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M7 17l9.2-9.2M17 17V8h-9" />
+                        </svg>
+                      </button>
+                    </td>
+                    <td className="py-4 px-4">
+                      <button
+                        className="p-2"
+                        onClick={(e) => handlePdfClick(teacher, examId)}
+                      >
+                        <svg
+                          className="w-5 h-5 text-gray-600 cursor-pointer"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2L12 15M12 2L16 6M12 2L8 6" />
+                          <rect x="4" y="6" width="16" height="14" rx="2" />
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
 
