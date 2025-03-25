@@ -40,7 +40,8 @@ const Teacher_MCQExamPage = () => {
   // Local state to handle multiple options and text answers
   const [multipleAnswers, setMultipleAnswers] = useState({});
   const [textAnswers, setTextAnswers] = useState({});
-
+  // console.log(multipleAnswers)
+  // console.log(textAnswers)
   const formatTimeFromSeconds = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -147,7 +148,6 @@ const Teacher_MCQExamPage = () => {
   const handleOptionSelect = (option) => {
     const currentQuestion = questions[currentQuestionIndex];
     dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
-    singleResponse(option, currentQuestion?.question_id, currentQuestion?.question_type);
   };
 
   const handleMultipleOptionsSelect = (options) => {
@@ -160,7 +160,6 @@ const Teacher_MCQExamPage = () => {
       [questionId]: options,
     });
     dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options }));
-    multipleResponse(options, questionId, currentQuestion?.question_type);
   };
 
   const handleTextChange = (text) => {
@@ -173,7 +172,7 @@ const Teacher_MCQExamPage = () => {
       [questionId]: text,
     });
     dispatch(setTextAnswer({ index: currentQuestionIndex, text }));
-    textResponse(text, questionId, currentQuestion?.question_type);
+    // textResponse(text, questionId, currentQuestion?.question_type);
   };
 
   const singleResponse = async (option, id, question_type) => {
@@ -252,11 +251,7 @@ const Teacher_MCQExamPage = () => {
     const url = `${API_BASE_URL}/api/exams/teacher-responses/exams/clear-response`;
 
     try {
-      await axios.put(
-        url,
-        { teacherId: userId, examId: Number(examId), questionId: id },
-        { withCredentials: true }
-      );
+      
 
       const currentQuestion = questions[currentQuestionIndex];
 
@@ -275,6 +270,11 @@ const Teacher_MCQExamPage = () => {
         });
         dispatch(setTextAnswer({ index: currentQuestionIndex, text: "" }));
       }
+      await axios.put(
+        url,
+        { teacherId: userId, examId: Number(examId), questionId: id },
+        { withCredentials: true }
+      );
     } catch (error) {
       console.error("Error clearing response:", error);
     }
@@ -283,6 +283,25 @@ const Teacher_MCQExamPage = () => {
   const handleMarkForReview = () => {
     dispatch(toggleMarkForReview(currentQuestionIndex));
   };
+
+  const handleQuestion = async (question, index) => {
+    // console.log(question)
+    if (question.question_type === 'text') {
+
+      console.log(question)
+      textResponse(question.question_text, question.question_id, question.question_type)
+    }
+    else if (question.question_type === 'single_choice') {
+      singleResponse(question.option, question?.question_id, question?.question_type);
+    }
+    else if (question.question_type === 'multiple_choice') {
+      multipleResponse(question.options, question.question_id, question?.question_type);
+
+    }
+    else {
+      console.log("no text")
+    }
+  }
 
   // useEffect(() => {
   //   let warningCount = 0;
@@ -419,11 +438,17 @@ const Teacher_MCQExamPage = () => {
               </div>
               <button
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
-                disabled={currentQuestionIndex === questions.length - 1}
-                onClick={handleNextQuestion}
+                onClick={() => {
+                  
+                  if (currentQuestionIndex < questions.length - 1) {
+                    handleNextQuestion(); // Move to next question only if not the last question
+                    handleQuestion(currentQuestion, currentQuestionIndex);
+                  }
+                }}
               >
-                Save & Next
+                {currentQuestionIndex === questions.length - 1 ? "Save" : "Save & Next"}
               </button>
+
             </div>
           </div>
         </div>

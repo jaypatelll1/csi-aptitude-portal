@@ -69,7 +69,7 @@ const Question = ({
         return (
           <div className="mt-4">
             <textarea
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
+              className="w-full min-h-[250px] p-3 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
               rows="4"
               value={textAnswer || ""}
               onChange={(e) => onTextChange(e.target.value)}
