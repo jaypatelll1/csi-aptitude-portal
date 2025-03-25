@@ -20,6 +20,7 @@ const Teacher_TestInstruction = () => {
   const dispatch = useDispatch();
 
   const exam = useSelector((state) => state.exam.exam);
+  const userId = useSelector((state)=>state.user.user.id)
   // console.log('exam',exam);
 
   // const Duration = useSelector((state)=>state.time)
@@ -88,7 +89,7 @@ const Teacher_TestInstruction = () => {
           fetchQuestions();
         } else if (response.data.includes(examId)) {
           const responses = await axios.get(
-            `${API_BASE_URL}/api/exams/teacher-responses/${examId}`,
+            `${API_BASE_URL}/api/exams/teacher-responses/${examId}?teacher_id=${userId}`,
             { withCredentials: true }
           );
 
