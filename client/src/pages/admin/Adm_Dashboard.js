@@ -86,13 +86,13 @@ const Adm_Dashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/stats/all-students`, {
+          axios.get(`${API_BASE_URL}/api/stats/all-students?exam_for=Student`, {
             withCredentials: true,
           }),
-          axios.get(`${API_BASE_URL}/api/stats/all-tests`, {
+          axios.get(`${API_BASE_URL}/api/stats/all-tests?exam_for=Student`, {
             withCredentials: true,
           }),
-          axios.get(`${API_BASE_URL}/api/stats/last-test`, {
+          axios.get(`${API_BASE_URL}/api/stats/last-test?exam_for=Student`, {
             withCredentials: true,
           }),
         ]);

@@ -4,9 +4,10 @@ const pool = require('../config/db');
 
 const getLastExamStats = async (req, res) => {
   const user_id = req.user.id;
+  const exam_for = req.query.exam_for;
 
   try {
-    const lastExam = await getLastExam();
+    const lastExam = await getLastExam(exam_for);
     if (!lastExam) {
       await logActivity({
         user_id,
@@ -17,7 +18,7 @@ const getLastExamStats = async (req, res) => {
       return res.status(404).json({ error: 'No last exam found' });
     }
 
-    const studentCount = await getStudentCountForExam(lastExam.exam_id);
+    const studentCount = await getStudentCountForExam(lastExam.exam_id, lastExam.exam_for);
 
     await logActivity({
       user_id,
@@ -36,8 +37,14 @@ const getLastExamStats = async (req, res) => {
   }
 };
 
-const getStudentCountForExam = async (exam_id) => {
-  const query = 'SELECT COUNT(*) FROM responses WHERE exam_id = $1';
+const getStudentCountForExam = async (exam_id, exam_for) => {
+  let query;
+  if(exam_for === 'Student') {
+    query = 'SELECT COUNT(*) FROM responses WHERE exam_id = $1';
+  }
+  else if(exam_for === 'Teacher') {
+    query = 'SELECT COUNT(*) FROM teacher_responses WHERE exam_id = $1';
+  }
   const values = [exam_id];
   const result = await pool.query(query, values);
   return parseInt(result.rows[0].count, 10);
@@ -45,12 +52,13 @@ const getStudentCountForExam = async (exam_id) => {
 
 const getAllTestsStats = async (req, res) => {
   const user_id = req.user.id;
+  const { exam_for } = req.query;
 
   try {
-    const liveTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1';
-    const scheduledTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1';
-    const liveTestsResult = await pool.query(liveTestsQuery, ['live']);
-    const scheduledTestsResult = await pool.query(scheduledTestsQuery, ['scheduled']);
+    const liveTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for=$2';
+    const scheduledTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for=$2';
+    const liveTestsResult = await pool.query(liveTestsQuery, ['live', exam_for]);
+    const scheduledTestsResult = await pool.query(scheduledTestsQuery, ['scheduled', exam_for]);
 
     const liveTestsCount = parseInt(liveTestsResult.rows[0].count, 10);
     const scheduledTestsCount = parseInt(scheduledTestsResult.rows[0].count, 10);
@@ -74,10 +82,11 @@ const getAllTestsStats = async (req, res) => {
 
 const getAllStudentsStats = async (req, res) => {
   const user_id = req.user.id;
+  const exam_for = req.query.exam_for;
 
   try {
     const totalStudentsQuery = 'SELECT COUNT(*) FROM users WHERE role = $1 AND status = $2';
-    const totalStudentsResult = await pool.query(totalStudentsQuery, ['Student', 'ACTIVE']);
+    const totalStudentsResult = await pool.query(totalStudentsQuery, [exam_for, 'ACTIVE']);
 
     const totalStudentsCount = parseInt(totalStudentsResult.rows[0].count, 10);
 
