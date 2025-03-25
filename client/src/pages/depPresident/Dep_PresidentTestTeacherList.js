@@ -118,10 +118,10 @@ const Dep_PresidentTestTeacherList = () => {
     const fetchTeacherDetails = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/teacher-responses/${examId}`, {
+        const response = await axios.get(`${API_BASE_URL}/api/exams/teacher-responses/attempted-teachers/${examId}`, {
           withCredentials: true, // Make sure the cookie is sent with the request
         });
-        const data = response.data.responses;
+        const data = response.data;
         console.log(response.data);
 
         // Ensure data is an array
