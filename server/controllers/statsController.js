@@ -59,9 +59,11 @@ const getAllTestsStats = async (req, res) => {
     const scheduledTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for=$2';
     const liveTestsResult = await pool.query(liveTestsQuery, ['live', exam_for]);
     const scheduledTestsResult = await pool.query(scheduledTestsQuery, ['scheduled', exam_for]);
+    const pastTestsResult = await pool.query(scheduledTestsQuery, ['past', exam_for]);
 
     const liveTestsCount = parseInt(liveTestsResult.rows[0].count, 10);
     const scheduledTestsCount = parseInt(scheduledTestsResult.rows[0].count, 10);
+    const pastTestsCount = parseInt(pastTestsResult.rows[0].count, 10);
 
     await logActivity({
       user_id,
@@ -72,7 +74,8 @@ const getAllTestsStats = async (req, res) => {
 
     return res.status(200).json({
       liveTestsCount,
-      scheduledTestsCount
+      scheduledTestsCount,
+      pastTestsCount
     });
   } catch (err) {
     console.error('Error fetching all tests stats:', err);

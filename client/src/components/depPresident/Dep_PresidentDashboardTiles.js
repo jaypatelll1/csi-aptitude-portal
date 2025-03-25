@@ -2,14 +2,14 @@ import React from "react";
 
 const Dep_PresidentDashboardTiles = ({ tileData }) => {
   const colors = {
-    "Active Students": "bg-[#3B35C3]",
+    "Active Teachers": "bg-[#EF9B2D]",
     "Live Tests": "bg-[#CD0606]",
-    "Scheduled Tests": "bg-[#EF9B2D]",
-    Teachers: "bg-[#EF9B2D]",
+    "Completed Tests": "bg-[#8D44AD]",
+    "Scheduled Tests": "bg-[#3B35C3]",
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:w-full  gap-4 p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:w-full gap-4 p-4">
       {tileData.map((item, index) => (
         <div
           key={index}
