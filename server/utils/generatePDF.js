@@ -108,10 +108,11 @@ function addFooter(doc, pageNumber) {
 
   const circleX = doc.page.width - 50;
   const circleY = pageHeight - 15;
-  doc.circle(circleX, circleY, 12).fill('#1a237e');
+  const circleRadius = 16;
+  doc.circle(circleX, circleY, circleRadius).fill('#1a237e');
 
   doc.fillColor('white').font('Bold').fontSize(12)
-     .text(`${pageNumber}`, circleX - 5, circleY - 5, { align: 'center', width: 10 });
+     .text(`${pageNumber}`, circleX - 7, circleY - 7, { align: 'center', width: 14 });
 
   doc.fillColor('black');
 }
