@@ -16,17 +16,6 @@ const Dep_PresidentPastTestCard = ({ test, onClick }) => {
         onClick(test.exam_id);
       }
 
-      // Log the ID
-      // console.log("Clicked test ID:", test.exam_id);
-      // console.log("Clicked test duration:");
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(
-        `${API_BASE_URL}/api/exams/results/all/${test.exam_id}?page=1&limit=3`,
-        { withCredentials: true }
-      );
-      const fetchedResult = response.data.results;
-      setResult(fetchedResult);
-      // Navigate to the new route and pass the fetched result
       navigate("/president/test-teachers", {
         state: {
           name: test.title,
