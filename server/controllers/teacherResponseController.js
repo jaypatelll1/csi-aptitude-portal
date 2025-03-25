@@ -1,15 +1,26 @@
 const teacherResponseModel = require('../models/teacherResponseModel');
+const { trackAttempt } = require('../utils/cache');
 const { logActivity } = require('../utils/logActivity');
 
 const deleteExistingTeacherResponses = async (req, res) => {
   const { exam_id } = req.params;
-  const teacher_id = req.user.id; // Get teacher ID from JWT
+  // const teacher_id = req.user.id; // Get teacher ID from JWT
+  const teacher_id = req.query.teacher_id;
 
   if (!teacher_id || !exam_id) {
     return res.status(400).json({ message: 'All fields are required' });
   }
-
   try {
+    // Track teacher's attempt
+    const attempts = await trackAttempt(teacher_id);
+    if (attempts === null) {
+      return res.status(500).json({ error: 'Failed to track attempt' });
+    } else if(attempts === 2){
+      return res.json({ message: `Teacher ${teacher_id} is re-attempting this exam ${exam_id}` });
+    } else if(attempts > 2){
+      return res.json({ message: `Teacher ${teacher_id} has already re-attempted this exam` });
+    }
+
     // Delete existing responses
     await teacherResponseModel.deleteExistingResponses(exam_id, teacher_id);
 

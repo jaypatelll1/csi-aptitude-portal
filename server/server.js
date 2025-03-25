@@ -27,14 +27,10 @@ const analysisRoutes = require('./routes/analysisRoutes');
 const deptRoutes = require('./routes/deptAnalysisRoutes');
 const tpoRoutes = require('./routes/tpoAnalysisRoutes');
 const rankRoutes = require('./routes/rankRoutes');
-const teacherResponseRoutes = require("./routes/teacherResponseRoutes");
-const teacherResultRoutes = require("./routes/teacherResultRoutes");
-
-const uploadRoutes = require("./routes/uploadRoutes");
-
-const pdfRoutes = require('./routes/pdfRoutes'); 
-
-
+const teacherResponseRoutes = require('./routes/teacherResponseRoutes');
+const teacherResultRoutes = require('./routes/teacherResultRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+const pdfRoutes = require('./routes/pdfRoutes');
 
 // Initialize the app
 const app = express();
@@ -74,12 +70,11 @@ app.use(
 app.use(express.json());
 app.use(bodyParser.json());
 
-app.use(express.urlencoded({ extended: true }));// Handle form-data requests properly
+app.use(express.urlencoded({ extended: true })); // Handle form-data requests properly
 
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 // app.use("/uploads", express.static(path.resolve("./uploads")));
-
 
 // Routes
 app.use('/api/users', userRoutes, fileRoutes);
@@ -95,23 +90,19 @@ app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
 app.use('/api/analysis', jwtAuthMiddleware, analysisRoutes);
 app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
-app.use('/api/rank',jwtAuthMiddleware, rankRoutes);
-app.use("/api/exams/teacher-responses",jwtAuthMiddleware, teacherResponseRoutes);
-app.use("/api/exams/teacher-results",jwtAuthMiddleware, teacherResultRoutes);
-
-app.use("/api",jwtAuthMiddleware, uploadRoutes);
-
-app.use('/generate-pdf',jwtAuthMiddleware, pdfRoutes);
+app.use('/api/rank', jwtAuthMiddleware, rankRoutes);
+app.use('/api/exams/teacher-responses', jwtAuthMiddleware, teacherResponseRoutes);
+app.use('/api/exams/teacher-results', jwtAuthMiddleware, teacherResultRoutes);
+app.use('/api', jwtAuthMiddleware, uploadRoutes);
+app.use('/generate-pdf', jwtAuthMiddleware, pdfRoutes);
 
 const start_exam = io.of('/exams/start-exam');
-
 
 // Initialize Socket.IO handlers
 initSocketHandlers(start_exam);
 
 // Ensure a response for the root route
 app.get('/', (req, res) => {
-
   res.send('Server is running!'); // Generic message for Render health checks
 });
 
@@ -125,10 +116,7 @@ app.get('/', (req, res) => {
 // Centralized error handling middleware
 app.use(errorHandler);
 
-
-
 server.listen(PORT, () => {
- 
   console.log(`Server is running at http://localhost:${PORT}`);
 });
 

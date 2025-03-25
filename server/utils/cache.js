@@ -19,4 +19,20 @@ async function getCachedAnalytics(cacheKey) {
   }
 }
 
-module.exports = { fetchAndCacheAnalytics, getCachedAnalytics };
+// Function to track attempts without storing in DB
+async function trackAttempt(userId) {
+  const attemptKey = `attempts:${userId}`;
+
+  // Get current attempt count
+  let attempts = await redisClient.get(attemptKey);
+  attempts = attempts ? parseInt(attempts) + 1 : 1;
+
+  // Store attempt count in Redis (expire in 1 hour)
+  await redisClient.setEx(attemptKey, 7200, attempts.toString());
+
+  console.log(`Attempt ${attempts} recorded for User: ${userId}`);
+
+  return attempts;
+}
+
+module.exports = { fetchAndCacheAnalytics, getCachedAnalytics, trackAttempt };
