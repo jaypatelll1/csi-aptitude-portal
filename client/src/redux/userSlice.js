@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null, // Holds user data
+  
 };
 
 const userSlice = createSlice({
@@ -14,8 +15,11 @@ const userSlice = createSlice({
     clearUser: (state) => {
       state.user = null; // Clear user data on logout
     },
+    setSubmitTestUser :(state,action)=>{
+      state.exam = action.payload
+    },
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser,setSubmitTestUser } = userSlice.actions;
 export default userSlice.reducer;

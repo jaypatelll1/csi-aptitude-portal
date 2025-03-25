@@ -7,7 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setExam, clearExamId } from "../../redux/ExamSlice";
-import { clearUser } from "../../redux/userSlice";
+import { clearUser ,setSubmitTestUser } from "../../redux/userSlice";
 import { clearQuestions } from "../../redux/questionSlice";
 
 function Teacher_Dashboard() {
@@ -24,7 +24,8 @@ function Teacher_Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  console.log(userData);
+  // console.log(userData);
+   
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
@@ -53,10 +54,7 @@ function Teacher_Dashboard() {
       //   withCredentials: true,  // Make sure the cookie is sent with the request
       // })
 
-      const responseExamId = await axios.get(
-        `${API_BASE_URL}/api/exams/teacher-responses/user_id?status=submitted`,
-        { withCredentials: true }
-      );
+      
 
       dispatch(setExam(response.data.exams));
       // console.log('past tests is ', pastPaper);
@@ -72,6 +70,28 @@ function Teacher_Dashboard() {
     }
   };
 
+  const responseExamId = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      
+      const response = await axios.get(
+        `${API_BASE_URL}/api/exams/teacher-responses/user_id?status=submitted`,
+        { withCredentials: true }
+      );
+  // console.log(response.data)
+      dispatch(setSubmitTestUser(response.data));
+    } catch (error) {
+      console.error("Error fetching teacher responses:", error);
+    }
+  };
+  
+  
+  useEffect(() => {
+    if (userData?.id) { // Only call API if user_id is defined
+      responseExamId();
+    }
+  }, [userData.id]);
+  
   useEffect(() => {
     // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {

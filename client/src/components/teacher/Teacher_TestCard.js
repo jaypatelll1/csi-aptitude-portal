@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import axios from "axios";
+import { useDispatch,useSelector} from 'react-redux';
+
+import axios from 'axios';
 
 const Teacher_TestCard = ({ testName, questionCount, duration, lastDate, examId, status }) => {
   const [submit, setSubmit] = useState(false);
@@ -12,40 +13,37 @@ const Teacher_TestCard = ({ testName, questionCount, duration, lastDate, examId,
 
   // let isExamSubmitted = submit.includes((examId));
 
+const submitExamId = useSelector((state)=>state.user.exam)
+  
+  
   const isDisabled = status === "scheduled" || status === "past" || submit === true;
 
-  useEffect(() => {
-    let isMounted = true; // Flag to track if the component is mounted
+   // Flag to track if the component is mounted
 
-    const fetchResponseExamIds = async () => {
-      try {
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/teacher-responses/user_id?status=submitted`,
-          { withCredentials: true }
-        );
+    useEffect(() => {
+      let isMounted = true; // Flag to track if the component is mounted
+  
+      const fetchResponseExamIds = async () => {
+        try {
+        
 
-        // if (isMounted) {
-        //   setResponseExamIds(response.data); // Store fetched data in state
-        // }
-
-        // Check if examId is present in the response data
-        if (response.data.includes(examId)) {
-          setSubmit(true);
+          // Check if examId is present in the response data
+          if (submitExamId.includes(examId)) {
+        setSubmit(true)
+          }
+        } catch (error) {
+          console.error('Error fetching response exam IDs:', error);
         }
-      } catch (error) {
-        console.error("Error fetching response exam IDs:", error);
-      }
-    };
+      };
+  
+      fetchResponseExamIds();
+  
+      
+    }, [examId, dispatch]);
 
-    fetchResponseExamIds();
+  
 
-    // Cleanup function
-    return () => {
-      isMounted = false; // Set flag to false when component unmounts
-    };
-  }, [examId, dispatch]);
-
+    
   const handleChange = async () => {
     console.log(examId, duration);
     navigate("/teacher/test-instruction", {
