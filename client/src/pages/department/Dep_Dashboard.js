@@ -126,10 +126,10 @@ const Dep_Dashboard = () => {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         // Use Promise.all to fetch all data concurrently
         await Promise.all([
-          fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/drafts?role=Department`, "drafted"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled?role=Department`, "scheduled"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/past?role=Department`, "past"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/live?role=Department`, "live"),
         ]);
       } catch (err) {
         console.error("Error fetching test data:", err);
