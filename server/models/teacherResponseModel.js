@@ -182,7 +182,16 @@ const getExamIdByResponse = async (status, user_id) => {
     return error;
   }
 };
-
+const  getAttemptedTest= async (exam_id) => {
+  try {
+    const querytext = `SELECT DISTINCT T.teacher_id , T.exam_id,T.response_status ,U.name , U.email FROM teacher_responses AS T  join users AS U on teacher_id = user_id  WHERE  T.exam_id=$1   ;
+`
+     const result = await pool.query(querytext,[ exam_id])
+    return result.rows;
+  } catch (error) {
+    console.error(error);
+  }
+}
 // Function to clear a user's response for a specific question
 const clearResponse = async (teacherId, examId, questionId) => {
   try {
@@ -239,5 +248,6 @@ module.exports = {
   getExamIdByResponse,
   clearResponse,
   getPaginatedResponses,
-  getAttemptedTeachersForExam
+  getAttemptedTeachersForExam,
+  getAttemptedTest
 };

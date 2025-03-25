@@ -150,6 +150,31 @@ const getResponsesForUsers = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// getResponsesForUsers
+const getAttemptedTest = async (req, res) => {
+
+  const { exam_id } = req.params;
+  console.log(exam_id)
+  try {
+    const responses = await teacherResponseModel.getAttemptedTest( exam_id);
+    if (!responses) {
+      await logActivity({
+        activity: 'View Responses',
+        status: 'failure',
+        details: 'Responses not found',
+      });
+      return res.status(404).json({ message: 'Responses not found.' });
+    }
+    await logActivity({
+      activity: 'View Responses',
+      status: 'success',
+      details: 'Responses found',
+    });
+    res.status(200).json(responses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const resetUserResponse = async (req, res) => {
   const { teacherId, examId, questionId } = req.body;
@@ -314,4 +339,5 @@ module.exports = {
   deleteResponse,
   getPaginatedResponsesForExam,
   getAttemptedTeachersForExam,
+  getAttemptedTest
 };
