@@ -32,6 +32,8 @@ const teacherResultRoutes = require("./routes/teacherResultRoutes");
 
 const uploadRoutes = require("./routes/uploadRoutes");
 
+const pdfRoutes = require('./routes/pdfRoutes'); 
+
 
 
 // Initialize the app
@@ -98,6 +100,8 @@ app.use("/api/exams/teacher-responses",jwtAuthMiddleware, teacherResponseRoutes)
 app.use("/api/exams/teacher-results",jwtAuthMiddleware, teacherResultRoutes);
 
 app.use("/api",jwtAuthMiddleware, uploadRoutes);
+
+app.use('/generate-pdf',jwtAuthMiddleware, pdfRoutes);
 
 const start_exam = io.of('/exams/start-exam');
 
