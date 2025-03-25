@@ -404,8 +404,12 @@ const Teacher_MCQExamPage = () => {
                 question={currentQuestion.question_text || "Loading..."}
                 questionType={currentQuestion.question_type || "single_choice"}
                 options={currentQuestion.options || {}}
-                selectedOption={currentQuestion.selectedOption} // Use camelCase to match Redux
-                selectedOptions={currentQuestion.selectedOptions || []} // Use camelCase to match Redux
+                selectedOption={currentQuestion.selectedOption} 
+                selectedOptions={Array.isArray(currentQuestion.selectedOptions) 
+                  ? currentQuestion.selectedOptions 
+                  : (currentQuestion.selectedOptions ? Object.values(currentQuestion.selectedOptions) : [])}
+                
+                //  Use camelCase to match Redux
                 textAnswer={currentQuestion.textAnswer || ""} // Use camelCase to match Redux
                 imageUrl={currentQuestion.image_url}
                 onSelectOption={handleOptionSelect}

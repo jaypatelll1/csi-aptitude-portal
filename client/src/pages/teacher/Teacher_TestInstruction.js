@@ -39,8 +39,9 @@ const Teacher_TestInstruction = () => {
         );
 
         if (!response.data.includes(examId)) {
-          // If examId is not in responses, delete old and initialize new responses
-          await axios.delete(`${API_BASE_URL}/api/exams/teacher-responses/questions/${examId}`, {
+          const role = "Teacher"
+          // If examId is not in responses, delete old and initialize new responses teacher_id, role
+          await axios.delete(`${API_BASE_URL}/api/exams/teacher-responses/questions/${examId}?teacher_id=${userId}&role=${role}`, {
             withCredentials: true,
           });
 

@@ -13,12 +13,16 @@ const Question = ({
   onSelectMultipleOptions,
   onTextChange,
 }) => {
+  console.log("selectedOptions:", selectedOption, "Type:", typeof selectedOption);
+
   const renderQuestionInput = () => {
+
+    
     switch (questionType) {
       case "single_choice":
         return (
           <div className="mt-4 space-y-3">
-            {Object.entries(options).map(([key, value], index) => (
+         {Object.entries(options).map(([key, value], index) => (
               <label
                 key={index}
                 className="flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-100"
@@ -40,7 +44,7 @@ const Question = ({
       case "multiple_choice":
         return (
           <div className="mt-4 space-y-3">
-            {Object.entries(options).map(([key, value], index) => (
+            {Object.entries(options).map(([key, value], index) => ( 
               <label
                 key={index}
                 className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100"
@@ -51,10 +55,10 @@ const Question = ({
                   value={key}
                   checked={selectedOptions?.includes(key)}
                   onChange={() => {
-                    if (selectedOptions?.includes(key)) {
-                      onSelectMultipleOptions(selectedOptions.filter((item) => item !== key));
+                    if (Array.isArray(selectedOptions) && selectedOptions.includes(key)) { // FIXED
+                      onSelectMultipleOptions(selectedOptions.filter((item) => item !== key)); // FIXED
                     } else {
-                      onSelectMultipleOptions([...(selectedOptions || []), key]);
+                      onSelectMultipleOptions([...(Array.isArray(selectedOptions) ? selectedOptions : []), key]); // FIXED
                     }
                   }}
                   className="w-5 h-5 text-blue-600 focus:ring-blue-500"

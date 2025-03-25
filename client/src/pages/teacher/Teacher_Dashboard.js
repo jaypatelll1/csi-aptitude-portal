@@ -15,7 +15,7 @@ function Teacher_Dashboard() {
   let examId = useSelector((state) => state.exam.examId);
 
   const [tests, setTests] = useState([]);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("scheduled");
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [result, setResult] = useState([]);
   const detailsRef = useRef(null);
@@ -34,6 +34,7 @@ function Teacher_Dashboard() {
   };
 
   const fetchTestsMadeForTeachers = async (status) => {
+    console.log(status)
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let url = `${API_BASE_URL}/api/exams/teacher`; // Default for "All"
     // console.log(status)
@@ -237,10 +238,10 @@ function Teacher_Dashboard() {
               value={filter}
               onChange={handleFilterChange}
             >
-              <option value="all">All tests</option>
-              <option value="live">Live</option>
               <option value="scheduled">Upcoming</option>
-              <option value="past">Past</option>
+              <option value="live">Live</option>
+             
+              
             </select>
           </div>
 
@@ -263,7 +264,7 @@ function Teacher_Dashboard() {
             )}
           </div>
 
-          {/* Analytics Section */}
+          {/* Analytics Section
           <div className="mt-5">
             <h1 className="font-semibold text-black text-lg">Analytics</h1>
             <div className="flex overflow-x-auto space-x-4 mt-3" style={{ scrollbarWidth: "none" }}>
@@ -281,7 +282,7 @@ function Teacher_Dashboard() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

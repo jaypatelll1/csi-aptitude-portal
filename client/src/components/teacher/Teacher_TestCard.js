@@ -16,7 +16,7 @@ const Teacher_TestCard = ({ testName, questionCount, duration, lastDate, examId,
 const submitExamId = useSelector((state)=>state.user.exam)
   
   
-  const isDisabled = status === "scheduled" || status === "past" || submit === true;
+  const isDisabled = status === "scheduled" ||  submit === true;
 
    // Flag to track if the component is mounted
 
@@ -151,7 +151,7 @@ const submitExamId = useSelector((state)=>state.user.exam)
         }}
         disabled={isDisabled}
       >
-        {status === "past" ? "View Result" : "Start Test"}
+       Start Test
       </button>
     </div>
   );
