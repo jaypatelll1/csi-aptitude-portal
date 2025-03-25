@@ -43,13 +43,7 @@ const Dep_PresidentPastTest = () => {
     const fetchPastTests = async () => {
       try {
         setLoading(true);
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
-          withCredentials: true,
-          params: {
-            role: "President",
-          }, // Make sure the cookie is sent with the request
-        });
+        
         const formattedTests = pastExams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,

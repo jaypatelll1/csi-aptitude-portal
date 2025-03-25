@@ -15,7 +15,6 @@ const Dep_PresidentScheduledTest = () => {
   const sidebarRef = useRef(null);
 
   const scheduledExams = useSelector((state) => state?.displayExam.scheduledExams);
-  console.log(scheduledExams);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
