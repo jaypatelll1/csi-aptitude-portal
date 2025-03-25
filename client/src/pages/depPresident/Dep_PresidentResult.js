@@ -263,13 +263,25 @@ function Dep_PresidentResult() {
   };
 
   const renderQuestionStatus = () => {
-    // For text questions, return null
+    // For text questions, handle attempted/not attempted status
     if (currentQuestion.question_type === "text") {
-      return null;
+      if (!currentQuestion.selected_response || currentQuestion.selected_response.trim() === '') {
+        return (
+          <div className="mb-4 text-red-600 font-semibold">
+            Not Attempted
+          </div>
+        );
+      }
+      return (
+        <div className="mb-4 text-green-600 font-semibold">
+          Answer: {currentQuestion.selected_response}
+        </div>
+      );
     }
-
+    
+    // For non-text questions, keep existing logic
     const { selected_response, correct_answer } = currentQuestion;
-
+    
     if (!selected_response) {
       return (
         <div className="mb-4 text-red-600 font-semibold">
