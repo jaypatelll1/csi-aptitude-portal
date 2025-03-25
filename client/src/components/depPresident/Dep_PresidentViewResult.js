@@ -1,48 +1,65 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const Dep_PresidentViewResult = ({
-  name,
   questions = [],
   currentIndex = 0,
   onQuestionClick,
   currentExamId,
   teacher_id,
   API_BASE_URL,
+  savedQuestions = [], 
 }) => {
-  const [responseData, setResponseData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [selectedMark, setselectedMark] = useState(null);
+  // New state to track visited questions
+  const [visitedQuestions, setVisitedQuestions] = useState([]);
 
-  const getQuestionStatus = (question) => {
-    if (!question || !question.question_id) return "unanswered";
+  // Update visited questions when current index changes
+  useEffect(() => {
+    // Only add to visited questions if it's not already saved and not already in visited
+    if (
+      currentIndex >= 0 && 
+      currentIndex < questions.length && 
+      !savedQuestions.includes(questions[currentIndex]?.question_id) &&
+      !visitedQuestions.includes(questions[currentIndex]?.question_id)
+    ) {
+      setVisitedQuestions(prev => [
+        ...prev, 
+        questions[currentIndex]?.question_id
+      ]);
+    }
+  }, [currentIndex, questions, savedQuestions]);
 
-    if (!Array.isArray(questions)) {
-      console.error("responseData is not an array:", responseData);
-      return "unanswered";
+  const getQuestionStatus = (question, index) => {
+    // If it's the current question
+    if (index === currentIndex) {
+      // Check if the current question is saved
+      return savedQuestions.includes(question?.question_id) 
+        ? "checked"   // Visited and saved
+        : (visitedQuestions.includes(question?.question_id) 
+            ? "visited"  // Visited but not saved
+            : "unanswered");  // Not visited yet
     }
 
-    const response = questions.find((r) => r && r.question_id === question.question_id);
-
-    if (response.question_type === "text") {
-      if (response.selected_response === null) {
-        return "unanswered";
-      } else {
-        return "answered";
-      }
+    // Check if the question is saved/checked
+    if (savedQuestions.includes(question?.question_id)) {
+      return "checked";
     }
 
-    if (!response) return "unanswered";
+    // Check if the question is visited
+    if (visitedQuestions.includes(question?.question_id)) {
+      return "visited";
+    }
 
-    const { correct_answer, selected_response, result_status } = response;
+    // For text questions
+    if (question?.question_type === "text") {
+      return question.selected_response === null ? "unanswered" : "answered";
+    }
 
-    if (!selected_response) return "unanswered";
+    // For multiple choice or single choice questions
+    if (!question?.selected_response) return "unanswered";
 
-    if (result_status === "true") return "correct";
-    if (result_status === "false") return "incorrect";
-
-    return correct_answer === selected_response ? "correct" : "incorrect";
+    // If a response is selected, it's answered
+    return "answered";
   };
 
   const handleSubmitResults = async () => {
@@ -61,83 +78,60 @@ const Dep_PresidentViewResult = ({
     }
   };
 
-  if (loading) return <div className="p-4 text-center">Loading teacher results...</div>;
-
-  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
+  // Updated color mapping with interchanged colors
+  const statusColors = {
+    visited: "#FFA500",     // Orange for visited but not saved
+    unanswered: "#D3D3D3",  // Light gray for unanswered
+    answered: "#32CD32",    // Green for answered
+    checked: "#0047AB"      // Blue for checked/saved
+  };
 
   if (!questions || questions.length === 0) {
     return <div className="p-4 text-center">No questions available.</div>;
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4">
+    <div className="bg-white rounded-lg h-auto shadow-sm p-4">
       <p className="font-semibold mb-3">Questions</p>
 
+      {/* Status Legend */}
       <div className="flex flex-wrap mb-2">
-        <div className="flex items-center mr-4 mb-2">
-          <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
-          <span className="text-xs">Correct</span>
-        </div>
-        <div className="flex items-center mr-4 mb-2">
-          <div className="w-3 h-3 rounded-full bg-yellow-500 mr-1"></div>
-          <span className="text-xs">Failed</span>
-        </div>
-        <div className="flex items-center mr-4 mb-2">
-          <div className="w-3 h-3 rounded-full bg-gray-300 mr-1"></div>
-          <span className="text-xs">Unattempted</span>
-        </div>
+        {Object.entries({
+          visited: "Visited",
+          answered: "Answered",
+          unanswered: "Unanswered",
+          checked: "Checked"
+        }).map(([status, label]) => (
+          <div key={status} className="flex items-center mr-4 mb-2">
+            <div 
+              className="w-3 h-3 rounded-full" 
+              style={{backgroundColor: statusColors[status]}}
+            ></div>
+            <span className="text-xs ml-1">{label}</span>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-5 gap-2 mb-6">
+      {/* Question Grid */}
+      <div className="grid grid-cols-5 text-lg gap-2 mb-6">
         {questions.map((question, index) => {
           const questionNumber = index + 1;
-
-          let status = "unanswered";
-          try {
-            status = getQuestionStatus(question);
-          } catch (e) {
-            console.error("Error getting question status:", e);
-          }
-
-          let bgColor = "bg-gray-200";
-
-          switch (status) {
-            case "correct":
-              bgColor = "bg-blue-500";
-              break;
-            case "incorrect":
-              bgColor = "bg-yellow-500";
-              break;
-            case "visited":
-              bgColor = "bg-green-500";
-              break;
-            case "answered":
-              bgColor = "bg-blue-500";
-              break;
-            default:
-              bgColor = "bg-gray-200";
-          }
-
-          const isCurrentQuestion = index === currentIndex;
-          const buttonColor = isCurrentQuestion ? "bg-blue-600" : bgColor;
-          const textColor = "text-white";
+          const status = getQuestionStatus(question, index);
 
           return (
             <button
               key={questionNumber}
-              className={`${buttonColor} ${textColor} h-8 w-full rounded-md flex items-center justify-center text-sm`}
+              className={`text-white h-8 w-full rounded-md flex items-center justify-center text-sm`}
+              style={{backgroundColor: statusColors[status]}}
               onClick={() => onQuestionClick(index)}
             >
               {questionNumber}
             </button>
-          );
+          )
         })}
       </div>
 
-      <button className="w-full bg-blue-600 text-white py-2 rounded-md font-medium mb-2">
-        Save And End
-      </button>
-
+      {/* Action Buttons */}
       <button
         onClick={handleSubmitResults}
         className="w-full bg-green-500 text-white py-2 rounded-md font-medium"
