@@ -198,7 +198,7 @@ const clearResponse = async (teacherId, examId, questionId) => {
 
 const getPaginatedResponses = async (teacher_id, exam_id, page, limit) => {
   let query = 
-   `SELECT response_id, selected_option, selected_options, text_answer, answered_at, teacher_responses.question_id, q.question_text,q.options  
+   `SELECT response_id, selected_option, selected_options, text_answer, question_type, answered_at, teacher_responses.question_id, q.question_text,q.options  
     FROM teacher_responses
     INNER JOIN questions AS q ON teacher_responses.question_id = q.question_id
     WHERE q.exam_id = $1 AND teacher_responses.teacher_id = $2
