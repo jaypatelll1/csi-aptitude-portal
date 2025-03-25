@@ -4,6 +4,7 @@ import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSid
 import Dep_PresidentDraftedTestCard from "../../components/depPresident/Dep_PresidentDraftedTestCard"; // Drafted Test Card component
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentDraftTest = () => {
@@ -12,6 +13,9 @@ const Dep_PresidentDraftTest = () => {
   const [error, setError] = useState(null); // State to track errors
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
+
+  // const drafted = useSelector((state) => state.displayExams?.draftExams);
+  const draftExams = useSelector((state) => state?.displayExam.draftExams);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,16 +47,8 @@ const Dep_PresidentDraftTest = () => {
       try {
         setLoading(true);
         setError(null);
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
-          withCredentials: true,
-          params: {
-            role: "President",
-          },
-        });
 
-        console.log("response", response);
-        const fetchedTests = response.data.exams.map((exam) => ({
+        const fetchedTests = draftExams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,

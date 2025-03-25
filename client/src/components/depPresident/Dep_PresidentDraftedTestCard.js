@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentDraftedTestCard = ({ test }) => {
-  console.log(test);
+  // console.log(test);
   const [isScheduling, setIsScheduling] = useState(false);
   const [scheduledTime, setScheduledTime] = useState({ start: "", end: "" });
   const [questions, setQuestions] = useState([]);

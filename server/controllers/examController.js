@@ -7,7 +7,6 @@ const createExam = async (req, res) => {
   const created_by = req.user.id; // Get user_id from token
   const role = req.user.role; // Get user role from token
 
-  console.log(req.user);
 
   let formattedTargetYears;
   let formattedTargetBranches;
@@ -317,11 +316,12 @@ const getPaginatedScheduledExams = async (req, res) => {
   let status = 'scheduled',
     Count,
     exams;
-  const { page, limit } = req.query;
-  const role = req.user.role;
-  console.log('page is ', page, limit);
+  const { page, limit, role } = req.query;
+  // const role = req.user.role;
+  // console.log('page is ', page, limit);
 
   try {
+    if(!role) return res.status(400).json({error: 'Role is required'});
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
       exams = await examModel.getExamsByStatus(status, role);
@@ -364,10 +364,11 @@ const getPaginatedDraftedExams = async (req, res) => {
     Count,
     exams;
   const { page, limit } = req.query;
-  const role = req.user.role;
-  console.log('page is ', page, limit);
-  console.log(role);
+  const role = req.query.role;
+  // console.log('page is ', page, limit);
+  // console.log(role);
   try {
+    if(!role) return res.status(400).json({error: 'Role is required'});
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
       exams = await examModel.getExamsByStatus(status, role);
@@ -385,7 +386,7 @@ const getPaginatedDraftedExams = async (req, res) => {
         status,
         role
       );
-      console.log(exams);
+      // console.log(exams);
       await logActivity({
         user_id,
         activity: `Viewed paginated published exams`,
@@ -410,13 +411,14 @@ const getPaginatedLiveExams = async (req, res) => {
   let status = 'live',
     Count,
     exams;
-  const { page, limit } = req.query;
-  const role = req.user.role;
-  console.log(role)
+  const { page, limit, role } = req.query;
+  // const role = req.user.role;
+  // console.log(role)
   // console.log('page is ', page, limit);
 
   try {
     if (!page && !limit) {
+      if(!role) return res.status(400).json({error: 'Role is required'});
       Count = await examModel.ExamCount(status, role);
       exams = await examModel.getExamsByStatus(status, role);
       await logActivity({
@@ -457,11 +459,12 @@ const getPaginatedPastExams = async (req, res) => {
   let status = 'past',
     Count,
     exams;
-  const { page, limit } = req.query;
-  const role = req.user.role;
-  console.log('page is ', page, limit);
+  const { page, limit, role } = req.query;
+  // const role = req.user.role;
+  // console.log('page is ', page, limit);
 
   try {
+    if(!role) return res.status(400).json({error: 'Role is required'});
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
       exams = await examModel.getExamsByStatus(status, role);
@@ -500,7 +503,6 @@ const getPaginatedPastExams = async (req, res) => {
 };
 
 const getExamsForUser = async (req, res) => {
-  console.log(req.params);
   const user_id = req.user.id;
 
   const { status, target_branches, target_years } = req.query; //
@@ -537,10 +539,10 @@ const getExamForTeachers = async (req, res) => {
 
   const { status } = req.query;
   // console.log('status, target_branches, target_year', status, target_branches, target_years, page , limit);
-  console.log(status);
+  // console.log(status);
   try {
     const exams = await examModel.getExamsForTeachers(status);
-    console.log(exams);
+    // console.log(exams);
 
     await logActivity({
       user_id,

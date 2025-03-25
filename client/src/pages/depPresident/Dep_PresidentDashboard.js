@@ -8,10 +8,17 @@ import Dep_PresidentPastTestCard from "../../components/depPresident/Dep_Preside
 import Dep_PresidentLiveTestCard from "../../components/depPresident/Dep_PresidentLiveTestCard";
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Loader from "../../components/Loader";
+import {
+  setDraftExams,
+  setLiveExams,
+  setPastExams,
+  setScheduledExams,
+} from "../../redux/displayExamSlice";
 
 const Dep_PresidentDashboard = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const userData = useSelector((state) => state.user.user);
 
@@ -53,7 +60,15 @@ const Dep_PresidentDashboard = () => {
       const response = await axios.get(endpoint, {
         withCredentials: true,
       });
-
+      if (key === "drafted") {
+        dispatch(setDraftExams(response.data));
+      } else if (key === "live") {
+        dispatch(setLiveExams(response.data));
+      } else if (key === "scheduled") {
+        dispatch(setScheduledExams(response.data));
+      } else if (key === "past") {
+        dispatch(setPastExams(response.data));
+      }
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams
@@ -131,20 +146,20 @@ const Dep_PresidentDashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         await Promise.all([
-          fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/drafts?role=President`, "drafted"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled?role=President`, "scheduled"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/past?role=President`, "past"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/live?role=President`, "live"),
         ]);
+
       } catch (err) {
         console.error("Error fetching test data:", err);
         setError("Failed to load tests. Please try again.");
       }
     };
-
     fetchDashboardData();
     fetchAllTestsData();
-  }, []);
+  }, [dispatch]);
 
   // Update overall loading state based on individual loading states
   useEffect(() => {

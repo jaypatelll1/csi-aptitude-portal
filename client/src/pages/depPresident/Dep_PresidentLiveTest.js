@@ -4,6 +4,7 @@ import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSid
 import Dep_PresidentLiveTestCard from "../../components/depPresident/Dep_PresidentLiveTestCard"; // Drafted Test Card component
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentLiveTest = () => {
@@ -12,6 +13,8 @@ const Dep_PresidentLiveTest = () => {
   const [error, setError] = useState(null); // State to track errors
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
+
+  const liveExams = useSelector((state) => state?.displayExam.liveExams);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1); // Tracks the current page
@@ -48,15 +51,8 @@ const Dep_PresidentLiveTest = () => {
       try {
         setLoading(true); // Set loading to true before fetching
         setError(null); // Clear any existing errors
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/live`,
-          {
-            withCredentials: true,
-          },
-          { params: { page: currentPage, limit: itemsPerPage, role: "President" } }
-        );
-        const fetchedTests = response.data.exams.map((exam) => ({
+  
+        const fetchedTests = liveExams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,

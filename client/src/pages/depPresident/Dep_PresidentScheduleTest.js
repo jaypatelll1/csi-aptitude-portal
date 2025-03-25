@@ -4,6 +4,7 @@ import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSid
 import Dep_PresidentScheduledTestCard from "../../components/depPresident/Dep_PresidentScheduleTestCard";
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentScheduledTest = () => {
@@ -12,6 +13,9 @@ const Dep_PresidentScheduledTest = () => {
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
+
+  const scheduledExams = useSelector((state) => state?.displayExam.scheduledExams);
+  console.log(scheduledExams);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,15 +44,8 @@ const Dep_PresidentScheduledTest = () => {
       try {
         setLoading(true);
         setError(null);
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled`, {
-          withCredentials: true,
-          params: {
-            role: "President",
-          },
-        });
 
-        const fetchedTests = response.data.exams.map((exam) => ({
+        const fetchedTests = scheduledExams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,

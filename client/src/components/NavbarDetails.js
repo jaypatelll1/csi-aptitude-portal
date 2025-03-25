@@ -5,7 +5,16 @@ import { clearUser } from "../redux/userSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { clearExamId } from "../redux/ExamSlice";
 import { clearQuestions } from "../redux/questionSlice";
-import { clearDepartmentAnalysis, clearOverallAnalysis } from "../redux/analysisSlice";
+import {
+  clearDepartmentAnalysis,
+  clearOverallAnalysis,
+} from "../redux/analysisSlice";
+import {
+  clearDraftExams,
+  clearLiveExams,
+  clearPastExams,
+  clearScheduledExams,
+} from "../redux/displayExamSlice";
 
 const NavbarDetails = () => {
   let user = useSelector((state) => state.user.user);
@@ -24,6 +33,10 @@ const NavbarDetails = () => {
     dispatch(clearQuestions());
     dispatch(clearOverallAnalysis());
     dispatch(clearDepartmentAnalysis({}));
+    dispatch(clearDraftExams());
+    dispatch(clearScheduledExams());
+    dispatch(clearPastExams());
+    dispatch(clearLiveExams());
 
     navigate("/", { replace: true });
   };

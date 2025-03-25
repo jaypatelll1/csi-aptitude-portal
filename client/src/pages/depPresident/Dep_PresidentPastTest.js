@@ -4,6 +4,7 @@ import Dep_PresidentSidebar from "../../components/depPresident/Dep_PresidentSid
 import Dep_PresidentPastTestCard from "../../components/depPresident/Dep_PresidentPastTestCard"; // Import the PastTestCard
 import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_PresidentPastTest = () => {
@@ -12,6 +13,8 @@ const Dep_PresidentPastTest = () => {
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
+
+  const pastExams = useSelector((state) => state?.displayExam.pastExams);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,7 +50,7 @@ const Dep_PresidentPastTest = () => {
             role: "President",
           }, // Make sure the cookie is sent with the request
         });
-        const formattedTests = response.data.exams.map((exam) => ({
+        const formattedTests = pastExams.exams.map((exam) => ({
           exam_id: exam.exam_id,
           end_time: exam.end_time,
           Start_time: exam.start_time,
