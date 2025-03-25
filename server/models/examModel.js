@@ -410,9 +410,9 @@ GROUP BY
 //   return result.rows;
 // }
 
-const getLastExam = async () => {
-  const query = 'SELECT * FROM exams ORDER BY created_at DESC LIMIT 1';
-  const result = await pool.query(query);
+const getLastExam = async (exam_for) => {
+  const query = `SELECT * FROM exams WHERE exam_for=$1 AND status='past' ORDER BY created_at DESC LIMIT 1`;
+  const result = await pool.query(query, [exam_for]);
   return result.rows[0];
 };
 
