@@ -369,8 +369,10 @@ const Dep_StudentList = () => {
             <tbody>
               {filteredStudents.slice((page - 1) * limit, page * limit).map((student, index) => (
                 <tr key={student.user_id} className="hover:bg-gray-50">
-                  {/* <td className='py-4 px-5 text-blue-700 font-bold'>{index + 1}</td> */}
-                  <td className="py-4">{student.user_id}</td>
+                  <td className="py-4">
+                    {(page - 1) * limit + index + 1} {/* This is correctly calculating the serial number */}
+                  </td>
+                  {/* <td className="py-4">{student.user_id}</td> */}
                   <td className="py-4">{student.name}</td>
                   <td className="py-4">{student.email}</td>
                   <td className="py-4">{student.phone || "N/A"}</td>
