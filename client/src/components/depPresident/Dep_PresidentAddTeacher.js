@@ -32,8 +32,7 @@ const Dep_PresidentAddTeacher = ({ closeModal }) => {
       alert("Teacher registered successfully!");
       closeModal(); // Close modal after successful registration
     } catch (error) {
-      console.error("Error registering teacher:", error);
-      alert("Failed to register teacher. Please try again.");
+      alert(error?.response?.data?.errors[0].msg);
     }
   };
 

@@ -40,8 +40,7 @@ const Dep_AddStudent = ({ closeModal }) => {
       alert("Student registered successfully!");
       closeModal(); // Close modal after successful registration
     } catch (error) {
-      console.error("Error registering student:", error);
-      alert("Failed to register student. Please try again.");
+      alert(error?.response?.data?.errors[0].msg);
     }
   };
 
