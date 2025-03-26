@@ -10,7 +10,7 @@ import {
   toggleMarkForReview,
   setMultipleSelectedOption,
   setTextAnswer,
-  // We'll use the existing setSelectedOption action for all question types
+  clearAnswer,
 } from "../../redux/questionSlice";
 import { clearExamId } from "../../redux/ExamSlice";
 import NoCopyComponent from "../../components/teacher/mcqexampage/NoCopyComponent";
@@ -21,7 +21,6 @@ import "./MCQExamPage.css";
 const Teacher_MCQExamPage = () => {
   const socketRef = useRef(null);
   const dispatch = useDispatch();
-  // const { examId } = useParams();
   const navigate = useNavigate();
   const exam = useSelector((state) => state.exam.exam);
   const location = useLocation();
@@ -40,8 +39,7 @@ const Teacher_MCQExamPage = () => {
   // Local state to handle multiple options and text answers
   const [multipleAnswers, setMultipleAnswers] = useState({});
   const [textAnswers, setTextAnswers] = useState({});
-  // console.log(multipleAnswers)
-  // console.log(textAnswers)
+
   const formatTimeFromSeconds = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -53,16 +51,13 @@ const Teacher_MCQExamPage = () => {
   };
 
   useEffect(() => {
-    // Push a new state into history so that when the back button is pressed, 
-    // it doesn't go back to the previous page but instead navigates to /teacher.
     window.history.pushState(null, document.title, window.location.href);
 
     const handleBackButton = (e) => {
       e.preventDefault();
-      navigate('/teacher'); // Redirect to the /teacher route
+      navigate('/teacher');
     };
 
-    // Listen for the popstate event and redirect to /teacher
     window.addEventListener('popstate', handleBackButton);
 
     return () => {
@@ -70,7 +65,6 @@ const Teacher_MCQExamPage = () => {
     };
   }, [navigate]);
 
-  
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
     if (rootElement.requestFullscreen) {
@@ -87,22 +81,6 @@ const Teacher_MCQExamPage = () => {
     const url = `${API_BASE_URL}/api/exams/teacher-responses/final/${examId}`;
     await axios.put(url, {}, { withCredentials: true });
   };
-
-  // useEffect(() => {
-  //   const disableKeyboard = (e) => {
-  //     // Get the current question from state
-  //     const currentQuestion = questions[currentQuestionIndex];
-
-  //     // Only prevent default if the question type is NOT text
-  //     if (currentQuestion && currentQuestion.question_type !== "text") {
-  //       e.preventDefault();
-  //     }
-  //     // For text questions, allow keyboard input
-  //   };
-
-  //   window.addEventListener("keydown", disableKeyboard);
-  //   return () => window.removeEventListener("keydown", disableKeyboard);
-  // }, [currentQuestionIndex, questions]);
 
   useEffect(() => {
     const currentQuestion = questions[currentQuestionIndex];
@@ -173,7 +151,6 @@ const Teacher_MCQExamPage = () => {
     const currentQuestion = questions[currentQuestionIndex];
     const questionId = currentQuestion?.question_id;
 
-    // Store in local state
     setMultipleAnswers({
       ...multipleAnswers,
       [questionId]: options,
@@ -185,13 +162,11 @@ const Teacher_MCQExamPage = () => {
     const currentQuestion = questions[currentQuestionIndex];
     const questionId = currentQuestion?.question_id;
 
-    // Store in local state
     setTextAnswers({
       ...textAnswers,
       [questionId]: text,
     });
     dispatch(setTextAnswer({ index: currentQuestionIndex, text }));
-    // textResponse(text, questionId, currentQuestion?.question_type);
   };
 
   const singleResponse = async (option, id, question_type) => {
@@ -213,7 +188,7 @@ const Teacher_MCQExamPage = () => {
     const payload = {
       question_id: id,
       selected_option: null,
-      selected_options: options, // Array of selected options
+      selected_options: options,
       text_answer: null,
       question_type,
     };
@@ -265,13 +240,11 @@ const Teacher_MCQExamPage = () => {
     navigate("/teacher", { replace: true });
   };
 
-  const handleClearResponse = async (id) => {
+  const handleClearAnswer = async (id) => {
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/teacher-responses/exams/clear-response`;
 
     try {
-      
-
       const currentQuestion = questions[currentQuestionIndex];
 
       if (currentQuestion?.question_type === "single_choice") {
@@ -304,10 +277,7 @@ const Teacher_MCQExamPage = () => {
   };
 
   const handleQuestion = async (question, index) => {
-    // console.log(question)
     if (question.question_type === 'text') {
-
-      console.log(question)
       textResponse(question.textAnswer, question.question_id, question.question_type)
     }
     else if (question.question_type === 'single_choice') {
@@ -315,35 +285,11 @@ const Teacher_MCQExamPage = () => {
     }
     else if (question.question_type === 'multiple_choice') {
       multipleResponse(question.selectedOptions, question.question_id, question?.question_type);
-
     }
     else {
       console.log("no text")
     }
   }
-
-  // useEffect(() => {
-  //   let warningCount = 0;
-
-  // const handleTabSwitch = () => {
-  //   if (document.hidden) {
-  //     warningCount++;
-
-  //     if (warningCount < 5) {
-  //       alert(` Tab switching detected! Warning ${warningCount}/5. Stay on the exam page.`);
-  //     } else {
-  //       alert("You have switched tabs too many times. Your test is now being submitted.");
-  //       handleSubmitTest();
-  //     }
-  //   }
-  // };
-
-  //   document.addEventListener("visibilitychange", handleTabSwitch);
-
-  //   return () => {
-  //     document.removeEventListener("visibilitychange", handleTabSwitch);
-  //   };
-  // }, []);
 
   const getCurrentQuestion = () => {
     return questions[currentQuestionIndex] || null;
@@ -352,7 +298,6 @@ const Teacher_MCQExamPage = () => {
   const currentQuestion = getCurrentQuestion();
   const questionId = currentQuestion?.question_id;
 
-  // Get appropriate answers from state based on question type
   const getSelectedOptions = () => {
     if (currentQuestion?.question_type === "multiple_choice") {
       return multipleAnswers[questionId] || [];
@@ -364,10 +309,13 @@ const Teacher_MCQExamPage = () => {
   const getTextAnswer = () => {
     return textAnswers[questionId] || "";
   };
+    const handleClearResponse = () => {
+      dispatch(clearAnswer(currentQuestionIndex));
+    };
+  
 
   return (
     <div className="relative flex-1">
-      {/* Main Content */}
       <div className="flex h-screen bg-[#F5F6F8]">
         <NoCopyComponent onPermissionGranted={enableFullscreen} />
         {fullscreenError && !testSubmitted && (
@@ -400,7 +348,6 @@ const Teacher_MCQExamPage = () => {
             ))}
 
           <div className="relative bg-white p-6 rounded-xl shadow-lg h-5/6 mt-8 overflow-hidden">
-            {/* Watermark Overlay */}
             <div className="watermark-overlay">
               {Array.from({ length: 300 }).map((_, index) => (
                 <div key={index} className="watermark-text">
@@ -409,14 +356,12 @@ const Teacher_MCQExamPage = () => {
               ))}
             </div>
 
-            {/* Timer Display */}
             <div className="flex justify-end mb-4">
               <span className="font-sans text-center text-sm flex items-center border-2 p-1 border-blue-500 rounded-md">
                 {formatTimeFromSeconds(remainingTime)}
               </span>
             </div>
 
-            {/* Question Component */}
             {currentQuestion && (
               <Question
                 questionNumber={currentQuestionIndex + 1}
@@ -427,9 +372,7 @@ const Teacher_MCQExamPage = () => {
                 selectedOptions={Array.isArray(currentQuestion.selectedOptions) 
                   ? currentQuestion.selectedOptions 
                   : (currentQuestion.selectedOptions ? Object.values(currentQuestion.selectedOptions) : [])}
-                
-                //  Use camelCase to match Redux
-                textAnswer={currentQuestion.textAnswer || ""} // Use camelCase to match Redux
+                textAnswer={currentQuestion.textAnswer || ""}
                 imageUrl={currentQuestion.image_url}
                 onSelectOption={handleOptionSelect}
                 onSelectMultipleOptions={handleMultipleOptionsSelect}
@@ -440,38 +383,42 @@ const Teacher_MCQExamPage = () => {
             <div className="absolute bottom-5 w-full flex justify-between px-8">
               <div className="flex gap-4">
                 <button
-                  className="px-4 py-2 bg-[#939191] text-white rounded-lg disabled:bg-gray-300"
+                  className="px-4 py-2 bg-[#939191] text-white rounded-lg 
+                             hover:bg-[#7a7878] transition-colors duration-200 ease-in-out 
+                             disabled:bg-gray-300 disabled:hover:bg-gray-300"
                   disabled={currentQuestionIndex === 0}
                   onClick={handlePreviousQuestion}
                 >
                   Previous
                 </button>
                 <button
-                  className="px-4 py-2 bg-[#D0150ACC] text-white rounded-lg"
+                  className="px-4 py-2 bg-[#D0150ACC] text-white rounded-lg 
+                             hover:bg-[#A00E06CC] transition-colors duration-200 ease-in-out"
                   onClick={() => handleClearResponse(currentQuestion?.question_id)}
                 >
                   Clear
                 </button>
                 <button
-                  className="px-4 py-2 rounded-lg bg-[#8A2BE2CC] text-white"
+                  className="px-4 py-2 rounded-lg bg-[#8A2BE2CC] text-white 
+                             hover:bg-[#6A1B9ACC] transition-colors duration-200 ease-in-out"
                   onClick={handleMarkForReview}
                 >
                   {currentQuestion?.markedForReview ? "Unmark Review" : "Mark for Review"}
                 </button>
               </div>
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg 
+                           hover:bg-blue-600 transition-colors duration-200 ease-in-out 
+                           disabled:bg-gray-300 disabled:hover:bg-gray-300"
                 onClick={() => {
-                  
                   if (currentQuestionIndex < questions.length - 1) {
-                    handleNextQuestion(); // Move to next question only if not the last question
+                    handleNextQuestion();
                     handleQuestion(currentQuestion, currentQuestionIndex);
                   }
                 }}
               >
                 {currentQuestionIndex === questions.length - 1 ? "Save" : "Save & Next"}
               </button>
-
             </div>
           </div>
         </div>

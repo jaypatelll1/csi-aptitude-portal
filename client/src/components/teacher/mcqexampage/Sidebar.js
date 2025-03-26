@@ -66,18 +66,20 @@ const Sidebar = ({ name, onSubmitTest }) => {
             } else if (question.answered) {
               bgColor = "bg-[#4D71C3]"; // Answered
               textColor = "text-white";
+            } else if (question.visited && !question.answered) {
+              bgColor = "bg-[#1B2E58]"; // Visited (not answered)
+              textColor = "text-white";
             } else if (index === currentQuestionIndex) {
               bgColor = "bg-[#1B2E58]"; // Current Question
-              textColor = "text-white";
-            } else if (!question.answered && question.visited) {
-              bgColor = "bg-[#1B2E58]"; // Visited
               textColor = "text-white";
             }
 
             return (
               <button
                 key={index}
-                className={`${bgColor} ${textColor} font-semibold py-2 w-16 h-10 rounded-lg hover:opacity-80 transition`}
+                className={`${bgColor} ${textColor} font-semibold py-2 w-16 h-10 rounded-lg 
+                  hover:opacity-80 transition duration-300 ease-in-out 
+                  focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 onClick={() => dispatch(visitQuestion(index))}
               >
                 {index + 1}
@@ -87,7 +89,10 @@ const Sidebar = ({ name, onSubmitTest }) => {
         </div>
 
         <button
-          className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition"
+          className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg 
+            hover:bg-green-600 transition duration-300 ease-in-out
+            focus:outline-none focus:ring-2 focus:ring-green-700
+            disabled:bg-green-300 disabled:cursor-not-allowed"
           onClick={() => {
             if (visitedCount === total || attemptedCount !== total) onSubmitTest();
           }}
