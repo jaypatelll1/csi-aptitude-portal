@@ -18,13 +18,9 @@ const deleteExistingTeacherResponses = async (req, res) => {
         return res.status(500).json({ error: 'Failed to track attempt' });
       } else if (attempts === 1) {
         res.json({
-          message: `Teacher is attempting this exam.`,
-        });
-      } else if (attempts === 2) {
-        res.json({
           message: `Teacher is re-attempting this exam.`,
         });
-      } else if (attempts > 2) {
+      } else if (attempts > 1) {
         return res.json({
           message: `Teacher has already re-attempted this exam`,
         });
