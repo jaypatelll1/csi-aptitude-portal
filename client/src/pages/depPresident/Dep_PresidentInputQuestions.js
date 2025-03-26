@@ -35,6 +35,7 @@ const Adm_InputQuestions = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [remaining, setRemaining] = useState(5);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,7 +61,13 @@ const Adm_InputQuestions = () => {
   // New handler for image file changes
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/jpg",
+      "image/webp",
+    ];
     if (!allowedTypes.includes(file.type)) {
       alert("Invalid file type. Please upload a valid image file.");
       return;
@@ -80,12 +87,16 @@ const Adm_InputQuestions = () => {
 
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.post(`${API_BASE_URL}/api/exams/${examId}/questions`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        `${API_BASE_URL}/api/exams/${examId}/questions`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         },
-        withCredentials: true,
-      });
+      );
       alert("File uploaded successfully!");
       setModalOpen(false);
     } catch (error) {
@@ -110,25 +121,45 @@ const Adm_InputQuestions = () => {
     formData.append("image", selectedImage);
 
     try {
+      if (remaining < 0) {
+        alert("Too many requests, please try again later.");
+        setImageModalOpen(false);
+        navigate("/president/viewquestions");
+        return;
+      }
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       // Upload the image and display it
-      const response = await axios.post(`${API_BASE_URL}/api/upload-image`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        `${API_BASE_URL}/api/upload-image`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         },
-        withCredentials: true,
-      });
+      );
+
+      // console.log("Upload Response:", response.data);
 
       if (response.data && response.data.imageUrl) {
         setImageUrl(response.data.imageUrl); // Set the image URL for display
-        alert("Image uploaded successfully!");
+        setRemaining((remaining) => remaining - 1);
+        alert(
+          `Image uploaded successfully! You have ${remaining} attempts left.`,
+        );
+        setImageModalOpen(false);
       } else {
         alert("Image uploaded but no URL was returned.");
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      alert("An error occurred while uploading the image.");
+      // console.error("Upload error:", error);
+      if (error?.status === 429) {
+        alert("Too many requests, please try again later.");
+      } else {
+        alert("An error occurred while uploading the image.");
+      }
     } finally {
       setIsImageUploading(false);
     }
@@ -170,7 +201,9 @@ const Adm_InputQuestions = () => {
             .filter((index) => index >= 0);
         }
 
-        setToggles(validOptions.map((_, index) => correctOptionIndexes.includes(index)));
+        setToggles(
+          validOptions.map((_, index) => correctOptionIndexes.includes(index)),
+        );
       }
 
       if (location.state?.questionNumber) {
@@ -233,9 +266,12 @@ const Adm_InputQuestions = () => {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
       // Call backend to delete image
-      const response = await axios.delete(`${API_BASE_URL}/api/delete-image/${questionId}`, {
-        withCredentials: true,
-      });
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/delete-image/${questionId}`,
+        {
+          withCredentials: true,
+        },
+      );
 
       if (response.data.success) {
         setImageUrl(""); // Clear image from UI
@@ -244,179 +280,172 @@ const Adm_InputQuestions = () => {
       }
     } catch (error) {
       console.error("Error deleting image:", error);
-      alert("An error occurred while deleting the image.");
+      // alert("An error occurred while deleting the image.");
+      setImageUrl("");
     }
   };
-
-  const handleSubmit = async () => {
-    // Trim values to avoid spaces being considered as input
-    if (!question.trim()) {
-      alert("Question cannot be empty!");
-      return;
-    }
-    if (!category) {
-      alert("Please select a category!");
-      return;
-    }
-    if (questionsType !== "text" && options.some((option) => !option.trim())) {
-      alert("Please fill all options before submitting.");
-      return;
-    }
-    if (questionsType !== "text" && !toggles.includes(true)) {
-      alert("Please select at least one correct answer!");
-      return;
-    }
-
-    // Finding correct answer indices
-    const correctIndices = toggles
-      .map((toggle, index) => (toggle ? index : -1))
-      .filter((index) => index !== -1);
-
-    const correctOption =
-      correctIndices.length === 1 ? String.fromCharCode(97 + correctIndices[0]) : null;
-    const correctOptions =
-      correctIndices.length > 1
-        ? correctIndices.map((index) => String.fromCharCode(97 + index))
-        : null;
-
-    const payload = {
-      question_type: correctIndices.length === 1 ? "single_choice" : questionsType,
-      question_text: question,
-      options: {
-        a: options[0] || "",
-        b: options[1] || "",
-        c: options[2] || "",
-        d: options[3] || "",
-      },
-      correct_option: correctOption,
-      correct_options: correctOptions ? [...correctOptions] : null,
-      category: category,
-      image_url: imageUrl, // Include the image URL in the payload
-    };
-
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-      if (!questionId) {
-        await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, {
-          withCredentials: true,
-        });
-
-        // Reset the form after submission
-        setQuestion("");
-        setOptions(["", "", "", ""]);
-        setToggles([false, false, false, false]);
-        setCategory("");
-        setImageUrl(null); // Corrected image reset
-
-        setQuestionCount((prevCount) => prevCount + 1);
-
-        // Ensure state updates before navigating
-        setTimeout(() => navigate("/president/input?category="), 200);
-      } else {
-        await axios.put(`${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`, payload, {
-          withCredentials: true,
-        });
-
-        setQuestion("");
-        setOptions(["", "", "", ""]);
-        setToggles([false, false, false, false]);
-        setImageUrl(null);
-
-        setTimeout(() => navigate("/president/viewquestions"), 200);
-      }
-    } catch (error) {
-      console.error("Error creating test:", error.response?.data || error.message);
-      alert("Error submitting question, please try again.");
-    }
-  };
-
   // const handleSubmit = async () => {
-  //   if (
-  //     (question && options.every((option) => String(option).trim() !== "")) ||
-  //     questionType === "text"
-  //   ) {
-  //     if (!toggles.includes(true) && questionType !== "text") {
-  //       alert("Please select at least one correct answer.");
+  //   try {
+  //     if (!question.trim()) {
+  //       alert("Question cannot be empty!");
   //       return;
   //     }
-
   //     if (!category) {
-  //       alert("Please select a category.");
+  //       alert("Please select a category!");
   //       return;
   //     }
 
-  //     const findTrueIndices = () =>
-  //       toggles
-  //         .map((toggle, index) => (toggle ? index : -1))
-  //         .filter((index) => index !== -1);
+  //     // Debugging logs
+  //     console.log("Options array:", options);
+  //     console.log("Options types:", options.map(opt => [opt, typeof opt]));
 
-  //     let b = findTrueIndices();
+  //     // Validate options
+  //     if (questionsType !== "text" && options.some(option => !option || typeof option !== "string" || option.trim() === "")) {
+  //       alert("Please fill all options before submitting.");
+  //       return;
+  //     }
 
-  //     const correctOption =
-  //       b.length === 1 ? String.fromCharCode(97 + b[0]) : null;
-  //     const correctOptions =
-  //       b.length === 1
-  //         ? null
-  //         : b.map((index) => String.fromCharCode(97 + index));
+  //     if (questionsType !== "text" && !toggles.some((toggle) => toggle === true)) {
+  //       alert("Please select at least one correct answer!");
+  //       return;
+  //     }
+
+  //     // Finding correct answer indices
+  //     const correctIndices = toggles
+  //       .map((toggle, index) => (toggle ? index : -1))
+  //       .filter((index) => index !== -1);
+
+  //     const correctOption = correctIndices.length === 1 ? String.fromCharCode(97 + correctIndices[0]) : null;
+  //     const correctOptions = correctIndices.length > 1 ? correctIndices.map((index) => String.fromCharCode(97 + index)) : null;
 
   //     const payload = {
-  //       question_type: b.length === 1 ? "single_choice" : `${questionsType}`,
-  //       question_text: `${question}`,
+  //       question_type: correctIndices.length === 1 ? "single_choice" : questionsType,
+  //       question_text: question.trim(),
   //       options: {
-  //         a: `${options[0]}`,
-  //         b: `${options[1]}`,
-  //         c: `${options[2]}`,
-  //         d: `${options[3]}`,
+  //         a: options[0] || "",
+  //         b: options[1] || "",
+  //         c: options[2] || "",
+  //         d: options[3] || "",
   //       },
-  //       correct_option: correctOption ? `${correctOption}` : null,
-  //       correct_options: correctOptions ? new Array(...correctOptions) : null,
-  //       category: category,
-  //       image_url: imageUrl, // Include the image URL in the payload
+  //       correct_option: correctOption,
+  //       correct_options: correctOptions?.length ? correctOptions : null,
+  //       category,
+  //       image_url: imageUrl || null, // Ensure imageUrl is always defined
   //     };
 
-  //     try {
-  //       if (!questionId) {
-  //         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  //         await axios.post(
-  //           `${API_BASE_URL}/api/exams/questions/${examId}`,
-  //           payload,
-  //           {
-  //             withCredentials: true,
-  //           }
-  //         );
-  //         setQuestion("");
-  //         setOptions(["", "", "", ""]);
-  //         setToggles([false, false, false, false]);
-  //         setCategory("");
-  //         setImageUrl(""); // Clear the image URL
-  //         setQuestionCount((prevCount) => prevCount + 1);
-  //         navigate("/admin/input?category=");
-  //       } else {
-  //         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  //         await axios.put(
-  //           `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
-  //           payload,
-  //           {
-  //             withCredentials: true,
-  //           }
-  //         );
-  //         setQuestion("");
-  //         setOptions(["", "", "", ""]);
-  //         setToggles([false, false, false, false]);
-  //         setImageUrl(""); // Clear the image URL
-  //         navigate("/admin/viewquestions");
-  //       }
-  //     } catch (error) {
-  //       console.error(
-  //         "Error creating test:",
-  //         error.response?.data || error.message
-  //       );
+  //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
+  //     if (!questionId) {
+  //       await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, { withCredentials: true });
+  //       setQuestionCount((prevCount) => prevCount + 1);
+  //       resetForm();
+  //       setTimeout(() => navigate("/president/input?category="), 200);
+  //     } else {
+  //       await axios.put(`${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`, payload, { withCredentials: true });
+  //       resetForm();
+  //       setTimeout(() => navigate("/president/viewquestions"), 200);
   //     }
-  //   } else {
-  //     alert("Please fill in all fields before submitting.");
+  //   } catch (error) {
+  //     console.error("Error submitting question:", error.response?.data || error.message);
+  //     alert("Error submitting question, please try again.");
   //   }
   // };
+
+  // Helper function to reset form state
+  // const resetForm = () => {
+  //   setQuestion("");
+  //   setOptions(["", "", "", ""]);
+  //   setToggles([false, false, false, false]);
+  //   setCategory("");
+  //   setImageUrl(null);
+  // };
+
+  const handleSubmit = async () => {
+    if (
+      (question && options.every((option) => String(option).trim() !== "")) ||
+      questionType === "text"
+    ) {
+      if (!toggles.includes(true) && questionType !== "text") {
+        alert("Please select at least one correct answer.");
+        return;
+      }
+
+      if (!category) {
+        alert("Please select a category.");
+        return;
+      }
+
+      const findTrueIndices = () =>
+        toggles
+          .map((toggle, index) => (toggle ? index : -1))
+          .filter((index) => index !== -1);
+
+      let b = findTrueIndices();
+
+      const correctOption =
+        b.length === 1 ? String.fromCharCode(97 + b[0]) : null;
+      const correctOptions =
+        b.length === 1
+          ? null
+          : b.map((index) => String.fromCharCode(97 + index));
+
+      const payload = {
+        question_type: b.length === 1 ? "single_choice" : `${questionsType}`,
+        question_text: `${question}`,
+        options: {
+          a: `${options[0]}`,
+          b: `${options[1]}`,
+          c: `${options[2]}`,
+          d: `${options[3]}`,
+        },
+        correct_option: correctOption ? `${correctOption}` : null,
+        correct_options: correctOptions ? new Array(...correctOptions) : null,
+        category: category,
+        image_url: imageUrl, // Include the image URL in the payload
+      };
+
+      try {
+        if (!questionId) {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          await axios.post(
+            `${API_BASE_URL}/api/exams/questions/${examId}`,
+            payload,
+            {
+              withCredentials: true,
+            },
+          );
+          setQuestion("");
+          setOptions(["", "", "", ""]);
+          setToggles([false, false, false, false]);
+          setCategory("");
+          setImageUrl(""); // Clear the image URL
+          setQuestionCount((prevCount) => prevCount + 1);
+          navigate("/president/input?category=");
+        } else {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          await axios.put(
+            `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
+            payload,
+            {
+              withCredentials: true,
+            },
+          );
+          setQuestion("");
+          setOptions(["", "", "", ""]);
+          setToggles([false, false, false, false]);
+          setImageUrl(""); // Clear the image URL
+          navigate("/president/viewquestions");
+        }
+      } catch (error) {
+        console.error(
+          "Error creating test:",
+          error.response?.data || error.message,
+        );
+      }
+    } else {
+      alert("Please fill in all fields before submitting.");
+    }
+  };
 
   const handleCancel = () => {
     setQuestion("");
@@ -468,7 +497,11 @@ const Adm_InputQuestions = () => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                  d={
+                    sidebarOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
                 />
               </svg>
             </button>
@@ -527,11 +560,15 @@ const Adm_InputQuestions = () => {
               </svg>
               View Questions
             </button>
-            <span className="text-xl text-gray-500 font-medium">Question {questionCount}</span>
+            <span className="text-xl text-gray-500 font-medium">
+              Question {questionCount}
+            </span>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <div className="mb-4">
-              <label className="text-xl block text-gray-700 font-medium mb-2">Question Type:</label>
+              <label className="text-xl block text-gray-700 font-medium mb-2">
+                Question Type:
+              </label>
               <select
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={questionsType}
@@ -545,7 +582,10 @@ const Adm_InputQuestions = () => {
               </select>
             </div>
             <div className="mb-4">
-              <label htmlFor="question" className="text-xl block text-gray-700 font-medium mb-2">
+              <label
+                htmlFor="question"
+                className="text-xl block text-gray-700 font-medium mb-2"
+              >
                 Enter Question:
               </label>
               <textarea
@@ -584,7 +624,11 @@ const Adm_InputQuestions = () => {
                   Uploaded Image:
                 </label>
                 <div className="border rounded-lg p-2 max-w-md">
-                  <img src={imageUrl} alt="Question image" className="max-w-full h-auto" />
+                  <img
+                    src={imageUrl}
+                    alt="Question image"
+                    className="max-w-full h-auto"
+                  />
                 </div>
                 <button
                   onClick={handleRemoveImage}
@@ -597,13 +641,20 @@ const Adm_InputQuestions = () => {
 
             {questionsType !== "text" && (
               <div>
-                <label className="text-xl block text-gray-700 font-medium mb-2">Options:</label>
+                <label className="text-xl block text-gray-700 font-medium mb-2">
+                  Options:
+                </label>
                 {options.map((answer, index) => (
-                  <div key={index} className="group flex items-center gap-4 mb-2 p-3 rounded-lg">
+                  <div
+                    key={index}
+                    className="group flex items-center gap-4 mb-2 p-3 rounded-lg"
+                  >
                     <input
                       type="text"
                       value={answer}
-                      onChange={(e) => handleAnswerChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleAnswerChange(index, e.target.value)
+                      }
                       placeholder={`Enter option ${index + 1}`}
                       className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />

@@ -45,7 +45,6 @@ const submitExamId = useSelector((state)=>state.user.exam)
 
     
   const handleChange = async () => {
-    console.log(examId, duration);
     navigate("/teacher/test-instruction", {
       state: { examId: examId, Duration: duration },
       replace: true,

@@ -92,13 +92,13 @@ const Question = ({
       </div>
 
       {imageUrl && (
-        <div className="mb-4">
-          <img
-            src={imageUrl}
-            alt={`Image for question ${questionNumber}`}
-            className="w-full max-w-lg h-auto rounded-md"
-          />
-        </div>
+        <div className="mb-4 flex justify-center">
+        <img
+          src={imageUrl}
+          alt={`Image for question ${questionNumber}`}
+          className="max-w-[400px] max-h-[300px] w-auto h-auto object-contain rounded-md"
+        />
+      </div>
       )}
 
       {renderQuestionInput()}

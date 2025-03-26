@@ -13,19 +13,15 @@ const Question = ({
   onSelectMultipleOptions,
   onTextChange,
 }) => {
-  console.log("selectedOptions:", selectedOption, "Type:", typeof selectedOption);
-
   const renderQuestionInput = () => {
-
-    
     switch (questionType) {
       case "single_choice":
         return (
           <div className="mt-4 space-y-3">
-         {Object.entries(options).map(([key, value], index) => (
+            {Object.entries(options).map(([key, value], index) => (
               <label
                 key={index}
-                className="flex items-center p-3  rounded-lg cursor-pointer hover:bg-gray-100"
+                className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100"
               >
                 <input
                   type="radio"
@@ -55,10 +51,10 @@ const Question = ({
                   value={key}
                   checked={selectedOptions?.includes(key)}
                   onChange={() => {
-                    if (Array.isArray(selectedOptions) && selectedOptions.includes(key)) { // FIXED
-                      onSelectMultipleOptions(selectedOptions.filter((item) => item !== key)); // FIXED
+                    if (Array.isArray(selectedOptions) && selectedOptions.includes(key)) {
+                      onSelectMultipleOptions(selectedOptions.filter((item) => item !== key));
                     } else {
-                      onSelectMultipleOptions([...(Array.isArray(selectedOptions) ? selectedOptions : []), key]); // FIXED
+                      onSelectMultipleOptions([...(Array.isArray(selectedOptions) ? selectedOptions : []), key]);
                     }
                   }}
                   className="w-5 h-5 text-blue-600 focus:ring-blue-500"
@@ -88,7 +84,7 @@ const Question = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 ">
+    <div className="bg-white rounded-lg p-6">
       <div className="mb-4">
         <h3 className="text-lg font-medium text-gray-900">
           {questionNumber}. {question}
@@ -96,11 +92,11 @@ const Question = ({
       </div>
 
       {imageUrl && (
-        <div className="mb-4">
+        <div className="mb-4 flex justify-center">
           <img
             src={imageUrl}
             alt={`Image for question ${questionNumber}`}
-            className="w-full max-w-lg h-auto rounded-md"
+            className="max-w-[400px] max-h-[300px] w-auto h-auto object-contain rounded-md"
           />
         </div>
       )}

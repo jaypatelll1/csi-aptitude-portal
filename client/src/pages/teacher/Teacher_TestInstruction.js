@@ -201,8 +201,11 @@ const Teacher_TestInstruction = () => {
                         <span className="font-semibold">Time allotted:</span> {examItem.duration}{" "}
                         minutes
                       </li>
-                      <li>Each question carries 1 mark; there are no negative marks.</li>
+                      <li>Single choice and Multiple choice question carries 1 mark; there are no negative marks.</li>
+                      <li>Text questions are subjective and will be evaluated manually (out of 5 marks).</li>
                       <li>If all questions have been visited, you may submit the test.</li>
+                      <li>The questions 'Marked for Review' will be considered for evaluation.</li>
+                      <li>Your response will not be saved unless you click on 'Save and Next'.</li>
                       <li>Do not refresh the page.</li>
                       <li>All the best!</li>
                     </ul>

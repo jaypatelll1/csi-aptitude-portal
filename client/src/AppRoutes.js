@@ -45,7 +45,6 @@ import Teacher_Dashboard from "./pages/teacher/Teacher_Dashboard";
 import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
 import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
 import Teacher_UpcomingTest from "./pages/teacher/Teacher_UpcomingTest";
-import Teacher_Result from "./pages/teacher/Teacher_Result";
 import Adm_OverallScore from "./pages/admin/Adm_OverallScore";
 
 import Dep_PresidentDashboard from "./pages/depPresident/Dep_PresidentDashboard";
@@ -161,14 +160,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       /> */}
-      <Route
-        path="/results"
-        element={
-          <ProtectedRoute allowedRoles={["Teacher"]}>
-            <Teacher_Result />
-          </ProtectedRoute>
-        }
-      />
 
       {/* Admin Routes */}
       <Route

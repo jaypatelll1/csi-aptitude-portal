@@ -263,177 +263,177 @@ const Adm_InputQuestions = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    // Trim values to avoid spaces being considered as input
-    if (!question.trim()) {
-      alert("Question cannot be empty!");
-      return;
-    }
-    if (!category) {
-      alert("Please select a category!");
-      return;
-    }
-    if (questionsType !== "text" && options.some((option) => !option.trim())) {
-      alert("Please fill all options before submitting.");
-      return;
-    }
-    if (questionsType !== "text" && !toggles.includes(true)) {
-      alert("Please select at least one correct answer!");
-      return;
-    }
-    setLoading(true);
-
-    // Finding correct answer indices
-    const correctIndices = toggles
-      .map((toggle, index) => (toggle ? index : -1))
-      .filter((index) => index !== -1);
-
-    const correctOption =
-      correctIndices.length === 1 ? String.fromCharCode(97 + correctIndices[0]) : null;
-    const correctOptions =
-      correctIndices.length > 1
-        ? correctIndices.map((index) => String.fromCharCode(97 + index))
-        : null;
-
-    const payload = {
-      question_type: correctIndices.length === 1 ? "single_choice" : questionsType,
-      question_text: question,
-      options: {
-        a: options[0] || "",
-        b: options[1] || "",
-        c: options[2] || "",
-        d: options[3] || "",
-      },
-      correct_option: correctOption,
-      correct_options: correctOptions ? [...correctOptions] : null,
-      category: category,
-      image_url: imageUrl, // Include the image URL in the payload
-    };
-
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-      if (!questionId) {
-        await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, {
-          withCredentials: true,
-        });
-
-        // Reset the form after submission
-        setQuestion("");
-        setOptions(["", "", "", ""]);
-        setToggles([false, false, false, false]);
-        setCategory("");
-        setImageUrl(null); // Corrected image reset
-
-        setQuestionCount((prevCount) => prevCount + 1);
-
-        // Ensure state updates before navigating
-        setTimeout(() => navigate("/admin/input?category="), 200);
-      } else {
-        await axios.put(`${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`, payload, {
-          withCredentials: true,
-        });
-
-        setQuestion("");
-        setOptions(["", "", "", ""]);
-        setToggles([false, false, false, false]);
-        setImageUrl(null);
-
-        setTimeout(() => navigate("/admin/viewquestions"), 200);
-      }
-    } catch (error) {
-      console.error("Error creating test:", error.response?.data || error.message);
-      alert("Error submitting question, please try again.");
-    }
-    setLoading(false);
-  };
-
   // const handleSubmit = async () => {
-  //   if (
-  //     (question && options.every((option) => String(option).trim() !== "")) ||
-  //     questionType === "text"
-  //   ) {
-  //     if (!toggles.includes(true) && questionType !== "text") {
-  //       alert("Please select at least one correct answer.");
-  //       return;
-  //     }
-
-  //     if (!category) {
-  //       alert("Please select a category.");
-  //       return;
-  //     }
-
-  //     const findTrueIndices = () =>
-  //       toggles
-  //         .map((toggle, index) => (toggle ? index : -1))
-  //         .filter((index) => index !== -1);
-
-  //     let b = findTrueIndices();
-
-  //     const correctOption =
-  //       b.length === 1 ? String.fromCharCode(97 + b[0]) : null;
-  //     const correctOptions =
-  //       b.length === 1
-  //         ? null
-  //         : b.map((index) => String.fromCharCode(97 + index));
-
-  //     const payload = {
-  //       question_type: b.length === 1 ? "single_choice" : `${questionsType}`,
-  //       question_text: `${question}`,
-  //       options: {
-  //         a: `${options[0]}`,
-  //         b: `${options[1]}`,
-  //         c: `${options[2]}`,
-  //         d: `${options[3]}`,
-  //       },
-  //       correct_option: correctOption ? `${correctOption}` : null,
-  //       correct_options: correctOptions ? new Array(...correctOptions) : null,
-  //       category: category,
-  //       image_url: imageUrl, // Include the image URL in the payload
-  //     };
-
-  //     try {
-  //       if (!questionId) {
-  //         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  //         await axios.post(
-  //           `${API_BASE_URL}/api/exams/questions/${examId}`,
-  //           payload,
-  //           {
-  //             withCredentials: true,
-  //           }
-  //         );
-  //         setQuestion("");
-  //         setOptions(["", "", "", ""]);
-  //         setToggles([false, false, false, false]);
-  //         setCategory("");
-  //         setImageUrl(""); // Clear the image URL
-  //         setQuestionCount((prevCount) => prevCount + 1);
-  //         navigate("/admin/input?category=");
-  //       } else {
-  //         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  //         await axios.put(
-  //           `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
-  //           payload,
-  //           {
-  //             withCredentials: true,
-  //           }
-  //         );
-  //         setQuestion("");
-  //         setOptions(["", "", "", ""]);
-  //         setToggles([false, false, false, false]);
-  //         setImageUrl(""); // Clear the image URL
-  //         navigate("/admin/viewquestions");
-  //       }
-  //     } catch (error) {
-  //       console.error(
-  //         "Error creating test:",
-  //         error.response?.data || error.message
-  //       );
-  //     }
-  //   } else {
-  //     alert("Please fill in all fields before submitting.");
+  //   // Trim values to avoid spaces being considered as input
+  //   if (!question.trim()) {
+  //     alert("Question cannot be empty!");
+  //     return;
   //   }
+  //   if (!category) {
+  //     alert("Please select a category!");
+  //     return;
+  //   }
+  //   if (questionsType !== "text" && options.some((option) => !option.trim())) {
+  //     alert("Please fill all options before submitting.");
+  //     return;
+  //   }
+  //   if (questionsType !== "text" && !toggles.includes(true)) {
+  //     alert("Please select at least one correct answer!");
+  //     return;
+  //   }
+  //   setLoading(true);
+
+  //   // Finding correct answer indices
+  //   const correctIndices = toggles
+  //     .map((toggle, index) => (toggle ? index : -1))
+  //     .filter((index) => index !== -1);
+
+  //   const correctOption =
+  //     correctIndices.length === 1 ? String.fromCharCode(97 + correctIndices[0]) : null;
+  //   const correctOptions =
+  //     correctIndices.length > 1
+  //       ? correctIndices.map((index) => String.fromCharCode(97 + index))
+  //       : null;
+
+  //   const payload = {
+  //     question_type: correctIndices.length === 1 ? "single_choice" : questionsType,
+  //     question_text: question,
+  //     options: {
+  //       a: options[0] || "",
+  //       b: options[1] || "",
+  //       c: options[2] || "",
+  //       d: options[3] || "",
+  //     },
+  //     correct_option: correctOption,
+  //     correct_options: correctOptions ? [...correctOptions] : null,
+  //     category: category,
+  //     image_url: imageUrl, // Include the image URL in the payload
+  //   };
+
+  //   try {
+  //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+
+  //     if (!questionId) {
+  //       await axios.post(`${API_BASE_URL}/api/exams/questions/${examId}`, payload, {
+  //         withCredentials: true,
+  //       });
+
+  //       // Reset the form after submission
+  //       setQuestion("");
+  //       setOptions(["", "", "", ""]);
+  //       setToggles([false, false, false, false]);
+  //       setCategory("");
+  //       setImageUrl(null); // Corrected image reset
+
+  //       setQuestionCount((prevCount) => prevCount + 1);
+
+  //       // Ensure state updates before navigating
+  //       setTimeout(() => navigate("/admin/input?category="), 200);
+  //     } else {
+  //       await axios.put(`${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`, payload, {
+  //         withCredentials: true,
+  //       });
+
+  //       setQuestion("");
+  //       setOptions(["", "", "", ""]);
+  //       setToggles([false, false, false, false]);
+  //       setImageUrl(null);
+
+  //       setTimeout(() => navigate("/admin/viewquestions"), 200);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating test:", error.response?.data || error.message);
+  //     alert("Error submitting question, please try again.");
+  //   }
+  //   setLoading(false);
   // };
+
+  const handleSubmit = async () => {
+    if (
+      (question && options.every((option) => String(option).trim() !== "")) ||
+      questionType === "text"
+    ) {
+      if (!toggles.includes(true) && questionType !== "text") {
+        alert("Please select at least one correct answer.");
+        return;
+      }
+
+      if (!category) {
+        alert("Please select a category.");
+        return;
+      }
+
+      const findTrueIndices = () =>
+        toggles
+          .map((toggle, index) => (toggle ? index : -1))
+          .filter((index) => index !== -1);
+
+      let b = findTrueIndices();
+
+      const correctOption =
+        b.length === 1 ? String.fromCharCode(97 + b[0]) : null;
+      const correctOptions =
+        b.length === 1
+          ? null
+          : b.map((index) => String.fromCharCode(97 + index));
+
+      const payload = {
+        question_type: b.length === 1 ? "single_choice" : `${questionsType}`,
+        question_text: `${question}`,
+        options: {
+          a: `${options[0]}`,
+          b: `${options[1]}`,
+          c: `${options[2]}`,
+          d: `${options[3]}`,
+        },
+        correct_option: correctOption ? `${correctOption}` : null,
+        correct_options: correctOptions ? new Array(...correctOptions) : null,
+        category: category,
+        image_url: imageUrl, // Include the image URL in the payload
+      };
+
+      try {
+        if (!questionId) {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          await axios.post(
+            `${API_BASE_URL}/api/exams/questions/${examId}`,
+            payload,
+            {
+              withCredentials: true,
+            }
+          );
+          setQuestion("");
+          setOptions(["", "", "", ""]);
+          setToggles([false, false, false, false]);
+          setCategory("");
+          setImageUrl(""); // Clear the image URL
+          setQuestionCount((prevCount) => prevCount + 1);
+          navigate("/admin/input?category=");
+        } else {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          await axios.put(
+            `${API_BASE_URL}/api/exams/questions/${examId}/${questionId}`,
+            payload,
+            {
+              withCredentials: true,
+            }
+          );
+          setQuestion("");
+          setOptions(["", "", "", ""]);
+          setToggles([false, false, false, false]);
+          setImageUrl(""); // Clear the image URL
+          navigate("/admin/viewquestions");
+        }
+      } catch (error) {
+        console.error(
+          "Error creating test:",
+          error.response?.data || error.message
+        );
+      }
+    } else {
+      alert("Please fill in all fields before submitting.");
+    }
+  };
 
   const handleCancel = () => {
     setQuestion("");
