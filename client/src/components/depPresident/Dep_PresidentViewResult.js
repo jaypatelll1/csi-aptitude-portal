@@ -62,22 +62,6 @@ const Dep_PresidentViewResult = ({
     return "answered";
   };
 
-  const handleSubmitResults = async () => {
-    if (!currentExamId || !teacher_id || !API_BASE_URL) {
-      alert("Missing required information for submission");
-      return;
-    }
-
-    try {
-      const url = `${API_BASE_URL}/api/exams/teacher-results/submit/${currentExamId}/${teacher_id}`;
-      await axios.post(url, {}, { withCredentials: true });
-      alert("Results submitted successfully!");
-    } catch (error) {
-      console.error("Error submitting teacher results:", error);
-      alert("Submission failed. Please try again.");
-    }
-  };
-
   // Updated color mapping with interchanged colors
   const statusColors = {
     visited: "#FFA500",     // Orange for visited but not saved
@@ -95,7 +79,7 @@ const Dep_PresidentViewResult = ({
       <p className="font-semibold mb-3">Questions</p>
 
       {/* Status Legend */}
-      <div className="flex flex-wrap mb-2">
+      <div className="flex flex-col flex-wrap mb-2">
         {Object.entries({
           visited: "Visited",
           answered: "Answered",
@@ -131,13 +115,13 @@ const Dep_PresidentViewResult = ({
         })}
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons
       <button
         onClick={handleSubmitResults}
         className="w-full bg-green-500 text-white py-2 rounded-md font-medium"
       >
         Submit Results
-      </button>
+      </button> */}
     </div>
   );
 };

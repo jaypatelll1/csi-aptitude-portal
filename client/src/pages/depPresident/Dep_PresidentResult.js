@@ -26,6 +26,8 @@ function Dep_PresidentResult() {
   const [error, setError] = useState(null);
   const commentRef = useRef(null);
 
+  const navigate = useNavigate();
+
   const teacher_id = location.state?.teacher.teacher_id;
   const exam_id = location.state?.exam_id;
   const exam_name = location.state?.exam_name;
@@ -76,7 +78,8 @@ function Dep_PresidentResult() {
 
   const handleNextQuestion = async () => {
     if (currentQuestionIndex >= ExamData.length) {
-      alert("This is the last question. Data saved.");
+      // alert("This is the last question. Data saved.");
+      navigate("/president", { replace: true });
       return;
     }
 
@@ -94,7 +97,9 @@ function Dep_PresidentResult() {
         if (a === null || b === null) return false;
         if (typeof a === "string" && typeof b === "string") return a === b;
         if (Array.isArray(a) && Array.isArray(b))
-          return a.length === b.length && a.sort().join(",") === b.sort().join(",");
+          return (
+            a.length === b.length && a.sort().join(",") === b.sort().join(",")
+          );
         if (typeof a === "string" && Array.isArray(b)) return b.includes(a);
         if (typeof b === "string" && Array.isArray(a)) return a.includes(b);
         return false;
@@ -113,13 +118,18 @@ function Dep_PresidentResult() {
           max_score: currentQuestion.question_type === "text" ? 5 : 1,
           comments: comment,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       // Add the current question to saved questions
-      setSavedQuestions(prev => [...prev, currentQuestion.question_id]);
+      setSavedQuestions((prev) => [...prev, currentQuestion.question_id]);
 
-      dispatch(storeComments({ question_id: currentQuestion.question_id, comment: comment }));
+      dispatch(
+        storeComments({
+          question_id: currentQuestion.question_id,
+          comment: comment,
+        }),
+      );
     } catch (error) {
       console.error("Error submitting response:", error);
     } finally {
@@ -127,7 +137,8 @@ function Dep_PresidentResult() {
     }
 
     if (currentQuestionIndex === ExamData.length - 1) {
-      alert("This was the last question. Data saved.");
+      // alert("This was the last question. Data saved.");
+      navigate(-1);
       return;
     }
 
@@ -180,7 +191,9 @@ function Dep_PresidentResult() {
   };
 
   useEffect(() => {
-    const existingComment = AllComments.find((c) => c.question_id === currentQuestion?.question_id);
+    const existingComment = AllComments.find(
+      (c) => c.question_id === currentQuestion?.question_id,
+    );
     setComment(existingComment ? existingComment.comment : "");
   }, [currentQuestionIndex]);
 
@@ -214,20 +227,24 @@ function Dep_PresidentResult() {
       const isUnattempted = !currentQuestion.selected_response;
 
       // Set classes based on option status
-      let circleClass = "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
-      let optionClass = "flex items-center p-2 rounded-lg hover:bg-gray-100 transition";
+      let circleClass =
+        "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
+      let optionClass =
+        "flex items-center p-2 rounded-lg hover:bg-gray-100 transition";
       let symbol = "";
 
       // Styling for correct answer
       if (isCorrect) {
-        circleClass = "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
+        circleClass =
+          "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
         symbol = "✓";
         optionClass += " bg-green-50";
       }
 
       // Styling for incorrect selected answer
       if (isSelected && !isCorrect) {
-        circleClass = "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
+        circleClass =
+          "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
         symbol = "✗";
         optionClass += " bg-red-50";
       }
@@ -240,7 +257,11 @@ function Dep_PresidentResult() {
       return (
         <div key={key} className={optionClass}>
           <input
-            type={currentQuestion.question_type === "multiple_choice" ? "checkbox" : "radio"}
+            type={
+              currentQuestion.question_type === "multiple_choice"
+                ? "checkbox"
+                : "radio"
+            }
             id={`option-${key}`}
             name="question-option"
             value={key}
@@ -265,11 +286,12 @@ function Dep_PresidentResult() {
   const renderQuestionStatus = () => {
     // For text questions, handle attempted/not attempted status
     if (currentQuestion.question_type === "text") {
-      if (!currentQuestion.selected_response || currentQuestion.selected_response.trim() === '') {
+      if (
+        !currentQuestion.selected_response ||
+        currentQuestion.selected_response.trim() === ""
+      ) {
         return (
-          <div className="mb-4 text-red-600 font-semibold">
-            Not Attempted
-          </div>
+          <div className="mb-4 text-red-600 font-semibold">Not Attempted</div>
         );
       }
       return (
@@ -278,10 +300,10 @@ function Dep_PresidentResult() {
         </div>
       );
     }
-    
+
     // For non-text questions, keep existing logic
     const { selected_response, correct_answer } = currentQuestion;
-    
+
     if (!selected_response) {
       return (
         <div className="mb-4 text-red-600 font-semibold">
@@ -298,19 +320,22 @@ function Dep_PresidentResult() {
       ? selected_response
       : [selected_response];
 
-    const isCorrect = correctAnswers.some(ans =>
-      selectedResponses.includes(ans)
+    const isCorrect = correctAnswers.some((ans) =>
+      selectedResponses.includes(ans),
     );
 
     return (
-      <div className={`mb-4 font-semibold ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-        {isCorrect ? 'Correct Answer' : 'Incorrect Answer'}
+      <div
+        className={`mb-4 font-semibold ${isCorrect ? "text-green-600" : "text-red-600"}`}
+      >
+        {isCorrect ? "Correct Answer" : "Incorrect Answer"}
       </div>
     );
   };
 
   const renderCorrectAnswer = () => {
-    const { correct_answer, options, question_type, selected_response } = currentQuestion;
+    const { correct_answer, options, question_type, selected_response } =
+      currentQuestion;
 
     // Handle different types of correct answers
     if (question_type === "text") {
@@ -321,9 +346,7 @@ function Dep_PresidentResult() {
 
     // Multiple or single choice
     if (Array.isArray(correct_answer)) {
-      return correct_answer
-        .map(ans => options[ans] || ans)
-        .join(", ");
+      return correct_answer.map((ans) => options[ans] || ans).join(", ");
     }
 
     return options[correct_answer] || correct_answer;
@@ -360,8 +383,9 @@ function Dep_PresidentResult() {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-white text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-          } transition-transform duration-300 w-64 xl:block`}
+        className={`fixed top-0 left-0 h-full bg-white text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+        } transition-transform duration-300 w-64 xl:block`}
       >
         <Dep_PresidentSidebar />
       </div>
@@ -414,7 +438,9 @@ function Dep_PresidentResult() {
               <span>{teacherData.name}</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-black px-10 mb-1">{exam_name}</h1>
+              <h1 className="text-xl font-bold text-black px-10 mb-1">
+                {exam_name}
+              </h1>
             </div>
             <div className="flex items-center mt-1">
               <span className="font-semibold mr-2">Email-Id:</span>
@@ -431,7 +457,8 @@ function Dep_PresidentResult() {
                     {/* Question and options section */}
                     <div className="flex-grow overflow-auto">
                       <h2 className="text-lg font-semibold text-black select-none mb-6">
-                        {currentQuestionIndex + 1}. {currentQuestion.question_text}
+                        {currentQuestionIndex + 1}.{" "}
+                        {currentQuestion.question_text}
                       </h2>
 
                       {/* Add question status indicator */}
@@ -442,14 +469,16 @@ function Dep_PresidentResult() {
                       </div>
 
                       {/* Conditionally show correct answer only for unattempted or incorrect questions */}
-                      {(currentQuestion.question_type !== "text" && 
-                        (!currentQuestion.selected_response ||
+                      {currentQuestion.question_type !== "text" &&
+                      (!currentQuestion.selected_response ||
                         (currentQuestion.selected_response &&
-                          !renderQuestionStatus()?.props?.className?.includes('text-green-600')))) ? (
-                            <div className="mt-4 text-green-600">
-                              <strong>Correct Answer:</strong> {renderCorrectAnswer()}
-                            </div>
-                         
+                          !renderQuestionStatus()?.props?.className?.includes(
+                            "text-green-600",
+                          ))) ? (
+                        <div className="mt-4 text-green-600">
+                          <strong>Correct Answer:</strong>{" "}
+                          {renderCorrectAnswer()}
+                        </div>
                       ) : null}
                     </div>
 
@@ -473,11 +502,14 @@ function Dep_PresidentResult() {
                         <div className="flex flex-col ml-4">
                           <p className="font-bold mb-2">Allot Marks:</p>
                           <div className="flex flex-col space-y-2">
-                            {[0,1, 2, 3, 4, 5].map((mark) => (
+                            {[0, 1, 2, 3, 4, 5].map((mark) => (
                               <button
                                 key={mark}
-                                className={`px-3 py-2 rounded-lg text-white transition w-full ${selectedMark == mark ? "bg-blue-700" : "bg-blue-500"
-                                  }`}
+                                className={`px-3 py-2 rounded-lg text-white transition w-full ${
+                                  selectedMark == mark
+                                    ? "bg-blue-700"
+                                    : "bg-blue-500"
+                                }`}
                                 onClick={() => setSelectedMark(mark)}
                               >
                                 {mark}
