@@ -186,7 +186,7 @@ function Dep_PresidentLiveTestList() {
           <p className="text-red-500 text-center mt-8">{error}</p>
         ) : testData.length === 0 ? (
           <p className="text-center mt-8 text-gray-600">
-            No drafted tests available.
+            No teachers have attempted the test yet.
           </p>
         ) : (
           <>
