@@ -5,7 +5,7 @@ const { logActivity } = require('../utils/logActivity');
 const deleteExistingTeacherResponses = async (req, res) => {
   const { exam_id } = req.params;
   const { teacher_id, role } = req.query;
-  console.log(exam_id, teacher_id, role)
+  console.log(exam_id, teacher_id, role);
 
   if (!teacher_id || !exam_id) {
     return res.status(400).json({ message: 'All fields are required' });
@@ -16,8 +16,12 @@ const deleteExistingTeacherResponses = async (req, res) => {
       const attempts = await trackAttempt(teacher_id);
       if (attempts === null) {
         return res.status(500).json({ error: 'Failed to track attempt' });
+      } else if (attempts === 1) {
+        res.json({
+          message: `Teacher is attempting this exam.`,
+        });
       } else if (attempts === 2) {
-        return res.json({
+        res.json({
           message: `Teacher is re-attempting this exam.`,
         });
       } else if (attempts > 2) {
@@ -30,11 +34,17 @@ const deleteExistingTeacherResponses = async (req, res) => {
     // Delete existing responses
     await teacherResponseModel.deleteExistingResponses(exam_id, teacher_id);
 
-    // Initialize unanswered questions for teacher
-    const response = await teacherResponseModel.submittedUnansweredQuestions(
-      exam_id,
-      teacher_id
-    );
+    if (!role) {
+      // Initialize unanswered questions for teacher
+      const response = await teacherResponseModel.submittedUnansweredQuestions(
+        exam_id,
+        teacher_id
+      );
+      res.status(201).json({
+        message: 'Responses initialized successfully',
+        response,
+      });
+    }
 
     await logActivity({
       user_id: teacher_id,
@@ -43,10 +53,10 @@ const deleteExistingTeacherResponses = async (req, res) => {
       details: 'Responses initialized successfully',
     });
 
-    return res.status(201).json({
-      message: 'Responses initialized successfully',
-      response,
-    });
+    // return res.status(200).json({
+    //   message: 'Responses deleted successfully',
+    // });
+
   } catch (error) {
     console.error('Error initializing responses:', error.message);
     return res.status(500).json({ error: error.message });
