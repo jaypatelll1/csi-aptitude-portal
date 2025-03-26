@@ -3,11 +3,22 @@ const fs = require('fs');
 const path = require('path');
 const { query } = require('../config/db');
 
+function safeParseJSON(jsonString, defaultValue = {}) {
+  try {
+    if (typeof jsonString === 'object') return jsonString;
+    return jsonString ? JSON.parse(jsonString) : defaultValue;
+  } catch (error) {
+    console.error('JSON Parsing Error:', error);
+    console.log('Problematic JSON:', jsonString);
+    return defaultValue;
+  }
+}
+
 async function generatePDF(res, teacherId, examId) {
   try {
     const doc = new PDFDocument({
       size: 'A4',
-      margin: 60
+      margin: 40  // Reduced margin to fit more content
     });
 
     const filePath = `./Aptitude_Report_${Date.now()}.pdf`;
@@ -21,68 +32,179 @@ async function generatePDF(res, teacherId, examId) {
     const { rows: teacherRows } = await query(teacherQuery, [teacherId]);
     const teacherName = teacherRows[0]?.name || `Teacher ${teacherId}`;
 
-    // COVER PAGE
-    doc.image('assets/atharva_logo.png', 60, 30, { width: 120 });
-    doc.image('assets/csi_logo.jpg', 440, 30, { width: 80 });
+    doc.image('assets/atharva_logo.png', 40, 30, { width: 100 });
+    doc.image('assets/csi_logo.jpg', 470, 30, { width: 70 });
+
+     // Calculate page width for centering
+    const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
     doc.moveDown(10);
-    doc.font('Bold').fontSize(42).text("Aptitude", { align: 'center' });
-    doc.font('Bold').fontSize(42).text("Report", { align: 'center' });
+    
+    
+    doc.font('Bold').fontSize(42);
+    const aptitudeTextWidth = doc.widthOfString("Aptitude");
+    doc.text("Aptitude", doc.page.margins.left + (pageWidth - aptitudeTextWidth) / 2, doc.y, { 
+      width: aptitudeTextWidth, 
+      align: 'center' 
+    });
+
+    
+    const reportTextWidth = doc.widthOfString("Report");
+    doc.text("Report", doc.page.margins.left + (pageWidth - reportTextWidth) / 2, null, { 
+      width: reportTextWidth, 
+      align: 'center' 
+    });
 
     doc.moveDown(8);
-    doc.font('Regular').fontSize(22).text(teacherName, { align: 'center' });
+    
+
+    doc.font('Regular').fontSize(22);
+    const teacherNameWidth = doc.widthOfString(teacherName);
+    doc.text(teacherName, doc.page.margins.left + (pageWidth - teacherNameWidth) / 2, null, { 
+      width: teacherNameWidth, 
+      align: 'center' 
+    });
 
     const resultQuery = `
-      SELECT q.question_text, q.question_type, r.text_answer, 
-             tr.marks_allotted, tr.max_score, tr.comments 
-      FROM teacher_responses r 
-      JOIN questions q ON q.question_id = r.question_id 
-      LEFT JOIN teacher_results tr 
-      ON tr.question_id = q.question_id 
-      AND tr.teacher_id = r.teacher_id 
-      AND tr.exam_id = r.exam_id 
-      WHERE r.teacher_id = $1 AND r.exam_id = $2
+      SELECT 
+        q.question_id,
+        q.question_text, 
+        q.question_type, 
+        q.options,
+        q.correct_option,
+        q.correct_options,
+        tr.selected_option,
+        tr.selected_options,
+        tr.text_answer,
+        tr.response_status,
+        tr.response_id,
+        tres.marks_allotted, 
+        tres.max_score,
+        tres.comments 
+      FROM questions q
+      LEFT JOIN teacher_responses tr ON tr.question_id = q.question_id 
+        AND tr.teacher_id = $1 
+        AND tr.exam_id = $2
+      LEFT JOIN teacher_results tres ON tres.question_id = q.question_id 
+        AND tres.teacher_id = $1 
+        AND tres.exam_id = $2
+      WHERE q.exam_id = $2
+      ORDER BY q.question_id
     `;
-    const { rows: results } = await query(resultQuery, [teacherId, examId]);
+    const result  = await query(resultQuery, [teacherId, examId]);
+    const results = result.rows;
 
-    // QUESTIONS & ANSWERS PAGE
     doc.addPage();
     let currentPage = 1;
 
-    doc.font('Bold').fontSize(20).text("Questions and Answers", { align: 'left' }).moveDown(1);
+    doc.font('Bold').fontSize(18).text("Questions and Answers", { align: 'left' }).moveDown(0.5);
 
     results.forEach((row, index) => {
-      // Marks table
-      doc.font('Regular').fontSize(12).text("Marks", 500, doc.y, { width: 50, align: 'center' })
-         .rect(500, doc.y + 20, 50, 30).stroke()
-         .font('Bold').fontSize(14)
-         .text(`${row.marks_allotted || "1"}/${row.max_score || "5"}`, 500, doc.y + 25, { width: 50, align: 'center' });
-
-      // Question
-      doc.moveDown(2);
-      doc.font('Bold').fontSize(14).text(`Q${index + 1}) ${row.question_text}`, 60).moveDown(0.5);
-
-      // Answer
-      doc.font('Regular').fontSize(12).text("Ans:", 60);
-      doc.font('Regular').fontSize(12)
-         .text(row.text_answer || "No answer provided", { width: 450, align: 'justify', indent: 60 }).moveDown(0.5);
-
-      // Comment
-      doc.font('Regular').fontSize(12).text("Comment:", 60);
-      doc.font('Regular').fontSize(12)
-         .text(row.comments || "No comments", { width: 450, align: 'justify', indent: 60 });
-
-      // Footer with page number
-      addFooter(doc, currentPage);
-      
-      // Move down for next question
-      doc.moveDown(2);
-
-      // Add new page if needed
-      if (index < results.length - 1 && doc.y > doc.page.height - 120) {
+      // Check if we need a new page
+      if (doc.y > doc.page.height - 100) {
         doc.addPage();
         currentPage++;
+        doc.font('Bold').fontSize(18).text("Questions and Answers", { align: 'left' }).moveDown(0.5);
       }
+
+      const maxScore = row.max_score || (row.question_type === 'text' ? 5 : 1);
+      const marksAllotted = row.marks_allotted || 0;
+
+      doc.font('Regular').fontSize(10).text("Marks", 500, doc.y, { width: 50, align: 'center' })
+         .rect(500, doc.y + 15, 50, 25).stroke()
+         .font('Bold').fontSize(12)
+         .text(`${marksAllotted}/${maxScore}`, 500, doc.y + 20, { width: 50, align: 'center' });
+
+      doc.moveDown(1);
+      doc.font('Bold').fontSize(12).text(`Q${index + 1}) ${row.question_text}`, 40).moveDown(0.3);
+
+      // Check if the question is not attempted
+      const isNotAttempted = !row.selected_option && 
+                             (!row.selected_options || row.selected_options === '[]') && 
+                             !row.text_answer;
+
+      if (row.question_type === 'single_choice' || row.question_type === 'multiple_choice') {
+        const options = safeParseJSON(row.options);
+        let hasSelectedOption = false;
+        
+        Object.entries(options).forEach(([key, value]) => {
+          let optionText = `${key}) ${value}`;
+          
+          let highlightColor = 'black';
+          let optionAnnotation = '';
+          
+          if (row.question_type === 'single_choice') {
+            if (row.correct_option === key) {
+              highlightColor = 'green';
+              optionAnnotation = ' (Correct Answer)';
+            }
+            if (row.selected_option && row.selected_option !== row.correct_option && row.selected_option === key) {
+              highlightColor = 'red';
+            }
+            if (row.selected_option === key) {
+              hasSelectedOption = true;
+            }
+          } else if (row.question_type === 'multiple_choice') {
+            const correctOptions = safeParseJSON(row.correct_options, []);
+            const selectedOptions = safeParseJSON(row.selected_options, []);
+            
+            if (correctOptions.includes(key)) {
+              highlightColor = 'green';
+              optionAnnotation = ' (Correct Answer)';
+            }
+            if (selectedOptions.includes(key) && !correctOptions.includes(key)) {
+              highlightColor = 'red';
+            }
+            if (selectedOptions.includes(key)) {
+              hasSelectedOption = true;
+            }
+          }
+          
+          doc.fillColor(highlightColor)
+             .font('Regular').fontSize(10)
+             .text(optionText + optionAnnotation, 60);
+          doc.fillColor('black');
+        });
+
+        // Add "NOT ATTEMPTED" if no option was selected
+        if (isNotAttempted) {
+          doc.moveDown(0.3);
+          doc.fillColor('blue')
+             .font('Bold').fontSize(10)
+             .text("NOT ATTEMPTED", 60);
+          doc.fillColor('black');
+        }
+      }
+
+      if (row.question_type === 'text') {
+        doc.font('Regular').fontSize(10)
+           .text("Ans: " + (row.text_answer ? row.text_answer.trim() : "No answer provided"), 40, null, { 
+             width: 450, 
+             align: 'justify'
+           });
+        
+        if (row.comments) {
+          doc.moveDown(0.3);
+          doc.font('Bold').fontSize(9).fillColor('darkblue')
+             .text(`Comment: ${row.comments}`, 40, null, { 
+               width: 450, 
+               align: 'left'
+             });
+        }
+
+        // Add "NOT ATTEMPTED" for text questions
+        if (isNotAttempted) {
+          doc.moveDown(0.3);
+          doc.fillColor('blue')
+             .font('Bold').fontSize(10)
+             .text("NOT ATTEMPTED", 40);
+          doc.fillColor('black');
+        }
+      }
+
+      addFooter(doc, currentPage);
+      
+      doc.moveDown(1);
     });
 
     doc.end();
@@ -96,7 +218,7 @@ async function generatePDF(res, teacherId, examId) {
     });
 
   } catch (error) {
-    console.error("❌ Error generating PDF:", error);
+    console.error("Error generating PDF:", error);
     if (res) {
       res.status(500).send("Error generating PDF");
     }
