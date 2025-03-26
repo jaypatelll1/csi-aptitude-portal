@@ -21,16 +21,16 @@ async function generatePDF(res, teacherId, examId) {
       margin: 40  // Reduced margin to fit more content
     });
 
-    const filePath = `./Aptitude_Report_${Date.now()}.pdf`;
-    const stream = fs.createWriteStream(filePath);
-    doc.pipe(stream);
-
     doc.registerFont('Regular', 'assets/fonts/Inter-Regular.otf');
     doc.registerFont('Bold', 'assets/fonts/Inter-Bold.otf');
 
     const teacherQuery = `SELECT name FROM users WHERE user_id = $1 AND role = 'Teacher'`;
     const { rows: teacherRows } = await query(teacherQuery, [teacherId]);
     const teacherName = teacherRows[0]?.name || `Teacher ${teacherId}`;
+
+    const filePath = `./Aptitude_Report_${teacherName}.pdf`;
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
 
     doc.image('assets/atharva_logo.png', 40, 30, { width: 100 });
     doc.image('assets/csi_logo.jpg', 470, 30, { width: 70 });
@@ -169,7 +169,7 @@ async function generatePDF(res, teacherId, examId) {
         // Add "NOT ATTEMPTED" if no option was selected
         if (isNotAttempted) {
           doc.moveDown(0.3);
-          doc.fillColor('blue')
+          doc.fillColor('#002567')
              .font('Bold').fontSize(10)
              .text("NOT ATTEMPTED", 60);
           doc.fillColor('black');
@@ -195,7 +195,7 @@ async function generatePDF(res, teacherId, examId) {
         // Add "NOT ATTEMPTED" for text questions
         if (isNotAttempted) {
           doc.moveDown(0.3);
-          doc.fillColor('blue')
+          doc.fillColor('#002567')
              .font('Bold').fontSize(10)
              .text("NOT ATTEMPTED", 40);
           doc.fillColor('black');
@@ -231,7 +231,7 @@ function addFooter(doc, pageNumber) {
   const circleX = doc.page.width - 50;
   const circleY = pageHeight - 15;
   const circleRadius = 16;
-  doc.circle(circleX, circleY, circleRadius).fill('#1a237e');
+  doc.circle(circleX, circleY, circleRadius).fill('#002567');
 
   doc.fillColor('white').font('Bold').fontSize(12)
      .text(`${pageNumber}`, circleX - 7, circleY - 7, { align: 'center', width: 14 });
