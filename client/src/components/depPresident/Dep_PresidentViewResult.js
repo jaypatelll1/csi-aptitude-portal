@@ -66,8 +66,8 @@ const Dep_PresidentViewResult = ({
   const statusColors = {
     visited: "#FFA500",     // Orange for visited but not saved
     unanswered: "#D3D3D3",  // Light gray for unanswered
-    answered: "#32CD32",    // Green for answered
-    checked: "#0047AB"      // Blue for checked/saved
+    answered: "#0047AB",    // blue for answered
+    checked: "#32CD32"      // green for checked/saved
   };
 
   if (!questions || questions.length === 0) {

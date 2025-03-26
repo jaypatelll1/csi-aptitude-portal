@@ -38,6 +38,28 @@ function Dep_PresidentResult() {
 
   const dispatch = useDispatch();
 
+  const areEqual = (a, b) => {
+    if (a === null || b === null) return false;
+    
+    // Create copies of arrays to avoid modifying the original
+    const arrA = Array.isArray(a) ? [...a] : a;
+    const arrB = Array.isArray(b) ? [...b] : b;
+    
+    if (typeof arrA === "string" && typeof arrB === "string") return arrA === arrB;
+    
+    if (Array.isArray(arrA) && Array.isArray(arrB)) {
+      // Sort copies of the arrays
+      const sortedA = [...arrA].sort();
+      const sortedB = [...arrB].sort();
+      return sortedA.join(",") === sortedB.join(",");
+    }
+    
+    if (typeof arrA === "string" && Array.isArray(arrB)) return arrB.includes(arrA);
+    if (typeof arrB === "string" && Array.isArray(arrA)) return arrA.includes(arrB);
+    
+    return false;
+  };
+
   useEffect(() => {
     if (location.state?.teacher) {
       setTeacherData(location.state.teacher);
@@ -78,7 +100,6 @@ function Dep_PresidentResult() {
 
   const handleNextQuestion = async () => {
     if (currentQuestionIndex >= ExamData.length) {
-      // alert("This is the last question. Data saved.");
       navigate("/president", { replace: true });
       return;
     }
@@ -92,18 +113,6 @@ function Dep_PresidentResult() {
     } else {
       const correctAnswer = currentQuestion.correct_answer;
       const selectedResponse = currentQuestion.selected_response;
-
-      const areEqual = (a, b) => {
-        if (a === null || b === null) return false;
-        if (typeof a === "string" && typeof b === "string") return a === b;
-        if (Array.isArray(a) && Array.isArray(b))
-          return (
-            a.length === b.length && a.sort().join(",") === b.sort().join(",")
-          );
-        if (typeof a === "string" && Array.isArray(b)) return b.includes(a);
-        if (typeof b === "string" && Array.isArray(a)) return a.includes(b);
-        return false;
-      };
 
       marksAllotted = areEqual(correctAnswer, selectedResponse) ? 1 : 0;
     }
@@ -121,7 +130,6 @@ function Dep_PresidentResult() {
         { withCredentials: true },
       );
 
-      // Add the current question to saved questions
       setSavedQuestions((prev) => [...prev, currentQuestion.question_id]);
 
       dispatch(
@@ -137,7 +145,6 @@ function Dep_PresidentResult() {
     }
 
     if (currentQuestionIndex === ExamData.length - 1) {
-      // alert("This was the last question. Data saved.");
       navigate(-1);
       return;
     }
@@ -198,12 +205,10 @@ function Dep_PresidentResult() {
   }, [currentQuestionIndex]);
 
   const renderQuestionOptions = () => {
-    // For text questions, return null
     if (currentQuestion.question_type === "text") {
       return null;
     }
 
-    // Ensure we have options to render for non-text questions
     if (!currentQuestion.options) {
       return (
         <div className="text-red-500 font-semibold">
@@ -221,19 +226,16 @@ function Dep_PresidentResult() {
         ? currentQuestion.selected_response
         : [currentQuestion.selected_response];
 
-      // Determine option status
       const isCorrect = correctAnswers.includes(key);
       const isSelected = selectedResponses.includes(key);
       const isUnattempted = !currentQuestion.selected_response;
 
-      // Set classes based on option status
       let circleClass =
         "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
       let optionClass =
         "flex items-center p-2 rounded-lg hover:bg-gray-100 transition";
       let symbol = "";
 
-      // Styling for correct answer
       if (isCorrect) {
         circleClass =
           "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
@@ -241,7 +243,6 @@ function Dep_PresidentResult() {
         optionClass += " bg-green-50";
       }
 
-      // Styling for incorrect selected answer
       if (isSelected && !isCorrect) {
         circleClass =
           "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
@@ -249,7 +250,6 @@ function Dep_PresidentResult() {
         optionClass += " bg-red-50";
       }
 
-      // Additional styling for unattempted questions
       if (isUnattempted) {
         optionClass += " opacity-50";
       }
@@ -284,7 +284,6 @@ function Dep_PresidentResult() {
   };
 
   const renderQuestionStatus = () => {
-    // For text questions, handle attempted/not attempted status
     if (currentQuestion.question_type === "text") {
       if (
         !currentQuestion.selected_response ||
@@ -301,7 +300,6 @@ function Dep_PresidentResult() {
       );
     }
 
-    // For non-text questions, keep existing logic
     const { selected_response, correct_answer } = currentQuestion;
 
     if (!selected_response) {
@@ -312,7 +310,6 @@ function Dep_PresidentResult() {
       );
     }
 
-    // Check if the selected response matches the correct answer
     const correctAnswers = Array.isArray(correct_answer)
       ? correct_answer
       : [correct_answer];
@@ -337,14 +334,12 @@ function Dep_PresidentResult() {
     const { correct_answer, options, question_type, selected_response } =
       currentQuestion;
 
-    // Handle different types of correct answers
     if (question_type === "text") {
       return;
     }
 
     if (!correct_answer) return;
 
-    // Multiple or single choice
     if (Array.isArray(correct_answer)) {
       return correct_answer.map((ans) => options[ans] || ans).join(", ");
     }
@@ -507,8 +502,8 @@ function Dep_PresidentResult() {
                                 key={mark}
                                 className={`px-3 py-2 rounded-lg text-white transition w-full ${
                                   selectedMark == mark
-                                    ? "bg-blue-700"
-                                    : "bg-blue-500"
+                                    ? "bg-blue-800"
+                                    : "bg-gray-300"
                                 }`}
                                 onClick={() => setSelectedMark(mark)}
                               >
