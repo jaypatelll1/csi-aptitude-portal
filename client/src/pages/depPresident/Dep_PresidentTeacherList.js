@@ -16,7 +16,7 @@ const Dep_PresidentTeacherList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [numberofpages, setNumberofpages] = useState(14);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(25);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -217,9 +217,8 @@ const Dep_PresidentTeacherList = () => {
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Dep_PresidentSidebar />
       </div>
@@ -349,12 +348,12 @@ const Dep_PresidentTeacherList = () => {
             <tbody>
               {filteredTeacher.slice((page - 1) * limit, page * limit).map((teacher, index) => (
                 <tr key={teacher.user_id} className="hover:bg-gray-50">
-                  {/* <td className='py-4 px-5 text-blue-700 font-bold'>{index + 1}</td> */}
-                  <td className="py-4">{teacher.user_id}</td>
+                  <td className="py-4">
+                    {(page - 1) * limit + index + 1} {/* This is correctly calculating the serial number */}
+                  </td>
                   <td className="py-4">{teacher.name}</td>
                   <td className="py-4">{teacher.email}</td>
                   <td className="py-4">{teacher.phone || "N/A"}</td>
-
                   <td className="py-4 text-center items-center justify-center flex">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -401,9 +400,8 @@ const Dep_PresidentTeacherList = () => {
                 {getPageNumbers().map((p) => (
                   <div
                     key={p}
-                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
-                      page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                    }`}
+                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                      }`}
                     onClick={() => setPage(p)}
                   >
                     {p}
