@@ -6,8 +6,7 @@ import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavb
 import { useNavigate } from "react-router-dom";
 import pdf from "../../assets/pdf.svg";
 import right from "../../assets/right.svg";
-
-// const API_BASE_URL = process.env.BACKEND_BASE_URL;
+import Loader from "../../components/Loader";
 
 const Dep_PresidentTestTeacherList = () => {
   const [teachers, setTeachers] = useState([]);
@@ -17,87 +16,15 @@ const Dep_PresidentTestTeacherList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const [userDetails, setUserDetails] = useState([]); // Store fetched user details
+  const [userDetails, setUserDetails] = useState([]); 
   const location = useLocation();
-  const [status, setStatus] = useState("");
+  const [isLoading, setIsLoading] = useState(true); // Added loading state
   const navigate = useNavigate();
 
   const name = location.state?.name;
   const duration = location.state?.duration;
   const examId = location.state?.examId;
   const exam_name = location.state?.exam_name;
-
-  // Function to handle CSV download
-  // const handleExportCSV = async () => {
-  //   try {
-  //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  //     const response = await axios.get(
-  //       `${API_BASE_URL}/api/export/teacher/result/csv/${examId}`,
-  //       {
-  //         responseType: "blob", // Important for downloading files
-  //         withCredentials: true, // Make sure the cookie is sent with the request
-  //       }
-  //     );
-
-  //     // Create a URL for the file blob and trigger download
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.setAttribute("download", "teacher_results.csv"); // Specify file name
-  //     document.body.appendChild(link);
-  //     link.click();
-
-  //     // Clean up the URL object after download
-  //     window.URL.revokeObjectURL(url);
-  //   } catch (error) {
-  //     console.error("Error downloading CSV:", error);
-  //   }
-  // };
-
-  // Function to handle Excel download
-  // const handleExportExcel = async () => {
-  //   try {
-  //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  //     const response = await axios.get(
-  //       `${API_BASE_URL}/api/export/teacher/result/excel/${examId}`,
-  //       {
-  //         responseType: "blob", // Important for downloading files
-  //         withCredentials: true, // Make sure the cookie is sent with the request
-  //       }
-  //     );
-
-  //     // Create a URL for the file blob and trigger download
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.setAttribute("download", "teacher_results.xlsx"); // Specify file name
-  //     document.body.appendChild(link);
-  //     link.click();
-
-  //     // Clean up the URL object after download
-  //     window.URL.revokeObjectURL(url);
-  //   } catch (error) {
-  //     console.error("Error downloading Excel:", error);
-  //   }
-  // };
-
-  // const handleSearch = (e) => {
-  //   setPage(1);
-  //   const term = e.target.value.toLowerCase();
-  //   setSearchTerm(term);
-
-  //   const searchResults = term
-  //     ? teachers.filter(
-  //         (teacher) =>
-  //           teacher.teacher_name?.toLowerCase().includes(term) ||
-  //           teacher.teacher_email?.toLowerCase().includes(term) ||
-  //           teacher.Date?.toLowerCase().includes(term) ||
-  //           teacher.status?.toLowerCase().includes(term)
-  //       )
-  //     : teachers;
-
-  //   setFilteredTeachers(searchResults);
-  // };
 
   const handleSearch = (e) => {
     setPage(1);
@@ -119,11 +46,12 @@ const Dep_PresidentTestTeacherList = () => {
   useEffect(() => {
     const fetchTeacherDetails = async () => {
       try {
+        setIsLoading(true); // Set loading to true before fetch
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(
           `${API_BASE_URL}/api/exams/teacher-responses/attempted-teachers/${examId}`,
           {
-            withCredentials: true, // Make sure the cookie is sent with the request
+            withCredentials: true,
           },
         );
         const data = response.data;
@@ -141,6 +69,8 @@ const Dep_PresidentTestTeacherList = () => {
         setUserDetails([]);
         setTeachers([]);
         setFilteredTeachers([]);
+      } finally {
+        setIsLoading(false); // Set loading to false after fetch
       }
     };
     fetchTeacherDetails();
@@ -156,7 +86,7 @@ const Dep_PresidentTestTeacherList = () => {
       const response = await axios.get(
         `${API_BASE_URL}/generate-pdf/${teacher.teacher_id}/${exam_id}`,
         {
-          responseType: "blob", // Important for handling files
+          responseType: "blob",
           withCredentials: true,
         }
       );
@@ -179,20 +109,6 @@ const Dep_PresidentTestTeacherList = () => {
       console.error("Error generating PDF:", error);
     }
   };
-
-  // Remove or comment out the student fetch since we're now fetching teachers
-  // useEffect(() => {
-  //     const fetchStudents = async () => {
-  //         try {
-  //             const { data } = await axios.get(`/api/users?role=Student`);
-  //             setStudents(data.users);
-  //             setFilteredStudents(data.users);
-  //         } catch (error) {
-  //             console.error("Error fetching students:", error);
-  //         }
-  //     };
-  //     fetchStudents();
-  // }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -248,137 +164,131 @@ const Dep_PresidentTestTeacherList = () => {
             </svg>
           </button>
         </div>
-        <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
-          <div className="flex justify-between items-center w-full mb-5">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Teachers who took the exam: {name}
-            </h2>
-            <div className="flex space-x-4 items-center">
-              <div className="relative w-64">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  className="w-full pl-10 h-10 text-sm border border-gray-300 rounded-md bg-transparent focus:outline-none"
-                  placeholder="Search"
-                />
-                <svg
-                  className="absolute left-3 top-3 text-gray-400"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </div>
-              {/* <button className="flex items-center px-4 h-10 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="8" y1="12" x2="16" y2="12" />
-                  <line x1="10" y1="18" x2="14" y2="18" />
-                </svg>
-                Filters
-              </button> */}
-            </div>
-          </div>
-          <table className="min-w-full leading-normal">
-            <thead>
-              <tr className="text-left text-gray-600 uppercase text-sm border-b border-gray-300">
-                <th className="py-4 px-4">#</th>
-                <th className="py-4 px-4">Name</th>
-                <th className="py-4 px-4">Email</th>
-                <th className="py-4 px-4">Mobile No.</th>
-                <th className="py-4 px-4">Attempted</th>
-                <th className="py-4 px-4">PDF</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTeachers
-                .slice((page - 1) * limit, page * limit)
-                .map((teacher, index) => (
-                  <tr
-                    key={teacher.result_id || index}
-                    className="hover:bg-gray-50"
-                  >
-                    <td className="py-4 px-4">{index + 1}</td>
-                    <td className="py-4 px-4">{teacher.name}</td>
-                    <td className="py-4 px-4">{teacher.email}</td>
-                    <td className="py-4 px-4">{teacher.phone}</td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={(e) => handleClick(teacher, examId, exam_name)}
-                        className="p-2"
-                      >
-                        <img
-                          src={right}
-                          alt="right"
-                          className="w-8 h-8 text-gray-600 cursor-pointer"/>
-                      </button>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        className="p-2"
-                        onClick={(e) => handlePdfClick(teacher, examId)}
-                      >
-                        <img src={pdf} alt="pdf" className="w-8 h-8 text-gray-600 cursor-pointer" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
 
-          {/* Pagination */}
-          {numberofpages > 1 && (
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                className={`px-3 py-1 mx-1 rounded ${
-                  page === 1
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                &lt;
-              </button>
-              {pageNumbers.map((pageNum) => (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">
+            <div className="flex justify-between items-center w-full mb-5">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Teachers who took the exam: {name}
+              </h2>
+              <div className="flex space-x-4 items-center">
+                <div className="relative w-64">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    className="w-full pl-10 h-10 text-sm border border-gray-300 rounded-md bg-transparent focus:outline-none"
+                    placeholder="Search"
+                  />
+                  <svg
+                    className="absolute left-3 top-3 text-gray-400"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <table className="min-w-full leading-normal">
+              <thead>
+                <tr className="text-left text-gray-600 uppercase text-sm border-b border-gray-300">
+                  <th className="py-4 px-4">#</th>
+                  <th className="py-4 px-4">Name</th>
+                  <th className="py-4 px-4">Email</th>
+                  <th className="py-4 px-4">Mobile No.</th>
+                  <th className="py-4 px-4">Attempted</th>
+                  <th className="py-4 px-4">PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTeachers
+                  .slice((page - 1) * limit, page * limit)
+                  .map((teacher, index) => (
+                    <tr
+                      key={teacher.result_id || index}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="py-4 px-4">{index + 1}</td>
+                      <td className="py-4 px-4">{teacher.name}</td>
+                      <td className="py-4 px-4">{teacher.email}</td>
+                      <td className="py-4 px-4">{teacher.phone}</td>
+                      <td className="py-4 px-4">
+                        <button
+                          onClick={(e) => handleClick(teacher, examId, exam_name)}
+                          className="p-2"
+                        >
+                          <img
+                            src={right}
+                            alt="right"
+                            className="w-8 h-8 text-gray-600 cursor-pointer"
+                          />
+                        </button>
+                      </td>
+                      <td className="py-4 px-4">
+                        <button
+                          className="p-2"
+                          onClick={(e) => handlePdfClick(teacher, examId)}
+                        >
+                          <img src={pdf} alt="pdf" className="w-8 h-8 text-gray-600 cursor-pointer" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+
+            {/* Pagination */}
+            {numberofpages > 1 && (
+              <div className="flex justify-center mt-6">
                 <button
-                  key={pageNum}
-                  onClick={() => setPage(pageNum)}
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  disabled={page === 1}
                   className={`px-3 py-1 mx-1 rounded ${
-                    page === pageNum
-                      ? "bg-blue-500 text-white"
+                    page === 1
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
-                  {pageNum}
+                  &lt;
                 </button>
-              ))}
-              <button
-                onClick={() => setPage(Math.min(numberofpages, page + 1))}
-                disabled={page === numberofpages}
-                className={`px-3 py-1 mx-1 rounded ${
-                  page === numberofpages
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                &gt;
-              </button>
-            </div>
-          )}
-        </div>
+                {pageNumbers.map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`px-3 py-1 mx-1 rounded ${
+                      page === pageNum
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage(Math.min(numberofpages, page + 1))}
+                  disabled={page === numberofpages}
+                  className={`px-3 py-1 mx-1 rounded ${
+                    page === numberofpages
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  &gt;
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
