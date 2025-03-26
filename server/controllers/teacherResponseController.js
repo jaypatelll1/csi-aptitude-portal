@@ -13,7 +13,7 @@ const deleteExistingTeacherResponses = async (req, res) => {
   try {
     if (role === 'President') {
       // Track teacher's attempt
-      const attempts = await trackAttempt(teacher_id);
+      const attempts = await trackAttempt(teacher_id, exam_id);
       if (attempts === null) {
         return res.status(500).json({ error: 'Failed to track attempt' });
       } else if (attempts === 1) {
