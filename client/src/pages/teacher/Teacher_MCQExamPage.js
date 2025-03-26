@@ -52,6 +52,25 @@ const Teacher_MCQExamPage = () => {
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
+  useEffect(() => {
+    // Push a new state into history so that when the back button is pressed, 
+    // it doesn't go back to the previous page but instead navigates to /teacher.
+    window.history.pushState(null, document.title, window.location.href);
+
+    const handleBackButton = (e) => {
+      e.preventDefault();
+      navigate('/teacher'); // Redirect to the /teacher route
+    };
+
+    // Listen for the popstate event and redirect to /teacher
+    window.addEventListener('popstate', handleBackButton);
+
+    return () => {
+      window.removeEventListener('popstate', handleBackButton);
+    };
+  }, [navigate]);
+
+  
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
     if (rootElement.requestFullscreen) {
@@ -277,7 +296,7 @@ const Teacher_MCQExamPage = () => {
       );
     } catch (error) {
       console.error("Error clearing response:", error);
-    }
+    } 
   };
 
   const handleMarkForReview = () => {
@@ -289,13 +308,13 @@ const Teacher_MCQExamPage = () => {
     if (question.question_type === 'text') {
 
       console.log(question)
-      textResponse(question.question_text, question.question_id, question.question_type)
+      textResponse(question.textAnswer, question.question_id, question.question_type)
     }
     else if (question.question_type === 'single_choice') {
-      singleResponse(question.option, question?.question_id, question?.question_type);
+      singleResponse(question.selectedOption, question?.question_id, question?.question_type);
     }
     else if (question.question_type === 'multiple_choice') {
-      multipleResponse(question.options, question.question_id, question?.question_type);
+      multipleResponse(question.selectedOptions, question.question_id, question?.question_type);
 
     }
     else {
