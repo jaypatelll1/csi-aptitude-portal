@@ -5,7 +5,7 @@ const { logActivity } = require('../utils/logActivity');
 const deleteExistingTeacherResponses = async (req, res) => {
   const { exam_id } = req.params;
   const { teacher_id, role } = req.query;
-  console.log(exam_id, teacher_id, role);
+  // console.log(exam_id, teacher_id, role);
 
   if (!teacher_id || !exam_id) {
     return res.status(400).json({ message: 'All fields are required' });

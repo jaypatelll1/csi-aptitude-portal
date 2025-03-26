@@ -6,6 +6,7 @@ import Dep_PresidentNavbar from "../../components/depPresident/Dep_PresidentNavb
 import { useNavigate } from "react-router-dom";
 import pdf from "../../assets/pdf.svg";
 import right from "../../assets/right.svg";
+import greenright from "../../assets/greenright.svg";
 import Loader from "../../components/Loader";
 
 const Dep_PresidentTestTeacherList = () => {
@@ -16,7 +17,8 @@ const Dep_PresidentTestTeacherList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const [userDetails, setUserDetails] = useState([]); 
+  const [userDetails, setUserDetails] = useState([]);
+  const [isPdf, setIsPdf] = useState([]);
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true); // Added loading state
   const navigate = useNavigate();
@@ -76,6 +78,44 @@ const Dep_PresidentTestTeacherList = () => {
     fetchTeacherDetails();
   }, [examId]);
 
+  useEffect(() => {
+    const checkPdfAvailability = async () => {
+      try {
+        if (!userDetails.length) return; // Ensure teachers are loaded first
+
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const pdfAvailabilityPromises = userDetails.map(async (teacher) => {
+          try {
+            const response = await axios.get(
+              `${API_BASE_URL}/api/exams/teacher-results/${examId}?teacher_id=${teacher.teacher_id}`,
+              { withCredentials: true },
+            );
+            if (response.data.length === 0) {
+              return { teacherId: teacher.teacher_id, isPdfAvailable: false };
+            } else {
+              return { teacherId: teacher.teacher_id, isPdfAvailable: true };
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching PDF for teacher ${teacher.teacher_id}:`,
+              error,
+            );
+            return { teacherId: teacher.teacher_id, isPdfAvailable: false };
+          }
+        });
+
+        const pdfResults = await Promise.all(pdfAvailabilityPromises);
+        setIsPdf(pdfResults); // Store per-teacher PDF availability
+      } catch (error) {
+        console.error("Error checking PDF availability:", error);
+      }
+    };
+
+    if (userDetails.length > 0) {
+      checkPdfAvailability();
+    }
+  }, [userDetails, examId]); // Depend on userDetails to re-run when teachers are loaded
+
   const handleClick = (teacher, exam_id, exam_name) => {
     navigate(`/president/result`, { state: { teacher, exam_id, exam_name } });
   };
@@ -88,20 +128,20 @@ const Dep_PresidentTestTeacherList = () => {
         {
           responseType: "blob",
           withCredentials: true,
-        }
+        },
       );
-  
+
       // Create a blob from the response data
       const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-  
+
       // Create a link element and trigger a download
       const a = document.createElement("a");
       a.href = url;
       a.download = `Teacher_Report_${teacher.name}.pdf`;
       document.body.appendChild(a);
       a.click();
-      
+
       // Clean up the URL object
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
@@ -213,37 +253,48 @@ const Dep_PresidentTestTeacherList = () => {
               <tbody>
                 {filteredTeachers
                   .slice((page - 1) * limit, page * limit)
-                  .map((teacher, index) => (
-                    <tr
-                      key={teacher.result_id || index}
-                      className="hover:bg-gray-50"
-                    >
-                      <td className="py-4 px-4">{index + 1}</td>
-                      <td className="py-4 px-4">{teacher.name}</td>
-                      <td className="py-4 px-4">{teacher.email}</td>
-                      <td className="py-4 px-4">{teacher.phone}</td>
-                      <td className="py-4 px-4">
-                        <button
-                          onClick={(e) => handleClick(teacher, examId, exam_name)}
-                          className="p-2"
-                        >
-                          <img
-                            src={right}
-                            alt="right"
-                            className="w-8 h-8 text-gray-600 cursor-pointer"
-                          />
-                        </button>
-                      </td>
-                      <td className="py-4 px-4">
-                        <button
-                          className="p-2"
-                          onClick={(e) => handlePdfClick(teacher, examId)}
-                        >
-                          <img src={pdf} alt="pdf" className="w-8 h-8 text-gray-600 cursor-pointer" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  .map((teacher, index) => {
+                    const isPdfAvailable =
+                      isPdf?.find(
+                        (item) => item.teacherId === teacher.teacher_id,
+                      )?.isPdfAvailable || false;
+                    return (
+                      <tr
+                        key={teacher.result_id || index}
+                        className="hover:bg-gray-50 cursor-pointer" onClick={(e) =>
+                          handleClick(teacher, examId, exam_name)
+                        }
+                      >
+                        <td className="py-4 px-4">{index + 1}</td>
+                        <td className="py-4 px-4">{teacher.name}</td>
+                        <td className="py-4 px-4">{teacher.email}</td>
+                        <td className="py-4 px-4">{teacher.phone}</td>
+                        <td className="py-4 px-4">
+                          <button
+                            className="p-2"
+                          >
+                            <img
+                              src={isPdfAvailable ? greenright : right}
+                              alt="right"
+                              className="w-8 h-8 text-gray-600 cursor-pointer"
+                            />
+                          </button>
+                        </td>
+                        <td className="py-4 px-4">
+                          <button
+                            className={`p-2 ${isPdfAvailable ? "cursor-pointer" : "cursor-not-allowed"} `}
+                            onClick={(e) => handlePdfClick(teacher, examId)}
+                          >
+                            <img
+                              src={pdf}
+                              alt="pdf"
+                              className={`w-8 h-8 ${isPdfAvailable ? "cursor-pointer text-gray-600" : "opacity-45 cursor-not-allowed text-gray-300"} `}
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
 

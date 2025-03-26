@@ -99,7 +99,8 @@ CREATE TABLE teacher_results (
     completed_at TIMESTAMP,
     FOREIGN KEY (exam_id) REFERENCES exams (exam_id),
     FOREIGN KEY (teacher_id) REFERENCES users (user_id),
-    FOREIGN KEY (question_id) REFERENCES questions (question_id) 
+    FOREIGN KEY (question_id) REFERENCES questions (question_id),
+    UNIQUE (exam_id, question_id, teacher_id) 
 );
 
 

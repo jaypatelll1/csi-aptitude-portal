@@ -3,12 +3,12 @@ const { logActivity } = require('../utils/logActivity');
 const { viewResult } = require("../utils/viewResult");
 
 // CREATE: Add a new result for teachers
-const createResultForTeachers = async (req, res) => {
+const updateResultForTeachers = async (req, res) => {
   const { exam_id, question_id } = req.params;
   const { teacher_id, marks_allotted, max_score, comments } = req.body;
 
   try {
-    const newResult = await teacherResultModel.createResultForTeachers(
+    const newResult = await teacherResultModel.updateResultForTeachers(
       teacher_id,
       exam_id,
       question_id,
@@ -20,23 +20,23 @@ const createResultForTeachers = async (req, res) => {
     if (!newResult) {
       await logActivity({
         user_id: teacher_id,
-        activity: 'Create Teacher Result',
+        activity: 'Updated Teacher Result',
         status: 'failure',
-        details: 'Could not create result',
+        details: 'Could not update result',
       });
-      return res.status(400).json({ error: 'Could not create result' });
+      return res.status(400).json({ error: 'Could not update result' });
     }
 
     await logActivity({
       user_id: teacher_id,
-      activity: 'Create Teacher Result',
+      activity: 'update Teacher Result',
       status: 'success',
-      details: 'Result created successfully',
+      details: 'Result updated successfully',
     });
 
-    res.status(201).json(newResult);
+    res.status(200).json(newResult);
   } catch (err) {
-    console.error('Error creating teacher result:', err);
+    console.error('Error updating teacher result:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -96,9 +96,10 @@ const getPaginatedTeacherResultsByExam = async (req, res) => {
 // READ: Get a specific teacher result by exam_id and question_id
 const getTeacherResultById = async (req, res) => {
   const { exam_id } = req.params;
+  const teacher_id = req.query.teacher_id;
 
   try {
-    const result = await teacherResultModel.getTeacherResultById(exam_id);
+    const result = await teacherResultModel.getTeacherResultById(exam_id, teacher_id);
     if (!result) {
       return res.status(404).json({ error: 'Result not found' });
     }
@@ -170,8 +171,22 @@ const getCorrectIncorrectForTeacher = async (req, res) => {
   }
 };
 
+const initializeResultForTeachers = async (req, res) => {
+  const { exam_id } = req.params;
+  const teacher_id = req.query.teacher_id;
+
+  try {
+    await teacherResultModel.initializeResultForTeachers(teacher_id, exam_id);
+
+    res.status(201).json({ message: 'Results initialized successfully' });
+  } catch (err) {
+    console.error('Error initializing results:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
-  createResultForTeachers,
+  updateResultForTeachers,
   getAllTeacherResults,
   getResultsByTeacher,
   getPaginatedTeacherResultsByExam,
@@ -179,4 +194,5 @@ module.exports = {
   updateTeacherResult,
   deleteTeacherResult,
   getCorrectIncorrectForTeacher,
+  initializeResultForTeachers
 };

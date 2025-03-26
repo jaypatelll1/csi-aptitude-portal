@@ -1,14 +1,14 @@
 const express = require('express');
 const {
-  createResultForTeachers,
+  updateResultForTeachers,
   getAllTeacherResults,
   getTeacherResultById,
   updateTeacherResult,
   deleteTeacherResult,
   getPaginatedTeacherResultsByExam,
-  pastTeacherResult,
   getResultsByTeacher,
-  getCorrectIncorrectForTeacher
+  getCorrectIncorrectForTeacher,
+  initializeResultForTeachers
 } = require('../controllers/teacherResultController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
@@ -18,7 +18,8 @@ const router = express.Router();
 const { limiter } = require('../middlewares/rateLimitMiddleware');
 
 // CREATE: Add a new result for teachers
-router.post('/create-result/:exam_id/:question_id', createResultForTeachers);
+router.put('/update-result/:exam_id/:question_id', updateResultForTeachers);
+router.post('/initialize-result/:exam_id', initializeResultForTeachers);
 
 // READ: Get all results for a particular teacher
 router.get('/teacher-all', getAllTeacherResults);

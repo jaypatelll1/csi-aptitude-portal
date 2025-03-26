@@ -14,7 +14,7 @@ function Dep_PresidentResult() {
   const [loading, setLoading] = useState(false);
   const [comment, setComment] = useState("");
   const [selectedOption, setSelectedOption] = useState("a");
-  const [selectedMark, setSelectedMark] = useState(1);
+  const [selectedMark, setSelectedMark] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [Saving, setSaving] = useState(false);
@@ -40,23 +40,26 @@ function Dep_PresidentResult() {
 
   const areEqual = (a, b) => {
     if (a === null || b === null) return false;
-    
+
     // Create copies of arrays to avoid modifying the original
     const arrA = Array.isArray(a) ? [...a] : a;
     const arrB = Array.isArray(b) ? [...b] : b;
-    
-    if (typeof arrA === "string" && typeof arrB === "string") return arrA === arrB;
-    
+
+    if (typeof arrA === "string" && typeof arrB === "string")
+      return arrA === arrB;
+
     if (Array.isArray(arrA) && Array.isArray(arrB)) {
       // Sort copies of the arrays
       const sortedA = [...arrA].sort();
       const sortedB = [...arrB].sort();
       return sortedA.join(",") === sortedB.join(",");
     }
-    
-    if (typeof arrA === "string" && Array.isArray(arrB)) return arrB.includes(arrA);
-    if (typeof arrB === "string" && Array.isArray(arrA)) return arrA.includes(arrB);
-    
+
+    if (typeof arrA === "string" && Array.isArray(arrB))
+      return arrB.includes(arrA);
+    if (typeof arrB === "string" && Array.isArray(arrA))
+      return arrA.includes(arrB);
+
     return false;
   };
 
@@ -70,6 +73,11 @@ function Dep_PresidentResult() {
     setLoading(true);
     try {
       await dispatch(FetchTeacherExam({ exam_id, teacher_id })).unwrap();
+      const response = await axios.post(
+        `${API_BASE_URL}/api/exams/teacher-results/initialize-result/${exam_id}?teacher_id=${teacher_id}`,
+        {},
+        { withCredentials: true },
+      );
     } catch (error) {
       setError("An error occurred. Please try again later.");
     } finally {
@@ -119,8 +127,8 @@ function Dep_PresidentResult() {
 
     try {
       setSaving(true);
-      const response = await axios.post(
-        `${API_BASE_URL}/api/exams/teacher-results/create-result/${exam_id}/${currentQuestion.question_id}`,
+      const response = await axios.put(
+        `${API_BASE_URL}/api/exams/teacher-results/update-result/${exam_id}/${currentQuestion.question_id}`,
         {
           teacher_id,
           marks_allotted: marksAllotted,
@@ -150,7 +158,7 @@ function Dep_PresidentResult() {
     }
 
     setCurrentQuestionIndex((prev) => prev + 1);
-    setSelectedMark(1);
+    setSelectedMark(0);
     setComment("");
   };
 
@@ -185,7 +193,7 @@ function Dep_PresidentResult() {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
       setSelectedOption("a");
-      setSelectedMark(1);
+      setSelectedMark(0);
       setComment("");
     }
   };
@@ -193,7 +201,7 @@ function Dep_PresidentResult() {
   const handleQuestionNavigation = (index) => {
     setCurrentQuestionIndex(index);
     setSelectedOption("a");
-    setSelectedMark(1);
+    setSelectedMark(0);
     setComment("");
   };
 
