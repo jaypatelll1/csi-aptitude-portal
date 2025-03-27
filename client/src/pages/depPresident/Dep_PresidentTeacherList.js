@@ -126,7 +126,6 @@ const Dep_PresidentTeacherList = () => {
 
   // Fetch data from API
   useEffect(() => {
-    setIsLoading(true);
     const fetchTeachers = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
@@ -147,7 +146,7 @@ const Dep_PresidentTeacherList = () => {
       }
     };
     fetchTeachers();
-  }, [currentUser, deletedUsers]);
+  }, [currentUser, deletedUsers, isModalOpen, isEditModalOpen]);
 
   useEffect(() => {
     let filtered = teachers;
@@ -197,22 +196,11 @@ const Dep_PresidentTeacherList = () => {
     return pages;
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-  const closeModal = () => {
-    setIsLoading(true);
-    setIsModalOpen(false);
-    setIsLoading(false);
-  };
-  const openEditModal = () => {
-    setIsEditModalOpen(true);
-  };
-  const closeEditModal = () => {
-    setIsLoading(true);
-    setIsEditModalOpen(false);
-    setIsLoading(false);
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const openEditModal = () => setIsEditModalOpen(true);
+  const closeEditModal = () => setIsEditModalOpen(false);
 
   const handleEditOpen = (student) => {
     return () => {
