@@ -284,28 +284,28 @@ const Stu_MCQExamPage = () => {
     dispatch(toggleMarkForReview(currentQuestionIndex));
   };
 
-  // useEffect(() => {
-  //   let warningCount = 0;
+  useEffect(() => {
+    let warningCount = 0;
 
-  // const handleTabSwitch = () => {
-  //   if (document.hidden) {
-  //     warningCount++;
+  const handleTabSwitch = () => {
+    if (document.hidden) {
+      warningCount++;
 
-  //     if (warningCount < 5) {
-  //       alert(` Tab switching detected! Warning ${warningCount}/5. Stay on the exam page.`);
-  //     } else {
-  //       alert("You have switched tabs too many times. Your test is now being submitted.");
-  //       handleSubmitTest();
-  //     }
-  //   }
-  // };
+      if (warningCount < 5) {
+        alert(` Tab switching detected! Warning ${warningCount}/5. Stay on the exam page.`);
+      } else {
+        alert("You have switched tabs too many times. Your test is now being submitted.");
+        handleSubmitTest();
+      }
+    }
+  };
 
-  //   document.addEventListener("visibilitychange", handleTabSwitch);
+    document.addEventListener("visibilitychange", handleTabSwitch);
 
-  //   return () => {
-  //     document.removeEventListener("visibilitychange", handleTabSwitch);
-  //   };
-  // }, []);
+    return () => {
+      document.removeEventListener("visibilitychange", handleTabSwitch);
+    };
+  }, []);
 
   const getCurrentQuestion = () => {
     return questions[currentQuestionIndex] || null;
