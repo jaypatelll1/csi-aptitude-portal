@@ -1,5 +1,5 @@
 const analysisModel = require('../models/analysisModel');
-const { getCachedAnalytics, fetchAndCacheAnalytics } = require('../utils/cache');
+const { getCachedAnalytics, fetchAndCacheAnalytics } = require('../utils/cacheUtils');
 const { logActivity } = require('../utils/logActivity');
 const { student_analysis } = require('../utils/student_analysis');
 

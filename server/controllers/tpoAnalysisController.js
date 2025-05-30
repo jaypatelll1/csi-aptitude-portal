@@ -1,7 +1,7 @@
 const tpoAnalysisModel = require('../models/tpoAnalysisModel');
 const deptAnalysisModel = require('../models/deptAnalysisModel');
 const { logActivity } = require('../utils/logActivity');
-const { fetchAndCacheAnalytics, getCachedAnalytics } = require('../utils/cache');
+const { fetchAndCacheAnalytics, getCachedAnalytics } = require('../utils/cacheUtils');
 
 const getDeptAvgScores = async (req, res) => {
   const user_id = req.user.id;

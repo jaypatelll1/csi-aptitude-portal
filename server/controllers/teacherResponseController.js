@@ -1,5 +1,5 @@
 const teacherResponseModel = require('../models/teacherResponseModel');
-const { trackAttempt } = require('../utils/cache');
+const { trackAttempt } = require('../utils/cacheUtils');
 const { logActivity } = require('../utils/logActivity');
 
 const deleteExistingTeacherResponses = async (req, res) => {
