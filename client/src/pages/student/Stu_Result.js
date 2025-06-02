@@ -19,8 +19,6 @@ function Stu_Result() {
   const [userName, setUserName] = useState("");
   const [error, setError] = useState(null);
 
-  // Remove the single category state since we'll show per-question category
-
   // Fix the useLocation hook implementation
   const location = useLocation();
   const student_id = useSelector((state) => state.user.user.id);
@@ -119,25 +117,6 @@ function Stu_Result() {
 
     // Determine the question type
     processed.questionType = question.question_type || question.questionType || "mcq";
-
-    // For text type questions
-    if (processed.questionType === "text") {
-      processed.textAnswer = question.text_answer || question.textAnswer || "";
-      processed.correctTextAnswer =
-        question.correct_text_answer || question.correctTextAnswer || "";
-
-      // Use isCorrect from backend if available, otherwise fall back to comparison
-      processed.isCorrect =
-        question.isCorrect !== undefined
-          ? question.isCorrect
-          : processed.textAnswer.trim().toLowerCase() ===
-            processed.correctTextAnswer.trim().toLowerCase();
-
-      // Mark as unanswered if textAnswer is empty
-      processed.isUnanswered = !processed.textAnswer || processed.textAnswer.trim() === "";
-
-      return processed;
-    }
 
     // Determine if this is a multiple answer question
     processed.isMultipleAnswer =
@@ -319,204 +298,114 @@ function Stu_Result() {
                         questions[currentQuestionIndex]?.question_text ||
                         "Question not available"}
                     </h2>
-                    {questions[currentQuestionIndex]?.isMultipleAnswer && (
-                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                        Multiple Answer Question
-                      </span>
-                    )}
-                    {questions[currentQuestionIndex]?.questionType === "text" && (
-                      <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                        Text Answer Question
-                      </span>
-                    )}
+                    
                   </div>
 
-                  {/* Text type question display */}
-                  {questions[currentQuestionIndex]?.questionType === "text" ? (
-                    <div className="space-y-4">
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Your Answer:
-                        </label>
-                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-300 min-h-[100px]">
-                          {questions[currentQuestionIndex].textAnswer ? (
-                            <p className="text-gray-900">
-                              {questions[currentQuestionIndex].textAnswer}
-                            </p>
-                          ) : (
-                            <p className="text-gray-400 italic">No answer provided</p>
-                          )}
-                        </div>
-                      </div>
+                  <div className="space-y-4">
+                    {questions[currentQuestionIndex]?.options &&
+                      Object.entries(questions[currentQuestionIndex].options).map(
+                        ([key, value]) => {
+                          const currentQuestion = questions[currentQuestionIndex];
 
-                      <div
-                        className={`p-3 rounded-lg border flex items-center ${
-                          questions[currentQuestionIndex].isUnanswered
-                            ? "bg-gray-50 border-gray-300 text-gray-700"
-                            : questions[currentQuestionIndex].isCorrect
-                              ? "bg-green-50 border-green-300 text-green-700"
-                              : "bg-red-50 border-red-300 text-red-700"
-                        }`}
-                      >
-                        {questions[currentQuestionIndex].isUnanswered ? (
-                          <>
-                            <svg
-                              className="w-5 h-5 mr-2"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                clipRule="evenodd"
-                              ></path>
-                            </svg>
-                            <span>You did not answer this question</span>
-                          </>
-                        ) : questions[currentQuestionIndex].isCorrect ? (
-                          <>
-                            <svg
-                              className="w-5 h-5 mr-2"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clipRule="evenodd"
-                              ></path>
-                            </svg>
-                            <span>Your answer is correct!</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg
-                              className="w-5 h-5 mr-2"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                clipRule="evenodd"
-                              ></path>
-                            </svg>
-                            <span>Your answer is incorrect</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {questions[currentQuestionIndex]?.options &&
-                        Object.entries(questions[currentQuestionIndex].options).map(
-                          ([key, value]) => {
-                            const currentQuestion = questions[currentQuestionIndex];
+                          // Handle display logic differently based on question type
+                          if (currentQuestion.isMultipleAnswer) {
+                            // Multiple answer question
+                            const isSelected =
+                              currentQuestion.selectedOptions &&
+                              currentQuestion.selectedOptions.includes(key);
+                            const isCorrectAnswer =
+                              currentQuestion.correctAnswers &&
+                              currentQuestion.correctAnswers.includes(key);
 
-                            // Handle display logic differently based on question type
-                            if (currentQuestion.isMultipleAnswer) {
-                              // Multiple answer question
-                              const isSelected =
-                                currentQuestion.selectedOptions &&
-                                currentQuestion.selectedOptions.includes(key);
-                              const isCorrectAnswer =
-                                currentQuestion.correctAnswers &&
-                                currentQuestion.correctAnswers.includes(key);
+                            let checkboxClass =
+                              "w-5 h-5 inline-block mr-2 rounded border border-gray-400 flex justify-center items-center";
+                            let optionClass =
+                              "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
+                            let symbol = "";
 
-                              let checkboxClass =
-                                "w-5 h-5 inline-block mr-2 rounded border border-gray-400 flex justify-center items-center";
-                              let optionClass =
-                                "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
-                              let symbol = "";
-
-                              if (isSelected) {
-                                if (isCorrectAnswer) {
-                                  checkboxClass =
-                                    "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center";
-                                  symbol = "✓";
-                                  optionClass += " bg-green-50";
-                                } else {
-                                  checkboxClass =
-                                    "w-5 h-5 inline-block mr-2 rounded bg-red-500 text-white flex justify-center items-center";
-                                  symbol = "✗";
-                                  optionClass += " bg-red-50";
-                                }
-                              } else if (isCorrectAnswer) {
-                                // Highlight missed correct answers
+                            if (isSelected) {
+                              if (isCorrectAnswer) {
                                 checkboxClass =
-                                  "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center opacity-70";
+                                  "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center";
                                 symbol = "✓";
                                 optionClass += " bg-green-50";
+                              } else {
+                                checkboxClass =
+                                  "w-5 h-5 inline-block mr-2 rounded bg-red-500 text-white flex justify-center items-center";
+                                symbol = "✗";
+                                optionClass += " bg-red-50";
                               }
+                            } else if (isCorrectAnswer) {
+                              // Highlight missed correct answers
+                              checkboxClass =
+                                "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center opacity-70";
+                              symbol = "✓";
+                              optionClass += " bg-green-50";
+                            }
 
-                              return (
-                                <div key={key} className={optionClass}>
-                                  <span className={checkboxClass}>
-                                    <span className="text-xs font-bold">{symbol}</span>
+                            return (
+                              <div key={key} className={optionClass}>
+                                <span className={checkboxClass}>
+                                  <span className="text-xs font-bold">{symbol}</span>
+                                </span>
+                                <span className="ml-2">{value}</span>
+                                {isCorrectAnswer && !isSelected && (
+                                  <span className="ml-2 text-sm text-green-600 font-medium">
+                                    (Correct Answer - Missed)
                                   </span>
-                                  <span className="ml-2">{value}</span>
-                                  {isCorrectAnswer && !isSelected && (
-                                    <span className="ml-2 text-sm text-green-600 font-medium">
-                                      (Correct Answer - Missed)
-                                    </span>
-                                  )}
-                                </div>
-                              );
-                            } else {
-                              // Single answer question (existing logic)
-                              const isSelected =
-                                String(currentQuestion?.selectedOption) === String(key);
-                              const isCorrectAnswer =
-                                String(key) === String(currentQuestion?.correctAnswer);
+                                )}
+                              </div>
+                            );
+                          } else {
+                            // Single answer question (existing logic)
+                            const isSelected =
+                              String(currentQuestion?.selectedOption) === String(key);
+                            const isCorrectAnswer =
+                              String(key) === String(currentQuestion?.correctAnswer);
 
-                              let circleClass =
-                                "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
-                              let optionClass =
-                                "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
-                              let symbol = "";
+                            let circleClass =
+                              "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
+                            let optionClass =
+                              "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
+                            let symbol = "";
 
-                              if (isSelected) {
-                                if (isCorrectAnswer) {
-                                  circleClass =
-                                    "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
-                                  symbol = "✓";
-                                  optionClass += " bg-green-50";
-                                } else {
-                                  circleClass =
-                                    "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
-                                  symbol = "✗";
-                                  optionClass += " bg-red-50";
-                                }
-                              } else if (isCorrectAnswer) {
-                                // Always highlight the correct answer
+                            if (isSelected) {
+                              if (isCorrectAnswer) {
                                 circleClass =
                                   "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
                                 symbol = "✓";
                                 optionClass += " bg-green-50";
+                              } else {
+                                circleClass =
+                                  "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
+                                symbol = "✗";
+                                optionClass += " bg-red-50";
                               }
-
-                              return (
-                                <div key={key} className={optionClass}>
-                                  <span className={circleClass}>
-                                    <span className="text-xs font-bold">{symbol}</span>
-                                  </span>
-                                  <span className="ml-2">{value}</span>
-                                  {isCorrectAnswer && !isSelected && (
-                                    <span className="ml-2 text-sm text-green-600 font-medium">
-                                      (Correct Answer)
-                                    </span>
-
-                                  )}
-                                </div>
-                              );
+                            } else if (isCorrectAnswer) {
+                              // Always highlight the correct answer
+                              circleClass =
+                                "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
+                              symbol = "✓";
+                              optionClass += " bg-green-50";
                             }
+
+                            return (
+                              <div key={key} className={optionClass}>
+                                <span className={circleClass}>
+                                  <span className="text-xs font-bold">{symbol}</span>
+                                </span>
+                                <span className="ml-2">{value}</span>
+                                {isCorrectAnswer && !isSelected && (
+                                  <span className="ml-2 text-sm text-green-600 font-medium">
+                                    (Correct Answer)
+                                  </span>
+                                )}
+                              </div>
+                            );
                           }
-                        )}
-                    </div>
-                  )}
+                        }
+                      )}
+                  </div>
 
                   {/* Question type explanation */}
                   {questions[currentQuestionIndex]?.isMultipleAnswer && (
@@ -527,8 +416,6 @@ function Stu_Result() {
                       </p>
                     </div>
                   )}
-
-                 
 
                   <div className="absolute bottom-5 w-full left-0 flex justify-between px-6">
                     <button
