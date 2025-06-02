@@ -16,7 +16,7 @@ import { clearExamId } from "../../redux/ExamSlice";
 import NoCopyComponent from "../../components/teacher/mcqexampage/NoCopyComponent";
 import Question from "../../components/teacher/mcqexampage/Question";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import "./MCQExamPage.css";
+import "./TeacherMCQExamPage.css";
 
 const Teacher_MCQExamPage = () => {
   const socketRef = useRef(null);
