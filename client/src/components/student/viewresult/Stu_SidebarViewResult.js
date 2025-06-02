@@ -85,22 +85,22 @@ const Stu_SidebarViewResult = ({
   // Calculate stats
   const displayQuestions =
     processedQuestions.length > 0
-      ? processedQuestions.slice(0, 30) // Limit to 30 questions
-      : Array.from({ length: 30 }, (_, i) => ({
-          question_id: i + 1,
-          isCorrect: false,
-          isIncorrect: false,
-          isUnanswered: true,
-          isMultipleAnswer: false,
-          isTextQuestion: false,
-        }));
+      ? processedQuestions
+      : Array.from([], (_, i) => ({
+        question_id: i + 1,
+        isCorrect: false,
+        isIncorrect: false,
+        isUnanswered: true,
+        isMultipleAnswer: false,
+        isTextQuestion: false,
+      }));
 
   const correctCount = displayQuestions.filter((q) => q.isCorrect).length;
   const incorrectCount = displayQuestions.filter((q) => q.isIncorrect).length;
-  
+
   const total = displayQuestions.length;
-  
- 
+
+
 
   // Determine pass/fail status (typically 60% is passing)
   const isPassed = correctCount >= Math.ceil(total * 0.6);
@@ -177,40 +177,42 @@ const Stu_SidebarViewResult = ({
           </div>
         </div>
 
-        {/* Responsive grid with auto-sizing for different screen sizes */}
-        <div className="grid grid-cols-5 gap-x-1 gap-y-2 mb-6 w-full px-2">
-          {displayQuestions.map((question, index) => {
-            let bgColor = "bg-gray-200"; // Default for unanswered
-            let text = "text-black";
-            let borderStyle = "";
+      
+      
 
-            if (question.isCorrect) {
-              bgColor = "bg-[#07C31D]"; // Green for correct
-              text = "text-white";
-            } else if (question.isIncorrect) {
-              bgColor = "bg-[#C82F2F]"; // Red for incorrect
-              text = "text-white";
-            }
+        {/* Responsive grid with scrolling - replace the existing grid div */}
+        <div className="overflow-y-auto max-h-64 sm:max-h-80 mb-6 px-2">
+          <div className="grid grid-cols-5 gap-x-1 gap-y-2 mt-1 w-full">
+            {displayQuestions.map((question, index) => {
+              let bgColor = "bg-gray-200"; // Default for unanswered
+              let text = "text-black";
+              let borderStyle = "";
 
-           
+              if (question.isCorrect) {
+                bgColor = "bg-[#07C31D]"; // Green for correct
+                text = "text-white";
+              } else if (question.isIncorrect) {
+                bgColor = "bg-[#C82F2F]"; // Red for incorrect
+                text = "text-white";
+              }
 
-            return (
-              <button
-                key={index}
-                className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? "ring-2 ring-blue-500" : ""}`}
-                onClick={() => onQuestionClick(index)}
-                title={`${displayQuestions[index].category || "Unknown"} - ${question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}`}
-              >
-                {index + 1}
-                {question.isMultipleAnswer && <span className="text-xs">*</span>}
-                
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={index}
+                  className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? "ring-2 ring-blue-500" : ""}`}
+                  onClick={() => onQuestionClick(index)}
+                  title={`${displayQuestions[index].category || "Unknown"} - ${question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}`}
+                >
+                  {index + 1}
+                  {question.isMultipleAnswer && <span className="text-xs">*</span>}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-      
-       
+
+
       </div>
     </div>
   );
