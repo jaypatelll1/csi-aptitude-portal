@@ -269,16 +269,17 @@ function Stu_Result() {
           <Stu_Navbar hideTitle={true} />
         </div>
 
-        <div className="flex overflow-y-hidden">
+        <div className="flex">
           <Stu_Sidebar />
 
           <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8] ml-0 md:ml-64">
+            <div className="flex flex-start ">
             <button
               className="text-blue-500 flex items-center hover:text-blue-700 mr-4 mt-0 mb-2"
               onClick={() => window.history.back()}
             >
               <svg
-                className="w-4 h-4 mr-1"
+                className="w-5 h-5 mr-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -291,14 +292,15 @@ function Stu_Result() {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              Back
+             
             </button>
             {/* Display the category of the current question, not a global category */}
             {questions.length > 0 && (
-              <h1 className="text-5xl font-bold text-black sm:text-base ml-5 uppercase">
+              <h1 className="text-5xl font-bold text-black sm:text-base  uppercase mb-2">
                 {questions[currentQuestionIndex]?.category || "TEST"}
               </h1>
             )}
+           </div>
 
             {exam
               ?.filter((examItem) => examItem.exam_id === Number(exam_id))
@@ -506,6 +508,7 @@ function Stu_Result() {
                                     <span className="ml-2 text-sm text-green-600 font-medium">
                                       (Correct Answer)
                                     </span>
+
                                   )}
                                 </div>
                               );
@@ -525,14 +528,7 @@ function Stu_Result() {
                     </div>
                   )}
 
-                  {questions[currentQuestionIndex]?.questionType === "text" && (
-                    <div className="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                      <p className="text-sm text-purple-800">
-                        <strong>Note:</strong> This is a text answer question. Your answer is
-                        compared with the correct answer.
-                      </p>
-                    </div>
-                  )}
+                 
 
                   <div className="absolute bottom-5 w-full left-0 flex justify-between px-6">
                     <button

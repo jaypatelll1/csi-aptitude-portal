@@ -5,8 +5,7 @@ const Stu_SidebarViewResult = ({
   questions = [],
   currentIndex = 0,
   onQuestionClick,
-  totalMarks = 0,
-  obtainedMarks = 0,
+
   name = "Test",
 }) => {
   // Get user data from Redux store
@@ -98,14 +97,10 @@ const Stu_SidebarViewResult = ({
 
   const correctCount = displayQuestions.filter((q) => q.isCorrect).length;
   const incorrectCount = displayQuestions.filter((q) => q.isIncorrect).length;
-  const unansweredCount = displayQuestions.filter((q) => q.isUnanswered).length;
+  
   const total = displayQuestions.length;
-  const multipleAnswerCount = displayQuestions.filter((q) => q.isMultipleAnswer).length;
-  const textQuestionCount = displayQuestions.filter((q) => q.isTextQuestion).length;
-
-  // Calculate marks based on correct answers
-  const calculatedObtainedMarks = correctCount;
-  const calculatedTotalMarks = total;
+  
+ 
 
   // Determine pass/fail status (typically 60% is passing)
   const isPassed = correctCount >= Math.ceil(total * 0.6);
@@ -128,7 +123,7 @@ const Stu_SidebarViewResult = ({
 
   return (
     <div className="flex items-center justify-center bg-[#F5F6F8] ">
-      <div className="w-full max-w-[372px] h-[calc(100vh-195px)] mt-8 overflow-hidden gap-2 p-4 bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8 mb-10 mr-0 sm:mr-4 md:mr-8 rounded-lg shadow-lg">
+      <div className="w-full max-w-[372px] h-[calc(100vh-185px)]  gap-2 p-4 bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8 mb-10 mr-0 sm:mr-4 md:mr-8 rounded-lg shadow-lg">
         <div className="mb-4">
           <p className="text-lg sm:text-xl font-semibold mb-2">{userName}</p>
           <div className="flex justify-between items-center">
@@ -197,54 +192,25 @@ const Stu_SidebarViewResult = ({
               text = "text-white";
             }
 
-            // Add special indicator for multiple answer questions
-            if (question.isMultipleAnswer) {
-              borderStyle = "border-2 border-blue-500";
-            }
-
-            // Add special indicator for text questions
-            if (question.isTextQuestion) {
-              borderStyle = "border-2 border-purple-500";
-            }
+           
 
             return (
               <button
                 key={index}
                 className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? "ring-2 ring-blue-500" : ""}`}
                 onClick={() => onQuestionClick(index)}
-                title={`${displayQuestions[index].category || "Unknown"} - ${question.isTextQuestion ? "Text Question" : question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}`}
+                title={`${displayQuestions[index].category || "Unknown"} - ${question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}`}
               >
                 {index + 1}
                 {question.isMultipleAnswer && <span className="text-xs">*</span>}
-                {question.isTextQuestion && <span className="text-xs"> T</span>}
+                
               </button>
             );
           })}
         </div>
 
-        <div className="mb-4 p-2 sm:p-3 bg-gray-50 shadow rounded-lg text-xs sm:text-sm">
-          <p className="font-semibold">
-            Marks: {calculatedObtainedMarks}/{calculatedTotalMarks}
-          </p>
-          <p>Total no. questions: {total}</p>
-          <p>No. of answered questions: {correctCount + incorrectCount}</p>
-          <p>No. of unanswered questions: {unansweredCount}</p>
-        </div>
-
-        <div className="mb-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm">
-          {multipleAnswerCount > 0 && (
-            <p className="text-blue-800 mb-1">
-              <span className="font-semibold">Note:</span> Questions marked with{" "}
-              <span className="text-blue-500">*</span> and blue borders require multiple answers.
-            </p>
-          )}
-          {textQuestionCount > 0 && (
-            <p className="text-purple-800">
-              <span className="font-semibold">Note:</span> Questions marked with{" "}
-              <span className="text-purple-500">T</span> and purple borders are text questions.
-            </p>
-          )}
-        </div>
+      
+       
       </div>
     </div>
   );
