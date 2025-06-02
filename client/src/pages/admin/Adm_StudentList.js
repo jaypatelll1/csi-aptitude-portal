@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
-import Filter from "../../components/admin/Adm_Filter";
+import Filter from "../../components/admin/Adm_StudentFilter";
 import AddStudent from "../../components/admin/Adm_AddStudent";
 import EditStudent from "../../components/admin/Adm_EditStudent";
 import UploadModal from "../../upload/UploadModal";
