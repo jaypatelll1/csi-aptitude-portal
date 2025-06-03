@@ -38,16 +38,16 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+
+// Function to get origins from environment variables
+const getOriginsFromEnv = (envVar) =>
+  process.env[envVar]?.split(',').map(origin => origin.trim()) || [];
+
 const FRONTEND_ORIGIN =
   process.env.NODE_ENV === 'production'
-    ? [
-        'https://csi-aptitude-portal-client.onrender.com',
-        'http://localhost:3000',
-        'https://aptitude.csiace.com',
-        'https://csi-aptitude-portal-1-nu4p.onrender.com',
-      ]
-    : ['http://localhost:3000']; // Development also returns an array
-// Local frontend URL
+    ? getOriginsFromEnv('FRONTEND_ORIGIN_PROD')
+    : getOriginsFromEnv('FRONTEND_ORIGIN_DEV');
+
 
 const io = new Server(server, {
   cookie: true,
