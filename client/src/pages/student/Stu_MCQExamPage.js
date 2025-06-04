@@ -15,12 +15,13 @@ const Stu_MCQExamPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const socketRef = useRef(null);
-  
+
   const userName = useSelector((state) => state.user.user.name);
   const [fullscreenError, setFullscreenError] = useState(false);
   const [testSubmitted, setTestSubmitted] = useState(false);
   const [timeUp, setTimeUp] = useState(false);
-  
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+
   const examId = location.state?.examId;
   const Duration = location.state?.Duration;
 
@@ -51,7 +52,49 @@ const Stu_MCQExamPage = () => {
     navigate("/home", { replace: true });
   };
 
-  // Socket connection and timer management for exam end detection
+  // Disable keyboard input
+  useEffect(() => {
+    const disableKeyboard = (e) => {
+      e.preventDefault();
+      return false;
+    };
+    window.addEventListener("keydown", disableKeyboard, true);
+    return () => {
+      window.removeEventListener("keydown", disableKeyboard, true);
+    };
+  }, []);
+
+  // Tab switch detection
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && !testSubmitted) {
+        setTabSwitchCount((prev) => prev + 1);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [testSubmitted]);
+
+  useEffect(() => {
+  const MAX_TAB_SWITCHES = 5;
+
+  const remainingAttempts = MAX_TAB_SWITCHES - tabSwitchCount;
+
+  if (remainingAttempts > 0 && !testSubmitted) {
+    alert(
+      `Switching tabs is not allowed.\nYou have ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} left before the test is auto-submitted.`
+    );
+  }
+
+  if (tabSwitchCount > MAX_TAB_SWITCHES && !testSubmitted) {
+    alert("You switched tabs too many times. The test will be submitted now.");
+    handleSubmitTest();
+  }
+}, [tabSwitchCount, testSubmitted]);
+
+  // Socket connection and exam end detection
   useEffect(() => {
     const socketConnect = async () => {
       if (!socketRef.current && examId && Duration) {
@@ -59,18 +102,14 @@ const Stu_MCQExamPage = () => {
         socketRef.current = io(`${API_BASE_URL}/exams/start-exam`, {
           withCredentials: true,
         });
-
         const socket = socketRef.current;
-        
         socket.on("exam_ended", () => {
           submitFinalResponse();
           setTimeUp(true);
         });
       }
     };
-    
     socketConnect();
-
     return () => {
       if (socketRef.current) {
         socketRef.current.off("exam_ended");
@@ -84,18 +123,16 @@ const Stu_MCQExamPage = () => {
     if (timeUp) handleSubmitTest();
   }, [timeUp]);
 
-  // Fullscreen change handler
+  // Fullscreen detection
   useEffect(() => {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement && !testSubmitted) {
         setFullscreenError(true);
       }
     };
-
     if (!testSubmitted) {
       document.addEventListener("fullscreenchange", handleFullscreenChange);
     }
-
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
@@ -103,13 +140,14 @@ const Stu_MCQExamPage = () => {
 
   return (
     <div className="relative flex-1">
-      {/* Main Content */}
       <div className="flex h-screen bg-[#F5F6F8]">
         <NoCopyComponent onPermissionGranted={enableFullscreen} />
         {fullscreenError && !testSubmitted && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
-              <h2 className="text-lg font-semibold mb-4 text-red-500">Fullscreen Mode Required</h2>
+              <h2 className="text-lg font-semibold mb-4 text-red-500">
+                Fullscreen Mode Required
+              </h2>
               <p className="text-sm text-gray-600 mb-6">
                 You have exited fullscreen mode. Please return to fullscreen to continue the exam.
               </p>
@@ -126,9 +164,7 @@ const Stu_MCQExamPage = () => {
           </div>
         )}
 
-        {/* Pass socketRef to Question component */}
         <Question socketRef={socketRef} />
-        
         <Sidebar name={userName} onSubmitTest={handleSubmitTest} />
       </div>
     </div>
