@@ -11,6 +11,7 @@ import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Loader from "../../components/Loader";
 
 function Stu_Analytics() {
+  const [userName, setUserName] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [testCompletionData, setTestCompletionData] = useState(null);
@@ -45,6 +46,13 @@ function Stu_Analytics() {
     };
   }, []);
 
+const getInitials = (name) => {
+  if (!name) return "S"; // Default fallback (e.g., Guest)
+  const words = name.trim().split(" ");
+  if (words.length === 1) return words[0][0].toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+};
+
   const fetchAllData = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
@@ -64,6 +72,10 @@ function Stu_Analytics() {
         superscript(setDSup, response.data.rank.department_rank);
         superscript(setOSup, response.data.rank.overall_rank);
       }
+
+       if (response.data.name) {
+      setUserName(response.data.name);
+    }
 
       setPerformanceOverTime(response.data.performance_over_time);
 
@@ -89,6 +101,19 @@ function Stu_Analytics() {
       fetchAllData();
     }
   }, [user_id, loading]);
+
+   // Close Details when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (detailsRef.current && !detailsRef.current.contains(event.target)) {
+        setIsDetailsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const performanceOverTimeData = {
     title: "Performance Over Time",
@@ -221,12 +246,20 @@ function Stu_Analytics() {
             </svg>
           </button>
 
-          <div
+          {/* <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
           >
             AM
-          </div>
+          </div> */}
+
+          <div
+  className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm font-semibold hover:cursor-pointer"
+  onClick={() => setIsDetailsOpen(!isDetailsOpen)}
+>
+  {getInitials(userName)}
+</div>
+
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
 
