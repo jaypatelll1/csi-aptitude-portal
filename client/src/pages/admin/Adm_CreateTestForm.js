@@ -77,7 +77,7 @@ const Adm_CreateTestPage = () => {
     }
   };
 
-  const handleCancel = () => {
+  const handleClear = () => {
     setTestName("");
     setDuration("");
     setBranch([]);
@@ -340,9 +340,9 @@ const Adm_CreateTestPage = () => {
           <button
             type="button"
             className="bg-white text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
-            onClick={handleCancel}
+            onClick={handleClear}
           >
-            Cancel
+            Clear
           </button>
         </div>
       </div>

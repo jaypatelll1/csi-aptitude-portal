@@ -34,74 +34,6 @@ const Adm_StudentAnalysis = () => {
     navigate(`/admin/student-analytics`, { state: { user_id } });
   };
 
-  //    Handle file change and validate file type
-  const handleFileChange = (event) => {
-    const file = event.target.files ? event.target.files[0] : null;
-
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    // Optional: Check the file type (e.g., .csv, .xls, .xlsx)
-    const allowedTypes = [
-      "application/vnd.ms-excel", // .xls
-      "text/csv", // .csv
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      alert("Invalid file type. Please upload a .csv or .xls file.");
-      return;
-    }
-
-    setSelectedFile(file); // If valid, set the file
-  };
-
-  // Handle form submission (upload file)
-  const handleUserSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!selectedFile) {
-      alert("Please select a file to upload.");
-      return;
-    }
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append("Files", selectedFile); // Appending the file to formData
-
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-      let response = await axios.post(`${API_BASE_URL}/api/users/upload`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true, // Make sure the cookie is sent with the request
-      });
-
-      if (response.data.status === "success") {
-        // If there are warnings, display them to the user
-        if (response.data.warnings && response.data.warnings.length > 0) {
-          alert(`Warnings:\n${response.data.warnings.join("\n")}`);
-        } else {
-          alert("No warnings, data processed successfully.");
-        }
-      } else {
-        alert(`Error: ${response.data.message}`);
-      }
-      alert("File uploaded successfully!"); // Notify the user of success
-      setModalOpen(false); // Close modal after successful upload
-    } catch (error) {
-      console.error("Error uploading file:", error.response ? error.response.data : error.message);
-      alert("An error occurred while uploading the file.");
-    } finally {
-      setIsUploading(false); // Unlock the upload button after the process finishes
-    }
-  };
-
-  // const deletedUsersCounter = () => {
-  //   setDeletedUsers(deletedUsers + 1);
-  // };
 
   const handleSearch = (e) => {
     setPage(1);
@@ -151,29 +83,6 @@ const Adm_StudentAnalysis = () => {
     if (selectedDepartment) {
       filtered = filtered.filter((student) => student.department === selectedDepartment);
     }
-
-    // Apply rank filter
-    // if (selectedRank) {
-    //   if (selectedRank === 'top') {
-    //     // Sort all students by rank in ascending order (lower rank number = higher performer)
-    //     filtered.sort((a, b) => a.rank - b.rank);
-    //     // No slicing, keeps all students but in ascending rank order
-    //   } else if (selectedRank === 'bottom') {
-    //     // Sort all students by rank in descending order (higher rank number = lower performer)
-    //     filtered.sort((a, b) => b.rank - a.rank);
-    //     // No slicing, keeps all students but in descending rank order
-    //   } else if (selectedRank.includes('+')) {
-    //     // Handle "501+" case
-    //     const minRank = parseInt(selectedRank.split('+')[0]);
-    //     filtered = filtered.filter((student) => student.rank >= minRank);
-    //   } else {
-    //     // Handle range cases like "1-10"
-    //     const [minRank, maxRank] = selectedRank.split('-').map(Number);
-    //     filtered = filtered.filter(
-    //       (student) => student.rank >= minRank && student.rank <= maxRank
-    //     );
-    //   }
-    // }
 
     // Apply search filter
     if (searchTerm) {
@@ -240,11 +149,6 @@ const Adm_StudentAnalysis = () => {
     // setSelectedRank(rank);
   };
 
-  // const openModal = () => setIsModalOpen(true);
-  // const closeModal = () => setIsModalOpen(false);
-
-  // const openEditModal = () => setIsEditModalOpen(true);
-  // const closeEditModal = () => setIsEditModalOpen(false);
 
   useEffect(() => {
     // Close the sidebar if clicked outside

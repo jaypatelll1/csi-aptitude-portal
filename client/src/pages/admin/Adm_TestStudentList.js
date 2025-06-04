@@ -26,10 +26,13 @@ const Adm_TestStudentList = () => {
   const handleExportExcel = async () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(`${API_BASE_URL}/api/export/result/excel/${examId}`, {
-        responseType: "blob", // Important for downloading files
-        withCredentials: true, // Make sure the cookie is sent with the request
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/api/export/result/excel/${examId}`,
+        {
+          responseType: "blob", // Important for downloading files
+          withCredentials: true, // Make sure the cookie is sent with the request
+        },
+      );
 
       // Create a URL for the file blob and trigger download
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -57,7 +60,7 @@ const Adm_TestStudentList = () => {
             student.student_name.toLowerCase().includes(term) ||
             student.student_email.toLowerCase().includes(term) ||
             student.Date.toLowerCase().includes(term) ||
-            student.status.toLowerCase().includes(term)
+            student.status.toLowerCase().includes(term),
           // student.total_score.toLowerCase().includes(term)
         )
       : students;
@@ -75,10 +78,13 @@ const Adm_TestStudentList = () => {
     const fetchUserDetails = async () => {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/results/allpast/${examId}`, {
-          params: { page: 1, limit: 1000 },
-          withCredentials: true, // Make sure the cookie is sent with the request
-        });
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/results/allpast/${examId}`,
+          {
+            params: { page: 1, limit: 1000 },
+            withCredentials: true, // Make sure the cookie is sent with the request
+          },
+        );
         const data = response.data.response;
 
         // Ensure data is an array
@@ -99,18 +105,6 @@ const Adm_TestStudentList = () => {
     fetchUserDetails();
   }, [examId, setUserDetails]);
 
-  // useEffect(() => {
-  //     const fetchStudents = async () => {
-  //         try {
-  //             const { data } = await axios.get(`/api/users?role=Student`);
-  //             setStudents(data.users);
-  //             setFilteredStudents(data.users);
-  //         } catch (error) {
-  //             console.error("Error fetching students:", error);
-  //         }
-  //     };
-  //     fetchStudents();
-  // }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -125,7 +119,10 @@ const Adm_TestStudentList = () => {
   const numberofpages = Math.ceil(filteredStudents.length / limit);
   const startPage = Math.max(1, page - 3);
   const endPage = Math.min(numberofpages, page + 3);
-  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  const pageNumbers = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i,
+  );
 
   return (
     <div className="min-h-screen flex">
@@ -154,7 +151,11 @@ const Adm_TestStudentList = () => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                d={
+                  sidebarOpen
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
+                }
               />
             </svg>
           </button>
@@ -175,7 +176,9 @@ const Adm_TestStudentList = () => {
         </h1>
         <div className="bg-white my-6 mx-10 pt-5 pb-5 pl-9 pr-9 rounded-lg border border-gray-300">
           <div className="flex justify-between items-center w-full mb-5">
-            <h1 className="text-black font-roboto text-[22px] font-semibold">Students List</h1>
+            <h1 className="text-black font-roboto text-[22px] font-semibold">
+              Students List
+            </h1>
             <div className="flex ml-auto"></div>
             <div className="w-full max-w-md "></div>
             <div className="relative flex items-center mr-7  rounded-sm hover:scale-110 hover:bg-gray-100 transition-transform duration-100">
@@ -213,28 +216,30 @@ const Adm_TestStudentList = () => {
             </thead>
 
             <tbody>
-              {filteredStudents.slice((page - 1) * limit, page * limit).map((student) => (
-                <tr key={student.result_id} className="hover:bg-gray-50">
-                  {/* Loop through the user details of the student if users is an array */}
-                  <td className="py-4 w-1/5">{student.student_name}</td>
-                  <td className="py-4 w-1/5">{student.student_email}</td>
+              {filteredStudents
+                .slice((page - 1) * limit, page * limit)
+                .map((student) => (
+                  <tr key={student.result_id} className="hover:bg-gray-50">
+                    {/* Loop through the user details of the student if users is an array */}
+                    <td className="py-4 w-1/5">{student.student_name}</td>
+                    <td className="py-4 w-1/5">{student.student_email}</td>
 
-                  {/* Other student properties like date, results, etc. */}
-                  <td className="py-4 w-1/6">{student.Date}</td>
-                  <td className="py-4 w-1/6">
-                    <span className={getResultStyle(student.status)}>
-                      {student.status === "Passed" ? "Passed" : "Failed"}
-                    </span>
-                  </td>
-                  <td className="py-4 w-1/6">
-                    {student.total_score}/{student.max_score}
-                  </td>
-                  <td className="py-4 w-1/6">{duration}</td>
-                  {/* <td className="py-4 w-1/6 text-blue-600 whitespace-nowrap text-sm cursor-pointer">
+                    {/* Other student properties like date, results, etc. */}
+                    <td className="py-4 w-1/6">{student.Date}</td>
+                    <td className="py-4 w-1/6">
+                      <span className={getResultStyle(student.status)}>
+                        {student.status === "Passed" ? "Passed" : "Failed"}
+                      </span>
+                    </td>
+                    <td className="py-4 w-1/6">
+                      {student.total_score}/{student.max_score}
+                    </td>
+                    <td className="py-4 w-1/6">{duration}</td>
+                    {/* <td className="py-4 w-1/6 text-blue-600 whitespace-nowrap text-sm cursor-pointer">
                                             view more
                                         </td> */}
-                </tr>
-              ))}
+                  </tr>
+                ))}
             </tbody>
           </table>
           {numberofpages > 1 && (

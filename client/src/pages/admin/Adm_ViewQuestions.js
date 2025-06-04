@@ -59,15 +59,6 @@ const Adm_ViewQuestions = () => {
     fetchDuration();
   }, [examId]);
 
-  // const updateQuestionText = (questionId, newText) => {
-  //   setQuestions((prevQuestions) =>
-  //     prevQuestions.map((question) =>
-  //       question.question_id === questionId
-  //         ? { ...question, question_text: newText }
-  //         : question
-  //     )
-  //   );
-  // };
 
   const handleGoBack = () => {
     navigate("/admin/input");

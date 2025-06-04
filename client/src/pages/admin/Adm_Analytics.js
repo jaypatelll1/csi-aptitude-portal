@@ -52,14 +52,6 @@ function Adm_Analytics() {
     }
   };
 
-  // console.log(selectedDepartment);
-  // console.log("avgData", avgData);
-  // console.log("accuracyData", accuracyData);
-  // console.log("categoryWiseData", categoryWiseData);
-  // console.log("topPerformers", topPerformers);
-  // console.log("bottomPerformers", bottomPerformers);
-  // console.log("participationRate", participationRate);
-
   useEffect(() => {
     fetchAllTpoAnalysis();
   }, [selectedDepartment, isLoading]);
