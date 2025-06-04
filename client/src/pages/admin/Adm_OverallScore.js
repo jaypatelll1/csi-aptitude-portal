@@ -5,13 +5,18 @@ import BarChartComponent from "../../components/analytics/BarChartComponent";
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
-import { useSelector } from "react-redux";
+import { useSelector ,useDispatch } from "react-redux";
+import {  setOverallAnalysis } from "../../redux/analysisSlice";
+import axios from "axios"
+
 
 import Loader from "../../components/Loader";
 
 function Adm_OverallScore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
+  const dispatch = useDispatch();
+  
 
   const [loading, setLoading] = useState(true);
   const [avgData, setAvgData] = useState([]);
@@ -22,25 +27,41 @@ function Adm_OverallScore() {
 
   const overallAnalysis = useSelector((state) => state.analysis.overallAnalysis); // Fetch data from redux
 
-  const fetchAllTpoAnalysis = () => {
-    try {
-      if (overallAnalysis) {
-        setAvgData(overallAnalysis.dept_avg || []);
-        setTopPerformers(overallAnalysis.top_performers || []);
-        setBottomPerformers(overallAnalysis.bottom_performers || []);
-        setParticipationRate(overallAnalysis.participation_rate || { participation_rate: 0 });
-        setPerformanceOverTime(overallAnalysis.performance_over_time || []);
-      }
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setLoading(false);
+  useEffect(() => {
+      const fetchAllTpoAnalysis = async () => {
+        try {
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          let url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
+          const response = await axios.get(url, { withCredentials: true });
+          dispatch(setOverallAnalysis(response.data));
+        } catch (err) {
+          console.log(err);
+        }
+      };
+      fetchAllTpoAnalysis();
+    }, [dispatch]);
+
+ const fetchAllTpoAnalysis = () => {
+  try {
+    if (overallAnalysis) {
+      setAvgData(overallAnalysis.dept_avg || []);
+      setTopPerformers(overallAnalysis.top_performers || []);
+      setBottomPerformers(overallAnalysis.bottom_performers || []);
+      setParticipationRate(overallAnalysis.participation_rate || { participation_rate: 0 });
+      setPerformanceOverTime(overallAnalysis.performance_over_time || []);
+      setLoading(false); 
     }
-  };
+    
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    setLoading(true); 
+  }
+};
 
   useEffect(() => {
     fetchAllTpoAnalysis();
-  }, [loading]);
+    
+  }, [overallAnalysis]);
 
   const participationRateData = {
     title: "Participation Rate",

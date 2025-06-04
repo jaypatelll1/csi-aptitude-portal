@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios"; // Add this import
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
@@ -9,7 +10,9 @@ import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Loader from "../../components/Loader";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setDepartmentAnalysis } from "../../redux/analysisSlice";
+
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,6 +29,10 @@ function Adm_Analytics() {
   const [isLoading, setIsLoading] = useState(true);
   const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
+  const [error, setError] = useState(null); // State to handle errors
+  const dispatch = useDispatch();
+  const defaultDataTimerRef = useRef(null);
+  const departmentDataTimerRef = useRef(null);
 
   const departmentAnalysis = useSelector(
     (state) => state.analysis.departmentAnalysis[selectedDepartment]
@@ -33,32 +40,154 @@ function Adm_Analytics() {
 
   const fetchAllTpoAnalysis = async () => {
     try {
-      setCategoryWiseData(departmentAnalysis.category_performance);
-      setTopPerformers(departmentAnalysis.top_performer);
-      setBottomPerformers(departmentAnalysis.bottom_performer);
-      setParticipationRate(departmentAnalysis.participation_rate);
-      setAccuracyData(departmentAnalysis.accuracy_rate);
-      setPerformanceOverTime(departmentAnalysis.performance_over_time);
+      if (departmentAnalysis) {
+        setCategoryWiseData(departmentAnalysis.category_performance);
+        setTopPerformers(departmentAnalysis.top_performer);
+        setBottomPerformers(departmentAnalysis.bottom_performer);
+        setParticipationRate(departmentAnalysis.participation_rate);
+        setAccuracyData(departmentAnalysis.accuracy_rate);
+        setPerformanceOverTime(departmentAnalysis.performance_over_time);
 
-      setDeptRank(departmentAnalysis.dept_ranks);
-      superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
+        setDeptRank(departmentAnalysis.dept_ranks);
+        superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
 
-      setStudentCount(departmentAnalysis.studentCount.student_count);
+        setStudentCount(departmentAnalysis.studentCount.student_count);
 
-      setIsLoading(false); // Set loading to false after data is loaded
+        setIsLoading(false); // Set loading to false after data is loaded
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
-      setIsLoading(false); // Set loading to false after data is loaded
+      setIsLoading(true);
     }
   };
 
   useEffect(() => {
     fetchAllTpoAnalysis();
-  }, [selectedDepartment, isLoading]);
+  }, [selectedDepartment, departmentAnalysis]);
 
   const handleDepartmentChange = (dept) => {
     setSelectedDepartment(dept);
+
   };
+
+
+
+
+
+
+  useEffect(() => {
+    const loadDefaultData = async () => {
+      try {
+        setIsLoading(true);
+
+        // Add timer to stop loader after 30 seconds
+        defaultDataTimerRef.current = setTimeout(() => {
+          setIsLoading(false);
+          setError("Request timeout - Unable to load default data");
+        }, 30000);
+
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const response = await axios.get(
+          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/CMPN`,
+          { withCredentials: true }
+        );
+
+        // Clear timer on successful response
+        if (defaultDataTimerRef.current) {
+          clearTimeout(defaultDataTimerRef.current);
+          defaultDataTimerRef.current = null;
+        }
+
+        if (!response.data || response.data.length === 0) {
+          setIsLoading(false);
+          setError("No data available for CMPN department");
+          return;
+        }
+
+        dispatch(setDepartmentAnalysis({ department: "CMPN", data: response.data }));
+        setIsLoading(false);
+
+      } catch (err) {
+        console.log(err);
+
+        // Clear timer on error
+        if (defaultDataTimerRef.current) {
+          clearTimeout(defaultDataTimerRef.current);
+          defaultDataTimerRef.current = null;
+        }
+
+        setIsLoading(false);
+        setError("Failed to fetch CMPN department data");
+      }
+    };
+
+    loadDefaultData();
+  }, [dispatch]);
+
+  // Fetch data when department changes
+  useEffect(() => {
+    const fetchDepartmentAnalysis = async () => {
+      try {
+        if (!departmentAnalysis?.[selectedDepartment] && selectedDepartment !== "CMPN") {
+          setIsLoading(true);
+          setError(null); // Clear any previous errors
+
+
+          departmentDataTimerRef.current = setTimeout(() => {
+            setIsLoading(false);
+            setError(`Request timeout - Unable to fetch ${selectedDepartment} data`);
+          }, 5000);
+
+          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          const response = await axios.get(
+            `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${selectedDepartment}`,
+            { withCredentials: true }
+          );
+
+          // Clear timer on successful response
+          if (departmentDataTimerRef.current) {
+            clearTimeout(departmentDataTimerRef.current);
+            departmentDataTimerRef.current = null;
+          }
+
+          if (!response.data || response.data.length === 0) {
+            setIsLoading(false);
+            setError(`No data available for ${selectedDepartment} department`);
+            // Clear the current department data to prevent showing wrong data
+            dispatch(setDepartmentAnalysis({
+              department: selectedDepartment,
+              data: []
+            }));
+            return;
+          }
+
+          dispatch(setDepartmentAnalysis({
+            department: selectedDepartment,
+            data: response.data
+          }));
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.log(err);
+
+        // Clear timer on error
+        if (departmentDataTimerRef.current) {
+          clearTimeout(departmentDataTimerRef.current);
+          departmentDataTimerRef.current = null;
+        }
+
+        setIsLoading(false);
+        setError(`Failed to fetch ${selectedDepartment} department analysis`);
+        // Clear the current department data on error
+        dispatch(setDepartmentAnalysis({
+          department: selectedDepartment,
+          data: []
+        }));
+      }
+    };
+
+    fetchDepartmentAnalysis();
+  }, [selectedDepartment, dispatch]);
 
   const filteredAccuracyData = [
     {
@@ -88,9 +217,9 @@ function Adm_Analytics() {
       filteredAccuracyData?.length > 0
         ? filteredAccuracyData
         : [
-            { name: "Correct", value: 0, fill: "#4CAF50" },
-            { name: "Wrong", value: 100, fill: "#F44336" },
-          ],
+          { name: "Correct", value: 0, fill: "#4CAF50" },
+          { name: "Wrong", value: 100, fill: "#F44336" },
+        ],
   };
 
   const participationRateData = {
@@ -147,9 +276,8 @@ function Adm_Analytics() {
       {/* Sidebar */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-100 z-50 border-r-2 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-100 z-50 border-r-2 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Adm_Sidebar />
       </div>
@@ -191,11 +319,10 @@ function Adm_Analytics() {
                 {departments.map((dept) => (
                   <button
                     key={dept}
-                    className={`px-6 py-2 rounded-md font-semibold transition-all ${
-                      selectedDepartment === dept
+                    className={`px-6 py-2 rounded-md font-semibold transition-all ${selectedDepartment === dept
                         ? "bg-blue-600 text-white shadow-lg"
                         : "bg-gray-300 text-gray-800"
-                    }`}
+                      }`}
                     onClick={() => handleDepartmentChange(dept)}
                   >
                     {dept}
