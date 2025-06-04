@@ -203,6 +203,7 @@ const Stu_TestInstruction = () => {
                       <li>The questions 'Marked for Review' will be considered for evaluation.</li>
                       <li>Your response will not be saved unless you click on 'Save and Next'.</li>
                       <li>Do not refresh the page.</li>
+                      <li>Tab switching is not allowed. </li>
                       <li>All the best!</li>
                     </ul>
                   </div>
