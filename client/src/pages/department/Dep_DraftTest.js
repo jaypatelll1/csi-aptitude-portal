@@ -4,9 +4,11 @@ import Dep_Sidebar from "../../components/department/Dep_Sidebar"; // Sidebar co
 import Dep_DraftedTestCard from "../../components/department/Dep_DraftedTestCard"; // Drafted Test Card component
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_DraftTest = () => {
+  
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -17,6 +19,9 @@ const Dep_DraftTest = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Number of items per page
 
+   const userData = useSelector((state) => state.user.user);
+   const branch = userData.department;
+  //  console.log("userData", userData.department);
   useEffect(() => {
     // Close the sidebar if clicked outside
     const handleClickOutside = (event) => {
@@ -37,40 +42,50 @@ const Dep_DraftTest = () => {
     return date.toLocaleDateString("en-IN", options);
   };
 
-  // Fetch drafted tests from the API
   useEffect(() => {
-    const fetchDraftedTests = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
-          withCredentials: true,
-        });
+  const fetchDraftedTests = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        console.log("response", response);
-        const fetchedTests = response.data.exams.map((exam) => ({
-          exam_id: exam.exam_id,
-          end_time: exam.end_time,
-          Start_time: exam.start_time,
-          title: exam.exam_name || "Untitled Exam",
-          questions: exam.question_count || "N/A",
-          duration: exam.duration ? `${exam.duration} min` : "N/A",
-          date: formatToReadableDate(exam.created_at),
-          target_years: exam.target_years,
-          target_branches: exam.target_branches,
-        }));
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      console.log(userData.department)
 
-        setTests(fetchedTests);
-      } catch (err) {
-        setError("Failed to load drafted tests. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
+      const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
+        params: {
+          role: "Department",
+          branch: branch,
+        },
+        withCredentials: true,
+      });
 
-    fetchDraftedTests();
-  }, []);
+      console.log(branch)
+
+      console.log("response", response);
+
+      const fetchedTests = response.data.exams.map((exam) => ({
+        exam_id: exam.exam_id,
+        end_time: exam.end_time,
+        Start_time: exam.start_time,
+        title: exam.exam_name || "Untitled Exam",
+        questions: exam.question_count || "N/A",
+        duration: exam.duration ? `${exam.duration} min` : "N/A",
+        date: formatToReadableDate(exam.created_at),
+        target_years: exam.target_years,
+        target_branches: exam.target_branches,
+      }));
+
+      setTests(fetchedTests);
+    } catch (err) {
+      console.error("Error fetching drafted exams:", err);
+      setError("Failed to load drafted tests. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDraftedTests();
+}, [branch]);
 
   // Pagination logic
   const totalPages = Math.ceil(tests.length / itemsPerPage);
@@ -87,9 +102,8 @@ const Dep_DraftTest = () => {
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Dep_Sidebar />
       </div>
@@ -156,9 +170,8 @@ const Dep_DraftTest = () => {
                 {/* Previous Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className={`p-2 mx-1 rounded ${
-                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-                  }`}
+                  className={`p-2 mx-1 rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
+                    }`}
                   disabled={currentPage === 1}
                 >
                   &lt;
@@ -169,9 +182,8 @@ const Dep_DraftTest = () => {
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
-                    className={`px-3 py-1 mx-1 rounded ${
-                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
-                    }`}
+                    className={`px-3 py-1 mx-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                      }`}
                   >
                     {i + 1}
                   </button>
@@ -180,11 +192,10 @@ const Dep_DraftTest = () => {
                 {/* Next Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className={`p-2 mx-1 rounded ${
-                    currentPage === totalPages
+                  className={`p-2 mx-1 rounded ${currentPage === totalPages
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-gray-200"
-                  }`}
+                    }`}
                   disabled={currentPage === totalPages}
                 >
                   &gt;
