@@ -102,15 +102,15 @@ const ExamCount = async (status, role) => {
         draft_count = result.rowCount || 0;
       }
       if (status === 'scheduled') {
-        const result = await pool.query(queryTEXT, [status,  "Teacher"]);
+        const result = await pool.query(queryTEXT, [status, "Teacher"]);
         scheduled_count = result.rowCount || 0;
       }
       if (status === 'past') {
-        const result = await pool.query(queryTEXT, [status,  "Teacher"]);
+        const result = await pool.query(queryTEXT, [status, "Teacher"]);
         past_count = result.rowCount || 0;
       }
       if (status === 'live') {
-        const result = await pool.query(queryTEXT, [status,  "Teacher"]);
+        const result = await pool.query(queryTEXT, [status, "Teacher"]);
         live_count = result.rowCount || 0;
       }
 
@@ -169,60 +169,95 @@ const getAllScheduledExams = async () => {
   return result.rows;
 };
 
-const getExamsByStatus = async (status, role) => {
-  console.log(role)
+const getExamsByStatus = async (status, role, branch) => {
+  const branchFilter = [branch]; // array format for @> operator
+
   if (role === "President" || role === "Teacher") {
-    const query = `SELECT DISTINCT 
-    e.exam_id, 
-    e.exam_name, 
-e.duration,
-e.start_time,
-e.end_time,
-e.created_at,
-e.status,
-e.target_branches,
-e.target_years,
-    COUNT(q.question_id) AS question_count
-FROM 
-    exams e
-LEFT JOIN 
-    questions q
-ON 
-    e.exam_id = q.exam_id
-WHERE 
-    e.status = $1 AND e.exam_for = $2
-GROUP BY 
-    e.exam_id, e.exam_name 
-   ORDER BY created_at DESC`;
-    const result = await pool.query(query, [status,  "Teacher"]);
-    return result.rows;
-  } else {
-    const query = `SELECT DISTINCT 
-    e.exam_id, 
-    e.exam_name, 
-e.duration,
-e.start_time,
-e.end_time,
-e.created_at,
-e.status,
-e.target_branches,
-e.target_years,
-    COUNT(q.question_id) AS question_count
-FROM 
-    exams e
-LEFT JOIN 
-    questions q
-ON 
-    e.exam_id = q.exam_id
-WHERE 
-    e.status = $1 AND e.exam_for = $2
-GROUP BY 
-    e.exam_id, e.exam_name 
-   ORDER BY created_at DESC`;
-    const result = await pool.query(query, [status, 'Student']);
+    const query = `
+      SELECT DISTINCT 
+        e.exam_id, 
+        e.exam_name, 
+        e.duration,
+        e.start_time,
+        e.end_time,
+        e.created_at,
+        e.status,
+        e.target_branches,
+        e.target_years,
+        COUNT(q.question_id) AS question_count
+      FROM 
+        exams e
+      LEFT JOIN 
+        questions q ON e.exam_id = q.exam_id
+      WHERE 
+        e.status = $1 AND 
+        e.exam_for = $2 AND 
+        e.target_branches @> $3::branch_enum[]
+      GROUP BY 
+        e.exam_id, e.exam_name 
+      ORDER BY created_at DESC`;
+
+    const result = await pool.query(query, [status, "Teacher", branchFilter]);
     return result.rows;
   }
-}
+  else if (role === "TPO") {
+    const query = `
+      SELECT DISTINCT 
+        e.exam_id, 
+        e.exam_name, 
+        e.duration,
+        e.start_time,
+        e.end_time,
+        e.created_at,
+        e.status,
+        e.target_branches,
+        e.target_years,
+        COUNT(q.question_id) AS question_count
+      FROM 
+        exams e
+      LEFT JOIN 
+        questions q ON e.exam_id = q.exam_id
+      WHERE 
+        e.status = $1 AND 
+        e.exam_for = $2
+      GROUP BY 
+        e.exam_id, e.exam_name 
+      ORDER BY created_at DESC`;
+
+    const result = await pool.query(query, [status, "Student"]);
+          console.log(result);
+    return result.rows;
+  }
+  else {
+    const query = `
+      SELECT DISTINCT 
+        e.exam_id, 
+        e.exam_name, 
+        e.duration,
+        e.start_time,
+        e.end_time,
+        e.created_at,
+        e.status,
+        e.target_branches,
+        e.target_years,
+        COUNT(q.question_id) AS question_count
+      FROM 
+        exams e
+      LEFT JOIN 
+        questions q ON e.exam_id = q.exam_id
+      WHERE 
+        e.status = $1 AND 
+        e.exam_for = $2 AND 
+        e.target_branches @> $3::branch_enum[]
+      GROUP BY 
+        e.exam_id, e.exam_name 
+      ORDER BY created_at DESC`;
+
+    const result = await pool.query(query, [status, 'Student', branchFilter]);
+    return result.rows;
+  }
+};
+
 
 const getExamsForUser = async (status, target_branches, target_years) => {
   try {
@@ -328,63 +363,49 @@ ORDER BY e.exam_id DESC;`;
 
 
 
-const getPaginatedExams = async (page, limit, status, role) => {
+const getPaginatedExams = async (page, limit, status, role, branch) => {
+  let query = `
+    SELECT DISTINCT
+      e.exam_id, 
+      e.exam_name, 
+      e.duration,
+      e.start_time,
+      e.end_time,
+      e.created_at,
+      e.status,
+      e.target_branches,
+      e.target_years,
+      COUNT(q.question_id) AS question_count
+    FROM 
+      exams e
+    LEFT JOIN 
+      questions q ON e.exam_id = q.exam_id
+    WHERE 
+      e.status = $1 AND 
+      e.exam_for = $2
+  `;
 
-  if (role === "President") {
-    const query = `SELECT DISTINCT
-    e.exam_id, 
-    e.exam_name, 
-e.duration,
-e.start_time,
-e.end_time,
-e.created_at,
-e.status,
-e.target_branches,
-e.target_years,
-    COUNT(q.question_id) AS question_count
-FROM 
-    exams e
-LEFT JOIN 
-    questions q
-ON 
-    e.exam_id = q.exam_id
-WHERE 
-    e.status = $1 AND e.exam_for = $2
-GROUP BY 
-    e.exam_id, e.exam_name 
-   ORDER BY created_at DESC`;
-    const paginatedQuery = paginate(query, page, limit);
-    const result = await pool.query(paginatedQuery, [status,"Teacher"]);
-    return result.rows;
+  const params = [status, role === "President" || role === "Teacher" ? "Teacher" : "Student"];
 
-  } else {
-    const query = `SELECT DISTINCT
-    e.exam_id, 
-    e.exam_name, 
-e.duration,
-e.start_time,
-e.end_time,
-e.created_at,
-e.status,
-e.target_branches,
-e.target_years,
-    COUNT(q.question_id) AS question_count
-FROM 
-    exams e
-LEFT JOIN 
-    questions q
-ON 
-    e.exam_id = q.exam_id
-WHERE 
-    e.status = $1 AND e.exam_for = $2
-GROUP BY 
-    e.exam_id, e.exam_name 
-   ORDER BY created_at DESC`;
-    const paginatedQuery = paginate(query, page, limit);
-    const result = await pool.query(paginatedQuery, [status, 'Student']);
-    return result.rows;
+  // Add branch filter for department role (not TPO)
+  if (role !== "TPO" && branch) {
+    query += ` AND e.target_branches @> $3::branch_enum[] `;
+    params.push([branch]);
   }
-}
+
+  query += `
+    GROUP BY 
+      e.exam_id, e.exam_name 
+    ORDER BY created_at DESC
+  `;
+
+  const paginatedQuery = paginate(query, page, limit);
+  const result = await pool.query(paginatedQuery, params);
+  return result.rows;
+};
+
+
+
 
 // const getPaginatedLiveExams = async (page, limit) => {
 //   const query = `SELECT 

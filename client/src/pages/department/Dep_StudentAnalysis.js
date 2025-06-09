@@ -5,6 +5,7 @@ import Dep_Navbar from "../../components/department/Dep_Navbar";
 import Dep_Filter from "../../components/department/Dep_Filter";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loader";
 
 const Dep_StudentAnalysis = () => {
   const [students, setStudents] = useState([]);
@@ -28,18 +29,6 @@ const Dep_StudentAnalysis = () => {
     setPage(1);
     const term = e.target.value;
     setSearchTerm(term);
-
-    if (term) {
-      const searchResults = students.filter(
-        (student) =>
-          student.name.toLowerCase().includes(term.toLowerCase()) ||
-          student.department?.toLowerCase().includes(term.toLowerCase()) ||
-          student.user_id.toString().includes(term)
-      );
-      setFilteredStudents(searchResults);
-    } else {
-      setFilteredStudents(students);
-    }
   };
 
   const toggleFilter = () => {
@@ -57,7 +46,7 @@ const Dep_StudentAnalysis = () => {
         },
       });
       if (response) {
-        setFilteredStudents(response.data);
+        setStudents(response.data);
         setNumberofpages(Math.ceil(response.data.length / limit));
       }
     } catch (error) {
@@ -66,6 +55,40 @@ const Dep_StudentAnalysis = () => {
       setLoading(false);
     }
   };
+
+  // Filter students based on search term
+  useEffect(() => {
+    let filtered = [...students];
+
+    // Apply search filter
+    if (searchTerm && searchTerm.trim() !== "") {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter((student) => {
+        const name = (student.student_name || student.name || "").toLowerCase();
+        const email = (student.email || "").toLowerCase();
+        const department = (student.department_name || student.department || "").toLowerCase();
+        const phone = (student.phone || "").toString();
+        const userId = (student.student_id || student.user_id || "").toString();
+        
+        return (
+          name.includes(searchLower) ||
+          email.includes(searchLower) ||
+          department.includes(searchLower) ||
+          phone.includes(searchTerm) ||
+          userId.includes(searchTerm)
+        );
+      });
+    }
+
+    setFilteredStudents(filtered);
+    const totalPages = Math.ceil(filtered.length / limit);
+    setNumberofpages(Math.max(1, totalPages));
+    
+    // Reset to page 1 if current page is beyond the new total pages
+    if (page > totalPages && totalPages > 0) {
+      setPage(1);
+    }
+  }, [students, searchTerm, limit, page]);
 
   useEffect(() => {
     // const fetchStudentsWithRanks = async () => {
@@ -148,6 +171,13 @@ const Dep_StudentAnalysis = () => {
     return pages;
   };
 
+  // Get current page data
+  const getCurrentPageData = () => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredStudents.slice(startIndex, endIndex);
+  };
+
   return (
     <div className="min-h-screen flex">
       <div
@@ -213,10 +243,10 @@ const Dep_StudentAnalysis = () => {
           </div>
 
           {loading ? (
-            <div className="text-center py-10">
-              <p>Loading student data...</p>
-            </div>
-          ) : (
+  <div className="flex justify-center items-center py-20">
+    <Loader />
+  </div>
+) : (
             <>
               <table className="w-full">
                 <thead>
@@ -229,8 +259,8 @@ const Dep_StudentAnalysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents && filteredStudents.length > 0 ? ( // Ensure filteredStudents is not null or empty
-                    filteredStudents.slice((page - 1) * limit, page * limit).map((student) => (
+                  {getCurrentPageData().length > 0 ? (
+                    getCurrentPageData().map((student) => (
                       <tr key={student.user_id} className="border-b hover:bg-gray-50">
                         <td className="py-4 px-4">{student.student_id}</td>
                         <td className="py-4 px-4">{student.student_name}</td>
@@ -256,11 +286,9 @@ const Dep_StudentAnalysis = () => {
                       </tr>
                     ))
                   ) : (
-                    // If there is no data, render this row:
                     <tr>
                       <td colSpan="6" className="text-center py-6 text-gray-500">
-                        No data available{" "}
-                        {/* This cell spans all columns and displays the message */}
+                        {searchTerm ? `No students found matching "${searchTerm}"` : "No data available"}
                       </td>
                     </tr>
                   )}

@@ -4,6 +4,7 @@ import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import Dep_ScheduledTestCard from "../../components/department/Dep_ScheduleTestCard";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_ScheduledTest = () => {
@@ -16,6 +17,9 @@ const Dep_ScheduledTest = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // Number of items per page
+
+  const userData = useSelector((state) => state.user.user);
+  const branch = userData.department;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -42,6 +46,10 @@ const Dep_ScheduledTest = () => {
         setError(null);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled`, {
+          params: {
+            role: "Department",
+            branch: branch,
+          },
           withCredentials: true,
         });
 
@@ -66,7 +74,7 @@ const Dep_ScheduledTest = () => {
     };
 
     fetchScheduledTests();
-  }, []);
+  }, [branch]);
 
   // Pagination logic
   const totalPages = Math.ceil(scheduledTests.length / itemsPerPage);
@@ -86,9 +94,8 @@ const Dep_ScheduledTest = () => {
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Dep_Sidebar />
       </div>
@@ -153,9 +160,8 @@ const Dep_ScheduledTest = () => {
                 {/* Previous Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className={`p-2 mx-1 border rounded ${
-                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-                  }`}
+                  className={`p-2 mx-1 border rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
+                    }`}
                   disabled={currentPage === 1}
                 >
                   &lt; {/* Left Arrow */}
@@ -166,9 +172,8 @@ const Dep_ScheduledTest = () => {
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
-                    className={`px-3 py-1 mx-1 border rounded ${
-                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
-                    }`}
+                    className={`px-3 py-1 mx-1 border rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                      }`}
                   >
                     {i + 1}
                   </button>
@@ -177,11 +182,10 @@ const Dep_ScheduledTest = () => {
                 {/* Next Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className={`p-2 mx-1 border rounded ${
-                    currentPage === totalPages
+                  className={`p-2 mx-1 border rounded ${currentPage === totalPages
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-gray-200"
-                  }`}
+                    }`}
                   disabled={currentPage === totalPages}
                 >
                   &gt; {/* Right Arrow */}

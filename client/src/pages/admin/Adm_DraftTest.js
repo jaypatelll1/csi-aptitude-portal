@@ -44,7 +44,7 @@ const Adm_DraftTest = () => {
         setLoading(true);
         setError(null);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts`, {
+        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts?role=TPO`, {
           withCredentials: true,
         });
 

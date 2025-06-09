@@ -48,8 +48,13 @@ const Dep_Dashboard = () => {
   const fetchTestsData = async (endpoint, key) => {
     try {
       const response = await axios.get(endpoint, {
+        params: {
+          role: "Department",
+          branch: user_department,
+        },
         withCredentials: true,
       });
+
 
       setTestsData((prevData) => ({
         ...prevData,
@@ -126,10 +131,10 @@ const Dep_Dashboard = () => {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         // Use Promise.all to fetch all data concurrently
         await Promise.all([
-          fetchTestsData(`${API_BASE_URL}/api/exams/drafts?role=Department`, "drafted"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled?role=Department`, "scheduled"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/past?role=Department`, "past"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/live?role=Department`, "live"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/drafts`, "drafted"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled`, "scheduled"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/past`, "past"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/live`, "live"),
         ]);
       } catch (err) {
         console.error("Error fetching test data:", err);
@@ -142,7 +147,7 @@ const Dep_Dashboard = () => {
 
     fetchDashboardData();
     fetchAllTestsData();
-  }, []);
+  }, [user_department]);
 
   const createTestHandler = () => {
     navigate("/department/createtest");
@@ -205,9 +210,8 @@ const Dep_Dashboard = () => {
     <div className="min-h-screen flex">
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-100 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-100 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Dep_Sidebar testsData={testsData} />
       </div>
@@ -235,9 +239,8 @@ const Dep_Dashboard = () => {
             {["live", "drafted", "scheduled", "past"].map((tab) => (
               <button
                 key={tab}
-                className={`text-lg font-semibold ${
-                  activeTab === tab ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
-                }`}
+                className={`text-lg font-semibold ${activeTab === tab ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {`${tab.charAt(0).toUpperCase()}${tab.slice(1)} Tests`}
@@ -276,9 +279,8 @@ const Dep_Dashboard = () => {
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 rounded ${
-                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-                }`}
+                className={`p-2 mx-1 rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
+                  }`}
                 disabled={currentPage === 1}
               >
                 &lt; {/* Left Arrow */}
@@ -287,18 +289,16 @@ const Dep_Dashboard = () => {
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 rounded ${
-                    currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
-                  }`}
+                  className={`px-3 py-1 mx-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                    }`}
                 >
                   {i + 1}
                 </button>
               ))}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 rounded ${
-                  currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-                }`}
+                className={`p-2 mx-1 rounded ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
+                  }`}
                 disabled={currentPage === totalPages}
               >
                 &gt; {/* Right Arrow */}

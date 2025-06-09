@@ -41,7 +41,7 @@ const Adm_ScheduledTest = () => {
         setLoading(true);
         setError(null);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled`, {
+        const response = await axios.get(`${API_BASE_URL}/api/exams/scheduled?role=TPO`, {
           withCredentials: true,
         });
 
