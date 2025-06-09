@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Dep_Sidebar from "../../components/department/Dep_Sidebar";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
@@ -20,6 +20,8 @@ const Dep_StudentAnalysis = () => {
   const [loading, setLoading] = useState(true);
   const currentUser = useSelector((state) => state.user.user);
   const navigate = useNavigate();
+  const sidebarRef = useRef(null);
+  
 
   const handleAnalyticsClick = (user_id) => {
     navigate(`/department/student-analytics`, { state: { user_id } });
@@ -91,58 +93,7 @@ const Dep_StudentAnalysis = () => {
   }, [students, searchTerm, limit, page]);
 
   useEffect(() => {
-    // const fetchStudentsWithRanks = async () => {
-    //   setLoading(true);
-    //   try {
-    //     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-    //     // Step 1: Fetch all students
-    //     let studentsUrl = `${API_BASE_URL}/api/users?role=Student`;
-    //     if (currentUser?.role === "Department" && currentUser?.department) {
-    //       studentsUrl += `&department=${currentUser.department}`;
-    //     }
-    //     const studentsResponse = await axios.get(studentsUrl, {
-    //       withCredentials: true,
-    //     });
-    //     console.log(currentUser)
-    //     console.log(studentsResponse)
-
-    //     const studentData = studentsResponse.data.users;
-
-    //     // Step 2: Create an array of promises to fetch rank data for each student
-    //     const rankPromises = studentData.map(async (student) => {
-    //       try {
-    //         const rankUrl = `${API_BASE_URL}/api/analysis/rank/${student.user_id}`;
-    //         const rankResponse = await axios.get(rankUrl, { withCredentials: true });
-
-    //         // Return the student with rank information
-    //         return {
-    //           ...student,
-    //           rank: rankResponse.data.result?.rank || "N/A"
-    //         };
-    //       } catch (error) {
-    //         console.error(`Error fetching rank for student ${student.user_id}:`, error);
-    //         return {
-    //           ...student,
-    //           rank: "N/A"
-    //         };
-    //       }
-    //     });
-    //     console.log(rankPromises);
-
-    //     // Step 3: Resolve all promises
-    //     const studentsWithRanks = await Promise.all(rankPromises);
-
-    //     setStudents(studentsWithRanks);
-    //     // setFilteredStudents(studentsWithRanks);
-    //     setNumberofpages(Math.ceil(studentsWithRanks.length / limit));
-    //   } catch (error) {
-    //     console.error("Error fetching students:", error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-
+   
     handleFilter(filterPref);
 
     // fetchStudentsWithRanks();
@@ -177,10 +128,24 @@ const Dep_StudentAnalysis = () => {
     const endIndex = startIndex + limit;
     return filteredStudents.slice(startIndex, endIndex);
   };
+   useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+          setSidebarOpen(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+  
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, []);
 
   return (
     <div className="min-h-screen flex">
       <div
+        ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
@@ -191,6 +156,29 @@ const Dep_StudentAnalysis = () => {
       <div className="flex-grow bg-gray-100 h-max">
         <div className="bg-white h-14 border-b border-gray-300">
           <Dep_Navbar setSidebarOpen={setSidebarOpen} />
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="xl:hidden text-gray-800 focus:outline-none"
+          >
+            <svg
+              className="w-8 h-8 items-center ml-3 -mt-16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={
+                  sidebarOpen
+                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
+                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                }
+              />
+            </svg>
+          </button>
         </div>
 
         <div className="bg-white my-6 mx-10 p-6 rounded-lg border border-gray-300">

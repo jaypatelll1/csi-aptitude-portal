@@ -251,7 +251,7 @@ const Dep_StudentList = () => {
             className="xl:hidden text-gray-800 focus:outline-none"
           >
             <svg
-              className="w-8 h-8 items-center ml-4 mt-3"
+              className="w-8 h-8 items-center ml-3 -mt-16"
               fill="none"
               stroke="currentColor"
               strokeWidth={2}

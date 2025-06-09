@@ -55,7 +55,6 @@ const Dep_Dashboard = () => {
         withCredentials: true,
       });
 
-
       setTestsData((prevData) => ({
         ...prevData,
         [key]: response.data.exams
@@ -98,14 +97,14 @@ const Dep_Dashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/stats/all-students`, {
-            withCredentials: true, // Make sure the cookie is sent with the request
+          axios.get(`${API_BASE_URL}/api/stats/all-students?exam_for=Student`, {
+            withCredentials: true,
           }),
-          axios.get(`${API_BASE_URL}/api/stats/all-tests`, {
-            withCredentials: true, // Make sure the cookie is sent with the request
+          axios.get(`${API_BASE_URL}/api/stats/all-tests?exam_for=Student`, {
+            withCredentials: true,
           }),
-          axios.get(`${API_BASE_URL}/api/stats/last-test`, {
-            withCredentials: true, // Make sure the cookie is sent with the request
+          axios.get(`${API_BASE_URL}/api/stats/last-test?exam_for=Student`, {
+            withCredentials: true,
           }),
         ]);
 
@@ -159,9 +158,14 @@ const Dep_Dashboard = () => {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         let response = await axios.get(
           `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${user_department}`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
-        dispatch(setDepartmentAnalysis({ department: user_department, data: response.data }));
+        dispatch(
+          setDepartmentAnalysis({
+            department: user_department,
+            data: response.data,
+          }),
+        );
       } catch (err) {
         console.log(err);
       }
@@ -189,10 +193,12 @@ const Dep_Dashboard = () => {
   const ITEMS_PER_PAGE = 9;
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil((testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(
+    (testsData[activeTab]?.length || 0) / ITEMS_PER_PAGE,
+  );
   const paginatedData = testsData[activeTab]?.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const handlePageChange = (newPage) => {
@@ -210,8 +216,9 @@ const Dep_Dashboard = () => {
     <div className="min-h-screen flex">
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-100 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-100 text-white z-50 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Dep_Sidebar testsData={testsData} />
       </div>
@@ -220,6 +227,22 @@ const Dep_Dashboard = () => {
         <Dep_Navbar setSidebarOpen={setSidebarOpen} />
 
         <div className="flex items-center justify-between mt-5">
+          <button className="xl:hidden text-gray-800" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <svg
+              className="w-7 h-8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              />
+            </svg>
+          </button>
           <h1 className="text-2xl font-bold text-gray-700 ml-5">Department Dashboard</h1>
 
           <button
@@ -239,8 +262,11 @@ const Dep_Dashboard = () => {
             {["live", "drafted", "scheduled", "past"].map((tab) => (
               <button
                 key={tab}
-                className={`text-lg font-semibold ${activeTab === tab ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600"
-                  }`}
+                className={`text-lg font-semibold ${
+                  activeTab === tab
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-600"
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {`${tab.charAt(0).toUpperCase()}${tab.slice(1)} Tests`}
@@ -271,7 +297,9 @@ const Dep_Dashboard = () => {
                 return null;
               })
             ) : (
-              <p className="col-span-full text-gray-500 text-center">No tests available.</p>
+              <p className="col-span-full text-gray-500 text-center">
+                No tests available.
+              </p>
             )}
           </div>
 
@@ -279,8 +307,11 @@ const Dep_Dashboard = () => {
             <div className="flex justify-center items-center mt-6">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                className={`p-2 mx-1 rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-                  }`}
+                className={`p-2 mx-1 rounded ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
                 disabled={currentPage === 1}
               >
                 &lt; {/* Left Arrow */}
@@ -289,16 +320,22 @@ const Dep_Dashboard = () => {
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 mx-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
-                    }`}
+                  className={`px-3 py-1 mx-1 rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
                 >
                   {i + 1}
                 </button>
               ))}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                className={`p-2 mx-1 rounded ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-                  }`}
+                className={`p-2 mx-1 rounded ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-200"
+                }`}
                 disabled={currentPage === totalPages}
               >
                 &gt; {/* Right Arrow */}
