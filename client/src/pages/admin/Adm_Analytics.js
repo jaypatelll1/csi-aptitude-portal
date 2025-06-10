@@ -13,7 +13,6 @@ import Loader from "../../components/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import { setDepartmentAnalysis } from "../../redux/analysisSlice";
 
-
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
@@ -29,56 +28,72 @@ function Adm_Analytics() {
   const [isLoading, setIsLoading] = useState(true);
   const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
-  const [error, setError] = useState(null); // State to handle errors
+  const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const defaultDataTimerRef = useRef(null);
   const departmentDataTimerRef = useRef(null);
 
   const departmentAnalysis = useSelector(
     (state) => state.analysis.departmentAnalysis[selectedDepartment]
-  ); // Fetch data from redux
+  );
 
+  // Updated fetchAllTpoAnalysis function
   const fetchAllTpoAnalysis = async () => {
     try {
       if (departmentAnalysis) {
-        setCategoryWiseData(departmentAnalysis.category_performance);
-        setTopPerformers(departmentAnalysis.top_performer);
-        setBottomPerformers(departmentAnalysis.bottom_performer);
-        setParticipationRate(departmentAnalysis.participation_rate);
-        setAccuracyData(departmentAnalysis.accuracy_rate);
-        setPerformanceOverTime(departmentAnalysis.performance_over_time);
-
-        setDeptRank(departmentAnalysis.dept_ranks);
-        superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
-
-        setStudentCount(departmentAnalysis.studentCount.student_count);
-
-        setIsLoading(false); // Set loading to false after data is loaded
+        console.log("Department Analysis Data:", departmentAnalysis); // Debug log
+        
+        setCategoryWiseData(departmentAnalysis.category_performance || []);
+        setTopPerformers(departmentAnalysis.top_performer || []);
+        setBottomPerformers(departmentAnalysis.bottom_performer || []);
+        setParticipationRate(departmentAnalysis.participation_rate || []);
+        setAccuracyData(departmentAnalysis.accuracy_rate || []);
+        setPerformanceOverTime(departmentAnalysis.performance_over_time || []);
+        setDeptRank(departmentAnalysis.dept_ranks || []);
+        
+        if (departmentAnalysis.dept_ranks?.department_rank) {
+          superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
+        }
+        
+        setStudentCount(departmentAnalysis.studentCount?.student_count || 0);
+        setError(null); // Clear any previous errors
+        setIsLoading(false); // Set loading to false when data is processed
+      } else {
+        // If no data available, set empty states
+        setCategoryWiseData([]);
+        setTopPerformers([]);
+        setBottomPerformers([]);
+        setParticipationRate([]);
+        setAccuracyData([]);
+        setPerformanceOverTime([]);
+        setDeptRank([]);
+        setStudentCount(0);
+        setDSup("");
+        setIsLoading(false); // Set loading to false even with no data
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
-      setIsLoading(true);
+      console.error("Error processing department data:", error);
+      setError("Error processing department data");
+      setIsLoading(false); // Set loading to false on error
     }
   };
 
+  // Updated useEffect for fetching data when departmentAnalysis changes
   useEffect(() => {
     fetchAllTpoAnalysis();
-  }, [selectedDepartment, departmentAnalysis]);
+  }, [departmentAnalysis, selectedDepartment]);
 
   const handleDepartmentChange = (dept) => {
     setSelectedDepartment(dept);
-
+    setError(null); // Clear any previous errors when switching departments
   };
 
-
-
-
-
-
+  // Load default CMPN data on component mount
   useEffect(() => {
     const loadDefaultData = async () => {
       try {
         setIsLoading(true);
+        setError(null);
 
         // Add timer to stop loader after 30 seconds
         defaultDataTimerRef.current = setTimeout(() => {
@@ -105,7 +120,7 @@ function Adm_Analytics() {
         }
 
         dispatch(setDepartmentAnalysis({ department: "CMPN", data: response.data }));
-        setIsLoading(false);
+        // Don't set loading to false here, let the useEffect handle it
 
       } catch (err) {
         console.log(err);
@@ -122,21 +137,31 @@ function Adm_Analytics() {
     };
 
     loadDefaultData();
+
+    // Cleanup function
+    return () => {
+      if (defaultDataTimerRef.current) {
+        clearTimeout(defaultDataTimerRef.current);
+      }
+      if (departmentDataTimerRef.current) {
+        clearTimeout(departmentDataTimerRef.current);
+      }
+    };
   }, [dispatch]);
 
-  // Fetch data when department changes
+  // Fetch data when department changes (for non-CMPN departments)
   useEffect(() => {
     const fetchDepartmentAnalysis = async () => {
       try {
-        if (!departmentAnalysis?.[selectedDepartment] && selectedDepartment !== "CMPN") {
+        // Only fetch if we don't have data for the selected department
+        if (!departmentAnalysis) {
           setIsLoading(true);
-          setError(null); // Clear any previous errors
-
+          setError(null);
 
           departmentDataTimerRef.current = setTimeout(() => {
             setIsLoading(false);
             setError(`Request timeout - Unable to fetch ${selectedDepartment} data`);
-          }, 5000);
+          }, 30000);
 
           let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
           const response = await axios.get(
@@ -150,13 +175,11 @@ function Adm_Analytics() {
             departmentDataTimerRef.current = null;
           }
 
-          if (!response.data || response.data.length === 0) {
-            setIsLoading(false);
+          if (!response.data) {
             setError(`No data available for ${selectedDepartment} department`);
-            // Clear the current department data to prevent showing wrong data
             dispatch(setDepartmentAnalysis({
               department: selectedDepartment,
-              data: []
+              data: null
             }));
             return;
           }
@@ -165,10 +188,9 @@ function Adm_Analytics() {
             department: selectedDepartment,
             data: response.data
           }));
-          setIsLoading(false);
         }
       } catch (err) {
-        console.log(err);
+        console.error("Error fetching department data:", err);
 
         // Clear timer on error
         if (departmentDataTimerRef.current) {
@@ -178,10 +200,9 @@ function Adm_Analytics() {
 
         setIsLoading(false);
         setError(`Failed to fetch ${selectedDepartment} department analysis`);
-        // Clear the current department data on error
         dispatch(setDepartmentAnalysis({
           department: selectedDepartment,
-          data: []
+          data: null
         }));
       }
     };
@@ -201,6 +222,7 @@ function Adm_Analytics() {
       fill: "#F44336",
     },
   ];
+
   const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
@@ -210,7 +232,6 @@ function Adm_Analytics() {
     })),
   };
 
-  // If filteredData is empty, use default values
   const donutChartData = {
     title: "Accuracy Rate",
     chartData:
@@ -232,7 +253,7 @@ function Adm_Analytics() {
       },
       {
         name: "Not Participated",
-        value: +Number(100 - participationRate?.participation_rate).toFixed(2) || 100, // to convert this from string to floating point
+        value: +Number(100 - participationRate?.participation_rate).toFixed(2) || 100,
         fill: "#6F91F0",
       },
     ],
@@ -286,6 +307,16 @@ function Adm_Analytics() {
       <div className="flex-1 w-full bg-gray-100">
         <Adm_Navbar />
 
+        {/* Show error message if there's an error */}
+        {error && !isLoading && (
+          <div className="flex items-center justify-center h-32 mx-5 mt-5">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              <p className="font-bold">Error:</p>
+              <p>{error}</p>
+            </div>
+          </div>
+        )}
+
         {/* Show "Loading..." while analytics are being fetched */}
         {isLoading ? (
           <div className="flex items-center justify-center h-screen">
@@ -296,7 +327,7 @@ function Adm_Analytics() {
             {/* Analytics Dashboard UI (Only show when data is loaded) */}
             <div className="flex items-center justify-between mt-8">
               <button
-                className="xl:hidden text-gray-800"
+                className="xl:hidden text-gray-800 -mt-40 ml-3"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
               >
                 <svg
@@ -337,16 +368,16 @@ function Adm_Analytics() {
                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200">
                   <DisplayComponent
                     title="Department Rank"
-                    rank={deptRank?.department_rank || "Loading..."}
+                    rank={deptRank?.department_rank || "No Data"}
                     superscript={dSup}
                   />
                 </div>
                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
-                  <DisplayComponent title="Total Students" rank={studentCount || "Loading..."} />
+                  <DisplayComponent title="Total Students" rank={studentCount || "No Data"} />
                 </div>
               </div>
               <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-                {performanceOverTime?.length > 0 ? ( //Ensures data is not empty or null
+                {performanceOverTime?.length > 0 ? (
                   <LineChartComponent
                     data={performanceOverTimeData}
                     xAxisKey="name"
