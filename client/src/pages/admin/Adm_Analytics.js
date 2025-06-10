@@ -29,6 +29,7 @@ function Adm_Analytics() {
   const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
   const [error, setError] = useState(null);
+  const [initialLoad, setInitialLoad] = useState(true);
   const dispatch = useDispatch();
   const defaultDataTimerRef = useRef(null);
   const departmentDataTimerRef = useRef(null);
@@ -69,7 +70,10 @@ function Adm_Analytics() {
         setDeptRank([]);
         setStudentCount(0);
         setDSup("");
-        setIsLoading(false); // Set loading to false even with no data
+        // Don't set loading to false here if we're still fetching
+        if (!isLoading) {
+          setIsLoading(false);
+        }
       }
     } catch (error) {
       console.error("Error processing department data:", error);
@@ -78,11 +82,73 @@ function Adm_Analytics() {
     }
   };
 
-  // Updated useEffect for fetching data when departmentAnalysis changes
+  // Fetch department data function
+  const fetchDepartmentData = async (department) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Clear any existing timers
+      if (departmentDataTimerRef.current) {
+        clearTimeout(departmentDataTimerRef.current);
+      }
+
+      departmentDataTimerRef.current = setTimeout(() => {
+        setIsLoading(false);
+        setError(`Request timeout - Unable to fetch ${department} data`);
+      }, 30000);
+
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(
+        `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${department}`,
+        { withCredentials: true }
+      );
+
+      // Clear timer on successful response
+      if (departmentDataTimerRef.current) {
+        clearTimeout(departmentDataTimerRef.current);
+        departmentDataTimerRef.current = null;
+      }
+
+      if (!response.data) {
+        setError(`No data available for ${department} department`);
+        dispatch(setDepartmentAnalysis({
+          department: department,
+          data: null
+        }));
+        setIsLoading(false);
+        return;
+      }
+
+      dispatch(setDepartmentAnalysis({
+        department: department,
+        data: response.data
+      }));
+
+    } catch (err) {
+      console.error("Error fetching department data:", err);
+
+      // Clear timer on error
+      if (departmentDataTimerRef.current) {
+        clearTimeout(departmentDataTimerRef.current);
+        departmentDataTimerRef.current = null;
+      }
+
+      setIsLoading(false);
+      setError(`Failed to fetch ${department} department analysis`);
+      dispatch(setDepartmentAnalysis({
+        department: department,
+        data: null
+      }));
+    }
+  };
+
+  // Updated useEffect for processing data when departmentAnalysis changes
   useEffect(() => {
     fetchAllTpoAnalysis();
-  }, [departmentAnalysis, selectedDepartment]);
+  }, [departmentAnalysis]);
 
+  // Handle department change
   const handleDepartmentChange = (dept) => {
     setSelectedDepartment(dept);
     setError(null); // Clear any previous errors when switching departments
@@ -91,52 +157,13 @@ function Adm_Analytics() {
   // Load default CMPN data on component mount
   useEffect(() => {
     const loadDefaultData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Add timer to stop loader after 30 seconds
-        defaultDataTimerRef.current = setTimeout(() => {
-          setIsLoading(false);
-          setError("Request timeout - Unable to load default data");
-        }, 30000);
-
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/department-analysis/all-dept-analysis/CMPN`,
-          { withCredentials: true }
-        );
-
-        // Clear timer on successful response
-        if (defaultDataTimerRef.current) {
-          clearTimeout(defaultDataTimerRef.current);
-          defaultDataTimerRef.current = null;
-        }
-
-        if (!response.data || response.data.length === 0) {
-          setIsLoading(false);
-          setError("No data available for CMPN department");
-          return;
-        }
-
-        dispatch(setDepartmentAnalysis({ department: "CMPN", data: response.data }));
-        // Don't set loading to false here, let the useEffect handle it
-
-      } catch (err) {
-        console.log(err);
-
-        // Clear timer on error
-        if (defaultDataTimerRef.current) {
-          clearTimeout(defaultDataTimerRef.current);
-          defaultDataTimerRef.current = null;
-        }
-
-        setIsLoading(false);
-        setError("Failed to fetch CMPN department data");
-      }
+      await fetchDepartmentData("CMPN");
+      setInitialLoad(false);
     };
 
-    loadDefaultData();
+    if (initialLoad) {
+      loadDefaultData();
+    }
 
     // Cleanup function
     return () => {
@@ -147,68 +174,14 @@ function Adm_Analytics() {
         clearTimeout(departmentDataTimerRef.current);
       }
     };
-  }, [dispatch]);
+  }, [dispatch, initialLoad]);
 
-  // Fetch data when department changes (for non-CMPN departments)
+  // Fetch data when department changes (after initial load)
   useEffect(() => {
-    const fetchDepartmentAnalysis = async () => {
-      try {
-        // Only fetch if we don't have data for the selected department
-        if (!departmentAnalysis) {
-          setIsLoading(true);
-          setError(null);
-
-          departmentDataTimerRef.current = setTimeout(() => {
-            setIsLoading(false);
-            setError(`Request timeout - Unable to fetch ${selectedDepartment} data`);
-          }, 30000);
-
-          let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-          const response = await axios.get(
-            `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${selectedDepartment}`,
-            { withCredentials: true }
-          );
-
-          // Clear timer on successful response
-          if (departmentDataTimerRef.current) {
-            clearTimeout(departmentDataTimerRef.current);
-            departmentDataTimerRef.current = null;
-          }
-
-          if (!response.data) {
-            setError(`No data available for ${selectedDepartment} department`);
-            dispatch(setDepartmentAnalysis({
-              department: selectedDepartment,
-              data: null
-            }));
-            return;
-          }
-
-          dispatch(setDepartmentAnalysis({
-            department: selectedDepartment,
-            data: response.data
-          }));
-        }
-      } catch (err) {
-        console.error("Error fetching department data:", err);
-
-        // Clear timer on error
-        if (departmentDataTimerRef.current) {
-          clearTimeout(departmentDataTimerRef.current);
-          departmentDataTimerRef.current = null;
-        }
-
-        setIsLoading(false);
-        setError(`Failed to fetch ${selectedDepartment} department analysis`);
-        dispatch(setDepartmentAnalysis({
-          department: selectedDepartment,
-          data: null
-        }));
-      }
-    };
-
-    fetchDepartmentAnalysis();
-  }, [selectedDepartment, dispatch]);
+    if (!initialLoad && !departmentAnalysis) {
+      fetchDepartmentData(selectedDepartment);
+    }
+  }, [selectedDepartment, initialLoad, departmentAnalysis]);
 
   const filteredAccuracyData = [
     {
