@@ -412,24 +412,24 @@ const getPaginatedDraftedExams = async (req, res) => {
 
 const getPaginatedLiveExams = async (req, res) => {
   const user_id = req.user.id;
-  let status = 'live',
-    Count,
-    exams;
-  const { page, limit, role } = req.query;
-  // const role = req.user.role;
-  // console.log(role)
-  // console.log('page is ', page, limit);
+  const status = 'live';
+  const { page, limit, role, branch } = req.query;
+
+  let Count, exams;
 
   try {
+    if (!role) return res.status(400).json({ error: 'Role is required' });
+
+    const branchFilter = role !== 'TPO' ? branch : null;
+
     if (!page && !limit) {
-      if(!role) return res.status(400).json({error: 'Role is required'});
       Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role);
+      exams = await examModel.getExamsByStatus(status, role, branchFilter);
       await logActivity({
         user_id,
-        activity: `Viewed paginated scheduled exams`,
+        activity: `Viewed non-paginated live exams`,
         status: 'success',
-        details: `Page: ${page}, Limit: ${limit}`,
+        details: `Role: ${role}, Branch: ${branchFilter}`,
       });
     } else {
       Count = await examModel.ExamCount(status, role);
@@ -437,15 +437,17 @@ const getPaginatedLiveExams = async (req, res) => {
         parseInt(page),
         parseInt(limit),
         status,
-        role
+        role,
+        branchFilter
       );
       await logActivity({
         user_id,
-        activity: `Viewed paginated published exams`,
+        activity: `Viewed paginated live exams`,
         status: 'success',
-        details: `Page: ${page}, Limit: ${limit}`,
+        details: `Page: ${page}, Limit: ${limit}, Role: ${role}, Branch: ${branchFilter}`,
       });
     }
+
     res.status(200).json({
       message: 'Exams retrieved successfully',
       exams: exams || [],
@@ -455,44 +457,43 @@ const getPaginatedLiveExams = async (req, res) => {
         : {}),
     });
   } catch (error) {
+    console.error('Error fetching live exams:', error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
 const getPaginatedPastExams = async (req, res) => {
   const user_id = req.user.id;
-  let status = 'past',
-    Count,
-    exams;
-  const { page, limit, role } = req.query;
-  // const role = req.user.role;
-  // console.log('page is ', page, limit);
+  let status = 'past', Count, exams;
+  const { page, limit, role, branch } = req.query; // 👈 also extracting branch here
 
   try {
-    if(!role) return res.status(400).json({error: 'Role is required'});
+    if (!role) return res.status(400).json({ error: 'Role is required' });
+
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role);
-      await logActivity({
-        user_id,
-        activity: `Viewed paginated scheduled exams`,
-        status: 'success',
-        details: `Page: ${page}, Limit: ${limit}`,
-      });
+      exams = await examModel.getExamsByStatus(status, role, branch); // 👈 pass branch
     } else {
       Count = await examModel.ExamCount(status, role);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
         status,
-        role
+        role,
+        branch // 👈 pass branch
       );
-      await logActivity({
-        user_id,
-        activity: `Viewed paginated published exams`,
-        status: 'success',
-        details: `Page: ${page}, Limit: ${limit}`,
-      });
     }
+
+    await logActivity({
+      user_id,
+      activity: `Viewed paginated past exams`,
+      status: 'success',
+      details: `Page: ${page}, Limit: ${limit}`,
+    });
+
     res.status(200).json({
       message: 'Exams retrieved successfully',
       exams: exams || [],
@@ -505,6 +506,10 @@ const getPaginatedPastExams = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
 
 const getExamsForUser = async (req, res) => {
   const user_id = req.user.id;
@@ -537,6 +542,8 @@ const getExamsForUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 const getExamForTeachers = async (req, res) => {
   const user_id = req.user.id;

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import Dep_Sidebar from "../../components/department/Dep_Sidebar"; // Import the Sidebar
-import Dep_PastTestCard from "../../components/department/Dep_PastTestCard"; // Import the PastTestCard
+import Dep_Sidebar from "../../components/department/Dep_Sidebar";
+import Dep_PastTestCard from "../../components/department/Dep_PastTestCard";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import Loader from "../../components/Loader";
-// const API_BASE_URL = process.env.BACKEND_BASE_URL;
+import { useSelector } from "react-redux";
 
 const Dep_PastTest = () => {
   const [pastTests, setPastTests] = useState([]);
@@ -13,9 +13,11 @@ const Dep_PastTest = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Number of items per page
+  const itemsPerPage = 10;
+
+  const userData = useSelector((state) => state.user.user);
+  const branch = userData.department;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -42,7 +44,11 @@ const Dep_PastTest = () => {
         setLoading(true);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(`${API_BASE_URL}/api/exams/past`, {
-          withCredentials: true, // Make sure the cookie is sent with the request
+          params: {
+            role: "Department",
+            branch: branch,
+          },
+          withCredentials: true,
         });
         const formattedTests = response.data.exams.map((exam) => ({
           exam_id: exam.exam_id,
@@ -55,8 +61,9 @@ const Dep_PastTest = () => {
           target_years: exam.target_years,
           target_branches: exam.target_branches,
         }));
-        // console.log("formattedTests",formattedTests)
-        // setPastTests(formattedTests);
+        
+        // ✅ Set the formatted test data into state
+        setPastTests(formattedTests);
       } catch (err) {
         console.error("Error fetching past tests:", err);
         setError("Failed to fetch past tests. Please try again later.");
@@ -66,9 +73,8 @@ const Dep_PastTest = () => {
     };
 
     fetchPastTests();
-  }, []);
+  }, [branch]);
 
-  // Pagination logic
   const totalPages = Math.ceil(pastTests.length / itemsPerPage);
 
   const paginatedTests = pastTests.slice(
@@ -84,26 +90,20 @@ const Dep_PastTest = () => {
 
   return (
     <div className="min-h-screen flex">
-      {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Dep_Sidebar />
       </div>
 
-      {/* Main Content Section */}
       <div className="flex-1 bg-gray-100">
         <Dep_Navbar />
 
-        {/* Hide Header while loading */}
         {!loading && (
           <>
-            {/* Header Section */}
             <div className="flex items-center h-16 ml-4 border-b border-black mr-3">
-              {/* Sidebar Toggle Button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="xl:hidden text-gray-800 focus:outline-none"
@@ -124,7 +124,6 @@ const Dep_PastTest = () => {
                 </svg>
               </button>
 
-              {/* Title */}
               <h1 className="text-xl sm:text-2xl font-bold ml-32 xl:ml-0">Past Tests</h1>
             </div>
 
@@ -132,7 +131,6 @@ const Dep_PastTest = () => {
           </>
         )}
 
-        {/* Loader while fetching data */}
         {loading ? (
           <div className="flex justify-center items-center h-screen">
             <Loader />
@@ -143,51 +141,38 @@ const Dep_PastTest = () => {
           <p className="text-gray-500 text-center w-full mt-8">No past tests available.</p>
         ) : (
           <>
-            {/* Past Tests Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-y-5 mt-8">
               {paginatedTests.map((test, index) => (
                 <Dep_PastTestCard key={index} test={test} />
               ))}
             </div>
 
-            {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-6">
-                {/* Previous Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className={`p-2 mx-1 border rounded ${
-                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"
-                  }`}
+                  className={`p-2 mx-1 border rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"}`}
                   disabled={currentPage === 1}
                 >
-                  &lt; {/* Left Arrow */}
+                  &lt;
                 </button>
 
-                {/* Page Number Buttons */}
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => handlePageChange(i + 1)}
-                    className={`px-3 py-1 mx-1 border rounded ${
-                      currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
-                    }`}
+                    className={`px-3 py-1 mx-1 border rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"}`}
                   >
                     {i + 1}
                   </button>
                 ))}
 
-                {/* Next Page Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className={`p-2 mx-1 border rounded ${
-                    currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-200"
-                  }`}
+                  className={`p-2 mx-1 border rounded ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-200"}`}
                   disabled={currentPage === totalPages}
                 >
-                  &gt; {/* Right Arrow */}
+                  &gt;
                 </button>
               </div>
             )}
