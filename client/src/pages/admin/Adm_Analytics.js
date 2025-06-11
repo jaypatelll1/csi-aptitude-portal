@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios"; // Add this import
+import axios from "axios";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import BarChartComponent from "../../components/analytics/BarChartComponent";
@@ -10,8 +10,6 @@ import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
 import DisplayComponent from "../../components/analytics/DisplayComponent";
 import Loader from "../../components/Loader";
-import { useSelector, useDispatch } from "react-redux";
-import { setDepartmentAnalysis } from "../../redux/analysisSlice";
 
 function Adm_Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -29,57 +27,22 @@ function Adm_Analytics() {
   const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
   const [error, setError] = useState(null);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const dispatch = useDispatch();
-  const defaultDataTimerRef = useRef(null);
+  const [hasData, setHasData] = useState(false);
   const departmentDataTimerRef = useRef(null);
 
-  const departmentAnalysis = useSelector(
-    (state) => state.analysis.departmentAnalysis[selectedDepartment]
-  );
+  // Function to check if any meaningful data exists
+  const checkDataAvailability = (data) => {
+    const hasAccuracy = data.accuracy_rate !== undefined && data.accuracy_rate !== null;
+    const hasCategories = data.category_performance && data.category_performance.length > 0;
+    const hasTopPerformers = data.top_performer && data.top_performer.length > 0;
+    const hasBottomPerformers = data.bottom_performer && data.bottom_performer.length > 0;
+    const hasParticipation = data.participation_rate !== undefined && data.participation_rate !== null;
+    const hasPerformanceTime = data.performance_over_time && data.performance_over_time.length > 0;
+    const hasDeptRank = data.dept_ranks && data.dept_ranks.department_rank;
+    const hasStudentCount = data.studentCount && data.studentCount.student_count > 0;
 
-  // Updated fetchAllTpoAnalysis function
-  const fetchAllTpoAnalysis = async () => {
-    try {
-      if (departmentAnalysis) {
-        console.log("Department Analysis Data:", departmentAnalysis); // Debug log
-        
-        setCategoryWiseData(departmentAnalysis.category_performance || []);
-        setTopPerformers(departmentAnalysis.top_performer || []);
-        setBottomPerformers(departmentAnalysis.bottom_performer || []);
-        setParticipationRate(departmentAnalysis.participation_rate || []);
-        setAccuracyData(departmentAnalysis.accuracy_rate || []);
-        setPerformanceOverTime(departmentAnalysis.performance_over_time || []);
-        setDeptRank(departmentAnalysis.dept_ranks || []);
-        
-        if (departmentAnalysis.dept_ranks?.department_rank) {
-          superscript(setDSup, departmentAnalysis.dept_ranks.department_rank);
-        }
-        
-        setStudentCount(departmentAnalysis.studentCount?.student_count || 0);
-        setError(null); // Clear any previous errors
-        setIsLoading(false); // Set loading to false when data is processed
-      } else {
-        // If no data available, set empty states
-        setCategoryWiseData([]);
-        setTopPerformers([]);
-        setBottomPerformers([]);
-        setParticipationRate([]);
-        setAccuracyData([]);
-        setPerformanceOverTime([]);
-        setDeptRank([]);
-        setStudentCount(0);
-        setDSup("");
-        // Don't set loading to false here if we're still fetching
-        if (!isLoading) {
-          setIsLoading(false);
-        }
-      }
-    } catch (error) {
-      console.error("Error processing department data:", error);
-      setError("Error processing department data");
-      setIsLoading(false); // Set loading to false on error
-    }
+    return hasAccuracy || hasCategories || hasTopPerformers || hasBottomPerformers || 
+           hasParticipation || hasPerformanceTime || hasDeptRank || hasStudentCount;
   };
 
   // Fetch department data function
@@ -87,6 +50,7 @@ function Adm_Analytics() {
     try {
       setIsLoading(true);
       setError(null);
+      setHasData(false);
 
       // Clear any existing timers
       if (departmentDataTimerRef.current) {
@@ -96,6 +60,7 @@ function Adm_Analytics() {
       departmentDataTimerRef.current = setTimeout(() => {
         setIsLoading(false);
         setError(`Request timeout - Unable to fetch ${department} data`);
+        setHasData(false);
       }, 30000);
 
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
@@ -112,18 +77,34 @@ function Adm_Analytics() {
 
       if (!response.data) {
         setError(`No data available for ${department} department`);
-        dispatch(setDepartmentAnalysis({
-          department: department,
-          data: null
-        }));
         setIsLoading(false);
+        setHasData(false);
         return;
       }
 
-      dispatch(setDepartmentAnalysis({
-        department: department,
-        data: response.data
-      }));
+      // Process the response data
+      const data = response.data;
+      console.log("Department Analysis Data:", data);
+      
+      // Check if meaningful data exists
+      const dataExists = checkDataAvailability(data);
+      setHasData(dataExists);
+      
+      setCategoryWiseData(data.category_performance || []);
+      setTopPerformers(data.top_performer || []);
+      setBottomPerformers(data.bottom_performer || []);
+      setParticipationRate(data.participation_rate || []);
+      setAccuracyData(data.accuracy_rate || []);
+      setPerformanceOverTime(data.performance_over_time || []);
+      setDeptRank(data.dept_ranks || []);
+      
+      if (data.dept_ranks?.department_rank) {
+        superscript(setDSup, data.dept_ranks.department_rank);
+      }
+      
+      setStudentCount(data.studentCount?.student_count || 0);
+      setError(null);
+      setIsLoading(false);
 
     } catch (err) {
       console.error("Error fetching department data:", err);
@@ -135,53 +116,40 @@ function Adm_Analytics() {
       }
 
       setIsLoading(false);
-      setError(`Failed to fetch ${department} department analysis`);
-      dispatch(setDepartmentAnalysis({
-        department: department,
-        data: null
-      }));
+      // setError(`Failed to fetch ${department} department analysis`);
+      <NoDataAvailable />;
+      setHasData(false);
+      
+      // Reset all data states on error
+      setCategoryWiseData([]);
+      setTopPerformers([]);
+      setBottomPerformers([]);
+      setParticipationRate([]);
+      setAccuracyData([]);
+      setPerformanceOverTime([]);
+      setDeptRank([]);
+      setStudentCount(0);
+      setDSup("");
     }
   };
-
-  // Updated useEffect for processing data when departmentAnalysis changes
-  useEffect(() => {
-    fetchAllTpoAnalysis();
-  }, [departmentAnalysis]);
 
   // Handle department change
   const handleDepartmentChange = (dept) => {
     setSelectedDepartment(dept);
-    setError(null); // Clear any previous errors when switching departments
+    setError(null);
   };
 
-  // Load default CMPN data on component mount
+  // Fix: Simplified useEffect - removed initialLoad logic
   useEffect(() => {
-    const loadDefaultData = async () => {
-      await fetchDepartmentData("CMPN");
-      setInitialLoad(false);
-    };
-
-    if (initialLoad) {
-      loadDefaultData();
-    }
+    fetchDepartmentData(selectedDepartment);
 
     // Cleanup function
     return () => {
-      if (defaultDataTimerRef.current) {
-        clearTimeout(defaultDataTimerRef.current);
-      }
       if (departmentDataTimerRef.current) {
         clearTimeout(departmentDataTimerRef.current);
       }
     };
-  }, [dispatch, initialLoad]);
-
-  // Fetch data when department changes (after initial load)
-  useEffect(() => {
-    if (!initialLoad && !departmentAnalysis) {
-      fetchDepartmentData(selectedDepartment);
-    }
-  }, [selectedDepartment, initialLoad, departmentAnalysis]);
+  }, [selectedDepartment]); // Only depend on selectedDepartment
 
   const filteredAccuracyData = [
     {
@@ -265,6 +233,36 @@ function Adm_Analytics() {
     };
   }, []);
 
+  // No Data Available Component
+  const NoDataAvailable = () => (
+    <div className="flex flex-col items-center justify-center h-96 bg-white rounded-lg shadow-lg mx-5 mt-5">
+      <div className="text-center p-8">
+        <svg 
+          className="mx-auto h-24 w-24 text-gray-400 mb-4" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+        >
+          <path 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            strokeWidth={1.5} 
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" 
+          />
+        </svg>
+        <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+          No Analytics Data Available
+        </h3>
+        <p className="text-gray-500 text-lg mb-4">
+          There is currently no analytics data available for the <strong>{selectedDepartment}</strong> department.
+        </p>
+        <p className="text-gray-400 text-sm">
+          Please check back later or contact your administrator if this issue persists.
+        </p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex overflow-x-hidden bg-white">
       {/* Sidebar */}
@@ -280,6 +278,44 @@ function Adm_Analytics() {
       <div className="flex-1 w-full bg-gray-100">
         <Adm_Navbar />
 
+        {/* Header with department buttons - always show */}
+        <div className="flex items-center justify-between mt-8">
+          <button
+            className="xl:hidden text-gray-800 -mt-40 ml-3"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <svg
+              className="w-7 h-8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              />
+            </svg>
+          </button>
+          <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">Branch Analytics</h1>
+          <div className="flex justify-center space-x-4 mr-10">
+            {departments.map((dept) => (
+              <button
+                key={dept}
+                className={`px-6 py-2 rounded-md font-semibold transition-all ${selectedDepartment === dept
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-gray-300 text-gray-800"
+                  }`}
+                onClick={() => handleDepartmentChange(dept)}
+              >
+                {dept}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Show error message if there's an error */}
         {error && !isLoading && (
           <div className="flex items-center justify-center h-32 mx-5 mt-5">
@@ -290,52 +326,20 @@ function Adm_Analytics() {
           </div>
         )}
 
-        {/* Show "Loading..." while analytics are being fetched */}
+        {/* Fix: Better loading state that doesn't cover the entire screen */}
         {isLoading ? (
-          <div className="flex items-center justify-center h-screen">
-            <Loader />
-          </div>
-        ) : (
-          <>
-            {/* Analytics Dashboard UI (Only show when data is loaded) */}
-            <div className="flex items-center justify-between mt-8">
-              <button
-                className="xl:hidden text-gray-800 -mt-40 ml-3"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-              >
-                <svg
-                  className="w-7 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                  />
-                </svg>
-              </button>
-              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7 md">Branch Analytics</h1>
-              <div className="flex justify-center space-x-4 mr-10">
-                {departments.map((dept) => (
-                  <button
-                    key={dept}
-                    className={`px-6 py-2 rounded-md font-semibold transition-all ${selectedDepartment === dept
-                        ? "bg-blue-600 text-white shadow-lg"
-                        : "bg-gray-300 text-gray-800"
-                      }`}
-                    onClick={() => handleDepartmentChange(dept)}
-                  >
-                    {dept}
-                  </button>
-                ))}
-              </div>
+          <div className="flex ">
+            <div className="bg-white rounded-lg  h-screen">
+              <Loader />
+             
             </div>
-
-            {/* Other Analytics Components */}
+          </div>
+        ) : !hasData && !error ? (
+          
+          <NoDataAvailable />
+        ) : hasData ? (
+          // Show Analytics Dashboard UI only when data is available
+          <>
             <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-5 mt-5 mb-5 ml-5 mr-5 ">
               <div>
                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center border border-gray-200">
@@ -382,7 +386,7 @@ function Adm_Analytics() {
               </div>
             </div>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );
