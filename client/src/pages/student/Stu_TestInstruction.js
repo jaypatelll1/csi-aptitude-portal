@@ -186,27 +186,66 @@ const Stu_TestInstruction = () => {
                     </h2>
                   </div>
 
-                  <div className="p-4 rounded-lg shadow-sm mt-4">
-                    <h3 className="text-lg font-semibold text-blue-600 mb-3">Instructions:</h3>
-                    <hr className="w-full h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
-                    <ul className="list-disc list-inside text-gray-600 space-y-2">
-                      <li>
-                        <span className="font-semibold">Total number of questions:</span>{" "}
-                        {examItem.total_questions} MCQs.
-                      </li>
-                      <li>
-                        <span className="font-semibold">Time allotted:</span> {examItem.duration}{" "}
-                        minutes
-                      </li>
-                      <li>Single choice and Multiple choice question carries 1 mark; there are no negative marks.</li>
-                      <li>If all questions have been visited, you may submit the test.</li>
-                      <li>The questions 'Marked for Review' will be considered for evaluation.</li>
-                      <li>Your response will not be saved unless you click on 'Save and Next'.</li>
-                      <li>Do not refresh the page.</li>
-                      <li>Tab switching is not allowed. </li>
-                      <li>All the best!</li>
-                    </ul>
-                  </div>
+                 <div className="p-4 rounded-lg shadow-sm mt-4">
+  <h3 className="text-lg font-semibold text-blue-600 mb-3">Test Instructions</h3>
+  <hr className="w-full h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
+  
+  {/* Test Overview */}
+  <div className="mb-6">
+    <h4 className="text-md font-semibold text-gray-800 mb-2">Test Overview</h4>
+    <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">
+      <li>
+        <span className="font-semibold">Total Questions:</span> {examItem.total_questions} Multiple Choice Questions (MCQs)
+      </li>
+      <li>
+        <span className="font-semibold">Duration:</span> {examItem.duration} minutes
+      </li>
+      <li>
+        <span className="font-semibold">Marking Scheme:</span> Each question carries 1 mark | No negative marking
+      </li>
+    </ul>
+  </div>
+
+  {/* Important Guidelines */}
+  <div className="mb-6">
+    <h4 className="text-md font-semibold text-gray-800 mb-2">Important Guidelines</h4>
+    
+    {/* Navigation & Submission */}
+    <div className="mb-4">
+      <h5 className="text-sm font-semibold text-gray-700 mb-2">Navigation & Submission</h5>
+      <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">
+        <li><span className="font-semibold">Visit all questions</span> before submitting your test</li>
+        <li>Questions marked as <span className="font-semibold">'Review'</span> will be included in your final evaluation</li>
+        <li><span className="font-semibold">Click 'Save and Next'</span> to ensure your answers are recorded</li>
+      </ul>
+    </div>
+
+    {/* Technical Requirements */}
+    <div className="mb-4">
+      <h5 className="text-sm font-semibold text-gray-700 mb-2">Technical Requirements</h5>
+      <ul className="list-disc list-inside text-gray-600 space-y-2 ml-4">
+        <li><span className="font-semibold">Do not refresh</span> the browser page during the test</li>
+        <li><span className="font-semibold">Tab switching is strictly prohibited</span> and may result in automatic test termination</li>
+        <li>Ensure stable internet connection throughout the test</li>
+      </ul>
+    </div>
+
+    {/* Scoring */}
+    <div className="mb-4">
+      <h5 className="text-sm font-semibold text-gray-700 mb-2">Scoring</h5>
+      <ul className="list-none text-gray-600 space-y-2 ml-4">
+        <li><span className="text-green-600">✅</span> Correct answer: +1 mark</li>
+        <li><span className="text-red-500">❌</span> Incorrect answer: 0 marks</li>
+        <li><span className="text-gray-400">⚪</span> Unanswered: 0 marks</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr className="w-full h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
+  <p className="text-center text-gray-700 font-medium">
+    Good luck with your test! Stay focused and manage your time wisely.
+  </p>
+</div>
                 </div>
               ))}
           </div>
