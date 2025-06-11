@@ -6,6 +6,7 @@ import { setExamId } from "../../redux/ExamSlice";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Loader from "../../components/Loader";
+
 const Adm_CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
@@ -75,6 +76,13 @@ const Adm_CreateTestPage = () => {
         : [...year, selectedYear];
       setYear(newYears);
     }
+  };
+
+  const handleTestNameChange = (e) => {
+    const value = e.target.value;
+    // Capitalize the first letter of the entire string
+    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    setTestName(capitalizedValue);
   };
 
   const handleClear = () => {
@@ -300,7 +308,7 @@ const Adm_CreateTestPage = () => {
                 placeholder="Eg. Numerical reasoning test"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={testName}
-                onChange={(e) => setTestName(e.target.value)}
+                onChange={handleTestNameChange}
                 required
               />
             </div>
