@@ -81,6 +81,13 @@ const Dep_CreateTestPage = () => {
     }
   };
 
+  const handleTestNameChange = (e) => {
+    const value = e.target.value;
+    // Capitalize the first letter of the entire string
+    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    setTestName(capitalizedValue);
+  };
+
   const handleCancel = () => {
     setTestName("");
     setDuration("");
@@ -250,7 +257,7 @@ const Dep_CreateTestPage = () => {
                 placeholder="Eg. Numerical reasoning test"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={testName}
-                onChange={(e) => setTestName(e.target.value)}
+                onChange={handleTestNameChange}
                 required
               />
             </div>
