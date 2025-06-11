@@ -17,6 +17,11 @@ const Dep_PresidentCreateTestPage = () => {
 
   let user = useSelector((state) => state.user.user);
 
+  // Function to capitalize first letter of each word
+  const capitalizeWords = (str) => {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   const handleCreateQuestions = async (e) => {
     e.preventDefault();
 
@@ -53,6 +58,13 @@ const Dep_PresidentCreateTestPage = () => {
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  // Handle test name input with auto-capitalization
+  const handleTestNameChange = (e) => {
+    const value = e.target.value;
+    const capitalizedValue = capitalizeWords(value);
+    setTestName(capitalizedValue);
   };
 
   useEffect(() => {
@@ -135,7 +147,7 @@ const Dep_PresidentCreateTestPage = () => {
                 placeholder="Eg. Numerical reasoning test"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={testName}
-                onChange={(e) => setTestName(e.target.value)}
+                onChange={handleTestNameChange}
                 required
               />
             </div>
