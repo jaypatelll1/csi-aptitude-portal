@@ -5,15 +5,12 @@ import BarChartComponent from "../../components/analytics/BarChartComponent";
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
-import { useSelector, useDispatch } from "react-redux";
-import { setOverallAnalysis } from "../../redux/analysisSlice";
 import axios from "axios";
 import Loader from "../../components/Loader";
 
 function Adm_OverallScore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const dispatch = useDispatch();
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,25 +24,17 @@ function Adm_OverallScore() {
     performanceOverTime: []
   });
 
-  const overallAnalysis = useSelector((state) => state.analysis.overallAnalysis);
-
-  // Single useEffect to handle data fetching and processing
+  // Fetch data when component mounts
   useEffect(() => {
-    const fetchAndProcessData = async () => {
+    const fetchAnalyticsData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        let analysisData = overallAnalysis;
-        
-        // If no data in Redux, fetch from API
-        if (!analysisData) {
-          const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-          const url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
-          const response = await axios.get(url, { withCredentials: true });
-          analysisData = response.data;
-          dispatch(setOverallAnalysis(analysisData));
-        }
+        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+        const url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
+        const response = await axios.get(url, { withCredentials: true });
+        const analysisData = response.data;
         
         // Process and set all data at once
         if (analysisData) {
@@ -66,8 +55,8 @@ function Adm_OverallScore() {
       }
     };
 
-    fetchAndProcessData();
-  }, [dispatch, overallAnalysis]);
+    fetchAnalyticsData();
+  }, []); // Empty dependency array - only runs on mount
 
   // Memoized chart data calculations
   const participationRateData = React.useMemo(() => ({
@@ -145,6 +134,14 @@ function Adm_OverallScore() {
     };
   }, []);
 
+  // Retry function for error state
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    // Re-trigger the useEffect by forcing a re-render
+    window.location.reload();
+  };
+
   // Error state
   if (error) {
     return (
@@ -164,7 +161,7 @@ function Adm_OverallScore() {
             <div className="text-center">
               <p className="text-red-500 text-lg font-semibold mb-4">{error}</p>
               <button 
-                onClick={() => window.location.reload()} 
+                onClick={handleRetry} 
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
                 Retry
