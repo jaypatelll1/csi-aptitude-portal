@@ -5,12 +5,15 @@ import BarChartComponent from "../../components/analytics/BarChartComponent";
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
+
+
 import axios from "axios";
 import Loader from "../../components/Loader";
 
 function Adm_OverallScore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
+
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,17 +27,25 @@ function Adm_OverallScore() {
     performanceOverTime: []
   });
 
-  // Fetch data when component mounts
+
+
+  // Single useEffect to handle data fetching and processing
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
         setLoading(true);
         setError(null);
         
+       
+        
+        
+        
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
         const response = await axios.get(url, { withCredentials: true });
         const analysisData = response.data;
+      
+        
         
         // Process and set all data at once
         if (analysisData) {
@@ -56,7 +67,7 @@ function Adm_OverallScore() {
     };
 
     fetchAnalyticsData();
-  }, []); // Empty dependency array - only runs on mount
+  }, [ ]);
 
   // Memoized chart data calculations
   const participationRateData = React.useMemo(() => ({
