@@ -109,4 +109,32 @@ const getAllStudentsStats = async (req, res) => {
   }
 };
 
-module.exports = { getLastExamStats, getAllTestsStats, getAllStudentsStats };
+const getAllStudentsStatsForDepartment = async (req, res) => {
+  const user_id = req.user.id;
+  const { department, role } = req.query;
+  console.log(req.query);
+  
+
+  try {
+    const totalStudentsQuery = 'SELECT COUNT(*) FROM users WHERE department = $1 AND status = $2 AND role = $3';
+    const totalStudentsResult = await pool.query(totalStudentsQuery, [department, 'ACTIVE', role] );
+
+    const totalStudentsCount = parseInt(totalStudentsResult.rows[0].count, 10);
+
+    await logActivity({
+      user_id,
+      activity: 'Get All Students Stats for Department',
+      status: 'success',
+      details: `All students stats for department ${department} fetched successfully`,
+    });
+
+    return res.status(200).json({
+      totalStudentsCount
+    });
+  } catch (err) {
+    console.error('Error fetching all students stats for department:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+module.exports = { getLastExamStats, getAllTestsStats, getAllStudentsStats, getAllStudentsStatsForDepartment };
