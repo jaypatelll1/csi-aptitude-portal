@@ -11,6 +11,12 @@ const Sidebar = ({ name, onSubmitTest }) => {
   const total = questions.length;
   const remaining = total - attemptedCount;
 
+  // Modified function to only navigate, not submit data
+  const handleQuestionNavigation = (index) => {
+    // Only navigate to the question, don't trigger any data submission
+    dispatch(visitQuestion(index));
+  };
+
   return (
     <div className="w-4/12 2xl:w-3/12 flex items-center justify-center mr-5">
       <div className="w-96 p-4 bg-white shadow-lg rounded-lg">
@@ -60,16 +66,29 @@ const Sidebar = ({ name, onSubmitTest }) => {
             let bgColor = "bg-[#F1F4F8]"; // Default: Unanswered
             let textColor = "text-black";
 
-            if (question.markedForReview) {
+            // Priority order for colors:
+            // 1. Cleared (highest priority - shows as unanswered)
+            // 2. Marked for Review 
+            // 3. Answered (only if officially saved with answered: true)
+            // 4. Current Question
+            // 5. Visited (default for visited questions)
+
+            if (question.cleared === true) {
+              // Cleared questions show as unanswered, even if they're the current question
+              bgColor = "bg-[#F1F4F8]"; // Unanswered
+              textColor = "text-black";
+            } else if (question.markedForReview) {
               bgColor = "bg-purple-500"; // Marked for Review
               textColor = "text-white";
-            } else if (question.answered) {
+            } else if (question.answered === true) {
+              // Only show answered color if officially saved (answered: true)
               bgColor = "bg-[#4D71C3]"; // Answered
               textColor = "text-white";
             } else if (index === currentQuestionIndex) {
               bgColor = "bg-[#1B2E58]"; // Current Question
               textColor = "text-white";
-            } else if (!question.answered && question.visited) {
+            } else if (question.visited) {
+              // Show visited color for visited questions (whether they have temporary answers or not)
               bgColor = "bg-[#1B2E58]"; // Visited
               textColor = "text-white";
             }
@@ -78,7 +97,7 @@ const Sidebar = ({ name, onSubmitTest }) => {
               <button
                 key={index}
                 className={`${bgColor} ${textColor} font-semibold py-2 w-16 h-10 rounded-lg hover:opacity-80 transition`}
-                onClick={() => dispatch(visitQuestion(index))}
+                onClick={() => handleQuestionNavigation(index)}
               >
                 {index + 1}
               </button>

@@ -9,6 +9,7 @@ import {
   setMultipleSelectedOption,
   setTextAnswer,
   clearQuestions,
+  clearResponse, // Add this action to your Redux slice
 } from "../../../redux/questionSlice";
 import { clearExamId } from "../../../redux/ExamSlice";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -33,6 +34,11 @@ const Question = () => {
   const [remainingTime, setRemainingTime] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
   const [testSubmitted, setTestSubmitted] = useState(false);
+
+  // Local state to track unsaved changes and prevent multiple requests
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [pendingResponse, setPendingResponse] = useState(null);
+  const [isSaving, setIsSaving] = useState(false); // Prevent multiple save requests
 
   const currentQuestion = questions[currentQuestionIndex] || null;
   const questionId = currentQuestion?.question_id;
@@ -108,6 +114,30 @@ const Question = () => {
     if (timeUp) handleSubmitTest();
   }, [timeUp]);
 
+  // Initialize local state with existing answers (for when user returns after internet issues)
+  useEffect(() => {
+    const initializeAnswers = () => {
+      const multipleAnswersInit = {};
+      const textAnswersInit = {};
+      
+      questions.forEach((question, index) => {
+        if (question.question_type === 'multiple_choice' && question.selectedOptions) {
+          multipleAnswersInit[question.question_id] = question.selectedOptions;
+        }
+        if (question.question_type === 'text' && question.textAnswer) {
+          textAnswersInit[question.question_id] = question.textAnswer;
+        }
+      });
+      
+      setMultipleAnswers(multipleAnswersInit);
+      setTextAnswers(textAnswersInit);
+    };
+    
+    if (questions.length > 0) {
+      initializeAnswers();
+    }
+  }, [questions]);
+
   // Mark current question as visited
   useEffect(() => {
     const currentQuestion = questions[currentQuestionIndex];
@@ -116,9 +146,16 @@ const Question = () => {
     }
   }, [dispatch, questions, currentQuestionIndex]);
 
+  // Modified option select handlers - only update local state, don't send to backend
   const handleOptionSelect = (option) => {
-    dispatch(setSelectedOption({ index: currentQuestionIndex, option }));
-    singleResponse(option, currentQuestion?.question_id, currentQuestion?.question_type);
+    // Clear the cleared flag when selecting an option
+    dispatch(setSelectedOption({ index: currentQuestionIndex, option, cleared: false }));
+    // Mark as temporarily answered (for sidebar display) but not saved
+    setHasUnsavedChanges(true);
+    setPendingResponse({
+      type: 'single',
+      data: { option, questionId: currentQuestion?.question_id, questionType: currentQuestion?.question_type }
+    });
   };
 
   const handleMultipleOptionsSelect = (options) => {
@@ -127,8 +164,14 @@ const Question = () => {
       ...multipleAnswers,
       [questionId]: options,
     });
-    dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options }));
-    multipleResponse(options, questionId, currentQuestion?.question_type);
+    // Clear the cleared flag when selecting options
+    dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options, cleared: false }));
+    // Mark as temporarily answered (for sidebar display) but not saved
+    setHasUnsavedChanges(true);
+    setPendingResponse({
+      type: 'multiple',
+      data: { options, questionId, questionType: currentQuestion?.question_type }
+    });
   };
 
   const handleTextChange = (text) => {
@@ -137,8 +180,14 @@ const Question = () => {
       ...textAnswers,
       [questionId]: text,
     });
-    dispatch(setTextAnswer({ index: currentQuestionIndex, text }));
-    textResponse(text, questionId, currentQuestion?.question_type);
+    // Clear the cleared flag when typing text
+    dispatch(setTextAnswer({ index: currentQuestionIndex, text, cleared: false }));
+    // Mark as temporarily answered (for sidebar display) but not saved
+    setHasUnsavedChanges(true);
+    setPendingResponse({
+      type: 'text',
+      data: { text, questionId, questionType: currentQuestion?.question_type }
+    });
   };
 
   const singleResponse = async (option, id, question_type) => {
@@ -180,15 +229,72 @@ const Question = () => {
     await axios.put(url, payload, { withCredentials: true });
   };
 
-  const handleNextQuestion = () => {
+  // Function to save pending response to backend with duplicate request prevention
+  const savePendingResponse = async () => {
+    if (!pendingResponse || isSaving) return;
+
+    setIsSaving(true); // Prevent multiple simultaneous requests
+    
+    try {
+      const { type, data } = pendingResponse;
+      
+      switch (type) {
+        case 'single':
+          await singleResponse(data.option, data.questionId, data.questionType);
+          // Mark as answered in Redux after successful save
+          dispatch(setSelectedOption({ index: currentQuestionIndex, option: data.option, answered: true, cleared: false }));
+          break;
+        case 'multiple':
+          await multipleResponse(data.options, data.questionId, data.questionType);
+          // Mark as answered in Redux after successful save
+          dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options: data.options, answered: true, cleared: false }));
+          break;
+        case 'text':
+          await textResponse(data.text, data.questionId, data.questionType);
+          // Mark as answered in Redux after successful save
+          dispatch(setTextAnswer({ index: currentQuestionIndex, text: data.text, answered: true, cleared: false }));
+          break;
+      }
+      
+      setHasUnsavedChanges(false);
+      setPendingResponse(null);
+    } catch (error) {
+      console.error("Error saving response:", error);
+    } finally {
+      setIsSaving(false); // Reset saving state
+    }
+  };
+
+  const handleNextQuestion = async () => {
+    // Prevent multiple clicks while saving
+    if (isSaving) return;
+    
+    // Save current response before moving to next question
+    if (hasUnsavedChanges && pendingResponse) {
+      await savePendingResponse();
+    }
+    
     if (currentQuestionIndex < questions.length - 1) {
       dispatch(visitQuestion(currentQuestionIndex + 1));
+    }
+  };
+
+  const handleSaveCurrentQuestion = async () => {
+    // Prevent multiple clicks while saving
+    if (isSaving) return;
+    
+    // Save current response without moving to next question (for last question)
+    if (hasUnsavedChanges && pendingResponse) {
+      await savePendingResponse();
     }
   };
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       dispatch(visitQuestion(currentQuestionIndex - 1));
+      // Reset unsaved changes when navigating away without saving
+      setHasUnsavedChanges(false);
+      setPendingResponse(null);
     }
   };
 
@@ -204,20 +310,26 @@ const Question = () => {
       );
 
       if (currentQuestion?.question_type === "single_choice") {
-        dispatch(setSelectedOption({ index: currentQuestionIndex, option: null }));
+        dispatch(setSelectedOption({ index: currentQuestionIndex, option: null, answered: false, cleared: true }));
       } else if (currentQuestion?.question_type === "multiple_choice") {
+        // Clear both local state and Redux state
         setMultipleAnswers({
           ...multipleAnswers,
           [id]: [],
         });
-        dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options: [] }));
+        dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options: [], answered: false, cleared: true }));
       } else if (currentQuestion?.question_type === "text") {
+        // Clear both local state and Redux state
         setTextAnswers({
           ...textAnswers,
           [id]: "",
         });
-        dispatch(setTextAnswer({ index: currentQuestionIndex, text: "" }));
+        dispatch(setTextAnswer({ index: currentQuestionIndex, text: "", answered: false, cleared: true }));
       }
+
+      // Clear pending response
+      setHasUnsavedChanges(false);
+      setPendingResponse(null);
     } catch (error) {
       console.error("Error clearing response:", error);
     }
@@ -231,8 +343,11 @@ const Question = () => {
     const questionType = currentQuestion?.question_type;
     const options = currentQuestion?.options || {};
     const selectedOption = currentQuestion?.selectedOption;
-    const selectedOptions = currentQuestion?.selectedOptions || [];
-    const textAnswer = currentQuestion?.textAnswer || "";
+    
+    // Use local state for multiple choice and text answers to ensure persistence
+    const questionId = currentQuestion?.question_id;
+    const selectedOptions = multipleAnswers[questionId] || currentQuestion?.selectedOptions || [];
+    const textAnswer = textAnswers[questionId] || currentQuestion?.textAnswer || "";
 
     switch (questionType) {
       case "single_choice":
@@ -307,6 +422,8 @@ const Question = () => {
     return <div>Loading...</div>;
   }
 
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
   return (
     <div className="w-9/12 2xl:w-11/12 h-screen px-8 py-6 bg-[#F5F6F8]">
       {exam
@@ -378,17 +495,33 @@ const Question = () => {
               {currentQuestion?.markedForReview ? "Unmark Review" : "Mark for Review"}
             </button>
           </div>
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
-            disabled={currentQuestionIndex === questions.length - 1}
-            onClick={handleNextQuestion}
-          >
-            Save & Next
-          </button>
+          
+          {/* Conditional button based on whether it's the last question */}
+          {isLastQuestion ? (
+            <button
+              className={`px-4 py-2 text-white rounded-lg ${
+                isSaving ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+              onClick={handleSaveCurrentQuestion}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+          ) : (
+            <button
+              className={`px-4 py-2 text-white rounded-lg ${
+                isSaving ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+              onClick={handleNextQuestion}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save & Next'}
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Question; 
+export default Question;

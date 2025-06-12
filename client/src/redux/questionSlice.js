@@ -25,23 +25,44 @@ const questionsSlice = createSlice({
         state.questions[questionIndex].visited = true;
       }
     },
-    setSelectedOption(state, action) {
-      const { index, option } = action.payload;
-      state.questions[index].selectedOption = option;
-      state.questions[index].answered = true;
-      state.questions[index].visited = true;
+    setSelectedOption: (state, action) => {
+      const { index, option, answered = false, cleared = false } = action.payload;
+      if (state.questions[index]) {
+        state.questions[index].selectedOption = option;
+        state.questions[index].answered = answered;
+        state.questions[index].cleared = cleared;
+        state.questions[index].visited = true;
+        // Reset cleared flag when new option is selected
+        if (option !== null && option !== undefined) {
+          state.questions[index].cleared = false;
+        }
+      }
     },
-    setMultipleSelectedOption(state, action) {
-      const { index, options } = action.payload;
-      state.questions[index].selectedOptions = options;
-      state.questions[index].answered = true;
-      state.questions[index].visited = true;
+    setMultipleSelectedOption: (state, action) => {
+      const { index, options, answered = false, cleared = false } = action.payload;
+      if (state.questions[index]) {
+        state.questions[index].selectedOptions = options;
+        state.questions[index].answered = answered;
+        state.questions[index].cleared = cleared;
+        state.questions[index].visited = true;
+        // Reset cleared flag when new options are selected
+        if (options && options.length > 0) {
+          state.questions[index].cleared = false;
+        }
+      }
     },
-    setTextAnswer(state, action) {
-      const { index, text } = action.payload;
-      state.questions[index].textAnswer = text;
-      state.questions[index].answered = true;
-      state.questions[index].visited = true;
+    setTextAnswer: (state, action) => {
+      const { index, text, answered = false, cleared = false } = action.payload;
+      if (state.questions[index]) {
+        state.questions[index].textAnswer = text;
+        state.questions[index].answered = answered;
+        state.questions[index].cleared = cleared;
+        state.questions[index].visited = true;
+        // Reset cleared flag when text is entered
+        if (text && text.trim() !== "") {
+          state.questions[index].cleared = false;
+        }
+      }
     },
     clearAnswer(state, action) {
       const index = action.payload;
@@ -63,6 +84,16 @@ const questionsSlice = createSlice({
       question.visited = true;
       question.markedForReview = false;
     },
+    clearResponse: (state, action) => {
+      const { index } = action.payload;
+      if (state.questions[index]) {
+        state.questions[index].selectedOption = null;
+        state.questions[index].selectedOptions = [];
+        state.questions[index].textAnswer = "";
+        state.questions[index].answered = false;
+        state.questions[index].cleared = true;
+      }
+    },
     toggleMarkForReview: (state, action) => {
       const index = action.payload;
       if (state.questions[index]) {
@@ -83,9 +114,10 @@ export const {
   setSelectedOption,
   setMultipleSelectedOption,
   setTextAnswer,
+  clearAnswer,
+  clearResponse,
   clearQuestions,
   toggleMarkForReview,
-  clearAnswer,
 } = questionsSlice.actions;
 
 export default questionsSlice.reducer;
