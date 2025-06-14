@@ -63,46 +63,46 @@ const Stu_MCQExamPage = () => {
   
 
   // Disable keyboard input
-  // useEffect(() => {
-  //   const disableKeyboard = (e) => {
-  //     e.preventDefault();
-  //     return false;
-  //   };
-  //   window.addEventListener("keydown", disableKeyboard, true);
-  //   return () => {
-  //     window.removeEventListener("keydown", disableKeyboard, true);
-  //   };
-  // }, []);
+  useEffect(() => {
+    const disableKeyboard = (e) => {
+      e.preventDefault();
+      return false;
+    };
+    window.addEventListener("keydown", disableKeyboard, true);
+    return () => {
+      window.removeEventListener("keydown", disableKeyboard, true);
+    };
+  }, []);
 
   // Tab switch detection
-//   useEffect(() => {
-//     const handleVisibilityChange = () => {
-//       if (document.hidden && !testSubmitted) {
-//         setTabSwitchCount((prev) => prev + 1);
-//       }
-//     };
-//     document.addEventListener("visibilitychange", handleVisibilityChange);
-//     return () => {
-//       document.removeEventListener("visibilitychange", handleVisibilityChange);
-//     };
-//   }, [testSubmitted]);
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && !testSubmitted) {
+        setTabSwitchCount((prev) => prev + 1);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [testSubmitted]);
 
-//   useEffect(() => {
-//   const MAX_TAB_SWITCHES = 5;
+  useEffect(() => {
+  const MAX_TAB_SWITCHES = 5;
 
-//   const remainingAttempts = MAX_TAB_SWITCHES - tabSwitchCount;
+  const remainingAttempts = MAX_TAB_SWITCHES - tabSwitchCount;
 
-//   if (remainingAttempts > 0 && !testSubmitted) {
-//     alert(
-//       `Switching tabs is not allowed.\nYou have ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} left before the test is auto-submitted.`
-//     );
-//   }
+  if (remainingAttempts > 0 && !testSubmitted) {
+    alert(
+      `Switching tabs is not allowed.\nYou have ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} left before the test is auto-submitted.`
+    );
+  }
 
-//   if (tabSwitchCount > MAX_TAB_SWITCHES && !testSubmitted) {
-//     alert("You switched tabs too many times. The test will be submitted now.");
-//     handleSubmitTest();
-//   }
-// }, [tabSwitchCount, testSubmitted]);
+  if (tabSwitchCount > MAX_TAB_SWITCHES && !testSubmitted) {
+    alert("You switched tabs too many times. The test will be submitted now.");
+    handleSubmitTest();
+  }
+}, [tabSwitchCount, testSubmitted]);
 
   // Socket connection and exam end detection
   useEffect(() => {

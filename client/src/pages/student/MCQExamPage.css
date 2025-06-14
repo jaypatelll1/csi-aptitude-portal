@@ -9,11 +9,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 20px;
-  opacity: 0.11;
+  opacity: 0.15;
 }
 
 .watermark-text {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 500;
   color: #000;
   transform: rotate(-30deg);
