@@ -118,23 +118,27 @@ const getPaginatedResultsByExam = async (exam_id, page, limit) => {
 
 const getResultsByUsers = async (user_id) => {
   const queryText = `
-SELECT DISTINCT 
+SELECT DISTINCT
     e.exam_name,
-	e.exam_id,
+    e.exam_id,
     e.duration,
-   e.end_time,
+    e.end_time,
     r.total_score,
-	r.max_score,
-	r.student_id,
-	 e.status,
-   e.exam_id,
-    r.result_id
-FROM results r
-JOIN exams e ON r.exam_id = e.exam_id
-WHERE r.student_id = $1 AND e.status ='past' 
-order by e.end_time desc
+    r.max_score,
+    r.student_id,
+    e.status,
+    r.result_id,
+    CASE
+      WHEN r.exam_id IS NOT NULL THEN true
+      ELSE false
+    END AS "isAttempted"
+FROM exams e
+LEFT JOIN results r 
+  ON r.exam_id = e.exam_id AND r.student_id = $1
+WHERE e.status = 'past'
+ORDER BY e.end_time DESC;
 
-`;
+  `;
 
   const result = await query(queryText, [user_id]);
   //  console.log('result is ', result);
@@ -160,6 +164,8 @@ order by e.end_time desc
       Date: formatToReadableDate(row.end_time), // Format date
       percentage: Number(percentage), // Include calculated percentage
       status: status, // Pass or Fail
+      isAttempted: row.isAttempted, // Whether the exam was attempted
+      exam_id: row.exam_id,
     };
   });
 

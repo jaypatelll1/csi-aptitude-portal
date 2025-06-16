@@ -16,7 +16,6 @@ const {
   getExamsForUser,
   getExamStatus,
   getExamForTeachers,
-  createExamForTeachers,
   getExamsAttemptedByTeacherId
 } = require('../controllers/examController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');

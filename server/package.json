@@ -22,6 +22,7 @@
     "exceljs": "^4.4.0",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
+    "express-useragent": "^1.0.15",
     "express-validator": "^7.2.0",
     "fast-csv": "^5.0.2",
     "fs": "^0.0.1-security",
