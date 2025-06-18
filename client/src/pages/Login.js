@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -7,6 +7,7 @@ import doodle from "../assets/sidebar/doodle.svg";
 import csi from "../assets/csi.svg";
 import ace from "../assets/ace.svg";
 import { Eye, EyeClosed } from "lucide-react";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +16,15 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // ✅ Mobile screen block (real screen width, cannot be spoofed)
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+  useEffect(() => {
+    const screenWidth = window.screen.width;
+    if (screenWidth < 1024) {
+      setIsMobileScreen(true);
+    }
+  }, []);
 
   const encryptPassword = async (password) => {
     const SECRET_KEY = process.env.REACT_APP_KEY.slice(0, 32); // 32 bytes
@@ -37,7 +47,7 @@ const Login = () => {
       encodedPassword
     );
 
-    return btoa(String.fromCharCode(...new Uint8Array(encryptedData))); // Convert to Base64
+    return btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
   };
 
   const handleSubmit = async (e) => {
@@ -63,28 +73,37 @@ const Login = () => {
         },
         {
           withCredentials: true,
+          headers: {
+            "X-Screen-Width": window.screen.width,
+          },
         }
       );
+
       if (response.data.message === "Login Successful") {
         const userData = response.data.result;
         dispatch(setUser(userData));
 
         if (userData.status === "NOTACTIVE") {
-          // console.log(response.headers.resettoken);
           navigate(`/reset-password/${response.headers.resettoken}`);
         } else if (userData.status === "ACTIVE") {
-          if (userData.role === "Student") {
-            navigate("/home", { replace: true });
-          } else if (userData.role === "TPO") {
-            navigate("/admin", { replace: true });
-          } else if (userData.role === "Department") {
-            navigate("/department", { replace: true });
-          } else if (userData.role === "Teacher") {
-            navigate("/teacher", { replace: true });
-          } else if (userData.role === "President") {
-            navigate("/president", { replace: true });
-          } else {
-            setError("Unauthorized role");
+          switch (userData.role) {
+            case "Student":
+              navigate("/home", { replace: true });
+              break;
+            case "TPO":
+              navigate("/admin", { replace: true });
+              break;
+            case "Department":
+              navigate("/department", { replace: true });
+              break;
+            case "Teacher":
+              navigate("/teacher", { replace: true });
+              break;
+            case "President":
+              navigate("/president", { replace: true });
+              break;
+            default:
+              setError("Unauthorized role");
           }
         } else {
           setError("Unexpected status");
@@ -94,12 +113,12 @@ const Login = () => {
       }
     } catch (err) {
       console.log(err);
-      if (err.response.data.error === "Invalid email or password") {
+      if (err.response?.data?.error === "Invalid email or password") {
         setError("Invalid Email or Password!");
-      } else if (err.response.data.error === "User not found") {
+      } else if (err.response?.data?.error === "User not found") {
         setError("User Not Found!");
-      } else if (err.response.status === 403) {
-        setError("Login through desktop");
+      } else if (err.response?.status === 403) {
+        setError("Login through desktop only");
       } else {
         setError("An error occurred during login. Please try again.");
       }
@@ -107,6 +126,14 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (isMobileScreen) {
+    return (
+      <div className="flex justify-center items-center h-screen text-xl font-bold text-red-700 text-center px-4">
+        ❌ Login is strictly allowed only on desktop devices.
+      </div>
+    );
+  }
 
   return (
     <div className="block">
@@ -183,6 +210,8 @@ const Login = () => {
           />
         </div>
       </div>
+
+      {/* This part never shows now due to screen.width check */}
       <div className="xs:hidden flex justify-center items-center h-screen text-xl font-bold text-gray-800">
         Login through Desktop
       </div>
