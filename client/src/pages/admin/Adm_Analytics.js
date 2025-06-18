@@ -259,6 +259,12 @@ function Adm_Analytics() {
         <p className="text-gray-400 text-sm">
           Please check back later or contact your administrator if this issue persists.
         </p>
+        <button 
+  className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+  onClick={() => {fetchDepartmentData(selectedDepartment)}}
+>
+  REFRESH
+</button>
       </div>
     </div>
   );
