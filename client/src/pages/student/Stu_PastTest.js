@@ -3,7 +3,7 @@ import axios from "axios";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar"; // Sidebar component
 import Stu_PastCard from "../../components/student/Stu_PastCard";
 import { useSelector, useDispatch } from "react-redux";
-import Stu_Sidebar from "../../components/student/Stu_Sidebar";
+
 
 const Stu_PastTest = () => {
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
@@ -63,6 +63,7 @@ const Stu_PastTest = () => {
           questions: exam.total_questions || "N/A",
           duration: exam.duration ? `${exam.duration} min` : "N/A",
           date: formatToReadableDate(exam.created_at),
+          isAttempted: exam.isAttempted,
         }));
 
         setTests(fetchedTests);

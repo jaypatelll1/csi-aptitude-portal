@@ -147,13 +147,24 @@ const Stu_PastCard = ({ test }) => {
 
       {/* Buttons */}
       <div className="flex justify-end space-x-4 -mt-5">
-        <button
-          className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border opacity-90 hover:opacity-100"
-          onClick={() => handlePublishClick(test)}
-        >
-          View Result
-        </button>
+        {test.isAttempted ? (
+          <button
+            className="bg-[#1aab07] text-white px-3 lg:px-4 py-2 rounded border opacity-90 hover:opacity-100"
+            onClick={() => handlePublishClick(test)}
+          >
+            View Result
+          </button>
+        ) : (
+          <button
+            className="bg-red-700 text-white px-3 lg:px-4 py-2 rounded border cursor-not-allowed  "
+            disabled
+          >
+            Not Attempted
+          </button>
+        )}
       </div>
+      
+      {/* Original commented code preserved */}
       {/* <div className="relative">
         {isScheduling && (
           // <DataTime

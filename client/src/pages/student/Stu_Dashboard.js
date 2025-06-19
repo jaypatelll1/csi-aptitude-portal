@@ -18,6 +18,7 @@ function Stu_Dashboard() {
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
+ 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [result, setResult] = useState([]);
   const detailsRef = useRef(null);
@@ -35,28 +36,35 @@ function Stu_Dashboard() {
     return date.toLocaleDateString("en-IN", options);
   };
 
-  const fetchTests = async (filterType) => {
+  const sortTests = (tests, sortType) => {
+    if (sortType === "ALL") {
+      return tests; // No sorting applied
+    } else if (isAttempted === "true" ) {
+      return tests.filter((test) => test.isAttempted === true);
+         }
+         else if (isAttempted === "false") {
+      return tests.filter((test) => test.isAttempted === false);
+    } else {
+
+    }
+
+    }
+
+     const fetchTests = async (filterType) => {
     setLoading(true);
 
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let payload;
-    let url = `${API_BASE_URL}/api/exams/student`; // Default for "All"
+   
     if (filterType === "all") {
+       let url = `${API_BASE_URL}/api/exams/student`; // Default for "All"
       payload = {
         status: "live",
         target_branches: [userData.department],
         target_years: [userData.year],
       };
-    } else if (filterType === "past") {
-      payload = {
-        status: "past",
-        target_branches: [userData.department],
-        target_years: [userData.year],
-      };
-    }
-
-    try {
-      const response = await axios.get(url, {
+      try {
+        const response = await axios.get(url, {
         params: {
           status: payload.status,
           target_branches: payload.target_branches,
@@ -64,6 +72,43 @@ function Stu_Dashboard() {
         },
         withCredentials: true, // Make sure the cookie is sent with the request
       });
+      dispatch(setExam(response.data.exams));
+       setTests(response.data.exams || []);
+        
+      } catch (error) {
+         console.error("error getting response ", err);
+      setError(`Failed to fetch tests. Please try again later.`);
+        
+      }
+    } else if (filterType === "past") {
+      payload = {
+        status: "past",
+        target_branches: [userData.department],
+        target_years: [userData.year],
+      };
+      try {
+        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(
+        `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
+        {
+          withCredentials: true, // Make sure the cookie is sent with the request
+        }
+      );
+       dispatch(setExam(response.data.results));
+       setTests(response.data.results || []);
+
+        
+      } catch (error) {
+         console.error("error getting response ", err);
+      setError(`Failed to fetch tests. Please try again later.`);
+        
+        
+      }
+      
+    }
+
+    try {
+      
 
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const pastPaper = await axios.get(
@@ -78,10 +123,10 @@ function Stu_Dashboard() {
         { withCredentials: true }
       );
 
-      dispatch(setExam(response.data.exams));
+      
       console.log("past tests is ", pastPaper);
       setResult(pastPaper.data.results);
-      setTests(response.data.exams || []);
+     
 
       setLoading(false);
     } catch (err) {
@@ -228,6 +273,7 @@ function Stu_Dashboard() {
             Welcome to Atharva college Aptitude Portal
           </h1>
 
+  
           {/* Filters Section */}
           <div className="flex border-b border-gray-200 pb-3 items-center mt-5">
             <select
@@ -238,8 +284,11 @@ function Stu_Dashboard() {
               <option value="all">Live</option>
               <option value="past">Past</option>
             </select>
+          
           </div>
-
+          
+          
+          
           {/* Test Cards - Using ternary to switch between components */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 mt-5">
             {loading ? (
@@ -272,7 +321,9 @@ function Stu_Dashboard() {
                       title: test.exam_name,
                       duration: test.duration,
                       questions: test.total_questions,
-                      date: formatToReadableDate(test.created_at),
+                      date: formatToReadableDate(test.Date),
+                      isAttempted: test.isAttempted,
+                      status: test.status,
                     }}
                   />
                 ))
