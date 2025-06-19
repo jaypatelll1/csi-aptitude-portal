@@ -19,7 +19,8 @@ const Stu_SidebarViewResult = ({
     if (question.questionType === "text") {
       // For text questions, isCorrect comes from backend
       // isUnanswered is determined by whether there's any text response
-      const isUnanswered = !question.textResponse || question.textResponse.trim() === "";
+      const isUnanswered =
+        !question.textResponse || question.textResponse.trim() === "";
 
       return {
         question_id: question.question_id || question.questionId,
@@ -37,15 +38,17 @@ const Stu_SidebarViewResult = ({
 
       // A question is correct if all correct answers are selected and no incorrect answers are selected
       const allCorrectAnswersSelected = correctAnswers.every((answer) =>
-        selectedOptions.includes(answer)
+        selectedOptions.includes(answer),
       );
 
       const noIncorrectAnswersSelected = selectedOptions.every((option) =>
-        correctAnswers.includes(option)
+        correctAnswers.includes(option),
       );
 
       const isCorrect =
-        allCorrectAnswersSelected && noIncorrectAnswersSelected && selectedOptions.length > 0;
+        allCorrectAnswersSelected &&
+        noIncorrectAnswersSelected &&
+        selectedOptions.length > 0;
 
       // A question is unanswered if nothing is selected
       const isUnanswered = selectedOptions.length === 0;
@@ -74,7 +77,9 @@ const Stu_SidebarViewResult = ({
           question.selectedOption !== null &&
           question.selectedOption !== undefined &&
           question.selectedOption !== question.correctAnswer,
-        isUnanswered: question.selectedOption === null || question.selectedOption === undefined,
+        isUnanswered:
+          question.selectedOption === null ||
+          question.selectedOption === undefined,
         category: question.category || "TEST",
         isMultipleAnswer: false,
         isTextQuestion: false,
@@ -87,20 +92,18 @@ const Stu_SidebarViewResult = ({
     processedQuestions.length > 0
       ? processedQuestions
       : Array.from([], (_, i) => ({
-        question_id: i + 1,
-        isCorrect: false,
-        isIncorrect: false,
-        isUnanswered: true,
-        isMultipleAnswer: false,
-        isTextQuestion: false,
-      }));
+          question_id: i + 1,
+          isCorrect: false,
+          isIncorrect: false,
+          isUnanswered: true,
+          isMultipleAnswer: false,
+          isTextQuestion: false,
+        }));
 
   const correctCount = displayQuestions.filter((q) => q.isCorrect).length;
   const incorrectCount = displayQuestions.filter((q) => q.isIncorrect).length;
 
   const total = displayQuestions.length;
-
-
 
   // Determine pass/fail status (typically 60% is passing)
   const isPassed = correctCount >= Math.ceil(total * 0.6);
@@ -122,9 +125,9 @@ const Stu_SidebarViewResult = ({
   });
 
   return (
-    <div className="flex items-center justify-center bg-[#F5F6F8] ">
-      <div className="w-full max-w-[372px] h-[calc(100vh-185px)]  gap-2 p-4 bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8 mb-10 mr-0 sm:mr-4 md:mr-8 rounded-lg shadow-lg">
-        <div className="mb-4">
+    <div className="flex items-center justify-center bg-[#F5F6F8]">
+      <div className="flex flex-col w-full max-w-[372px] h-[calc(90vh-90px)] gap-2 p-4 bg-white px-4 sm:px-6 md:px-8 py-6 sm:py-8 mb-10 mr-0 mt-3 sm:mr-4 md:mr-8 rounded-lg shadow-lg overflow-hidden">
+        <div className="mb-4 flex-shrink-0">
           <p className="text-lg sm:text-xl font-semibold mb-2">{userName}</p>
           <div className="flex justify-between items-center">
             <h1 className="text-sm sm:text-base text-gray-700 uppercase font-bold">
@@ -139,30 +142,36 @@ const Stu_SidebarViewResult = ({
 
           <div className="flex mt-2">
             <div className="px-1 sm:px-2 py-1 sm:py-2 flex-1 flex flex-row border border-[#07C31D] mr-2 rounded-md text-black">
-              <h2 className="text-sm sm:text-base font-medium mr-1">Correct:</h2>
+              <h2 className="text-sm sm:text-base font-medium mr-1">
+                Correct:
+              </h2>
               <p className="text-sm sm:text-base font-bold">
                 {correctCount}/{total}
               </p>
             </div>
             <div className="px-1 sm:px-2 py-1 sm:py-2 flex-1 flex flex-row border border-[#C82F2F] rounded-md text-black">
-              <h2 className="text-sm sm:text-base font-medium mr-1">Incorrect:</h2>
+              <h2 className="text-sm sm:text-base font-medium mr-1">
+                Incorrect:
+              </h2>
               <p className="text-sm sm:text-base font-bold">{incorrectCount}</p>
             </div>
           </div>
         </div>
 
-        <hr className="border-gray-300 mb-4" />
+        <hr className="border-gray-300 mb-4 flex-shrink-0" />
 
-        <div className="flex flex-row justify-center px-4 sm:px-8 py-2 border border-[#1349C5] rounded-md text-black mx-2 sm:mx-4">
+        <div className="flex flex-row justify-center px-4 sm:px-8 py-2 border border-[#1349C5] rounded-md text-black mx-2 sm:mx-4 mb-4 flex-shrink-0">
           <h2 className="text-sm sm:text-base font-medium mr-1">Progress:</h2>
           <p className="text-sm sm:text-base font-bold">
             {correctCount + incorrectCount}/{total}
           </p>
         </div>
 
-        <h2 className="text-base sm:text-lg font-bold mt-4 mb-3 ml-2 sm:ml-4">Questions</h2>
+        <h2 className="text-base sm:text-lg font-bold mb-3 ml-2 sm:ml-4 flex-shrink-0">
+          Questions
+        </h2>
 
-        <div className="flex justify-around gap-2 sm:gap-4 text-xs sm:text-sm mb-4 mx-2 sm:mx-4">
+        <div className="flex justify-around gap-2 sm:gap-4 text-xs sm:text-sm mb-4 mx-2 sm:mx-4 flex-shrink-0">
           <div className="flex items-center">
             <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#07C31D] rounded-md mr-1 sm:mr-2"></div>
             Correct
@@ -177,42 +186,40 @@ const Stu_SidebarViewResult = ({
           </div>
         </div>
 
-      
-      
+        {/* Scrollable questions grid - now properly contained */}
+        <div className="flex-1 overflow-hidden px-2 pb-2">
+          <div className="overflow-y-auto h-full pr-1">
+            <div className="grid grid-cols-5 gap-x-2 gap-y-2 w-full p-2">
+              {displayQuestions.map((question, index) => {
+                let bgColor = "bg-gray-200"; // Default for unanswered
+                let text = "text-black";
+                let borderStyle = "";
 
-        {/* Responsive grid with scrolling - replace the existing grid div */}
-        <div className="overflow-y-auto max-h-64 sm:max-h-80 mb-6 px-2">
-          <div className="grid grid-cols-5 gap-x-1 gap-y-2 mt-1 w-full">
-            {displayQuestions.map((question, index) => {
-              let bgColor = "bg-gray-200"; // Default for unanswered
-              let text = "text-black";
-              let borderStyle = "";
+                if (question.isCorrect) {
+                  bgColor = "bg-[#07C31D]"; // Green for correct
+                  text = "text-white";
+                } else if (question.isIncorrect) {
+                  bgColor = "bg-[#C82F2F]"; // Red for incorrect
+                  text = "text-white";
+                }
 
-              if (question.isCorrect) {
-                bgColor = "bg-[#07C31D]"; // Green for correct
-                text = "text-white";
-              } else if (question.isIncorrect) {
-                bgColor = "bg-[#C82F2F]"; // Red for incorrect
-                text = "text-white";
-              }
-
-              return (
-                <button
-                  key={index}
-                  className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? "ring-2 ring-blue-500" : ""}`}
-                  onClick={() => onQuestionClick(index)}
-                  title={`${displayQuestions[index].category || "Unknown"} - ${question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}`}
-                >
-                  {index + 1}
-                  {question.isMultipleAnswer && <span className="text-xs">*</span>}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={index}
+                    className={`${bgColor} ${text} ${borderStyle} font-semibold w-full min-w-8 h-8 sm:h-10 text-xs sm:text-sm rounded-md hover:opacity-80 transition ${currentIndex === index ? "ring-2 ring-blue-500" : ""}`}
+                    onClick={() => onQuestionClick(index)}
+                    title={`${displayQuestions[index].category || "Unknown"} - ${question.isMultipleAnswer ? "Multiple Answer Question" : "Single Answer Question"}`}
+                  >
+                    {index + 1}
+                    {question.isMultipleAnswer && (
+                      <span className="text-xs">*</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
-
-
-
       </div>
     </div>
   );
