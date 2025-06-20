@@ -18,6 +18,7 @@ function Stu_Dashboard() {
 
   const [tests, setTests] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("ALL");
  
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [result, setResult] = useState([]);
@@ -36,19 +37,43 @@ function Stu_Dashboard() {
     return date.toLocaleDateString("en-IN", options);
   };
 
-  const sortTests = (tests, sortType) => {
-    if (sortType === "ALL") {
-      return tests; // No sorting applied
-    } else if (isAttempted === "true" ) {
-      return tests.filter((test) => test.isAttempted === true);
-         }
-         else if (isAttempted === "false") {
-      return tests.filter((test) => test.isAttempted === false);
-    } else {
-
+  // New useEffect to handle sorting and remove duplicates
+  useEffect(() => {
+    if (filter === "past" && result.length > 0) {
+      // Group by exam_id and keep only the latest attempt
+      const uniqueTestsMap = new Map();
+      
+      result.forEach(test => {
+        const existingTest = uniqueTestsMap.get(test.exam_id);
+        if (!existingTest || new Date(test.Date) > new Date(existingTest.Date)) {
+          uniqueTestsMap.set(test.exam_id, test);
+        }
+      });
+      
+      const uniqueTests = Array.from(uniqueTestsMap.values());
+      
+      let sortedTests;
+      if (sort === "ALL") {
+        sortedTests = uniqueTests;
+      } else if (sort === "ATTEMPTED") {
+        sortedTests = uniqueTests.filter(test => 
+          test.isAttempted === true || 
+          test.status === "finished" || 
+          test.status === "completed" ||
+          test.status === "submitted"
+        );
+      } else if (sort === "NOT ATTEMPTED") {
+        sortedTests = uniqueTests.filter(test => 
+          test.isAttempted === false || 
+          test.status === "not_attempted" ||
+          test.status === "pending" ||
+          (!test.isAttempted && test.status !== "finished" && test.status !== "completed" && test.status !== "submitted")
+        );
+      }
+      
+      setTests(sortedTests);
     }
-
-    }
+  }, [sort, result, filter]);
 
      const fetchTests = async (filterType) => {
     setLoading(true);
@@ -95,8 +120,9 @@ function Stu_Dashboard() {
         }
       );
        dispatch(setExam(response.data.results));
-       setTests(response.data.results || []);
-
+       setResult(response.data.results || []);
+       
+       // Initial sorting will be handled by the useEffect above
         
       } catch (error) {
          console.error("error getting response ", err);
@@ -124,7 +150,7 @@ function Stu_Dashboard() {
       );
 
       
-      console.log("past tests is ", pastPaper);
+    
       setResult(pastPaper.data.results);
      
 
@@ -205,6 +231,9 @@ function Stu_Dashboard() {
   const handleFilterChange = (e) => {
     setFilter(e.target.value); // Update filter
   };
+  const handleSortChange = (e) => {
+    setSort(e.target.value); // Update sort
+  };
 
   const getInitials = (name) => {
     if (!name) return "";
@@ -284,7 +313,17 @@ function Stu_Dashboard() {
               <option value="all">Live</option>
               <option value="past">Past</option>
             </select>
-          
+           {filter === "past" && (
+              <select
+                className="bg-white px-3 py-1 focus:outline-none font-medium text-black hover:cursor-pointer border border-gray-300 rounded ml-3"
+                value={sort}
+                onChange={handleSortChange}
+              >
+                <option value="ALL">All</option>
+                <option value="ATTEMPTED">Attempted</option>
+                <option value="NOT ATTEMPTED">Not Attempted</option>
+              </select>
+            )}
           </div>
           
           
