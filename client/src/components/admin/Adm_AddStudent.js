@@ -3,8 +3,8 @@ import axios from "axios";
 
 const Adm_AddStudent = ({ closeModal }) => {
   var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [studentName, setStudentName] = useState("");
+  
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [department, setDepartment] = useState("INFT");
@@ -25,7 +25,7 @@ const Adm_AddStudent = ({ closeModal }) => {
     const password = generatePassword();
 
     const newStudent = {
-      name: `${firstName} ${lastName}`,
+      name: `${studentName} `,
       email: email,
       phone: mobile,
       department: department,
@@ -57,16 +57,11 @@ const Adm_AddStudent = ({ closeModal }) => {
         <div className="flex space-x-4">
           <input
             className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="Name"
+            value={studentName}
+            onChange={(e) => setStudentName(e.target.value)}
           />
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
+        
         </div>
       </div>
 
