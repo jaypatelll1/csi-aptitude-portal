@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 const Dep_AddStudent = ({ closeModal }) => {
   var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-  const [firstName, setFirstName] = useState("");
+  const [studentName, setStudentName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
@@ -22,7 +22,7 @@ const Dep_AddStudent = ({ closeModal }) => {
     const password = generatePassword();
 
     const newStudent = {
-      name: `${firstName} ${lastName}`,
+      name: `${studentName}`,
       email: `${email}`,
       phone: `${mobile}`,
       department: userDepartment,
@@ -55,15 +55,10 @@ const Dep_AddStudent = ({ closeModal }) => {
           <input
             className="h-10 w-full border border-gray-300 rounded-lg pl-2"
             placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            value={studentName}
+            onChange={(e) => setStudentName(e.target.value)}
           />
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
+        
         </div>
       </div>
 

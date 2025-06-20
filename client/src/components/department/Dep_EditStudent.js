@@ -4,12 +4,12 @@ import { useSelector } from "react-redux";
 
 const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
   const { role: userRole, department: userDepartment } = useSelector((state) => state.user.user);
-  const firstname = student.name.split(" ")[0];
-  const lastname = student.name.split(" ")[1];
+  const studentname = student.name.split(" ")[0];
+ 
   const user_id = student.user_id;
 
-  const [firstName, setFirstName] = useState(firstname);
-  const [lastName, setLastName] = useState(lastname);
+  const [studentName, setStudentName] = useState(student.name);
+ 
   const [email, setEmail] = useState(student.email);
   const [mobile, setMobile] = useState(student.phone);
   const [year, setYear] = useState(student.year);
@@ -24,7 +24,7 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
     setLoading(true);
 
     const newStudent = {
-      name: `${firstName} ${lastName}`,
+      name: `${studentName}`,
       email: `${email}`,
       phone: `${mobile}`,
       department: userRole === "Department" ? userDepartment : student.department,
@@ -111,16 +111,11 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
         <div className="flex space-x-4">
           <input
             className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="Name"
+            value={studentName}
+            onChange={(e) => setStudentName(e.target.value)}
           />
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
+         
         </div>
       </div>
 
@@ -140,6 +135,8 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
           className="h-10 w-full border border-gray-300 rounded-lg pl-2"
           placeholder="Mobile Number"
           value={mobile}
+          maxLength={10}
+        
           onChange={(e) => setMobile(e.target.value)}
         />
       </div>
