@@ -100,13 +100,13 @@ const Adm_Dashboard = () => {
         const studentsCount = studentsRes.data.totalStudentsCount;
         const liveTestsCount = testsRes.data.liveTestsCount;
         const scheduledTestsCount = testsRes.data.scheduledTestsCount;
-        const lastTestStudentCount = lastTestRes.data.studentCount;
+       
 
         setTileData([
           { label: "Live Tests", value: liveTestsCount },
           { label: "Scheduled Tests", value: scheduledTestsCount },
           { label: "Active Students", value: studentsCount },
-          { label: "Students in Last Exam", value: lastTestStudentCount },
+          
         ]);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
