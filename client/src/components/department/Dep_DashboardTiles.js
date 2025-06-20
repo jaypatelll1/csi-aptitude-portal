@@ -5,11 +5,11 @@ const Dep_DashboardTiles = ({ tileData }) => {
     "Active Students": "bg-blue-500",
     "Live Tests": "bg-purple-500",
     "Scheduled Tests": "bg-orange-500",
-    "Students in Last Exam": "bg-green-500",
+   
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:w-full  gap-4 p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:w-full  gap-8 p-4">
       {tileData.map((item, index) => (
         <div
           key={index}
