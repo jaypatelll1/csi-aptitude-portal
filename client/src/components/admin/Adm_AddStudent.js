@@ -4,13 +4,13 @@ import axios from "axios";
 const Adm_AddStudent = ({ closeModal }) => {
   var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
   const [studentName, setStudentName] = useState("");
-  
+
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [department, setDepartment] = useState("INFT");
   const [year, setYear] = useState("FE");
   const [rollno, setRollno] = useState();
-  const [claass, setClaass] = useState("");
+ 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Generate a random password
@@ -38,6 +38,7 @@ const Adm_AddStudent = ({ closeModal }) => {
     try {
       await axios.post(`${API_BASE_URL}/api/users/register`, newStudent, { withCredentials: true });
       alert("Student registered successfully!");
+      window.location.reload(); // Reload the page to reflect changes
       closeModal();
     } catch (error) {
       console.error("Error registering student:", error);
@@ -61,7 +62,7 @@ const Adm_AddStudent = ({ closeModal }) => {
             value={studentName}
             onChange={(e) => setStudentName(e.target.value)}
           />
-        
+
         </div>
       </div>
 
@@ -81,7 +82,14 @@ const Adm_AddStudent = ({ closeModal }) => {
           className="h-10 w-full border border-gray-300 rounded-lg pl-2"
           placeholder="Mobile Number"
           value={mobile}
-          onChange={(e) => setMobile(e.target.value)}
+          type="text"
+          maxLength="10"
+          onChange={(e) => {
+            const val = e.target.value;
+            if (/^\d*$/.test(val)) {
+              setMobile(val);
+            }
+          }}
         />
       </div>
 
@@ -113,16 +121,12 @@ const Adm_AddStudent = ({ closeModal }) => {
       </div>
 
       <div id="ClassBoxes" className="mb-7">
-        <h1 className="mb-2">Class and Roll Number</h1>
+        <h1 className="mb-2"> Roll Number</h1>
         <div className="flex space-x-4">
+
           <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Class"
-            value={claass}
-            onChange={(e) => setClaass(e.target.value)}
-          />
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
+            className="h-10 w-48px border border-gray-300 rounded-lg 
+            pl-2"
             placeholder="Roll Number"
             value={rollno}
             onChange={(e) => setRollno(e.target.value)}
