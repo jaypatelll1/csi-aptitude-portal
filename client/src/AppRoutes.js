@@ -46,6 +46,8 @@ import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
 import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
 import Teacher_UpcomingTest from "./pages/teacher/Teacher_UpcomingTest";
 import Adm_OverallScore from "./pages/admin/Adm_OverallScore";
+import Adm_McqGenerator from "./pages/admin/Adm_McqGenerator";
+
 
 import Dep_PresidentDashboard from "./pages/depPresident/Dep_PresidentDashboard";
 import Dep_PresidentCreateTestForm from "./pages/depPresident/Dep_PresidentCreateTestForm";
@@ -271,6 +273,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_OverallScore />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/mcq-generator"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_McqGenerator />
           </ProtectedRoute>
         }
       />
