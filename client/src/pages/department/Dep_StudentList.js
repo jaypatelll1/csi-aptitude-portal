@@ -29,6 +29,7 @@ const Dep_StudentList = () => {
   const [isUploading, setIsUploading] = useState(false);
   const currentUser = useSelector((state) => state.user.user);
 
+
   //    Handle file change and validate file type
   const handleFileChange = (event) => {
     const file = event.target.files ? event.target.files[0] : null;
@@ -92,6 +93,26 @@ const Dep_StudentList = () => {
     } finally {
       setIsUploading(false); // Unlock the upload button after the process finishes
     }
+  };
+
+  const handleStudentAdded = (newStudent) => {
+    // Add the new student to the existing list
+    setStudents(prev => [...prev, newStudent]);
+
+  };
+  const handleStudentDeleted = (deletedStudentId) => {
+    setStudents(prev =>
+      prev.filter(student => student.user_id !== deletedStudentId)
+    );
+  };
+  const handleStudentUpdated = (updatedStudent) => {
+    setStudents(prev =>
+      prev.map(student =>
+        student.user_id === updatedStudent.user_id
+          ? updatedStudent
+          : student
+      )
+    );
   };
 
   const deletedUsersCounter = () => {
@@ -453,7 +474,7 @@ const Dep_StudentList = () => {
         </div>
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <AddStudent closeModal={closeModal} />
+            <AddStudent closeModal={closeModal} onStudentAdded={handleStudentAdded} />
           </div>
         )}
         {isEditModalOpen && (
@@ -463,6 +484,9 @@ const Dep_StudentList = () => {
               closeEditModal={closeEditModal}
               student={selectedStudent}
               counter={deletedUsersCounter}
+              onStudentUpdated={handleStudentUpdated}
+              onStudentDeleted={handleStudentDeleted}
+
             />
           </div>
         )}

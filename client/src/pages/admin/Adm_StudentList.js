@@ -50,6 +50,25 @@ const Adm_StudentList = () => {
     setSelectedFile(file); // If valid, set the file
   };
 
+  const handleStudentAdded = (newStudent) => {
+    // Add the new student to the existing list
+    setStudents(prev => [...prev, newStudent]);
+
+  };
+  const handleStudentDeleted = (deletedStudentId) => {
+    setStudents(prev =>
+      prev.filter(student => student.user_id !== deletedStudentId)
+    );
+  };
+  const handleStudentUpdated = (updatedStudent) => {
+    setStudents(prev =>
+      prev.map(student =>
+        student.user_id === updatedStudent.user_id
+          ? updatedStudent
+          : student
+      )
+    );
+  };
   // Handle form submission (upload file)
   const handleUserSubmit = async (event) => {
     event.preventDefault();
@@ -225,9 +244,8 @@ const Adm_StudentList = () => {
       {/* Sidebar Section */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } transition-transform duration-300 ease-in-out w-64 xl:static xl:translate-x-0`}
       >
         <Adm_Sidebar />
       </div>
@@ -438,9 +456,8 @@ const Adm_StudentList = () => {
                 {getPageNumbers().map((p) => (
                   <div
                     key={p}
-                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${
-                      page === p ? "bg-blue-300 rounded-md" : "bg-white"
-                    }`}
+                    className={`w-8 h-8 flex items-center justify-center mx-1 cursor-pointer ${page === p ? "bg-blue-300 rounded-md" : "bg-white"
+                      }`}
                     onClick={() => setPage(p)}
                   >
                     {p}
@@ -468,7 +485,7 @@ const Adm_StudentList = () => {
         </div>
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <AddStudent closeModal={closeModal} />
+            <AddStudent closeModal={closeModal} onStudentAdded={handleStudentAdded} />
           </div>
         )}
         {isEditModalOpen && (
@@ -478,6 +495,8 @@ const Adm_StudentList = () => {
               closeEditModal={closeEditModal}
               student={selectedStudent}
               counter={deletedUsersCounter}
+              onStudentUpdated={handleStudentUpdated}
+              onStudentDeleted={handleStudentDeleted}
             />
           </div>
         )}

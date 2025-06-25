@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const Adm_AddStudent = ({ closeModal }) => {
+const Adm_AddStudent = ({ closeModal ,onStudentAdded }) => {
   var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
   const [studentName, setStudentName] = useState("");
 
@@ -36,9 +36,12 @@ const Adm_AddStudent = ({ closeModal }) => {
     };
 
     try {
-      await axios.post(`${API_BASE_URL}/api/users/register`, newStudent, { withCredentials: true });
+     const response = await axios.post(`${API_BASE_URL}/api/users/register`, newStudent, { withCredentials: true });
       alert("Student registered successfully!");
-      window.location.reload(); // Reload the page to reflect changes
+       // Call the callback function to update parent component's state
+      if (onStudentAdded) {
+        onStudentAdded(response.data || newStudent);
+      }// Reload the page to reflect changes
       closeModal();
     } catch (error) {
       console.error("Error registering student:", error);

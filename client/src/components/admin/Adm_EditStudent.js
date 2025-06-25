@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
+const Adm_EditStudent = ({ closeEditModal, student, counter ,onStudentUpdated, onStudentDeleted }) => {
   
   const studentname = student.name.split(" ")[0];
 
@@ -41,8 +41,10 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
         withCredentials: true, // Make sure the cookie is sent with the request
       });
 
-      alert("Student registered successfully!");
-      window.location.reload(); // Reload the page to reflect changes
+      alert("Student updated successfully!");
+      if (onStudentUpdated) {
+        onStudentUpdated({ ...student, ...newStudent });
+      }
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
       console.error("Error registering student:", error);
@@ -67,6 +69,9 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
 
       alert("Student deleted successfully!");
       counter();
+      if (onStudentDeleted) {
+        onStudentDeleted(student.user_id);
+      }
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
       console.error("Error deleting student:", error);

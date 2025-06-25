@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
-const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
+const Dep_EditStudent = ({ closeEditModal, student,counter , onStudentUpdated, onStudentDeleted }) => {
   const { role: userRole, department: userDepartment } = useSelector((state) => state.user.user);
   const studentname = student.name.split(" ")[0];
  
@@ -14,7 +14,7 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
   const [mobile, setMobile] = useState(student.phone);
   const [year, setYear] = useState(student.year);
   const [rollno, setRollno] = useState(student.rollno);
-  const [claass, setClaass] = useState(student.class);
+
   const [loading, setLoading] = useState(false); // Disable buttons during request
   const requestRef = useRef(false);
 
@@ -42,6 +42,12 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
       );
 
       alert("Student updated successfully!");
+      
+      // Call the callback function to update parent component's state
+      if (onStudentUpdated) {
+        onStudentUpdated({ ...student, ...newStudent });
+      }
+      
       closeEditModal();
     } catch (error) {
       console.error("Error updating student:", error);
@@ -65,7 +71,12 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
       });
 
       alert("Student deleted successfully!");
-      counter();
+       counter();
+      // Call the callback function to update parent component's state
+      if (onStudentDeleted) {
+        onStudentDeleted(student.user_id);
+      }
+      
       closeEditModal();
     } catch (error) {
       console.error("Error deleting student:", error);
@@ -171,22 +182,17 @@ const Dep_EditStudent = ({ closeEditModal, student, counter }) => {
       </div>
 
       <div id="ClassBoxes" className="mb-7">
-        <h1 className="mb-2">Class and Roll Number</h1>
-        <div className="flex space-x-4">
+        <h1 className="mb-2">Roll Number</h1>
+       
+          
           <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Class"
-            value={claass}
-            onChange={(e) => setClaass(e.target.value)}
-          />
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
+            className="h-10 w-48px border border-gray-300 rounded-lg pl-2"
             placeholder="Roll Number"
             value={rollno}
             onChange={(e) => setRollno(e.target.value)}
             type="number"
           />
-        </div>
+      
       </div>
 
       <hr className="my-4 border-black" />
