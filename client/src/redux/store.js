@@ -7,6 +7,7 @@ import examReducer from "./ExamSlice";
 import displayExamReducer from "./displayExamSlice";
 import analysisSlice from "./analysisSlice";
 import teacherExamReducer from "./TeacherExamSlice";
+import mcqReducer from "./mcqSlice";
 
 const userPersistConfig = {
   key: "user",
@@ -32,6 +33,11 @@ const TeacherExamPersistConfig = {
   key: "teacherExam",
   storage,
 };
+const mcqPersistConfig = {
+  key: "mcq",
+  storage,
+  whitelist: ['mcqSets'], 
+};
 
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
 const persistedExamReducer = persistReducer(examPersistConfig, examReducer);
@@ -39,6 +45,7 @@ const persistedDisplayExamReducer = persistReducer(displayExamPersistConfig, dis
 const persistedQuestionReducer = persistReducer(QuestionPersistConfig, questionReducer);
 const persistedAnalysisReducer = persistReducer(analysisPersistConfig, analysisSlice);
 const persistedTeacherExamReducer = persistReducer(TeacherExamPersistConfig, teacherExamReducer);
+const persistedMcqReducer = persistReducer(mcqPersistConfig, mcqReducer);
 
 const store = configureStore({
   reducer: {
@@ -48,12 +55,17 @@ const store = configureStore({
     displayExam: persistedDisplayExamReducer,
     analysis: persistedAnalysisReducer,
     teacherExam: persistedTeacherExamReducer,
+    mcq:persistedMcqReducer,
+  
   },
+  
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false, // Required for redux-persist
     }),
+
 });
 
 export const persistor = persistStore(store);
 export default store;
+

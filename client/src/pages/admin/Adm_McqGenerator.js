@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import axios from "axios";
 import {
   MessageCircle,
@@ -11,20 +12,26 @@ import {
   FileQuestion,
   Clock,
   Tag,
+  Trash2,
+  Download,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import { setGenerating, setError, addMcqSet, deleteMcqSet, clearAllMcqSets } from '../../redux/mcqSlice';
 
 const Adm_McqGenerator = ({ onClose }) => {
+  const dispatch = useDispatch();
+  const { mcqSets, isGenerating, error } = useSelector((state) => state.mcq);
+  
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
   const [numQuestions, setNumQuestions] = useState(10);
   const [questionType, setQuestionType] = useState("academic");
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [generatedMCQs, setGeneratedMCQs] = useState([]);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [error, setError] = useState("");
+  const [collapsedSets, setCollapsedSets] = useState(new Set());
   const [testsData, setTestsData] = useState({
     drafted: [],
     scheduled: [],
@@ -37,36 +44,35 @@ const Adm_McqGenerator = ({ onClose }) => {
     const file = event.target.files[0];
     if (file && file.type === "application/pdf") {
       if (file.size > 16 * 1024 * 1024) {
-        setError("File size must be less than 16MB");
+        dispatch(setError("File size must be less than 16MB"));
         return;
       }
       setUploadedFile(file);
-      setError("");
+      dispatch(setError(""));
     } else {
-      setError("Please upload a PDF file only");
+      dispatch(setError("Please upload a PDF file only"));
     }
   };
 
   const handleGenerate = async () => {
     if (!uploadedFile && !topic.trim()) {
-      setError("Please either upload a PDF file or enter a topic");
+      dispatch(setError("Please either upload a PDF file or enter a topic"));
       return;
     }
 
     if (numQuestions < 1 || numQuestions > 50) {
-      setError("Number of questions must be between 1 and 50");
+      dispatch(setError("Number of questions must be between 1 and 50"));
       return;
     }
 
-    setIsGenerating(true);
-    setError("");
+    dispatch(setGenerating(true));
+    dispatch(setError(""));
 
     try {
       let requestData;
       let headers = {};
 
       if (uploadedFile) {
-        // If file is uploaded, use FormData
         const formData = new FormData();
         formData.append("pdf_file", uploadedFile);
         
@@ -81,7 +87,6 @@ const Adm_McqGenerator = ({ onClose }) => {
         requestData = formData;
         headers["Content-Type"] = "multipart/form-data";
       } else {
-        // If no file, send JSON data
         requestData = {
           topic: topic.trim(),
           difficulty: difficulty,
@@ -91,71 +96,43 @@ const Adm_McqGenerator = ({ onClose }) => {
         headers["Content-Type"] = "application/json";
       }
 
-      // Log request data for debugging
-      console.log("Request data:", requestData);
-
       const response = await axios.post(
         "https://ai.csipl.xyz/generate_mcqs",
         requestData,
         {
           headers: headers,
-          timeout: 300000, // 5 minutes timeout
+          timeout: 300000,
         }
       );
 
-      console.log("Full Response:", response);
-      console.log("Response Data:", response.data);
-      console.log("Response Data Type:", typeof response.data);
-      console.log("Is Array?", Array.isArray(response.data));
-
       let mcqData = null;
 
-      // Check multiple possible response formats
+      // Handle different response formats
       if (Array.isArray(response.data)) {
-        // Direct array response
         mcqData = response.data;
-        console.log("Using direct array format");
       } else if (response.data && response.data.mcqs && Array.isArray(response.data.mcqs)) {
-        // Wrapped in mcqs property
         mcqData = response.data.mcqs;
-        console.log("Using wrapped mcqs format");
       } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        // Wrapped in data property
         mcqData = response.data.data;
-        console.log("Using wrapped data format");
       } else if (response.data && response.data.questions && Array.isArray(response.data.questions)) {
-        // Wrapped in questions property
         mcqData = response.data.questions;
-        console.log("Using wrapped questions format");
       } else if (response.data && typeof response.data === 'object') {
-        // Single object response, convert to array
         mcqData = [response.data];
-        console.log("Using single object format");
       }
 
       if (mcqData && Array.isArray(mcqData) && mcqData.length > 0) {
-        console.log("MCQ Data found:", mcqData);
-        console.log("First MCQ sample:", mcqData[0]);
-
-        // Transform the API response to match our component's expected format
         const transformedMCQs = mcqData.map((mcq, index) => {
-          console.log(`Processing MCQ ${index + 1}:`, mcq);
-          
-          // Handle different option formats
           let options = [];
           if (mcq.options && typeof mcq.options === 'object') {
             if (mcq.options.A && mcq.options.B && mcq.options.C && mcq.options.D) {
-              // Object format: {A: "...", B: "...", C: "...", D: "..."}
               options = [mcq.options.A, mcq.options.B, mcq.options.C, mcq.options.D];
             } else if (Array.isArray(mcq.options)) {
-              // Array format
               options = mcq.options;
             }
           } else if (Array.isArray(mcq.options)) {
             options = mcq.options;
           }
 
-          // Handle correct answer conversion
           let correctAnswerIndex = 0;
           if (typeof mcq.correct_answer === 'string') {
             const letter = mcq.correct_answer.toUpperCase();
@@ -178,20 +155,27 @@ const Adm_McqGenerator = ({ onClose }) => {
             tags: mcq.tags || []
           };
         });
-        
-        console.log("Transformed MCQs:", transformedMCQs);
-        setGeneratedMCQs(transformedMCQs);
+
+        // Add new MCQ set to Redux store
+        dispatch(addMcqSet({
+          topic: topic.trim() || "PDF Content",
+          difficulty,
+          questionType,
+          mcqs: transformedMCQs,
+          fileName: uploadedFile?.name || null,
+        }));
+
+        // Clear form
+        setTopic("");
+        setUploadedFile(null);
       } else {
-        console.error("No valid MCQ data found in response");
-        console.log("Available response keys:", Object.keys(response.data || {}));
-        throw new Error(`Invalid response format from server. Response structure: ${JSON.stringify(response.data, null, 2)}`);
+        throw new Error(`Invalid response format from server`);
       }
     } catch (error) {
       console.error("Error generating MCQs:", error);
       
       let errorMessage = "Failed to generate MCQs";
       if (error.response) {
-        // Server responded with error status
         if (error.response.data && error.response.data.message) {
           errorMessage = error.response.data.message;
         } else if (error.response.data && typeof error.response.data === 'string') {
@@ -200,16 +184,36 @@ const Adm_McqGenerator = ({ onClose }) => {
           errorMessage = `Server responded with status ${error.response.status}`;
         }
       } else if (error.request) {
-        // Request was made but no response
         errorMessage = "No response from server. Please check your connection.";
       } else {
-        // Other errors
         errorMessage = error.message;
       }
       
-      setError(errorMessage);
+      dispatch(setError(errorMessage));
     } finally {
-      setIsGenerating(false);
+      dispatch(setGenerating(false));
+    }
+  };
+
+  const toggleSetCollapse = (setId) => {
+    const newCollapsed = new Set(collapsedSets);
+    if (newCollapsed.has(setId)) {
+      newCollapsed.delete(setId);
+    } else {
+      newCollapsed.add(setId);
+    }
+    setCollapsedSets(newCollapsed);
+  };
+
+  const handleDeleteSet = (setId) => {
+    if (window.confirm("Are you sure you want to delete this MCQ set?")) {
+      dispatch(deleteMcqSet(setId));
+    }
+  };
+
+  const handleClearAll = () => {
+    if (window.confirm("Are you sure you want to clear all MCQ sets?")) {
+      dispatch(clearAllMcqSets());
     }
   };
 
@@ -221,7 +225,6 @@ const Adm_McqGenerator = ({ onClose }) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -231,6 +234,10 @@ const Adm_McqGenerator = ({ onClose }) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString();
   };
 
   return (
@@ -279,20 +286,35 @@ const Adm_McqGenerator = ({ onClose }) => {
             </svg>
           </button>
           <h1 className="text-2xl font-bold text-gray-700">MCQ Generator</h1>
-          <div className="w-8"></div>
+          {mcqSets.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="text-red-600 hover:text-red-800 flex items-center space-x-1 text-sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Clear All</span>
+            </button>
+          )}
         </div>
 
         {/* MCQ Generator Content */}
         <div className="flex-1 flex flex-col bg-white mx-5 mb-5 rounded-lg shadow-sm">
           {/* Content Header */}
           <div className="bg-white shadow-sm border-b px-6 py-4 rounded-t-lg">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <FileQuestion className="w-4 h-4 text-white" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <FileQuestion className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Generate MCQ Questions
+                </h2>
               </div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                Generate MCQ Questions
-              </h2>
+              {mcqSets.length > 0 && (
+                <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                  {mcqSets.length} set{mcqSets.length !== 1 ? 's' : ''} generated
+                </span>
+              )}
             </div>
           </div>
 
@@ -306,8 +328,8 @@ const Adm_McqGenerator = ({ onClose }) => {
               <div className="bg-blue-50 rounded-lg px-4 py-3 shadow-sm border border-blue-200 max-w-2xl">
                 <p className="text-gray-700">
                   Hi! I'm here to help you generate MCQ questions. You can
-                  either upload a PDF file or provide a topic manually. Please
-                  fill in the details below to get started.
+                  either upload a PDF file or provide a topic manually. All your
+                  generated MCQ sets will be preserved here.
                 </p>
               </div>
             </div>
@@ -324,110 +346,155 @@ const Adm_McqGenerator = ({ onClose }) => {
               </div>
             )}
 
-            {/* Generated MCQs */}
-            {generatedMCQs.length > 0 && (
-              <div className="space-y-4">
+            {/* Generated MCQ Sets */}
+            {mcqSets.map((mcqSet) => (
+              <div key={mcqSet.id} className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <FileQuestion className="w-4 h-4 text-green-600" />
                   </div>
-                  <div className="bg-green-50 rounded-lg px-4 py-3 shadow-sm border border-green-200 flex-1">
-                    <p className="text-gray-700 mb-4 font-medium">
-                      🎉 Here are your generated MCQ questions:
-                    </p>
-                    <div className="space-y-6">
-                      {generatedMCQs.map((mcq, index) => (
-                        <div
-                          key={mcq.id || index}
-                          className="bg-white border rounded-lg p-5 shadow-sm"
+                  <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 flex-1">
+                    {/* MCQ Set Header */}
+                    <div className="px-4 py-3 border-b border-green-200 flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <h3 className="font-semibold text-green-800">
+                          📚 {mcqSet.topic}
+                        </h3>
+                        <div className="flex items-center space-x-2 text-xs">
+                          <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full">
+                            {mcqSet.difficulty}
+                          </span>
+                          <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full">
+                            {mcqSet.questionType}
+                          </span>
+                          <span className="text-green-700">
+                            {mcqSet.mcqs.length} questions
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-green-600">
+                          {formatDate(mcqSet.timestamp)}
+                        </span>
+                        <button
+                          onClick={() => toggleSetCollapse(mcqSet.id)}
+                          className="text-green-600 hover:text-green-800 p-1"
                         >
-                          {/* Question Header */}
-                          <div className="flex items-start justify-between mb-4">
-                            <h3 className="font-semibold text-gray-800 text-lg flex-1">
-                              Question {index + 1}: {mcq.question}
-                            </h3>
-                            <div className="flex items-center space-x-2 ml-4">
-                              {mcq.estimated_time_seconds && (
-                                <div className="flex items-center space-x-1 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                  <Clock className="w-3 h-3" />
-                                  <span>{formatTime(mcq.estimated_time_seconds)}</span>
-                                </div>
-                              )}
-                              {mcq.bloom_level && (
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                                  {mcq.bloom_level.charAt(0).toUpperCase() + mcq.bloom_level.slice(1)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                          {collapsedSets.has(mcqSet.id) ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSet(mcqSet.id)}
+                          className="text-red-500 hover:text-red-700 p-1"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
 
-                          {/* Options */}
-                          <div className="space-y-3 mb-4">
-                            {mcq.options.map((option, optIndex) => (
-                              <div
-                                key={optIndex}
-                                className="flex items-center space-x-3"
-                              >
-                                <div
-                                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${
-                                    optIndex === mcq.correct_answer
-                                      ? "bg-green-100 border-green-500 text-green-700"
-                                      : "border-gray-300 text-gray-600 bg-gray-50"
-                                  }`}
-                                >
-                                  {String.fromCharCode(65 + optIndex)}
+                    {/* MCQ Set Content */}
+                    {!collapsedSets.has(mcqSet.id) && (
+                      <div className="p-4">
+                        {mcqSet.fileName && (
+                          <div className="mb-4 flex items-center space-x-2 text-sm text-green-700">
+                            <FileText className="w-4 h-4" />
+                            <span>Source: {mcqSet.fileName}</span>
+                          </div>
+                        )}
+                        <div className="space-y-6">
+                          {mcqSet.mcqs.map((mcq, index) => (
+                            <div
+                              key={mcq.id || index}
+                              className="bg-white border rounded-lg p-5 shadow-sm"
+                            >
+                              {/* Question Header */}
+                              <div className="flex items-start justify-between mb-4">
+                                <h4 className="font-semibold text-gray-800 text-lg flex-1">
+                                  Question {index + 1}: {mcq.question}
+                                </h4>
+                                <div className="flex items-center space-x-2 ml-4">
+                                  {mcq.estimated_time_seconds && (
+                                    <div className="flex items-center space-x-1 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                      <Clock className="w-3 h-3" />
+                                      <span>{formatTime(mcq.estimated_time_seconds)}</span>
+                                    </div>
+                                  )}
+                                  {mcq.bloom_level && (
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                                      {mcq.bloom_level.charAt(0).toUpperCase() + mcq.bloom_level.slice(1)}
+                                    </span>
+                                  )}
                                 </div>
-                                <span
-                                  className={`text-base flex-1 ${
-                                    optIndex === mcq.correct_answer
-                                      ? "text-green-700 font-semibold"
-                                      : "text-gray-700"
-                                  }`}
-                                >
-                                  {option}
-                                </span>
-                                {optIndex === mcq.correct_answer && (
-                                  <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-                                    Correct Answer
-                                  </span>
-                                )}
                               </div>
-                            ))}
-                          </div>
 
-                          {/* Explanation */}
-                          {mcq.explanation && (
-                            <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                              <p className="text-sm text-blue-800">
-                                <strong>💡 Explanation:</strong>{" "}
-                                {mcq.explanation}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Tags */}
-                          {mcq.tags && mcq.tags.length > 0 && (
-                            <div className="flex items-center space-x-2">
-                              <Tag className="w-4 h-4 text-gray-500" />
-                              <div className="flex flex-wrap gap-1">
-                                {mcq.tags.map((tag, tagIndex) => (
-                                  <span
-                                    key={tagIndex}
-                                    className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                              {/* Options */}
+                              <div className="space-y-3 mb-4">
+                                {mcq.options.map((option, optIndex) => (
+                                  <div
+                                    key={optIndex}
+                                    className="flex items-center space-x-3"
                                   >
-                                    {tag}
-                                  </span>
+                                    <div
+                                      className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${
+                                        optIndex === mcq.correct_answer
+                                          ? "bg-green-100 border-green-500 text-green-700"
+                                          : "border-gray-300 text-gray-600 bg-gray-50"
+                                      }`}
+                                    >
+                                      {String.fromCharCode(65 + optIndex)}
+                                    </div>
+                                    <span
+                                      className={`text-base flex-1 ${
+                                        optIndex === mcq.correct_answer
+                                          ? "text-green-700 font-semibold"
+                                          : "text-gray-700"
+                                      }`}
+                                    >
+                                      {option}
+                                    </span>
+                                    {optIndex === mcq.correct_answer && (
+                                      <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                                        Correct Answer
+                                      </span>
+                                    )}
+                                  </div>
                                 ))}
                               </div>
+
+                              {/* Explanation */}
+                              {mcq.explanation && (
+                                <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                  <p className="text-sm text-blue-800">
+                                    <strong>💡 Explanation:</strong>{" "}
+                                    {mcq.explanation}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Tags */}
+                              {mcq.tags && mcq.tags.length > 0 && (
+                                <div className="flex items-center space-x-2">
+                                  <Tag className="w-4 h-4 text-gray-500" />
+                                  <div className="flex flex-wrap gap-1">
+                                    {mcq.tags.map((tag, tagIndex) => (
+                                      <span
+                                        key={tagIndex}
+                                        className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          )}
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            )}
+            ))}
 
             {/* Loading State */}
             {isGenerating && (
