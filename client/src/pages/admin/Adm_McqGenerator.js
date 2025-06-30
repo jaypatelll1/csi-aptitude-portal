@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
   MessageCircle,
@@ -19,12 +19,18 @@ import {
 } from "lucide-react";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
-import { setGenerating, setError, addMcqSet, deleteMcqSet, clearAllMcqSets } from '../../redux/mcqSlice';
+import {
+  setGenerating,
+  setError,
+  addMcqSet,
+  deleteMcqSet,
+  clearAllMcqSets,
+} from "../../redux/mcqSlice";
 
 const Adm_McqGenerator = ({ onClose }) => {
   const dispatch = useDispatch();
   const { mcqSets, isGenerating, error } = useSelector((state) => state.mcq);
-  
+
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
   const [numQuestions, setNumQuestions] = useState(10);
@@ -72,61 +78,87 @@ const Adm_McqGenerator = ({ onClose }) => {
     try {
       let requestData;
       let headers = {};
+      let apiEndpoint;
 
       if (uploadedFile) {
+        // Use the PDF-specific endpoint
+        apiEndpoint = "https://ai.csipl.xyz/generate_mcqs_from_pdf";
+
         const formData = new FormData();
         formData.append("pdf_file", uploadedFile);
-        
-        if (topic.trim()) {
-          formData.append("topic", topic);
-        }
-        
         formData.append("difficulty", difficulty);
         formData.append("num_questions", numQuestions.toString());
         formData.append("question_type", questionType);
 
+        // Add topic if provided
+        if (topic.trim()) {
+          formData.append("topic", topic);
+        }
+
         requestData = formData;
         headers["Content-Type"] = "multipart/form-data";
       } else {
+        // Use the existing topic-based endpoint
+        apiEndpoint = "https://ai.csipl.xyz/generate_mcqs";
+
         requestData = {
           topic: topic.trim(),
           difficulty: difficulty,
           num_questions: numQuestions,
-          question_type: questionType
+          question_type: questionType,
         };
         headers["Content-Type"] = "application/json";
       }
 
-      const response = await axios.post(
-        "https://ai.csipl.xyz/generate_mcqs",
-        requestData,
-        {
-          headers: headers,
-          timeout: 300000,
-        }
-      );
+      const response = await axios.post(apiEndpoint, requestData, {
+        headers: headers,
+        timeout: 300000,
+      });
 
+      // Rest of the response handling code remains the same...
       let mcqData = null;
 
       // Handle different response formats
       if (Array.isArray(response.data)) {
         mcqData = response.data;
-      } else if (response.data && response.data.mcqs && Array.isArray(response.data.mcqs)) {
+      } else if (
+        response.data &&
+        response.data.mcqs &&
+        Array.isArray(response.data.mcqs)
+      ) {
         mcqData = response.data.mcqs;
-      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+      } else if (
+        response.data &&
+        response.data.data &&
+        Array.isArray(response.data.data)
+      ) {
         mcqData = response.data.data;
-      } else if (response.data && response.data.questions && Array.isArray(response.data.questions)) {
+      } else if (
+        response.data &&
+        response.data.questions &&
+        Array.isArray(response.data.questions)
+      ) {
         mcqData = response.data.questions;
-      } else if (response.data && typeof response.data === 'object') {
+      } else if (response.data && typeof response.data === "object") {
         mcqData = [response.data];
       }
 
       if (mcqData && Array.isArray(mcqData) && mcqData.length > 0) {
         const transformedMCQs = mcqData.map((mcq, index) => {
           let options = [];
-          if (mcq.options && typeof mcq.options === 'object') {
-            if (mcq.options.A && mcq.options.B && mcq.options.C && mcq.options.D) {
-              options = [mcq.options.A, mcq.options.B, mcq.options.C, mcq.options.D];
+          if (mcq.options && typeof mcq.options === "object") {
+            if (
+              mcq.options.A &&
+              mcq.options.B &&
+              mcq.options.C &&
+              mcq.options.D
+            ) {
+              options = [
+                mcq.options.A,
+                mcq.options.B,
+                mcq.options.C,
+                mcq.options.D,
+              ];
             } else if (Array.isArray(mcq.options)) {
               options = mcq.options;
             }
@@ -135,36 +167,47 @@ const Adm_McqGenerator = ({ onClose }) => {
           }
 
           let correctAnswerIndex = 0;
-          if (typeof mcq.correct_answer === 'string') {
+          if (typeof mcq.correct_answer === "string") {
             const letter = mcq.correct_answer.toUpperCase();
-            correctAnswerIndex = letter === 'A' ? 0 : 
-                               letter === 'B' ? 1 : 
-                               letter === 'C' ? 2 : 
-                               letter === 'D' ? 3 : 0;
-          } else if (typeof mcq.correct_answer === 'number') {
+            correctAnswerIndex =
+              letter === "A"
+                ? 0
+                : letter === "B"
+                  ? 1
+                  : letter === "C"
+                    ? 2
+                    : letter === "D"
+                      ? 3
+                      : 0;
+          } else if (typeof mcq.correct_answer === "number") {
             correctAnswerIndex = mcq.correct_answer;
           }
 
           return {
             id: mcq.id || index + 1,
             question: mcq.question || "No question provided",
-            options: options.length > 0 ? options : ["Option A", "Option B", "Option C", "Option D"],
+            options:
+              options.length > 0
+                ? options
+                : ["Option A", "Option B", "Option C", "Option D"],
             correct_answer: correctAnswerIndex,
             explanation: mcq.explanation || "",
             bloom_level: mcq.bloom_level || "",
             estimated_time_seconds: mcq.estimated_time_seconds || 0,
-            tags: mcq.tags || []
+            tags: mcq.tags || [],
           };
         });
 
         // Add new MCQ set to Redux store
-        dispatch(addMcqSet({
-          topic: topic.trim() || "PDF Content",
-          difficulty,
-          questionType,
-          mcqs: transformedMCQs,
-          fileName: uploadedFile?.name || null,
-        }));
+        dispatch(
+          addMcqSet({
+            topic: topic.trim() || "PDF Content",
+            difficulty,
+            questionType,
+            mcqs: transformedMCQs,
+            fileName: uploadedFile?.name || null,
+          }),
+        );
 
         // Clear form
         setTopic("");
@@ -174,12 +217,15 @@ const Adm_McqGenerator = ({ onClose }) => {
       }
     } catch (error) {
       console.error("Error generating MCQs:", error);
-      
+
       let errorMessage = "Failed to generate MCQs";
       if (error.response) {
         if (error.response.data && error.response.data.message) {
           errorMessage = error.response.data.message;
-        } else if (error.response.data && typeof error.response.data === 'string') {
+        } else if (
+          error.response.data &&
+          typeof error.response.data === "string"
+        ) {
           errorMessage = error.response.data;
         } else {
           errorMessage = `Server responded with status ${error.response.status}`;
@@ -189,13 +235,12 @@ const Adm_McqGenerator = ({ onClose }) => {
       } else {
         errorMessage = error.message;
       }
-      
+
       dispatch(setError(errorMessage));
     } finally {
       dispatch(setGenerating(false));
     }
   };
-
   const toggleSetCollapse = (setId) => {
     const newCollapsed = new Set(collapsedSets);
     if (newCollapsed.has(setId)) {
@@ -248,7 +293,6 @@ const Adm_McqGenerator = ({ onClose }) => {
   // Export selected questions as JSON
   const handleExportSelected = () => {
     //add export logic
-   
   };
 
   useEffect(() => {
@@ -267,7 +311,9 @@ const Adm_McqGenerator = ({ onClose }) => {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
+    return minutes > 0
+      ? `${minutes}m ${remainingSeconds}s`
+      : `${remainingSeconds}s`;
   };
 
   const formatDate = (dateString) => {
@@ -335,7 +381,9 @@ const Adm_McqGenerator = ({ onClose }) => {
               onClick={handleExportSelected}
               className="ml-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded flex items-center text-sm"
               disabled={
-                !Object.values(selectedQuestions).some((set) => set && set.size > 0)
+                !Object.values(selectedQuestions).some(
+                  (set) => set && set.size > 0,
+                )
               }
               title="Export selected questions as JSON"
             >
@@ -360,7 +408,8 @@ const Adm_McqGenerator = ({ onClose }) => {
               </div>
               {mcqSets.length > 0 && (
                 <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                  {mcqSets.length} set{mcqSets.length !== 1 ? 's' : ''} generated
+                  {mcqSets.length} set{mcqSets.length !== 1 ? "s" : ""}{" "}
+                  generated
                 </span>
               )}
             </div>
@@ -398,7 +447,9 @@ const Adm_McqGenerator = ({ onClose }) => {
             {mcqSets.map((mcqSet) => {
               const allQuestionIds = mcqSet.mcqs.map((q) => q.id);
               const setSelected = selectedQuestions[mcqSet.id] || new Set();
-              const allSelected = setSelected.size === allQuestionIds.length && allQuestionIds.length > 0;
+              const allSelected =
+                setSelected.size === allQuestionIds.length &&
+                allQuestionIds.length > 0;
               const anySelected = setSelected.size > 0;
               return (
                 <div key={mcqSet.id} className="space-y-4">
@@ -414,8 +465,14 @@ const Adm_McqGenerator = ({ onClose }) => {
                           <input
                             type="checkbox"
                             checked={allSelected}
-                            indeterminate={anySelected && !allSelected ? "indeterminate" : undefined}
-                            onChange={() => handleSelectAllSet(mcqSet.id, allQuestionIds)}
+                            indeterminate={
+                              anySelected && !allSelected
+                                ? "indeterminate"
+                                : undefined
+                            }
+                            onChange={() =>
+                              handleSelectAllSet(mcqSet.id, allQuestionIds)
+                            }
                             className="form-checkbox h-5 w-5 text-green-600"
                             id={`select-set-${mcqSet.id}`}
                           />
@@ -449,7 +506,11 @@ const Adm_McqGenerator = ({ onClose }) => {
                             onClick={() => toggleSetCollapse(mcqSet.id)}
                             className="text-green-600 hover:text-green-800 p-1"
                           >
-                            {collapsedSets.has(mcqSet.id) ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                            {collapsedSets.has(mcqSet.id) ? (
+                              <Eye className="w-4 h-4" />
+                            ) : (
+                              <EyeOff className="w-4 h-4" />
+                            )}
                           </button>
                           <button
                             onClick={() => handleDeleteSet(mcqSet.id)}
@@ -479,7 +540,9 @@ const Adm_McqGenerator = ({ onClose }) => {
                                   <input
                                     type="checkbox"
                                     checked={setSelected.has(mcq.id)}
-                                    onChange={() => handleQuestionCheckbox(mcqSet.id, mcq.id)}
+                                    onChange={() =>
+                                      handleQuestionCheckbox(mcqSet.id, mcq.id)
+                                    }
                                     className="form-checkbox h-4 w-4 text-blue-600"
                                     id={`select-q-${mcqSet.id}-${mcq.id}`}
                                   />
@@ -499,12 +562,19 @@ const Adm_McqGenerator = ({ onClose }) => {
                                     {mcq.estimated_time_seconds && (
                                       <div className="flex items-center space-x-1 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
                                         <Clock className="w-3 h-3" />
-                                        <span>{formatTime(mcq.estimated_time_seconds)}</span>
+                                        <span>
+                                          {formatTime(
+                                            mcq.estimated_time_seconds,
+                                          )}
+                                        </span>
                                       </div>
                                     )}
                                     {mcq.bloom_level && (
                                       <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                                        {mcq.bloom_level.charAt(0).toUpperCase() + mcq.bloom_level.slice(1)}
+                                        {mcq.bloom_level
+                                          .charAt(0)
+                                          .toUpperCase() +
+                                          mcq.bloom_level.slice(1)}
                                       </span>
                                     )}
                                   </div>
