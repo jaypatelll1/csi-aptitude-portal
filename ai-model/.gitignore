@@ -1,0 +1,5 @@
+venv
+.env
+mcq_generator.log
+__pycache__
+.vercel
