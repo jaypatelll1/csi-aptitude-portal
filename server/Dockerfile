@@ -11,9 +11,12 @@ WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app ./
 
-# Security: Optional non-root user
+# Security: Create non-root user and required directories
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN mkdir -p /app/exports /app/uploads && \
+    chown -R appuser:appgroup /app/exports /app/uploads
 USER appuser
 
 EXPOSE 3000
 CMD ["npm", "start"]
+
