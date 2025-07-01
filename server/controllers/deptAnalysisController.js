@@ -1,7 +1,7 @@
 const deptModel = require('../models/deptAnalysisModel');
 const {
   fetchAndCacheAnalytics,
-  getCachedAnalytics,
+  getCachedAnalytics, trackAttempt
 } = require('../utils/cacheUtils');
 
 const getAllDepartmentParams = async (req, res) => {
@@ -53,6 +53,8 @@ const getAllDepartmentParams = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
 
 const getAllDeptAnalysis = async (req, res) => {
   const { department } = req.params;
@@ -111,6 +113,8 @@ const getAllDeptAnalysis = async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
 
 module.exports = { getAllDeptAnalysis };
 

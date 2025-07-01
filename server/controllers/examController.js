@@ -1,5 +1,6 @@
 const examModel = require('../models/examModel');
 const { logActivity } = require('../utils/logActivity');
+const redis = require('../config/redisClient');
 
 const createExam = async (req, res) => {
   let { name, duration, start_time, end_time, target_years, target_branches } =
@@ -467,45 +468,67 @@ const getPaginatedLiveExams = async (req, res) => {
 
 const getPaginatedPastExams = async (req, res) => {
   const user_id = req.user.id;
+  const user_role = req.user.role; // Get logged-in user's role
   let status = 'past', Count, exams;
-  const { page, limit, role, branch } = req.query; // 👈 also extracting branch here
+  const { page, limit, role, branch } = req.query;
+
+  const yearFilter = user_role === 'TPO' ? 'BE' : null;
+
+  const cacheKey = `pastExams:${role}:${branch || 'all'}:${yearFilter || 'all'}:${page || 'all'}:${limit || 'all'}`;
 
   try {
     if (!role) return res.status(400).json({ error: 'Role is required' });
 
+    // 1. Check Redis cache
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log('==Cache hit for', cacheKey);
+      return res.status(200).json(JSON.parse(cached));
+    }
+
+    // 2. Fetch from DB
     if (!page && !limit) {
-      Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role, branch); // 👈 pass branch
+      Count = await examModel.ExamCount(status, role, branch, yearFilter);
+      exams = await examModel.getExamsByStatus(status, role, branch, yearFilter);
     } else {
-      Count = await examModel.ExamCount(status, role);
+      Count = await examModel.ExamCount(status, role, branch, yearFilter);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
         status,
         role,
-        branch // 👈 pass branch
+        branch,
+        yearFilter
       );
     }
 
+    // 3. Log activity
     await logActivity({
       user_id,
       activity: `Viewed paginated past exams`,
       status: 'success',
-      details: `Page: ${page}, Limit: ${limit}`,
+      details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}`,
     });
 
-    res.status(200).json({
+    // 4. Build response
+    const response = {
       message: 'Exams retrieved successfully',
       exams: exams || [],
       Count: Count || 0,
-      ...(page && limit
-        ? { page: parseInt(page), limit: parseInt(limit) }
-        : {}),
-    });
+      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {})
+    };
+
+    // 5. Cache the response
+    await redis.set(cacheKey, JSON.stringify(response), 'EX', 7200);
+
+    res.status(200).json(response);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 
 
