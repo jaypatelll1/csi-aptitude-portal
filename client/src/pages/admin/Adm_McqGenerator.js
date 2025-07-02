@@ -46,6 +46,62 @@ const Adm_McqGenerator = ({ onClose }) => {
   });
   const [selectedQuestions, setSelectedQuestions] = useState({}); // Track selected questions: { [setId]: Set(questionId) }
   const sidebarRef = useRef(null);
+console.log(mcqSets)
+console.log(selectedQuestions)
+
+const handleExport = async () => {
+  const questions = [];
+
+  mcqSets.forEach(set => {
+    const selected = selectedQuestions[set.id];
+    if (selected && selected.size > 0) {
+      set.mcqs.forEach(mcq => {
+        if (selected.has(mcq.id)) {
+          questions.push({
+            question_text: mcq.question,
+            question_type: "single_choice", // assuming constant, or replace with `mcq.question_type` if dynamic
+            options_a: mcq.options[0] || "",
+            options_b: mcq.options[1] || "",
+            options_c: mcq.options[2] || "",
+            options_d: mcq.options[3] || "",
+            correct_option: String.fromCharCode(97 + mcq.correct_answer),
+            correct_options: null,
+            image_url: mcq.image_url || "", // if available
+            category: mcq.category , // fallback
+          });
+        }
+      });
+    }
+  });
+
+  const payload = { questions };
+
+  try {
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const url = `${API_BASE_URL}/api/export/ai_generated_questions`;
+
+    const response = await axios.post(url, payload, {
+      withCredentials: true,
+      responseType: 'blob' // 👈 important for binary Excel file
+    });
+
+    // Create a blob from the response
+    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    // Create download link
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = 'ai_mcq_export.xlsx'; // Set default filename
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    console.log("Export successful and file downloaded.");
+  } catch (error) {
+    console.error("Export failed", error.response?.data || error.message);
+  }
+};
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -60,6 +116,7 @@ const Adm_McqGenerator = ({ onClose }) => {
       dispatch(setError("Please upload a PDF file only"));
     }
   };
+
 
   const handleGenerate = async () => {
     if (!uploadedFile && !topic.trim()) {
@@ -82,7 +139,7 @@ const Adm_McqGenerator = ({ onClose }) => {
 
       if (uploadedFile) {
         // Use the PDF-specific endpoint
-        apiEndpoint = "https://ai.csipl.xyz/generate_mcqs_from_pdf";
+        apiEndpoint = "https://questiongen-pdf.onrender.com/generate_mcqs_from_pdf";
 
         const formData = new FormData();
         formData.append("pdf_file", uploadedFile);
@@ -99,7 +156,7 @@ const Adm_McqGenerator = ({ onClose }) => {
         headers["Content-Type"] = "multipart/form-data";
       } else {
         // Use the existing topic-based endpoint
-        apiEndpoint = "https://ai.csipl.xyz/generate_mcqs";
+        apiEndpoint = "https://questiongen-pdf.onrender.com/generate_mcqs";
 
         requestData = {
           topic: topic.trim(),
@@ -121,6 +178,7 @@ const Adm_McqGenerator = ({ onClose }) => {
       // Handle different response formats
       if (Array.isArray(response.data)) {
         mcqData = response.data;
+        
       } else if (
         response.data &&
         response.data.mcqs &&
@@ -182,7 +240,7 @@ const Adm_McqGenerator = ({ onClose }) => {
           } else if (typeof mcq.correct_answer === "number") {
             correctAnswerIndex = mcq.correct_answer;
           }
-
+const category = mcq.question_type;
           return {
             id: mcq.id || index + 1,
             question: mcq.question || "No question provided",
@@ -195,6 +253,10 @@ const Adm_McqGenerator = ({ onClose }) => {
             bloom_level: mcq.bloom_level || "",
             estimated_time_seconds: mcq.estimated_time_seconds || 0,
             tags: mcq.tags || [],
+            category:category,
+
+
+
           };
         });
 
@@ -290,11 +352,7 @@ const Adm_McqGenerator = ({ onClose }) => {
     });
   };
 
-  // Export selected questions as JSON
-  const handleExportSelected = () => {
-    //add export logic
-  };
-
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
@@ -378,7 +436,7 @@ const Adm_McqGenerator = ({ onClose }) => {
             )}
             {/* Export Selected Button */}
             <button
-              onClick={handleExportSelected}
+              onClick={handleExport}
               className="ml-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded flex items-center text-sm"
               disabled={
                 !Object.values(selectedQuestions).some(

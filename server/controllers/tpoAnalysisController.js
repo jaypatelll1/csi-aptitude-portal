@@ -201,7 +201,12 @@ const getAllTpoAnalysis = async (req, res) => {
       // Cache the data
       await fetchAndCacheAnalytics(cacheKey, analyticsData);
 
-      return res.status(200).json({ analyticsData });
+      return res.status(200).json({ dept_avg,
+        top_performers,
+        bottom_performers,
+        participation_rate,
+        performance_over_time
+      });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
