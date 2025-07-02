@@ -7,6 +7,7 @@ import EditStudent from "../../components/department/Dep_EditStudent";
 import UploadModal from "../../upload/UploadModal";
 import Dep_Navbar from "../../components/department/Dep_Navbar";
 import { useSelector } from "react-redux";
+import Loader from "../../components/Loader";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Dep_StudentList = () => {
@@ -28,6 +29,7 @@ const Dep_StudentList = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const currentUser = useSelector((state) => state.user.user);
+  const [Loading, setLoading] = useState(true);
 
 
   //    Handle file change and validate file type
@@ -146,7 +148,9 @@ const Dep_StudentList = () => {
   // Fetch data from API
   useEffect(() => {
     const fetchStudents = async () => {
+    
       try {
+          setLoading(true); // Set loading to true before fetching data
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
         // Build base URL
@@ -163,6 +167,7 @@ const Dep_StudentList = () => {
 
         const studentData = response.data.users;
         setStudents(studentData);
+        setLoading(false); // Set loading to false after fetching data
       } catch (error) {
         console.error("Error fetching students:", error);
       }
@@ -375,6 +380,11 @@ const Dep_StudentList = () => {
               </div>
             </div>
           </div>
+        {Loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader />
+            </div>
+          ) : (
           <table className="min-w-full leading-normal">
             <thead>
               <tr className="text-left text-gray-600 uppercase text-sm border-t border-gray-300">
@@ -422,7 +432,8 @@ const Dep_StudentList = () => {
               ))}
             </tbody>
           </table>
-          {getPageNumbers().length > 1 && (
+          )}
+          {getPageNumbers().length > 1 && !Loading &&(
             <div className="flex justify-center items-center mt-5">
               <svg
                 onClick={handlePrevPage}
