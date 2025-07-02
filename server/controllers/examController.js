@@ -319,10 +319,10 @@ const getPaginatedScheduledExams = async (req, res) => {
 
   try {
     if (!role) return res.status(400).json({ error: 'Role is required' });
-
+    const yearFilter = role === 'TPO' ? 'BE' : null;
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role, branch);
+      exams = await examModel.getExamsByStatus(status, role, branch, yearFilter);
     } else {
       Count = await examModel.ExamCount(status, role);
       exams = await examModel.getPaginatedExams(
@@ -338,7 +338,7 @@ const getPaginatedScheduledExams = async (req, res) => {
       user_id,
       activity: `Viewed paginated scheduled exams`,
       status: 'success',
-      details: `Page: ${page}, Limit: ${limit}`,
+      details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}, Role: ${role}, Branch: ${branch || 'all'}`,
     });
 
     res.status(200).json({
@@ -366,6 +366,7 @@ const getPaginatedDraftedExams = async (req, res) => {
 
   try {
     if (!role) return res.status(400).json({ error: 'Role is required' });
+    const yearFilter = role === 'TPO' ? 'BE' : null;
 
     // Determine branch filter
     let branchFilter = null;
@@ -377,7 +378,7 @@ const getPaginatedDraftedExams = async (req, res) => {
 
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role, branchFilter);
-      exams = await examModel.getExamsByStatus(status, role, branchFilter);
+      exams = await examModel.getExamsByStatus(status, role, branchFilter,yearFilter);
     } else {
       Count = await examModel.ExamCount(status, role, branchFilter);
       exams = await examModel.getPaginatedExams(
@@ -393,7 +394,7 @@ const getPaginatedDraftedExams = async (req, res) => {
       user_id,
       activity: `Viewed paginated draft exams`,
       status: 'success',
-      details: `Page: ${page || 'all'}, Limit: ${limit || 'all'}, Role: ${role}, Branch: ${branchFilter || 'All'}`,
+      details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}, Role: ${role}, Branch: ${branchFilter || 'all'}`,
     });
 
     res.status(200).json({
@@ -422,10 +423,10 @@ const getPaginatedLiveExams = async (req, res) => {
     if (!role) return res.status(400).json({ error: 'Role is required' });
 
     const branchFilter = role !== 'TPO' ? branch : null;
-
+    const yearFilter = role === 'TPO' ? 'BE' : null;
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role, branchFilter);
+      exams = await examModel.getExamsByStatus(status, role, branchFilter,yearFilter);
       await logActivity({
         user_id,
         activity: `Viewed non-paginated live exams`,
@@ -445,7 +446,7 @@ const getPaginatedLiveExams = async (req, res) => {
         user_id,
         activity: `Viewed paginated live exams`,
         status: 'success',
-        details: `Page: ${page}, Limit: ${limit}, Role: ${role}, Branch: ${branchFilter}`,
+        details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}, Role: ${role}, Branch: ${branchFilter || 'all'}`,
       });
     }
 
