@@ -241,7 +241,12 @@ const generateAllAnalysis = async (req, res) => {
       // Cache the data
       await fetchAndCacheAnalytics(cacheKey, analyticsData);
 
-      res.status(200).json({ analyticsData });
+      res.status(200).json({
+         overall_resultS,
+        avg_results,
+        rank,
+        test_completion_data,
+        performance_over_time, });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
