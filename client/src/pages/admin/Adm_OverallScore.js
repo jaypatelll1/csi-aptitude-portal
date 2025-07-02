@@ -31,43 +31,43 @@ function Adm_OverallScore() {
 
   // Single useEffect to handle data fetching and processing
   useEffect(() => {
-    const fetchAnalyticsData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-       
-        
-        
-        
-        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
-        const response = await axios.get(url, { withCredentials: true });
-        const analysisData = response.data;
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
       
-        
-        
-        // Process and set all data at once
-        if (analysisData) {
-          setChartData({
-            avgData: analysisData.dept_avg || [],
-            topPerformers: analysisData.top_performers || [],
-            bottomPerformers: analysisData.bottom_performers || [],
-            participationRate: analysisData.participation_rate || { participation_rate: 0 },
-            performanceOverTime: analysisData.performance_over_time || []
-          });
-        }
-        
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load data. Please try again.");
-      } finally {
-        setLoading(false);
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
+      const response = await axios.get(url, { withCredentials: true });
+      
+      // Access the nested analyticsData property
+      const analysisData = response.data // <-- Add .analyticsData here
+      
+      console.log("Analysis Data:", analysisData); // Debug log
+      
+      // Process and set all data at once
+      if (analysisData) {
+        setChartData({
+          avgData: analysisData.dept_avg || [],
+          topPerformers: analysisData.top_performers || [],
+          bottomPerformers: analysisData.bottom_performers || [],
+          participationRate: analysisData.participation_rate || { participation_rate: 0 },
+          performanceOverTime: analysisData.performance_over_time || []
+        });
       }
-    };
+      
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("Failed to load data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchAnalyticsData();
-  }, [ ]);
+  fetchAnalyticsData();
+}, []);
+
+
 
   // Memoized chart data calculations
   const participationRateData = React.useMemo(() => ({
