@@ -303,60 +303,61 @@ const deleteUser = async (req, res) => {
 
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
-  const { page, limit, role , department } = req.query;
-  // console.log("Query Parameters:", req.query);
+  const user_role = req.user.role; // Get current user's role
+  const { page, limit, role, department } = req.query;
 
   let users;
   try {
     const numeberOfUsers = await userModel.getUserCount();
+
+    // Add year filter for TPO
+    const isTPO = user_role === 'TPO';
+    const yearFilter = isTPO ? 'BE' : null;
+
     if (!page && !limit && !department) {
-      users = await userModel.getAllStudents(role);
-      await logActivity({
-        user_id: user_id,
-        activity: `Viewed Particular users`,
-        status: 'success',
-        details: `Viewed All queried users`,
-      });
-      return res.status(200).json({
-        User_Count: numeberOfUsers,
-        users,
-      });
+      users = await userModel.getAllStudents(role, yearFilter); // modified
     } else {
       if (!role) {
         users = await userModel.getAllPaginatedUsers(
           parseInt(page),
-          parseInt(limit)
+          parseInt(limit),
+          yearFilter // added
         );
-      }
-      else if (role || department) {
-          users = await userModel.getDepartmentUsers(
-            role,
-            department
-          );
-         } else {
+      } else if (role || department) {
+        users = await userModel.getDepartmentUsers(
+          role,
+          department,
+          yearFilter // added
+        );
+      } else {
         users = await userModel.getAllPaginatedRoleUsers(
           parseInt(page),
           parseInt(limit),
-          role
+          role,
+          yearFilter // added
         );
       }
-      await logActivity({
-        user_id: user_id,
-        activity: `Viewed paginated users`,
-        status: 'success',
-        details: `Page: ${page}, Limit: ${limit}`,
-      });
-      return res.status(200).json({
-        page: parseInt(page),
-        limit: parseInt(limit),
-        User_Count: numeberOfUsers,
-        users,
-      });
     }
+
+    await logActivity({
+      user_id: user_id,
+      activity: `Viewed users`,
+      status: 'success',
+      details: `Page: ${page || 'all'}, Limit: ${limit || 'all'}, Year filter: ${yearFilter || 'none'}`,
+    });
+
+    return res.status(200).json({
+      page: page ? parseInt(page) : undefined,
+      limit: limit ? parseInt(limit) : undefined,
+      User_Count: numeberOfUsers,
+      users,
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 const verifyResetToken = async (req, res) => {

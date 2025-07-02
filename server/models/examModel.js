@@ -169,8 +169,9 @@ const getAllScheduledExams = async () => {
   return result.rows;
 };
 
-const getExamsByStatus = async (status, role, branch) => {
+const getExamsByStatus = async (status, role, branch, year = null) => {
   const branchFilter = [branch]; // array format for @> operator
+  const yearFilter = year ? [year] : null;
 
   if (role === "President" || role === "Teacher") {
     const query = `
@@ -200,8 +201,9 @@ const getExamsByStatus = async (status, role, branch) => {
     const result = await pool.query(query, [status, "Teacher", branchFilter]);
     return result.rows;
   }
+
   else if (role === "TPO") {
-    const query = `
+    let query = `
       SELECT DISTINCT 
         e.exam_id, 
         e.exam_name, 
@@ -219,15 +221,24 @@ const getExamsByStatus = async (status, role, branch) => {
         questions q ON e.exam_id = q.exam_id
       WHERE 
         e.status = $1 AND 
-        e.exam_for = $2
+        e.exam_for = $2`;
+
+    const values = [status, "Student"];
+
+    if (yearFilter) {
+      query += ` AND e.target_years @> $3::year_enum[]`;
+      values.push(yearFilter);
+    }
+
+    query += `
       GROUP BY 
         e.exam_id, e.exam_name 
       ORDER BY created_at DESC`;
 
-    const result = await pool.query(query, [status, "Student"]);
-          console.log(result);
+    const result = await pool.query(query, values);
     return result.rows;
   }
+
   else {
     const query = `
       SELECT DISTINCT 
@@ -257,6 +268,7 @@ const getExamsByStatus = async (status, role, branch) => {
     return result.rows;
   }
 };
+
 
 
 const getExamsForUser = async (status, target_branches, target_years) => {

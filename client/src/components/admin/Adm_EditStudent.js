@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
-const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
+const Adm_EditStudent = ({ closeEditModal, student, counter ,onStudentUpdated, onStudentDeleted }) => {
   
   const studentname = student.name.split(" ")[0];
 
@@ -16,7 +16,7 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
   const [department, setDepartment] = useState(student.department);
   const [year, setYear] = useState(student.year);
   const [rollno, setRollno] = useState(student.rollno);
-  const [claass, setClaass] = useState(student.class);
+
   const [loading, setLoading] = useState(false); // Disable buttons during request
   const requestRef = useRef(false);
 
@@ -41,7 +41,10 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
         withCredentials: true, // Make sure the cookie is sent with the request
       });
 
-      alert("Student registered successfully!");
+      alert("Student updated successfully!");
+      if (onStudentUpdated) {
+        onStudentUpdated({ ...student, ...newStudent });
+      }
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
       console.error("Error registering student:", error);
@@ -66,6 +69,9 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
 
       alert("Student deleted successfully!");
       counter();
+      if (onStudentDeleted) {
+        onStudentDeleted(student.user_id);
+      }
       closeEditModal(); // Close modal after successful registration
     } catch (error) {
       console.error("Error deleting student:", error);
@@ -136,7 +142,14 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
           className="h-10 w-full border border-gray-300 rounded-lg pl-2"
           placeholder="Mobile Number"
           value={mobile}
-          onChange={(e) => setMobile(e.target.value)}
+          type="text"
+          maxLength="10"
+          onChange={(e) => {
+            const val = e.target.value;
+            if (/^\d*$/.test(val)) {
+              setMobile(val);
+            }
+          }}
         />
       </div>
 
@@ -167,16 +180,11 @@ const Adm_EditStudent = ({ closeEditModal, student, counter }) => {
         </div>
       </div>
       <div id="ClassBoxes" className="mb-7">
-        <h1 className="mb-2">Class and Roll Number</h1>
+        <h1 className="mb-2">Roll Number</h1>
         <div className="flex space-x-4">
+          
           <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Class"
-            value={claass}
-            onChange={(e) => setClaass(e.target.value)}
-          />
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
+            className="h-10 w-48px border border-gray-300 rounded-lg pl-2"
             placeholder="Roll Number"
             value={rollno}
             onChange={(e) => setRollno(e.target.value)}

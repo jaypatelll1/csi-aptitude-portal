@@ -24,6 +24,8 @@ function Adm_StudentAnalytics() {
   const [total, setTotal] = useState(0);
   const [rankData, setRankData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [studentName, setStudentName] = useState("");
+  const [department, setDepartment] = useState()
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
   const userData = useSelector((state) => state.user.user);
@@ -57,6 +59,13 @@ function Adm_StudentAnalytics() {
         },
       });
 
+      // Set student name in state
+      setStudentName(
+        response.data?.rank?.student_name ||
+        "Student Name Not Available");
+      setDepartment(
+        response.data?.rank?.department_name)
+      console.log("response", response.data);
       setData(response.data?.overall_resultS);
       setAvgData(response.data?.avg_results);
       setRankData(response.data?.rank);
@@ -84,6 +93,7 @@ function Adm_StudentAnalytics() {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setLoading(false); // Stop loading even on error
     }
   };
 
@@ -248,7 +258,15 @@ function Adm_StudentAnalytics() {
           </div>
         ) : (
           <>
-            <h1 className="text-3xl font-bold text-gray-800 mt-5 ml-5">Analytics</h1>
+            {/* Header with Analytics title and Student name */}
+            <div className="flex items-center justify-between mt-5 mx-5">
+              <h1 className="text-3xl font-bold text-gray-800">Analytics</h1>
+              <div className="text-right flex gap-6 items-end">
+                <p className="text-xl font-bold text-blue-600">{department}</p>
+
+                <p className="text-xl font-bold text-blue-600">{studentName}</p>
+              </div>
+            </div>
 
             {/* Analytics Content */}
             <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6 mt-6">

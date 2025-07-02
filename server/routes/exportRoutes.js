@@ -1,5 +1,5 @@
 const express = require("express");
-const { exportToUserCSV,exportToUserExcel,exportToQuestionExcel,exportToQuestionCSV,exportToResultCSV,exportToResultExcel } = require("../controllers/ExportController");
+const { exportToUserCSV,questionGeneratedExcel,exportToUserExcel,exportToQuestionExcel,exportToQuestionCSV,exportToResultCSV,exportToResultExcel } = require("../controllers/ExportController");
 const { jwtAuthMiddleware } = require("../middlewares/jwtAuthMiddleware");
 const { authorizeRoles } = require("../middlewares/roleAuthMiddleware");
 
@@ -19,4 +19,5 @@ router.get("/question/excel",jwtAuthMiddleware,authorizeRoles,exportToQuestionEx
 router.get("/result/csv/:exam_id",jwtAuthMiddleware,authorizeRoles, exportToResultCSV);
 router.get("/result/excel/:exam_id",jwtAuthMiddleware,authorizeRoles, exportToResultExcel);
 
+router.post("/ai_generated_questions",jwtAuthMiddleware,authorizeRoles,questionGeneratedExcel)
 module.exports = router;
