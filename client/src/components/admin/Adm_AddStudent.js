@@ -44,8 +44,12 @@ const Adm_AddStudent = ({ closeModal ,onStudentAdded }) => {
       }// Reload the page to reflect changes
       closeModal();
     } catch (error) {
-      console.error("Error registering student:", error);
-      alert("Failed to register student. Please try again.");
+     
+      const errorMsg =
+        error?.response?.data?.error ||
+        error?.response?.data?.errors?.[0]?.msg ||
+        "Registration failed";
+      alert(errorMsg);
     } finally {
       setIsSubmitting(false); // Reset button state after request completes
     }
