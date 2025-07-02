@@ -38,16 +38,22 @@ const Dep_AddStudent = ({ closeModal, onStudentAdded }) => {
       });
 
       alert("Student registered successfully!");
-      
+
       // Call the callback function to update parent component's state
       if (onStudentAdded) {
         onStudentAdded(response.data || newStudent);
       }
-      
+
       closeModal();
     } catch (error) {
-      alert(error?.response?.data?.errors[0].msg);
+      console.error("Registration error:", error);
+      const errorMsg =
+        error?.response?.data?.error ||
+        error?.response?.data?.errors?.[0]?.msg ||
+        "Registration failed";
+      alert(errorMsg);
     }
+
   };
 
   return (
@@ -64,7 +70,7 @@ const Dep_AddStudent = ({ closeModal, onStudentAdded }) => {
             value={studentName}
             onChange={(e) => setStudentName(e.target.value)}
           />
-        
+
         </div>
       </div>
 
@@ -84,7 +90,7 @@ const Dep_AddStudent = ({ closeModal, onStudentAdded }) => {
           className="h-10 w-full border border-gray-300 rounded-lg pl-2"
           placeholder="Mobile Number"
           value={mobile}
-         type="text"
+          type="text"
           maxLength="10"
           onChange={(e) => {
             const val = e.target.value;
@@ -116,16 +122,16 @@ const Dep_AddStudent = ({ closeModal, onStudentAdded }) => {
       </div>
       <div id="ClassBoxes" className="mb-7">
         <h1 className="mb-2">Roll Number</h1>
-       
-          
-          <input
-            className="h-10 w-48px border border-gray-300 rounded-lg pl-2"
-            placeholder="Roll Number"
-            value={rollno}
-            onChange={(e) => setRollno(e.target.value)}
-            type="number"
-          />
-        
+
+
+        <input
+          className="h-10 w-48px border border-gray-300 rounded-lg pl-2"
+          placeholder="Roll Number"
+          value={rollno}
+          onChange={(e) => setRollno(e.target.value)}
+          type="number"
+        />
+
       </div>
 
       <div className="flex justify-between">
