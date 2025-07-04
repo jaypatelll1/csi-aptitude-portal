@@ -18,17 +18,16 @@ function Stu_Analytics() {
   const [data, setData] = useState([]);
   const [avgData, setAvgData] = useState([]);
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
-  const [dSup, setDSup] = useState(""); // superscript of department rank
-  const [oSup, setOSup] = useState(""); // superscript of overall rank
+  const [dSup, setDSup] = useState("");
+  const [oSup, setOSup] = useState("");
   const [correct, setCorrect] = useState(0);
   const [total, setTotal] = useState(0);
   const [rankData, setRankData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chartReady, setChartReady] = useState(false); // for smooth animation
+
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
-  // const user_id = useSelector((state) => state.user.user.id);
-  // const { user_id } = useParams();
-
   const location = useLocation();
   const user_id = location.state?.user_id;
 
@@ -37,91 +36,20 @@ function Stu_Analytics() {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setSidebarOpen(false);
       }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-const getInitials = (name) => {
-  if (!name) return "S"; // Default fallback (e.g., Guest)
-  const words = name.trim().split(" ");
-  if (words.length === 1) return words[0][0].toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
-};
-
-  const fetchAllData = async () => {
-    try {
-      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      let url = `${API_BASE_URL}/api/analysis/all-analysis`;
-      const response = await axios.get(url, {
-        withCredentials: true,
-        headers: {
-          "x-user-id": user_id,
-        },
-      });
-
-      setData(response.data.overall_resultS);
-      setAvgData(response.data.avg_results);
-      setRankData(response.data.rank);
-
-      if (response.data.rank) {
-        superscript(setDSup, response.data.rank.department_rank);
-        superscript(setOSup, response.data.rank.overall_rank);
-      }
-
-       if (response.data.name) {
-      setUserName(response.data.name);
-    }
-
-      setPerformanceOverTime(response.data.performance_over_time);
-
-      const { attempted, total } = response.data.test_completion_data;
-      setTestCompletionData({
-        title: "Test Completion Rate",
-        chartData: [
-          { name: "Completed", value: attempted, fill: "#1349C5 " },
-          { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
-        ],
-      });
-
-      // Set loading to false after data is loaded
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setLoading(false); // Even on error, stop showing the loading state
-    }
-  };
-
-  useEffect(() => {
-    if (user_id) {
-      fetchAllData();
-    }
-  }, [user_id, loading]);
-
-   // Close Details when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
       if (detailsRef.current && !detailsRef.current.contains(event.target)) {
         setIsDetailsOpen(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const performanceOverTimeData = {
-    title: "Performance Over Time",
-    color: "#0703fc",
-    chartData: performanceOverTime?.map((exam) => ({
-      name: exam?.created_on,
-      Average: exam?.average_score,
-    })),
+  const getInitials = (name) => {
+    if (!name) return "S";
+    const words = name.trim().split(" ");
+    return words.length === 1
+      ? words[0][0].toUpperCase()
+      : (words[0][0] + words[1][0]).toUpperCase();
   };
 
   const superscript = (changeUsestateValue, rank) => {
@@ -132,33 +60,74 @@ const getInitials = (name) => {
     else changeUsestateValue("th");
   };
 
+  const fetchAllData = async () => {
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      let url = `${API_BASE_URL}/api/analysis/all-analysis`;
+      const response = await axios.get(url, {
+        withCredentials: true,
+        headers: { "x-user-id": user_id },
+      });
+      setData(response.data.overall_resultS);
+      setAvgData(response.data.avg_results);
+      setRankData(response.data.rank);
+      if (response.data.rank) {
+        superscript(setDSup, response.data.rank.department_rank);
+        superscript(setOSup, response.data.rank.overall_rank);
+      }
+      if (response.data.name) {
+        setUserName(response.data.name);
+      }
+      setPerformanceOverTime(response.data.performance_over_time);
+      const { attempted, total } = response.data.test_completion_data;
+      setTestCompletionData({
+        title: "Test Completion Rate",
+        chartData: [
+          { name: "Completed", value: attempted, fill: "#1349C5" },
+          { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
+        ],
+      });
+      setLoading(false);
+      setTimeout(() => setChartReady(true), 100); // allow smooth chart animation
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user_id) {
+      fetchAllData();
+    }
+  }, [user_id]);
+
   useEffect(() => {
     setCorrect(0);
     setTotal(0);
-
-    data?.map((exam) => {
-      setCorrect((prev) => prev + exam.total_score);
-    });
-
-    data?.map((exam) => {
-      setTotal((prev) => prev + exam.max_score);
-    });
-    // if (data[0]) {
-    //   // console.log("categories", Object.keys(data[0]?.category).score);
-    // }
+    data?.forEach((exam) => setCorrect((prev) => prev + exam.total_score));
+    data?.forEach((exam) => setTotal((prev) => prev + exam.max_score));
   }, [data]);
+
+  const performanceOverTimeData = {
+    title: "Performance Over Time",
+    color: "#0703fc",
+    chartData: performanceOverTime?.map((exam) => ({
+      name: exam?.created_on,
+      Average: exam?.average_score,
+    })),
+  };
 
   const accuracyData = {
     title: "Accuracy Rate",
     chartData: [
       {
         name: "Correct",
-        value: Math.round((correct / total) * 100),
+        value: total > 0 ? Math.round((correct / total) * 100) : 0,
         fill: "#28A745",
       },
       {
         name: "Wrong",
-        value: Math.round(((total - correct) / total) * 100),
+        value: total > 0 ? Math.round(((total - correct) / total) * 100) : 0,
         fill: "#DC3545",
       },
     ],
@@ -166,14 +135,10 @@ const getInitials = (name) => {
 
   const subjectPerformanceData = {
     title: "Topic-wise Performance",
-
     chartData: (() => {
-      // Filter out exams with null/undefined category
       const validData = data?.filter(
         (exam) => exam.category !== null && exam.category !== undefined
       );
-
-      // Get a unique set of all subjects across valid exams, ignoring "null" key
       const allSubjects = [
         ...new Set(
           validData?.flatMap((exam) =>
@@ -181,9 +146,7 @@ const getInitials = (name) => {
           )
         ),
       ];
-
       return allSubjects?.map((subject) => {
-        // Calculate total and average scores for this subject across valid exams
         const totalScore = validData.reduce(
           (sum, exam) => sum + (parseFloat(exam.category[subject]?.score) || 0),
           0
@@ -194,16 +157,14 @@ const getInitials = (name) => {
         );
         const averageScore =
           totalMaxScore > 0 ? parseFloat(((totalScore / totalMaxScore) * 100).toFixed(2)) : 0;
-
         return {
-          name: subject, // Renamed from "subject" to "name" for RadarChart
-          yourScore: totalScore, // Total score for this subject across exams
-          averagePercentage: averageScore, // Converted back to number
-          maxMarks: totalMaxScore, // Total max marks possible
+          name: subject,
+          yourScore: totalScore,
+          averagePercentage: averageScore,
+          maxMarks: totalMaxScore,
         };
       });
     })(),
-
     colors: {
       yourScore: "#1349C5",
       average: "#6A88F7",
@@ -211,9 +172,11 @@ const getInitials = (name) => {
     },
   };
 
+  const noDataAvailable =
+    data.length === 0 && avgData.length === 0 && performanceOverTime.length === 0;
+
   return (
     <div className="min-h-screen flex bg-gray-100 mb-4 overflow-x-hidden">
-      {/* Sidebar */}
       <div
         ref={sidebarRef}
         className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
@@ -223,8 +186,7 @@ const getInitials = (name) => {
         <Stu_Sidebar />
       </div>
 
-      <div className="flex flex-col flex-1 xl:ml-64 ">
-        {/* Header */}
+      <div className="flex flex-col flex-1 xl:ml-64">
         <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -246,28 +208,23 @@ const getInitials = (name) => {
             </svg>
           </button>
 
-          {/* <div
-            className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
+          <div
+            className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm font-semibold hover:cursor-pointer"
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
           >
-            AM
-          </div> */}
-
-          <div
-  className="h-9 w-9 rounded-full bg-blue-300 ml-auto flex items-center justify-center text-blue-700 text-sm font-semibold hover:cursor-pointer"
-  onClick={() => setIsDetailsOpen(!isDetailsOpen)}
->
-  {getInitials(userName)}
-</div>
-
+            {getInitials(userName)}
+          </div>
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
 
-        {/* Main Content */}
         <div className="p-6">
-          {loading ? (
+          {loading || !chartReady ? (
             <div className="flex items-center justify-center h-96">
               <Loader />
+            </div>
+          ) : noDataAvailable ? (
+            <div className="flex items-center justify-center h-96">
+              <p className="text-gray-500 text-lg">No Data Available</p>
             </div>
           ) : (
             <>
