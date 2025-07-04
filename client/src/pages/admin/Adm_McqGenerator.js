@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
+import McqSet from "../../components/mcqgenerator/McqSet"; // Import the McqSet component
+import InputAreaComponent from "../../components/mcqgenerator/InputArea"; // Import the InputAreaComponent
 import {
   setGenerating,
   setError,
@@ -46,62 +48,65 @@ const Adm_McqGenerator = ({ onClose }) => {
   });
   const [selectedQuestions, setSelectedQuestions] = useState({}); // Track selected questions: { [setId]: Set(questionId) }
   const sidebarRef = useRef(null);
-console.log(mcqSets)
-console.log(selectedQuestions)
 
-const handleExport = async () => {
-  const questions = [];
+  console.log(mcqSets);
+  console.log(selectedQuestions);
 
-  mcqSets.forEach(set => {
-    const selected = selectedQuestions[set.id];
-    if (selected && selected.size > 0) {
-      set.mcqs.forEach(mcq => {
-        if (selected.has(mcq.id)) {
-          questions.push({
-            question_text: mcq.question,
-            question_type: "single_choice", // assuming constant, or replace with `mcq.question_type` if dynamic
-            options_a: mcq.options[0] || "",
-            options_b: mcq.options[1] || "",
-            options_c: mcq.options[2] || "",
-            options_d: mcq.options[3] || "",
-            correct_option: String.fromCharCode(97 + mcq.correct_answer),
-            correct_options: null,
-            image_url: mcq.image_url || "", // if available
-            category: mcq.category , // fallback
-          });
-        }
-      });
-    }
-  });
+  const handleExport = async () => {
+    const questions = [];
 
-  const payload = { questions };
-
-  try {
-    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const url = `${API_BASE_URL}/api/export/ai_generated_questions`;
-
-    const response = await axios.post(url, payload, {
-      withCredentials: true,
-      responseType: 'blob' // 👈 important for binary Excel file
+    mcqSets.forEach((set) => {
+      const selected = selectedQuestions[set.id];
+      if (selected && selected.size > 0) {
+        set.mcqs.forEach((mcq) => {
+          if (selected.has(mcq.id)) {
+            questions.push({
+              question_text: mcq.question,
+              question_type: "single_choice", // assuming constant, or replace with `mcq.question_type` if dynamic
+              options_a: mcq.options[0] || "",
+              options_b: mcq.options[1] || "",
+              options_c: mcq.options[2] || "",
+              options_d: mcq.options[3] || "",
+              correct_option: String.fromCharCode(97 + mcq.correct_answer),
+              correct_options: null,
+              image_url: mcq.image_url || "", // if available
+              category: mcq.category, // fallback
+            });
+          }
+        });
+      }
     });
 
-    // Create a blob from the response
-    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const payload = { questions };
 
-    // Create download link
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = 'ai_mcq_export.xlsx'; // Set default filename
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const url = `${API_BASE_URL}/api/export/ai_generated_questions`;
 
-    console.log("Export successful and file downloaded.");
-  } catch (error) {
-    console.error("Export failed", error.response?.data || error.message);
-  }
-};
+      const response = await axios.post(url, payload, {
+        withCredentials: true,
+        responseType: "blob", // 👈 important for binary Excel file
+      });
+
+      // Create a blob from the response
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = "ai_mcq_export.xlsx"; // Set default filename
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      console.log("Export successful and file downloaded.");
+    } catch (error) {
+      console.error("Export failed", error.response?.data || error.message);
+    }
+  };
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -116,7 +121,6 @@ const handleExport = async () => {
       dispatch(setError("Please upload a PDF file only"));
     }
   };
-
 
   const handleGenerate = async () => {
     if (!uploadedFile && !topic.trim()) {
@@ -178,7 +182,6 @@ const handleExport = async () => {
       // Handle different response formats
       if (Array.isArray(response.data)) {
         mcqData = response.data;
-        
       } else if (
         response.data &&
         response.data.mcqs &&
@@ -240,7 +243,7 @@ const handleExport = async () => {
           } else if (typeof mcq.correct_answer === "number") {
             correctAnswerIndex = mcq.correct_answer;
           }
-const category = mcq.question_type;
+          const category = mcq.question_type;
           return {
             id: mcq.id || index + 1,
             question: mcq.question || "No question provided",
@@ -253,10 +256,7 @@ const category = mcq.question_type;
             bloom_level: mcq.bloom_level || "",
             estimated_time_seconds: mcq.estimated_time_seconds || 0,
             tags: mcq.tags || [],
-            category:category,
-
-
-
+            category: category,
           };
         });
 
@@ -268,7 +268,7 @@ const category = mcq.question_type;
             questionType,
             mcqs: transformedMCQs,
             fileName: uploadedFile?.name || null,
-          }),
+          })
         );
 
         // Clear form
@@ -303,6 +303,7 @@ const category = mcq.question_type;
       dispatch(setGenerating(false));
     }
   };
+
   const toggleSetCollapse = (setId) => {
     const newCollapsed = new Set(collapsedSets);
     if (newCollapsed.has(setId)) {
@@ -352,7 +353,6 @@ const category = mcq.question_type;
     });
   };
 
-  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
@@ -440,7 +440,7 @@ const category = mcq.question_type;
               className="ml-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded flex items-center text-sm"
               disabled={
                 !Object.values(selectedQuestions).some(
-                  (set) => set && set.size > 0,
+                  (set) => set && set.size > 0
                 )
               }
               title="Export selected questions as JSON"
@@ -502,212 +502,20 @@ const category = mcq.question_type;
             )}
 
             {/* Generated MCQ Sets */}
-            {mcqSets.map((mcqSet) => {
-              const allQuestionIds = mcqSet.mcqs.map((q) => q.id);
-              const setSelected = selectedQuestions[mcqSet.id] || new Set();
-              const allSelected =
-                setSelected.size === allQuestionIds.length &&
-                allQuestionIds.length > 0;
-              const anySelected = setSelected.size > 0;
-              return (
-                <div key={mcqSet.id} className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <FileQuestion className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 flex-1">
-                      {/* MCQ Set Header */}
-                      <div className="px-4 py-3 border-b border-green-200 flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          {/* Set-level Checkbox */}
-                          <input
-                            type="checkbox"
-                            checked={allSelected}
-                            indeterminate={
-                              anySelected && !allSelected
-                                ? "indeterminate"
-                                : undefined
-                            }
-                            onChange={() =>
-                              handleSelectAllSet(mcqSet.id, allQuestionIds)
-                            }
-                            className="form-checkbox h-5 w-5 text-green-600"
-                            id={`select-set-${mcqSet.id}`}
-                          />
-                          <label
-                            htmlFor={`select-set-${mcqSet.id}`}
-                            className="ml-2 text-xs text-green-700 font-semibold"
-                            title="Select/Deselect all questions in this set"
-                          >
-                            Select Set
-                          </label>
-                          <h3 className="font-semibold text-green-800">
-                            📚 {mcqSet.topic}
-                          </h3>
-                          <div className="flex items-center space-x-2 text-xs">
-                            <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full">
-                              {mcqSet.difficulty}
-                            </span>
-                            <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-full">
-                              {mcqSet.questionType}
-                            </span>
-                            <span className="text-green-700">
-                              {mcqSet.mcqs.length} questions
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs text-green-600">
-                            {formatDate(mcqSet.timestamp)}
-                          </span>
-                          <button
-                            onClick={() => toggleSetCollapse(mcqSet.id)}
-                            className="text-green-600 hover:text-green-800 p-1"
-                          >
-                            {collapsedSets.has(mcqSet.id) ? (
-                              <Eye className="w-4 h-4" />
-                            ) : (
-                              <EyeOff className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteSet(mcqSet.id)}
-                            className="text-red-500 hover:text-red-700 p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      {/* MCQ Set Content */}
-                      {!collapsedSets.has(mcqSet.id) && (
-                        <div className="p-4">
-                          {mcqSet.fileName && (
-                            <div className="mb-4 flex items-center space-x-2 text-sm text-green-700">
-                              <FileText className="w-4 h-4" />
-                              <span>Source: {mcqSet.fileName}</span>
-                            </div>
-                          )}
-                          <div className="space-y-6">
-                            {mcqSet.mcqs.map((mcq, index) => (
-                              <div
-                                key={mcq.id || index}
-                                className="bg-white border rounded-lg p-5 shadow-sm"
-                              >
-                                {/* Checkbox for this question */}
-                                <div className="flex items-center mb-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={setSelected.has(mcq.id)}
-                                    onChange={() =>
-                                      handleQuestionCheckbox(mcqSet.id, mcq.id)
-                                    }
-                                    className="form-checkbox h-4 w-4 text-blue-600"
-                                    id={`select-q-${mcqSet.id}-${mcq.id}`}
-                                  />
-                                  <label
-                                    htmlFor={`select-q-${mcqSet.id}-${mcq.id}`}
-                                    className="ml-2 text-xs text-gray-500"
-                                  >
-                                    Select
-                                  </label>
-                                </div>
-                                {/* Question Header */}
-                                <div className="flex items-start justify-between mb-4">
-                                  <h4 className="font-semibold text-gray-800 text-lg flex-1">
-                                    Question {index + 1}: {mcq.question}
-                                  </h4>
-                                  <div className="flex items-center space-x-2 ml-4">
-                                    {mcq.estimated_time_seconds && (
-                                      <div className="flex items-center space-x-1 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                        <Clock className="w-3 h-3" />
-                                        <span>
-                                          {formatTime(
-                                            mcq.estimated_time_seconds,
-                                          )}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {mcq.bloom_level && (
-                                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                                        {mcq.bloom_level
-                                          .charAt(0)
-                                          .toUpperCase() +
-                                          mcq.bloom_level.slice(1)}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Options */}
-                                <div className="space-y-3 mb-4">
-                                  {mcq.options.map((option, optIndex) => (
-                                    <div
-                                      key={optIndex}
-                                      className="flex items-center space-x-3"
-                                    >
-                                      <div
-                                        className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${
-                                          optIndex === mcq.correct_answer
-                                            ? "bg-green-100 border-green-500 text-green-700"
-                                            : "border-gray-300 text-gray-600 bg-gray-50"
-                                        }`}
-                                      >
-                                        {String.fromCharCode(65 + optIndex)}
-                                      </div>
-                                      <span
-                                        className={`text-base flex-1 ${
-                                          optIndex === mcq.correct_answer
-                                            ? "text-green-700 font-semibold"
-                                            : "text-gray-700"
-                                        }`}
-                                      >
-                                        {option}
-                                      </span>
-                                      {optIndex === mcq.correct_answer && (
-                                        <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-                                          Correct Answer
-                                        </span>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-
-                                {/* Explanation */}
-                                {mcq.explanation && (
-                                  <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                    <p className="text-sm text-blue-800">
-                                      <strong>💡 Explanation:</strong>{" "}
-                                      {mcq.explanation}
-                                    </p>
-                                  </div>
-                                )}
-
-                                {/* Tags */}
-                                {mcq.tags && mcq.tags.length > 0 && (
-                                  <div className="flex items-center space-x-2">
-                                    <Tag className="w-4 h-4 text-gray-500" />
-                                    <div className="flex flex-wrap gap-1">
-                                      {mcq.tags.map((tag, tagIndex) => (
-                                        <span
-                                          key={tagIndex}
-                                          className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
-                                        >
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {mcqSets.map((mcqSet) => (
+              <McqSet
+                key={mcqSet.id}
+                mcqSet={mcqSet}
+                selectedQuestions={selectedQuestions}
+                collapsedSets={collapsedSets}
+                onQuestionCheckbox={handleQuestionCheckbox}
+                onSelectAllSet={handleSelectAllSet}
+                onToggleSetCollapse={toggleSetCollapse}
+                onDeleteSet={handleDeleteSet}
+                formatTime={formatTime}
+                formatDate={formatDate}
+              />
+            ))}
 
             {/* Loading State */}
             {isGenerating && (
@@ -737,134 +545,22 @@ const category = mcq.question_type;
             )}
           </div>
 
-          {/* Input Area */}
-          <div className="bg-gray-50 border-t px-6 py-4 rounded-b-lg">
-            <div className="flex flex-col lg:flex-row items-end space-y-3 lg:space-y-0 lg:space-x-3">
-              {/* Form Controls */}
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-                {/* Topic Input */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Topic{" "}
-                    {!uploadedFile && <span className="text-red-500">*</span>}
-                  </label>
-                  <input
-                    type="text"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    placeholder="Enter topic (optional if PDF uploaded)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                {/* Difficulty Dropdown */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Difficulty
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={difficulty}
-                      onChange={(e) => setDifficulty(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none bg-white"
-                    >
-                      <option value="easy">Easy</option>
-                      <option value="medium">Medium</option>
-                      <option value="hard">Hard</option>
-                      <option value="expert">Expert</option>
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Number of Questions */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Questions (1-50)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="50"
-                    value={numQuestions}
-                    onChange={(e) =>
-                      setNumQuestions(parseInt(e.target.value) || 10)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                {/* Question Type */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Type
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={questionType}
-                      onChange={(e) => setQuestionType(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none bg-white"
-                    >
-                      <option value="academic">Academic</option>
-                      <option value="practical">Practical</option>
-                      <option value="conceptual">Conceptual</option>
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-
-              {/* File Upload and Send Button */}
-              <div className="flex items-end space-x-3">
-                {/* File Upload */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    PDF Upload (Max 16MB)
-                  </label>
-                  <label className="flex items-center justify-center w-10 h-10 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
-                    <Upload size={18} className="text-gray-400" />
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-
-                {/* Send Button */}
-                <div>
-                  <label className="block text-xs font-medium text-transparent mb-1">
-                    Send
-                  </label>
-                  <button
-                    onClick={handleGenerate}
-                    disabled={isGenerating}
-                    className="w-10 h-10 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg flex items-center justify-center transition-colors shadow-md hover:shadow-lg"
-                  >
-                    <Send size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* File Upload Status */}
-            {uploadedFile && (
-              <div className="mt-3 flex items-center space-x-2 text-sm text-gray-600 bg-white p-3 rounded-lg border">
-                <FileText size={16} className="text-blue-600" />
-                <span>
-                  Uploaded: <strong>{uploadedFile.name}</strong> (
-                  {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB)
-                </span>
-                <button
-                  onClick={() => setUploadedFile(null)}
-                  className="text-red-500 hover:text-red-700 ml-auto"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Input Area Component */}
+          <InputAreaComponent
+            topic={topic}
+            setTopic={setTopic}
+            difficulty={difficulty}
+            setDifficulty={setDifficulty}
+            numQuestions={numQuestions}
+            setNumQuestions={setNumQuestions}
+            questionType={questionType}
+            setQuestionType={setQuestionType}
+            uploadedFile={uploadedFile}
+            setUploadedFile={setUploadedFile}
+            isGenerating={isGenerating}
+            handleFileUpload={handleFileUpload}
+            handleGenerate={handleGenerate}
+          />
         </div>
       </div>
     </div>
