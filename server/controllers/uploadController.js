@@ -1,87 +1,56 @@
-const cloudinary = require("../config/cloudinaryConfig");
-const { updateQuestionImage, saveQuestion: saveQuestionModel, getQuestionById } = require("../models/questionModel");
+const { Upload } = require("@aws-sdk/lib-storage");
+const {DeleteObjectCommand,} = require("@aws-sdk/client-s3");
+const s3 = require("../config/s3Config");
 
-// Upload Image Logic and Update Question with Image URL
+const bucket = process.env.AWS_BUCKET_NAME;
+
 const uploadImage = async (req, res) => {
-  const { question_id } = req.body; // Expecting question_id to be provided
+  const file = req.file;
+  if (!file) return res.status(400).json({ error: "No file uploaded" });
 
-  if (!req.file) {
-    return res.status(400).json({ error: "No image uploaded" });
-  }
+  const key = `images/${Date.now()}-${file.originalname}`;
 
   try {
-    cloudinary.uploader.upload_stream({ folder: "exam_questions" }, async (error, result) => {
-      if (error) return res.status(500).json({ error: "Cloudinary upload failed" });
+    const upload = new Upload({
+      client: s3,
+      params: {
+        Bucket: bucket,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      },
+    });
 
-      // If question_id is provided, update the question's image URL
-      if (question_id) {
-        const updatedQuestion = await updateQuestionImage(question_id, result.secure_url);
-        return res.status(200).json({
-          success: true,
-          message: "Image uploaded and question updated successfully",
-          imageUrl: result.secure_url,
-          question: updatedQuestion
-        });
-      }
+    const result = await upload.done();
 
-      // If no question_id, just return the uploaded image URL
-      res.status(200).json({ success: true, imageUrl: result.secure_url });
-    }).end(req.file.buffer);
+    res.status(200).json({
+      success: true,
+      imageUrl: `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
+    });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Upload error:", err);
+    res.status(500).json({ error: "Upload failed", details: err.message });
   }
 };
 
-
-
-// Delete Image Logic
 const deleteImage = async (req, res) => {
-    const { question_id } = req.params;
-  
-    if (!question_id) {
-      return res.status(400).json({ error: "Missing question ID" });
-    }
-  
-    try {
-      console.log("Deleting image for question_id:", question_id);
-  
-      // Step 1: Fetch existing image
-      const question = await getQuestionById(question_id);
-      if (!question || !question.image_url) {
-        console.log("No image found for question:", question_id);
-        return res.status(404).json({ error: "No image found for this question" });
-      }
-  
-      console.log("Found image URL:", question.image_url);
-      const imageUrl = question.image_url;
-  
-      // Extract publicId from Cloudinary URL
-      const publicId = imageUrl.split("/").pop().split(".")[0];
-      console.log("Cloudinary Public ID:", publicId);
-  
-      // Step 2: Delete from Cloudinary
-      const cloudinaryResponse = await cloudinary.uploader.destroy(`exam_questions/${publicId}`);
-      console.log("Cloudinary delete response:", cloudinaryResponse);
-  
-      if (cloudinaryResponse.result !== "ok") {
-        console.log("Cloudinary delete failed:", cloudinaryResponse);
-        return res.status(500).json({ error: "Cloudinary delete failed" });
-      }
-  
-      // Step 3: Update database (set image_url to NULL)
-      const updatedQuestion = await updateQuestionImage(question_id, null);
-      console.log("Database updated successfully:", updatedQuestion);
-  
-      res.status(200).json({
-        success: true,
-        message: "Image deleted successfully",
-        question: updatedQuestion,
-      });
-    } catch (err) {
-      console.error("Error in deleteImage function:", err);
-      res.status(500).json({ error: "Error deleting image", details: err.message });
-    }
-  };
-  
-  
-module.exports = { uploadImage, deleteImage};
+  const { key } = req.params; // Pass image key like "images/filename.jpg"
+
+  if (!key) return res.status(400).json({ error: "Image key required" });
+
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+
+    await s3.send(command);
+
+    res.status(200).json({ success: true, message: "Image deleted" });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Delete failed", details: err.message });
+  }
+};
+
+module.exports = { uploadImage, deleteImage };

@@ -518,9 +518,9 @@ const getPaginatedPastExams = async (req, res) => {
       Count: Count || 0,
       ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {})
     };
-
+const time = process.env.time;
     // 5. Cache the response
-    await redis.set(cacheKey, JSON.stringify(response), 'EX', 7200);
+    await redis.set(cacheKey, JSON.stringify(response), 'EX', time);
 
     res.status(200).json(response);
 
