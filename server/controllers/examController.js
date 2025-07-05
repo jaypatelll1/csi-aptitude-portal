@@ -1,5 +1,6 @@
 const examModel = require('../models/examModel');
 const { logActivity } = require('../utils/logActivity');
+const redis = require('../config/redisClient');
 
 const createExam = async (req, res) => {
   let { name, duration, start_time, end_time, target_years, target_branches } =
@@ -318,10 +319,10 @@ const getPaginatedScheduledExams = async (req, res) => {
 
   try {
     if (!role) return res.status(400).json({ error: 'Role is required' });
-
+    const yearFilter = role === 'TPO' ? 'BE' : null;
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role, branch);
+      exams = await examModel.getExamsByStatus(status, role, branch, yearFilter);
     } else {
       Count = await examModel.ExamCount(status, role);
       exams = await examModel.getPaginatedExams(
@@ -337,7 +338,7 @@ const getPaginatedScheduledExams = async (req, res) => {
       user_id,
       activity: `Viewed paginated scheduled exams`,
       status: 'success',
-      details: `Page: ${page}, Limit: ${limit}`,
+      details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}, Role: ${role}, Branch: ${branch || 'all'}`,
     });
 
     res.status(200).json({
@@ -365,6 +366,7 @@ const getPaginatedDraftedExams = async (req, res) => {
 
   try {
     if (!role) return res.status(400).json({ error: 'Role is required' });
+    const yearFilter = role === 'TPO' ? 'BE' : null;
 
     // Determine branch filter
     let branchFilter = null;
@@ -376,7 +378,7 @@ const getPaginatedDraftedExams = async (req, res) => {
 
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role, branchFilter);
-      exams = await examModel.getExamsByStatus(status, role, branchFilter);
+      exams = await examModel.getExamsByStatus(status, role, branchFilter,yearFilter);
     } else {
       Count = await examModel.ExamCount(status, role, branchFilter);
       exams = await examModel.getPaginatedExams(
@@ -392,7 +394,7 @@ const getPaginatedDraftedExams = async (req, res) => {
       user_id,
       activity: `Viewed paginated draft exams`,
       status: 'success',
-      details: `Page: ${page || 'all'}, Limit: ${limit || 'all'}, Role: ${role}, Branch: ${branchFilter || 'All'}`,
+      details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}, Role: ${role}, Branch: ${branchFilter || 'all'}`,
     });
 
     res.status(200).json({
@@ -421,10 +423,10 @@ const getPaginatedLiveExams = async (req, res) => {
     if (!role) return res.status(400).json({ error: 'Role is required' });
 
     const branchFilter = role !== 'TPO' ? branch : null;
-
+    const yearFilter = role === 'TPO' ? 'BE' : null;
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role, branchFilter);
+      exams = await examModel.getExamsByStatus(status, role, branchFilter,yearFilter);
       await logActivity({
         user_id,
         activity: `Viewed non-paginated live exams`,
@@ -432,7 +434,7 @@ const getPaginatedLiveExams = async (req, res) => {
         details: `Role: ${role}, Branch: ${branchFilter}`,
       });
     } else {
-      Count = await examModel.ExamCount(status, role);
+      Count = await examModel.ExamCount(status, role, branchFilter);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
@@ -444,7 +446,7 @@ const getPaginatedLiveExams = async (req, res) => {
         user_id,
         activity: `Viewed paginated live exams`,
         status: 'success',
-        details: `Page: ${page}, Limit: ${limit}, Role: ${role}, Branch: ${branchFilter}`,
+        details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}, Role: ${role}, Branch: ${branchFilter || 'all'}`,
       });
     }
 
@@ -467,45 +469,67 @@ const getPaginatedLiveExams = async (req, res) => {
 
 const getPaginatedPastExams = async (req, res) => {
   const user_id = req.user.id;
+  const user_role = req.user.role; // Get logged-in user's role
   let status = 'past', Count, exams;
-  const { page, limit, role, branch } = req.query; // 👈 also extracting branch here
+  const { page, limit, role, branch } = req.query;
+
+  const yearFilter = user_role === 'TPO' ? 'BE' : null;
+
+  const cacheKey = `pastExams:${role}:${branch || 'all'}:${yearFilter || 'all'}:${page || 'all'}:${limit || 'all'}`;
 
   try {
     if (!role) return res.status(400).json({ error: 'Role is required' });
 
+    // 1. Check Redis cache
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log('==Cache hit for', cacheKey);
+      return res.status(200).json(JSON.parse(cached));
+    }
+
+    // 2. Fetch from DB
     if (!page && !limit) {
-      Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role, branch); // 👈 pass branch
+      Count = await examModel.ExamCount(status, role, branch, yearFilter);
+      exams = await examModel.getExamsByStatus(status, role, branch, yearFilter);
     } else {
-      Count = await examModel.ExamCount(status, role);
+      Count = await examModel.ExamCount(status, role, branch, yearFilter);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),
         status,
         role,
-        branch // 👈 pass branch
+        branch,
+        yearFilter
       );
     }
 
+    // 3. Log activity
     await logActivity({
       user_id,
       activity: `Viewed paginated past exams`,
       status: 'success',
-      details: `Page: ${page}, Limit: ${limit}`,
+      details: `Page: ${page}, Limit: ${limit}, Year: ${yearFilter || 'all'}`,
     });
 
-    res.status(200).json({
+    // 4. Build response
+    const response = {
       message: 'Exams retrieved successfully',
       exams: exams || [],
       Count: Count || 0,
-      ...(page && limit
-        ? { page: parseInt(page), limit: parseInt(limit) }
-        : {}),
-    });
+      ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {})
+    };
+const time = process.env.time;
+    // 5. Cache the response
+    await redis.set(cacheKey, JSON.stringify(response), 'EX', time);
+
+    res.status(200).json(response);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 
 

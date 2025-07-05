@@ -15,7 +15,7 @@ const generateRank = async (req, res) => {
 const GetStudentRanksInAscOrder = async(req,res)=>{
   const {filter,department} = req.query
     try {
-      const results = await rankModel.getStudentRanksInOrder({filter,department})
+      const results = await rankModel.getStudentRanksInOrderTpo({filter,department})
       return res.status(200).json(results)
     } catch (error) {
      return res.status(500).json({ error: error.message });

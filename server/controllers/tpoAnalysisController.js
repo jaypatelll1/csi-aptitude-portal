@@ -1,7 +1,7 @@
 const tpoAnalysisModel = require('../models/tpoAnalysisModel');
 const deptAnalysisModel = require('../models/deptAnalysisModel');
 const { logActivity } = require('../utils/logActivity');
-const { fetchAndCacheAnalytics, getCachedAnalytics } = require('../utils/cacheUtils');
+const { fetchAndCacheAnalytics, getCachedAnalytics, trackAttempt } = require('../utils/cacheUtils');
 
 const getDeptAvgScores = async (req, res) => {
   const user_id = req.user.id;
@@ -153,6 +153,8 @@ const getCategoryWiseAccuracy = async (req, res) => {
   }
 };
 
+
+
 const getAllTpoAnalysis = async (req, res) => {
   
   const cacheKey = `analytics:overall`;
@@ -199,12 +201,19 @@ const getAllTpoAnalysis = async (req, res) => {
       // Cache the data
       await fetchAndCacheAnalytics(cacheKey, analyticsData);
 
-      return res.status(200).json({ analyticsData });
+      return res.status(200).json({ dept_avg,
+        top_performers,
+        bottom_performers,
+        participation_rate,
+        performance_over_time
+      });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 module.exports = {
   getDeptAvgScores,

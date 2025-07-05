@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
-const Dep_AddStudent = ({ closeModal }) => {
+const Dep_AddStudent = ({ closeModal, onStudentAdded }) => {
   var API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
   const [studentName, setStudentName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -10,7 +10,7 @@ const Dep_AddStudent = ({ closeModal }) => {
   const [mobile, setMobile] = useState("");
   const [year, setYear] = useState("FE");
   const [rollno, setRollno] = useState();
-  const [claass, setClaass] = useState("");
+
   const { department: userDepartment } = useSelector((state) => state.user.user);
 
   // Generate a random password
@@ -38,10 +38,22 @@ const Dep_AddStudent = ({ closeModal }) => {
       });
 
       alert("Student registered successfully!");
-      closeModal(); // Close modal after successful registration
+
+      // Call the callback function to update parent component's state
+      if (onStudentAdded) {
+        onStudentAdded(response.data || newStudent);
+      }
+
+      closeModal();
     } catch (error) {
-      alert(error?.response?.data?.errors[0].msg);
+      console.error("Registration error:", error);
+      const errorMsg =
+        error?.response?.data?.error ||
+        error?.response?.data?.errors?.[0]?.msg ||
+        "Registration failed";
+      alert(errorMsg);
     }
+
   };
 
   return (
@@ -54,11 +66,11 @@ const Dep_AddStudent = ({ closeModal }) => {
         <div className="flex space-x-4">
           <input
             className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="First Name"
+            placeholder="Name"
             value={studentName}
             onChange={(e) => setStudentName(e.target.value)}
           />
-        
+
         </div>
       </div>
 
@@ -78,7 +90,14 @@ const Dep_AddStudent = ({ closeModal }) => {
           className="h-10 w-full border border-gray-300 rounded-lg pl-2"
           placeholder="Mobile Number"
           value={mobile}
-          onChange={(e) => setMobile(e.target.value)}
+          type="text"
+          maxLength="10"
+          onChange={(e) => {
+            const val = e.target.value;
+            if (/^\d*$/.test(val)) {
+              setMobile(val);
+            }
+          }}
         />
       </div>
 
@@ -102,22 +121,17 @@ const Dep_AddStudent = ({ closeModal }) => {
         </div>
       </div>
       <div id="ClassBoxes" className="mb-7">
-        <h1 className="mb-2">Class and Roll Number</h1>
-        <div className="flex space-x-4">
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Class"
-            value={claass}
-            onChange={(e) => setClaass(e.target.value)}
-          />
-          <input
-            className="h-10 w-full border border-gray-300 rounded-lg pl-2"
-            placeholder="Roll Number"
-            value={rollno}
-            onChange={(e) => setRollno(e.target.value)}
-            type="number"
-          />
-        </div>
+        <h1 className="mb-2">Roll Number</h1>
+
+
+        <input
+          className="h-10 w-48px border border-gray-300 rounded-lg pl-2"
+          placeholder="Roll Number"
+          value={rollno}
+          onChange={(e) => setRollno(e.target.value)}
+          type="number"
+        />
+
       </div>
 
       <div className="flex justify-between">

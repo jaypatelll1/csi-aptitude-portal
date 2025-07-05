@@ -167,6 +167,7 @@ console.log('rows',rows);
     }
 };
 
+
 // Export to Result CSV
 const exportToResultCSV = async (req, res) => {
     try {
@@ -226,11 +227,45 @@ const exportToResultExcel = async (req, res) => {
     }
 };
 
+const questionGeneratedExcel = async (req,res) => { 
+    const questions = req.body.questions; // Expecting an array of questions
+
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Questions');
+
+  // Define header row
+  worksheet.columns = [
+    { header: 'question_text', key: 'question_text' },
+    { header: 'question_type', key: 'question_type' },
+    { header: 'options_a', key: 'options_a' },
+    { header: 'options_b', key: 'options_b' },
+    { header: 'options_c', key: 'options_c' },
+    { header: 'options_d', key: 'options_d' },
+    { header: 'correct_option', key: 'correct_option' },
+    { header: 'correct_options', key: 'correct_options' },
+    { header: 'image_url', key: 'image_url' },
+    { header: 'category', key: 'category' },
+  ];
+
+  // Add data rows
+  questions.forEach((q) => {
+    worksheet.addRow(q);
+  });
+
+  // Write to buffer and send
+  const buffer = await workbook.xlsx.writeBuffer();
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=questions.xlsx');
+  res.send(buffer);
+
+ }
+
 module.exports = {
     exportToUserCSV,
     exportToUserExcel,
     exportToQuestionCSV,
     exportToQuestionExcel,
     exportToResultCSV,
-    exportToResultExcel
+    exportToResultExcel,
+    questionGeneratedExcel
 };

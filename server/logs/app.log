@@ -1,0 +1,60 @@
+[2025-07-05 19:21:19] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-05 19:21:19] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-05 19:21:21] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-05 19:21:21] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-05 19:21:22] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-05 19:21:22] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-05 19:21:22] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-05 19:22:13] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-05 19:24:53] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-05 19:39:43] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-05 19:44:13] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-05 19:55:35] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-05 19:55:35] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-05 19:55:35] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-05 19:55:35] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-05 19:55:37] info: User ID: 1, Activity: Viewed paginated past exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE
+[2025-07-05 19:55:37] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-05 19:55:37] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-05 19:55:38] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-05 19:55:40] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-05 19:55:40] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-05 19:55:41] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-05 19:55:41] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-05 19:55:41] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-05 19:57:37] info: User ID: 1, Activity: Create Question, Status: success, Details: New Question created successfully
+[2025-07-05 19:57:37] info: User ID: 1, Activity: Create Question, Status: success, Details: New Question created successfully
+[2025-07-05 19:57:38] info: User ID: 1, Activity: Create Question, Status: success, Details: New Question created successfully
+[2025-07-05 19:57:39] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-05 19:57:40] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-05 19:57:47] info: User ID: 1, Activity: Update Question, Status: success, Details: Question updated successfully
+[2025-07-05 19:57:47] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-05 19:57:47] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details

@@ -67,13 +67,24 @@ const generateRank = async () => {
 
 async function getStudentRanksInOrder(data) {
   try {
-    let queryText = 'SELECT * FROM student_rank';
+    let queryText = 'SELECT * FROM student_rank WHERE  ';
     let queryParams = [];
 
     if (data.department) {
-      queryText += ' WHERE department_name = $1';
+      queryText += '  department_name = $1';
       queryParams.push(data.department);
     }
+//     SELECT 
+//     u.user_id AS "User ID",
+//     u.name AS "Name",
+//     sr.department_name AS "Department",
+//     sr.department_rank AS "Dept. Rank",
+//     sr.overall_rank AS "Overall Rank"
+// FROM student_rank sr
+// JOIN users u ON sr.student_id = u.user_id
+// WHERE u.year = 'BE'
+// ORDER BY sr.overall_rank ASC;
+
 
     if (data.filter === "top-performers") {
       queryText += data.department ? " ORDER BY department_rank ASC" : " ORDER BY  overall_rank ASC";
@@ -94,5 +105,54 @@ async function getStudentRanksInOrder(data) {
     console.log('Error fetching data', error);
   }
 }
+async function getStudentRanksInOrderTpo(data) {
+  try {
+    let queryText = `
+      SELECT 
+        u.user_id AS "user_id",
+        u.name AS "name",
+        sr.department_name AS "department",
+        sr.department_rank AS "department_rank",
+        sr.overall_rank AS "overall_rank",
+        sr.total_score AS "total_score",
+        u.email AS "email",
+        u.phone AS "phone"
+      FROM student_rank sr
+      JOIN users u ON sr.student_id = u.user_id
+      WHERE u.year = 'BE'`;
 
-module.exports = { generateRank, getStudentRanksInOrder };
+    const queryParams = [];
+    let paramIndex = 1;
+
+    if (data.department) {
+      queryText += ` AND sr.department_name = $${paramIndex}`;
+      queryParams.push(data.department);
+      paramIndex++;
+    }
+
+    if (data.filter === "top-performers") {
+      queryText += data.department 
+        ? ` ORDER BY sr.department_rank ASC` 
+        : ` ORDER BY sr.overall_rank ASC`;
+    } else if (data.filter === "bottom-performers") {
+      queryText += data.department 
+        ? ` ORDER BY sr.department_rank DESC` 
+        : ` ORDER BY sr.overall_rank DESC`;
+    } else {
+      queryText += data.department 
+        ? ` ORDER BY sr.department_rank ASC` 
+        : ` ORDER BY sr.overall_rank ASC`;
+    }
+
+    console.log(queryText, queryParams);
+    const result = await query(queryText, queryParams);
+    return result.rows;
+
+  } catch (error) {
+    console.log('Error fetching data', error);
+    return [];
+  }
+}
+
+
+module.exports = { generateRank, getStudentRanksInOrder, getStudentRanksInOrderTpo };

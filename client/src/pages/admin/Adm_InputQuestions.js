@@ -596,7 +596,7 @@ const Adm_InputQuestions = () => {
               className="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300 border border-gray-700 opacity-90 hover:opacity-100"
               onClick={handleCancel}
             >
-              Cancel
+             Clear
             </button>
           </div>
         </div>

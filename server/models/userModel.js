@@ -58,16 +58,25 @@ const createUser = async (
   }
 };
 
-const getAllStudents = async (role) => {
-  const query =
-  `SELECT user_id, name, email, role , department,year,phone, rollno  
-  FROM users 
-  WHERE role = $1 
-  ORDER BY user_id ASC`
-  
-  const result = await pool.query(query, [role]);
+const getAllStudents = async (role, year = null) => {
+  let query = `
+    SELECT user_id, name, email, role, department, year, phone, rollno  
+    FROM users 
+    WHERE role = $1`;
+
+  const values = [role];
+
+  if (year) {
+    query += ` AND year = $2`;
+    values.push(year);
+  }
+
+  query += ` ORDER BY user_id ASC`;
+
+  const result = await pool.query(query, values);
   return result.rows;
 };
+
 
 // Function to update a user
 const updateUser = async (id, updatedFields) => {

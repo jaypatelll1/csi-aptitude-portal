@@ -1,0 +1,32 @@
+[2025-07-05 19:22:13] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-05 19:24:53] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-05 19:39:43] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-05 19:44:13] error: Error occurred: this.client.send is not a function 
+Stack Trace: TypeError: this.client.send is not a function
+    at _Upload.__uploadUsingPut (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:259:53)
+    at _Upload.__doConcurrentUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:333:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Promise.all (index 0)
+    at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
+    at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)

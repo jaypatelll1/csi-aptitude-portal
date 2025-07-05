@@ -206,7 +206,7 @@ const Adm_TestStudentList = () => {
             <thead>
               <tr className="text-left text-gray-600 uppercase text-sm border-t border-gray-300">
                 <th className="py-4 w-1/5">Name</th>
-                <th className="py-4 w-1/5">Email</th>
+                <th className="py-4 w-1/3">Email</th>
                 <th className="py-4 w-1/6">Date</th>
                 <th className="py-4 w-1/6">Results</th>
                 <th className="py-4 w-1/6">Marks</th>
@@ -222,7 +222,7 @@ const Adm_TestStudentList = () => {
                   <tr key={student.result_id} className="hover:bg-gray-50">
                     {/* Loop through the user details of the student if users is an array */}
                     <td className="py-4 w-1/5">{student.student_name}</td>
-                    <td className="py-4 w-1/5">{student.student_email}</td>
+                    <td className="py-4 w-1/3">{student.student_email}</td>
 
                     {/* Other student properties like date, results, etc. */}
                     <td className="py-4 w-1/6">{student.Date}</td>
@@ -234,7 +234,7 @@ const Adm_TestStudentList = () => {
                     <td className="py-4 w-1/6">
                       {student.total_score}/{student.max_score}
                     </td>
-                    <td className="py-4 w-1/6">{duration}</td>
+                    <td className="py-4  whitespace-nowrap w-1/6">{duration}</td>
                     {/* <td className="py-4 w-1/6 text-blue-600 whitespace-nowrap text-sm cursor-pointer">
                                             view more
                                         </td> */}

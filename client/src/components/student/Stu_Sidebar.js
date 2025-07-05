@@ -13,7 +13,7 @@ function Stu_Sidebar() {
       <ul className="list-none p-0 m-0">
         {/* Dashboard */}
         <li
-          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500"
+          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 group"
           onClick={() => navigate("/home")}
         >
           <span className="mr-2 flex items-center justify-center w-6 h-6">
@@ -30,6 +30,7 @@ function Stu_Sidebar() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                   className=" group-hover:stroke-blue-500 transition-colors duration-300"
               />
             </svg>
           </span>
@@ -38,7 +39,7 @@ function Stu_Sidebar() {
 
         {/* Analytics */}
         <li
-          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 "
+          className="flex items-center p-2 text-black cursor-pointer transition-colors duration-300 hover:text-blue-500 group "
           onClick={() => navigate(`/analytics`, { state: { user_id } })}
         >
           <span className="mr-2 flex items-center justify-center w-6 h-6 ">
@@ -52,6 +53,7 @@ function Stu_Sidebar() {
               <path
                 d="M9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17ZM19 19H5V5H12V3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V12H19V19Z"
                 fill="black"
+                   className="group-hover:fill-blue-500 group-hover:stroke-blue-500 transition-colors duration-300"
               />
             </svg>
           </span>
