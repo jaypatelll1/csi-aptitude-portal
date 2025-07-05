@@ -434,7 +434,7 @@ const getPaginatedLiveExams = async (req, res) => {
         details: `Role: ${role}, Branch: ${branchFilter}`,
       });
     } else {
-      Count = await examModel.ExamCount(status, role);
+      Count = await examModel.ExamCount(status, role, branchFilter);
       exams = await examModel.getPaginatedExams(
         parseInt(page),
         parseInt(limit),

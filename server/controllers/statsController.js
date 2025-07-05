@@ -39,10 +39,10 @@ const getLastExamStats = async (req, res) => {
 
 const getStudentCountForExam = async (exam_id, exam_for) => {
   let query;
-  if(exam_for === 'Student') {
+  if (exam_for === 'Student') {
     query = 'SELECT COUNT(*) FROM responses WHERE exam_id = $1';
   }
-  else if(exam_for === 'Teacher') {
+  else if (exam_for === 'Teacher') {
     query = 'SELECT COUNT(*) FROM teacher_responses WHERE exam_id = $1';
   }
   const values = [exam_id];
@@ -85,12 +85,26 @@ const getAllTestsStats = async (req, res) => {
 
 const getAllStudentsStats = async (req, res) => {
   const user_id = req.user.id;
+  const user_role = req.user.role;      // ✅ this line was missing
+  const user_branch = req.user.department;
   const exam_for = req.query.exam_for;
 
   try {
-    const totalStudentsQuery = 'SELECT COUNT(*) FROM users WHERE role = $1 AND status = $2';
-    const totalStudentsResult = await pool.query(totalStudentsQuery, [exam_for, 'ACTIVE']);
+    let totalStudentsQuery = 'SELECT COUNT(*) FROM users WHERE role = $1 AND status = $2';
+    const values = [exam_for, 'ACTIVE'];
 
+    // ✅ Correct filtering logic
+    if (user_role === 'TPO') {
+      // Admin sees only BE students from all branches
+      totalStudentsQuery += ' AND year = $3';
+      values.push('BE');
+    } else{
+      // TPO/Dept sees all students from their branch (all years)
+      totalStudentsQuery += ' AND department = $3';
+      values.push(user_branch);
+    }
+
+    const totalStudentsResult = await pool.query(totalStudentsQuery, values);
     const totalStudentsCount = parseInt(totalStudentsResult.rows[0].count, 10);
 
     await logActivity({
@@ -113,11 +127,11 @@ const getAllStudentsStatsForDepartment = async (req, res) => {
   const user_id = req.user.id;
   const { department, role } = req.query;
   console.log(req.query);
-  
+
 
   try {
     const totalStudentsQuery = 'SELECT COUNT(*) FROM users WHERE department = $1 AND status = $2 AND role = $3';
-    const totalStudentsResult = await pool.query(totalStudentsQuery, [department, 'ACTIVE', role] );
+    const totalStudentsResult = await pool.query(totalStudentsQuery, [department, 'ACTIVE', role]);
 
     const totalStudentsCount = parseInt(totalStudentsResult.rows[0].count, 10);
 
