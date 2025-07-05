@@ -11,10 +11,10 @@ const Adm_CreateTestPage = () => {
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
   const [branch, setBranch] = useState([]);
-  const [year, setYear] = useState([]);
+  const [year, setYear] = useState(["BE"]); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
-  const [showYearDropdown, setShowYearDropdown] = useState(false);
+  
   const [Loading, setLoading] = useState(false);
 
   const sidebarRef = useRef(null);
@@ -24,7 +24,7 @@ const Adm_CreateTestPage = () => {
   const dispatch = useDispatch();
 
   const branches = ["CMPN", "INFT", "EXTC", "ELEC", "ECS"];
-  const years = ["FE", "SE", "TE", "BE"];
+  const years = ["BE"];
 
   const handleCreateQuestions = async (e) => {
     e.preventDefault();
@@ -67,17 +67,6 @@ const Adm_CreateTestPage = () => {
     }
   };
 
-  const handleYearChange = (selectedYear) => {
-    if (selectedYear === "All") {
-      setYear(year.length === years.length ? [] : [...years]);
-    } else {
-      const newYears = year.includes(selectedYear)
-        ? year.filter((y) => y !== selectedYear)
-        : [...year, selectedYear];
-      setYear(newYears);
-    }
-  };
-
   const handleTestNameChange = (e) => {
     const value = e.target.value;
     // Capitalize the first letter of the entire string
@@ -89,7 +78,7 @@ const Adm_CreateTestPage = () => {
     setTestName("");
     setDuration("");
     setBranch([]);
-    setYear([]);
+    setYear(["BE"]); // Reset to BE
   };
 
   const handleGoBack = () => {
@@ -103,9 +92,6 @@ const Adm_CreateTestPage = () => {
       }
       if (branchRef.current && !branchRef.current.contains(event.target)) {
         setShowBranchDropdown(false);
-      }
-      if (yearRef.current && !yearRef.current.contains(event.target)) {
-        setShowYearDropdown(false);
       }
     };
 
@@ -235,65 +221,13 @@ const Adm_CreateTestPage = () => {
                 </div>
               </div>
 
-              {/* Year Dropdown */}
-              <div ref={yearRef}>
+            
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
-                <div className="relative">
-                  <div
-                    onClick={() => setShowYearDropdown(!showYearDropdown)}
-                    className="cursor-pointer border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {year.length === 0 ? (
-                      <span className="text-gray-500">Select years</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {year.length === years.length || year.includes("All") ? (
-                          <span className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
-                            All Years
-                          </span>
-                        ) : (
-                          year.map((y) => (
-                            <span
-                              key={y}
-                              className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded"
-                            >
-                              {y}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {showYearDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-                      <div className="p-2">
-                        <label className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
-                          <input
-                            type="checkbox"
-                            checked={year.length === years.length}
-                            onChange={() => handleYearChange("All")}
-                            value={year.toString()}
-                            className="text-blue-500 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-md">All Years</span>
-                        </label>
-                        {years.map((y) => (
-                          <label
-                            key={y}
-                            className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={year.includes(y)}
-                              onChange={() => handleYearChange(y)}
-                              className="text-blue-500 rounded focus:ring-blue-500"
-                            />
-                            <span className="text-md">{y}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                <div className="border border-gray-300 rounded-lg p-2 bg-gray-50">
+            
+                    BE
+                  
                 </div>
               </div>
             </div>
