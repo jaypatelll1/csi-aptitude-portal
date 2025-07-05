@@ -52,14 +52,41 @@ const getStudentCountForExam = async (exam_id, exam_for) => {
 
 const getAllTestsStats = async (req, res) => {
   const user_id = req.user.id;
-  const { exam_for } = req.query;
+  const exam_for = req.query.exam_for;
+  const user_role = req.user.role;
+  const user_branch = req.user.branch;
 
   try {
-    const liveTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for=$2';
-    const scheduledTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for=$2';
-    const liveTestsResult = await pool.query(liveTestsQuery, ['live', exam_for]);
-    const scheduledTestsResult = await pool.query(scheduledTestsQuery, ['scheduled', exam_for]);
-    const pastTestsResult = await pool.query(scheduledTestsQuery, ['past', exam_for]);
+    let liveTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for = $2';
+    let scheduledTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for = $2';
+    let pastTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for = $2';
+
+    const liveValues = ['live', exam_for];
+    const scheduledValues = ['scheduled', exam_for];
+    const pastValues = ['past', exam_for];
+
+    if (user_role === 'TPO') {
+      liveTestsQuery += ' AND target_years @> $3::year_enum[]';
+      scheduledTestsQuery += ' AND target_years @> $3::year_enum[]';
+      pastTestsQuery += ' AND target_years @> $3::year_enum[]';
+
+      liveValues.push(['BE']); // ✅ Note: pass as array
+      scheduledValues.push(['BE']);
+      pastValues.push(['BE']);
+    } else if (user_role === 'department') {
+      liveTestsQuery += ' AND target_branches @> $3::branch_enum[]';
+      scheduledTestsQuery += ' AND target_branches @> $3::branch_enum[]';
+      pastTestsQuery += ' AND target_branches @> $3::branch_enum[]';
+
+      liveValues.push([user_branch]); // ✅ Pass as array
+      scheduledValues.push([user_branch]);
+      pastValues.push([user_branch]);
+    }
+
+
+    const liveTestsResult = await pool.query(liveTestsQuery, liveValues);
+    const scheduledTestsResult = await pool.query(scheduledTestsQuery, scheduledValues);
+    const pastTestsResult = await pool.query(pastTestsQuery, pastValues);
 
     const liveTestsCount = parseInt(liveTestsResult.rows[0].count, 10);
     const scheduledTestsCount = parseInt(scheduledTestsResult.rows[0].count, 10);
@@ -75,7 +102,7 @@ const getAllTestsStats = async (req, res) => {
     return res.status(200).json({
       liveTestsCount,
       scheduledTestsCount,
-      pastTestsCount
+      pastTestsCount,
     });
   } catch (err) {
     console.error('Error fetching all tests stats:', err);
@@ -98,7 +125,7 @@ const getAllStudentsStats = async (req, res) => {
       // Admin sees only BE students from all branches
       totalStudentsQuery += ' AND year = $3';
       values.push('BE');
-    } else{
+    } else {
       // TPO/Dept sees all students from their branch (all years)
       totalStudentsQuery += ' AND department = $3';
       values.push(user_branch);
