@@ -12,10 +12,8 @@ const pool = new Pool({
   username: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-  ssl: {
-    rejectUnauthorized: true, // Allow insecure certificates
-    require: true
-},
+//   
+ssl:false,
 });
 
 // Log when the connection is made to the database
