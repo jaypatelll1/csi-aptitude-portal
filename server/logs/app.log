@@ -58,3 +58,11 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-05 19:57:47] info: User ID: 1, Activity: Update Question, Status: success, Details: Question updated successfully
 [2025-07-05 19:57:47] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
 [2025-07-05 19:57:47] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-07 00:00:03] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-07 00:00:03] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-07 00:00:03] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-07 00:00:04] info: User ID: 1, Activity: Viewed paginated past exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE
+[2025-07-07 00:00:04] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-07 00:00:04] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-07 00:00:04] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-07 00:00:05] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
