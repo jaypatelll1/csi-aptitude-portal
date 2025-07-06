@@ -6,14 +6,20 @@ if(!process.env.PGDATABASE || !process.env.PGUSER || !process.env.PGPASSWORD || 
   process.exit(1);
 }
 
+const sslConfig = process.env.NODE_ENV === 'production' ? {
+  rejectUnauthorized: true,
+  ca: fs.readFileSync('./global-bundle.pem').toString(),
+} : {
+  rejectUnauthorized: false
+};
+
 const pool = new Pool({
   host: process.env.PGHOST,
   database: process.env.PGDATABASE,
   username: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-//   
-ssl:false,
+  ssl: sslConfig
 });
 
 // Log when the connection is made to the database
