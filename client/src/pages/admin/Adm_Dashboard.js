@@ -100,12 +100,14 @@ const Adm_Dashboard = () => {
         const studentsCount = studentsRes.data.totalStudentsCount;
         const liveTestsCount = testsRes.data.liveTestsCount;
         const scheduledTestsCount = testsRes.data.scheduledTestsCount;
+        const pastTestsCount = testsRes.data.pastTestsCount;
        
 
         setTileData([
           { label: "Live Tests", value: liveTestsCount },
           { label: "Scheduled Tests", value: scheduledTestsCount },
           { label: "Active Students", value: studentsCount },
+          { label: "Past Tests", value: pastTestsCount },
           
         ]);
       } catch (error) {
