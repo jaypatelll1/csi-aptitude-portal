@@ -15,6 +15,7 @@
  */
 
 // const bcrypt = require('bcryptjs');
+const db = require('../config/db'); // your db.js file
 require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
 const { logActivity } = require('../utils/logActivity');
@@ -123,7 +124,15 @@ const loginUser = async (req, res) => {
       });
       return res.status(400).json({ error: 'Invalid email or password' });
     }
+    // Check if an active session already exists
+   const activeSession = await db.query(
+  'SELECT * FROM sessions WHERE user_id = $1 AND is_active = true',
+  [result.user_id]
+   );
 
+   if (activeSession.rows.length > 0) {
+   return res.status(403).json({ error: 'User already logged in from another device' });
+   } 
     // JWT token signing
     const userData = {
       id: result.user_id,
@@ -134,6 +143,11 @@ const loginUser = async (req, res) => {
 
     const token = await generateToken(userData);
     const resettoken = await generateResetToken(userData);
+    
+    await db.query(
+  'INSERT INTO sessions (user_id, token, is_active) VALUES ($1, $2, true)',
+  [result.user_id, token]
+   );
 
     await logActivity({
       user_id: userData.id,

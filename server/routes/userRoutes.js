@@ -4,7 +4,7 @@ const { jwtAuthMiddleware, } = require('../middlewares/jwtAuthMiddleware');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 const {blockMobileMiddleware}= require ("../middlewares/blockMoblieMiddleware")
 const {registerUserValidator, loginUserValidator, updateUserValidator} = require("../middlewares/userValidator");
-
+const singleLoginMiddleware = require('../middleware/singleLoginMiddleware');
 const router = express.Router();
 
 // Rate Limit
@@ -22,6 +22,8 @@ router.get('/verify-reset-token', verifyResetToken);
 router.post('/reset-password',  resetPassword);
 router.post('/send-reset-mail', jwtAuthMiddleware, sendResetEmail);
 router.post("/logout",logout)
+router.get('/dashboard', singleLoginMiddleware, userController.dashboard);
+router.get('/profile', singleLoginMiddleware, userController.profile);
 
 module.exports = router;
 
