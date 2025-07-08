@@ -6,7 +6,7 @@ const { generateStudentRanks,generateDepartmentRanks } = require('../models/rank
 
 console.log('⏰ Cron job scheduled to run every minute');
 
-const autoUpdate = cron.schedule('* * * * *', async () => {
+const autoUpdate = cron.schedule('*/5 * * * *', async () => {
   try {
     console.log('⏳ Checking for exams that ended...');
 
