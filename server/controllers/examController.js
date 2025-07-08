@@ -545,7 +545,8 @@ const getExamsForUser = async (req, res) => {
     const exams = await examModel.getExamsForUser(
       status,
       target_branches,
-      target_years
+      target_years,
+      user_id
     );
 
     await logActivity({
