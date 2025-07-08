@@ -75,6 +75,33 @@ async function generateStudentRanks() {
   }
 }
 
+async function generateDepartmentRanks() {
+  try {
+    await query(`
+      WITH ranked AS (
+        SELECT
+          department_name,
+          year,
+          RANK() OVER (
+            PARTITION BY year
+            ORDER BY total_score DESC
+          ) AS rank
+        FROM department_analysis
+      )
+      UPDATE department_analysis
+      SET department_rank = ranked.rank
+      FROM ranked
+      WHERE
+        department_analysis.department_name = ranked.department_name
+        AND department_analysis.year = ranked.year
+    `);
+
+    console.log('✅ Department ranks generated successfully.');
+  } catch (err) {
+    console.error('❌ Error generating department ranks:', err);
+  }
+}
+
 
 async function getStudentRanksInOrder(data) {
   try {
@@ -166,4 +193,4 @@ async function getStudentRanksInOrderTpo(data) {
 }
 
 
-module.exports = { generateStudentRanks, getStudentRanksInOrder, getStudentRanksInOrderTpo };
+module.exports = { generateStudentRanks, getStudentRanksInOrder,generateDepartmentRanks, getStudentRanksInOrderTpo };

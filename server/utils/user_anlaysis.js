@@ -7,7 +7,8 @@ async function user_analysis(exam_id, student_id,result) {
   try {
     const student = await getUserById(student_id);
     if (!student) throw new Error(`Student not found`);
-// 
+
+    console.log("result",result)
     if (!result) {
       console.log(`No result found for student ${student_id} and exam ${exam_id}`);
       return;
@@ -60,9 +61,9 @@ totalMaxScore += parseInt(result.max_score) || 0;
       categoryScoreMap[category].score += parseInt(cs.score);
       categoryScoreMap[category].max_score += parseInt(cs.max_score);
     }
-console.log(newCatScores)
+// console.log(newCatScores)
     const accuracy_rate = totalMaxScore > 0 ? totalScore / totalMaxScore : 0;
-console.log(accuracy_rate)
+// console.log(accuracy_rate)
     const totalAssignedRes = await query(
       `SELECT COUNT(*) FROM exams 
        WHERE exam_for = 'Student'
@@ -71,14 +72,15 @@ console.log(accuracy_rate)
       [student.department, student.year]
     );
     const totalAssigned = parseInt(totalAssignedRes.rows[0].count) || 0;
-console.log(totalAssigned)
+// console.log(totalAssigned)
 
     const attemptedResults = await getAllResults(student_id);
-    console.log(attemptedResults)
+    // console.log(attemptedResults)
     const attempted = attemptedResults?.length || 1;
-    console.log(attempted)
+    // console.log(attempted)
     const completion_rate = totalAssigned > 0 ? attempted / totalAssigned : 0;
-console.log(completion_rate)
+// console.log(completion_rate)
+let analysis;
     if (existingUser.rows.length === 0) {
       // ✅ INSERT if student doesn't exist
       const insertQuery = `
@@ -94,7 +96,7 @@ console.log(completion_rate)
           $9, $10, NOW()
         )
       `;
-      await query(insertQuery, [
+       analysis=await query(insertQuery, [
         student_id,
         student.name,
         student.department,
@@ -122,7 +124,7 @@ console.log(completion_rate)
           updated_at = NOW()
         WHERE student_id = $1
       `;
-      await query(updateQuery, [
+       analysis= await query(updateQuery, [
         student_id,
         student.name,
         student.department,
@@ -134,9 +136,24 @@ console.log(completion_rate)
         totalScore,
         totalMaxScore
       ]);
+
     }
 
+   
     console.log(`✅ Analysis ${existingUser.rows.length === 0 ? 'inserted' : 'updated'} for student_id: ${student_id}`);
+
+
+    return {
+  student_id,
+  department_name: student.department,
+  year: student.year,
+  accuracy_rate,
+  category: JSON.stringify(categoryScoreMap),
+  performance_over_time: JSON.stringify(performance_over_time),
+  total_score: totalScore,
+  max_score: totalMaxScore
+};
+
   } catch (err) {
     console.error(`❌ Error in user_analysis:`, err);
   }
