@@ -1,5 +1,46 @@
 const { query } = require('../config/db');
 
+
+const getDepartmentAnalysis = async (department_name, year) => {
+  let baseQuery = `SELECT * FROM department_analysis`;
+  const values = [];
+  const conditions = [];
+
+  if (department_name) {
+    conditions.push(`department_name = $${values.length + 1}`);
+    values.push(department_name);
+  }
+
+  if (year) {
+    conditions.push(`year = $${values.length + 1}`);
+    values.push(year);
+  }
+
+  if (conditions.length > 0) {
+    baseQuery += ` WHERE ` + conditions.join(' AND ');
+  }
+
+  baseQuery += ` ORDER BY department_rank ASC`;
+
+  const result = await query(baseQuery, values);
+  return result.rows;
+};
+
+const getUserAnalysisById = async (student_id) => {
+  const queryText = `
+    SELECT * FROM user_analysis
+    WHERE student_id = $1
+  `;
+
+  const result = await query(queryText, [student_id]);
+  return result.rows[0]; // return single object
+};
+
+
+
+
+
+
 const getOverallResultsOfAStudent = async (student_id) => {
   try {
     const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 ORDER BY created_at DESC;`;
@@ -227,4 +268,6 @@ module.exports = {
   avgResults,
   getStudentRank,
   getPerformanceOverTime,
+  getDepartmentAnalysis, //---------------
+  getUserAnalysisById //---------------
 };

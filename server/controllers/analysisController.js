@@ -3,6 +3,43 @@ const { getCachedAnalytics, fetchAndCacheAnalytics } = require('../utils/cacheUt
 const { logActivity } = require('../utils/logActivity');
 const { student_analysis } = require('../utils/student_analysis');
 
+
+const getDepartmentAnalysis = async (req, res) => {
+  const { department_name, year } = req.query;
+
+  try {
+    const result = await analysisModel.getDepartmentAnalysis(department_name, year);
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: 'Department analysis not found.' });
+    }
+
+    res.status(200).json({ result });
+  } catch (error) {
+    console.error('Error fetching department analysis:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+const getUserAnalysis = async (req, res) => {
+  const { student_id } = req.params;
+
+  try {
+    const result = await analysisModel.getUserAnalysisById(student_id);
+
+    if (!result) {
+      return res.status(404).json({ message: 'User analysis not found.' });
+    }
+
+    res.status(200).json({ result });
+  } catch (error) {
+    console.error('Error fetching user analysis:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
 const getOverallResultsOfAStudent = async (req, res) => {
   const { student_id } = req.params;
 
@@ -263,4 +300,6 @@ module.exports = {
   getStudentRank,
   getPerformanceOverTime,
   generateAllAnalysis,
+  getDepartmentAnalysis, //----------------
+  getUserAnalysis //--------------
 };
