@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import io from "socket.io-client";
-import { clearExamId } from "../../redux/ExamSlice";
+import { clearExamId, incrementTabSwitchCount, resetTabSwitchCount } from "../../redux/ExamSlice";
 import { clearQuestions } from "../../redux/questionSlice";
 import Sidebar from "../../components/student/mcqexampage/Sidebar";
 import NoCopyComponent from "../../components/student/mcqexampage/NoCopyComponent";
@@ -17,10 +17,11 @@ const Stu_MCQExamPage = () => {
   const socketRef = useRef(null);
 
   const userName = useSelector((state) => state.user.user.name);
+  const tabSwitchCount = useSelector((state) => state.exam.tabSwitchCount); // Get from Redux exam state
   const [fullscreenError, setFullscreenError] = useState(false);
   const [testSubmitted, setTestSubmitted] = useState(false);
   const [timeUp, setTimeUp] = useState(false);
-  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
 
   const examId = location.state?.examId;
   const Duration = location.state?.Duration;
@@ -37,30 +38,51 @@ const Stu_MCQExamPage = () => {
   };
 
   const submitFinalResponse = async () => {
-    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
-    await axios.put(url, {}, { withCredentials: true });
+    try {
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
+      await axios.put(url, {}, { withCredentials: true });
+      console.log("Final response submitted successfully");
+    } catch (error) {
+      console.error("Error submitting final response:", error);
+      throw error; // Re-throw to handle in calling function
+    }
   };
 
   const handleSubmitTest = async () => {
+    if (isSubmitting || testSubmitted) return; // Prevent multiple submissions
+    
+    setIsSubmitting(true);
     setTestSubmitted(true);
-    await submitFinalResponse();
-    socketRef.current?.emit("submit_responses");
-    dispatch(clearExamId(examId));
-    dispatch(clearQuestions());
-    alert("Test submitted successfully!");
+    
+    try {
+      await submitFinalResponse();
+      socketRef.current?.emit("submit_responses");
+      
+      // Clear Redux state
+      dispatch(clearExamId(examId));
+      dispatch(clearQuestions());
+      dispatch(resetTabSwitchCount()); // Reset tab switch count
+      
+      alert("Test submitted successfully!");
+      navigate("/home", { replace: true });
+    } catch (error) {
+      console.error("Error during test submission:", error);
+      alert("There was an error submitting your test. Please try again.");
+      setIsSubmitting(false);
+      setTestSubmitted(false);
+    }
+  };
+
+  const handleOffline = () => {
+    alert("You are offline. Some features may not be available.");
     navigate("/home", { replace: true });
   };
-  const handleOffline = () => {
-      alert("You are offline. Some features may not be available.");
-      navigate("/home", { replace: true });
-    };
-  
-    useEffect(() => {
-      window.addEventListener("offline", handleOffline);
-      return () => window.removeEventListener("offline", handleOffline);
-    }, []);
-  
+
+  useEffect(() => {
+    window.addEventListener("offline", handleOffline);
+    return () => window.removeEventListener("offline", handleOffline);
+  }, []);
 
   // Disable keyboard input
   useEffect(() => {
@@ -74,35 +96,35 @@ const Stu_MCQExamPage = () => {
     };
   }, []);
 
-  // Tab switch detection
+  // Tab switch detection with Redux
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && !testSubmitted) {
-        setTabSwitchCount((prev) => prev + 1);
+      if (document.hidden && !testSubmitted && !isSubmitting) {
+        dispatch(incrementTabSwitchCount());
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [testSubmitted]);
+  }, [testSubmitted, isSubmitting, dispatch]);
 
+  // Tab switch limit enforcement
   useEffect(() => {
-  const MAX_TAB_SWITCHES = 5;
+    const MAX_TAB_SWITCHES = 5;
+    const remainingAttempts = MAX_TAB_SWITCHES - tabSwitchCount;
 
-  const remainingAttempts = MAX_TAB_SWITCHES - tabSwitchCount;
+    if (tabSwitchCount > 0 && tabSwitchCount < MAX_TAB_SWITCHES && !testSubmitted && !isSubmitting) {
+      alert(
+        `Switching tabs is not allowed.\nYou have ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} left before the test is auto-submitted.`
+      );
+    }
 
-  if (remainingAttempts > 0 && !testSubmitted) {
-    alert(
-      `Switching tabs is not allowed.\nYou have ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} left before the test is auto-submitted.`
-    );
-  }
-
-  if (tabSwitchCount > MAX_TAB_SWITCHES && !testSubmitted) {
-    alert("You switched tabs too many times. The test will be submitted now.");
-    handleSubmitTest();
-  }
-}, [tabSwitchCount, testSubmitted]);
+    if (tabSwitchCount >= MAX_TAB_SWITCHES && !testSubmitted && !isSubmitting) {
+      alert("You switched tabs too many times. The test will be submitted now.");
+      handleSubmitTest();
+    }
+  }, [tabSwitchCount, testSubmitted, isSubmitting]);
 
   // Socket connection and exam end detection
   useEffect(() => {
@@ -130,29 +152,29 @@ const Stu_MCQExamPage = () => {
 
   // Handle time up
   useEffect(() => {
-    if (timeUp) handleSubmitTest();
-  }, [timeUp]);
+    if (timeUp && !isSubmitting) handleSubmitTest();
+  }, [timeUp, isSubmitting]);
 
   // Fullscreen detection
   useEffect(() => {
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && !testSubmitted) {
+      if (!document.fullscreenElement && !testSubmitted && !isSubmitting) {
         setFullscreenError(true);
       }
     };
-    if (!testSubmitted) {
+    if (!testSubmitted && !isSubmitting) {
       document.addEventListener("fullscreenchange", handleFullscreenChange);
     }
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
-  }, [testSubmitted]);
+  }, [testSubmitted, isSubmitting]);
 
   return (
     <div className="relative flex-1">
       <div className="flex h-screen bg-[#F5F6F8]">
         <NoCopyComponent onPermissionGranted={enableFullscreen} />
-        {fullscreenError && !testSubmitted && (
+        {fullscreenError && !testSubmitted && !isSubmitting && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
               <h2 className="text-lg font-semibold mb-4 text-red-500">
@@ -170,6 +192,16 @@ const Stu_MCQExamPage = () => {
               >
                 Re-enter Fullscreen
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Show loading indicator when submitting */}
+        {isSubmitting && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-700">Submitting your test...</p>
             </div>
           </div>
         )}
