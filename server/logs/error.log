@@ -30,3 +30,15 @@ Stack Trace: TypeError: this.client.send is not a function
     at async Promise.all (index 0)
     at async _Upload.__doMultipartUpload (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:418:5)
     at async _Upload.done (/Users/harshpoojary/Developer/github/csi-aptitude-portal/server/node_modules/@aws-sdk/lib-storage/dist-cjs/index.js:233:12)
+[2025-07-07 18:12:35] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-07 19:38:32] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:21:43] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:08] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:12] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:15] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:21] error: User ID: 386, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:27] error: User ID: 115, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:26:30] error: User ID: 386, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:27:04] error: User ID: 389, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:27:17] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-08 01:27:22] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found

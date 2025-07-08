@@ -56,7 +56,7 @@ async function getAllResults(student_id) {
 }
 
 // READ: Fetch a single result by ID
-async function getResultById(exam_id, student_id) {
+const getResultById= async (exam_id, student_id)=> {
   const queryText =
     'SELECT * FROM results WHERE exam_id = $1 AND student_id=$2;';
   const values = [exam_id, student_id];
@@ -71,6 +71,7 @@ async function getResultById(exam_id, student_id) {
     console.error('Error fetching result:', err);
   }
 }
+// getResultById(274,3)
 
 // UPDATE: Update a result
 async function updateResult(result) {
@@ -171,7 +172,7 @@ ORDER BY e.end_time DESC;
 
   return resultsWithStatus;
 };
-
+// getResultById(274,387);
 // question_ext, options, question_id
 async function getCorrectIncorrect(student_id, exam_id) {
   const queryText = `
@@ -221,6 +222,8 @@ AND r.exam_id = $2;
   }
 }
 
+
+
 module.exports = {
   createResult,
   getAllResults,
@@ -231,3 +234,5 @@ module.exports = {
   getResultsByUsers,
   getCorrectIncorrect,
 };
+
+
