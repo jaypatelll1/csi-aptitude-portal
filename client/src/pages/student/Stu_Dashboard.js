@@ -29,11 +29,14 @@ function Stu_Dashboard() {
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [result, setResult] = useState([]);
+  const [analyticsData, setAnalyticsData] = useState([]); // New state for analytics data
   const detailsRef = useRef(null);
   const calendarRef = useRef(null); // Separate ref for calendar
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true); // Separate loading state for analytics
   const [error, setError] = useState(null);
+  const [analyticsError, setAnalyticsError] = useState(null); // Separate error state for analytics
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -62,6 +65,30 @@ function Stu_Dashboard() {
       const testDate = new Date(test.Date);
       return testDate >= start && testDate <= end;
     });
+  };
+
+  // New function to fetch analytics data
+  const fetchAnalyticsData = async () => {
+    setAnalyticsLoading(true);
+    setAnalyticsError(null);
+    
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      const response = await axios.get(
+        `${API_BASE_URL}/api/exams/results/testAnalysis/student/${userData.id}`,
+        {
+          withCredentials: true,
+        }
+      );
+      
+      setAnalyticsData(response.data.results );
+      console.log("Analytics Data:", response.data.results);
+      setAnalyticsLoading(false);
+    } catch (error) {
+      console.error("Error fetching analytics data:", error);
+      setAnalyticsError("Failed to fetch analytics data. Please try again later.");
+      setAnalyticsLoading(false);
+    }
   };
 
   // New useEffect to handle sorting, filtering, and remove duplicates
@@ -236,6 +263,11 @@ function Stu_Dashboard() {
   useEffect(() => {
     fetchTests(filter);
   }, [filter]);
+
+  // Fetch analytics data on component mount
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, []);
 
   const openDetails = () => setIsDetailsOpen(true);
   const closeDetails = () => setIsDetailsOpen(false);
@@ -486,14 +518,14 @@ function Stu_Dashboard() {
           <div className="mt-5 mb-8">
             <h1 className="font-semibold text-black text-lg">Analytics</h1>
             <div className="flex overflow-x-auto space-x-4 mt-3" style={{ scrollbarWidth: "none" }}>
-              {loading ? (
-                <div className="absolute inset-0 flex justify-center items-center col-span-full">
+              {analyticsLoading ? (
+                <div className="flex justify-center items-center w-full">
                   <Loader />
                 </div>
-              ) : error ? (
-                <p className="col-span-full text-center">{error}</p>
-              ) : (
-                result.map((test, index) => (
+              ) : analyticsError ? (
+                <p className="text-center text-red-500">{analyticsError}</p>
+              ) : analyticsData.length > 0 ? (
+                analyticsData.map((test, index) => (
                   <div className="flex-shrink-0" key={index}>
                     <StuPastTestCard
                       testName={test.exam_name}
@@ -505,6 +537,8 @@ function Stu_Dashboard() {
                     />
                   </div>
                 ))
+              ) : (
+                <p className="text-center text-gray-500">No analytics data available.</p>
               )}
             </div>
           </div>
