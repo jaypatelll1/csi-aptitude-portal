@@ -468,3 +468,55 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-08 10:40:25] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
 [2025-07-08 10:40:25] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
 [2025-07-08 10:40:25] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:36:53] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 23:36:58] info: User ID: 2, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 23:36:58] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:36:59] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:36:59] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:36:59] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:37:00] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:37:05] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:37:05] info: User ID: 2, Activity: Delete Response, Status: success, Details: No response found to delete for the given exam_id and student_id.
+[2025-07-08 23:37:06] info: User ID: 2, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-08 23:44:09] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:44:10] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:44:10] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:44:10] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:44:10] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:44:24] info: User ID: 2, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 23:44:24] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:44:25] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:44:25] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:44:25] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:44:26] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:44:28] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:44:28] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:44:29] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:44:29] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:44:29] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:47:37] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:47:37] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:47:38] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:47:38] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:47:38] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:47:44] info: User ID: 2, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 23:47:45] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:47:45] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:47:45] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:47:45] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:47:46] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:47:53] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:47:53] info: User ID: 2, Activity: Delete Response, Status: success, Details: No response found to delete for the given exam_id and student_id.
+[2025-07-08 23:47:54] info: User ID: 2, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-08 23:48:02] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:48:02] info: User ID: 2, Activity: Viewed paginated responses, Status: success, Details: Page: All, Limit: All
+[2025-07-08 23:48:39] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:48:40] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:48:40] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:48:40] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:48:41] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:48:46] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 23:48:46] info: User ID: 2, Activity: View Results, Status: success, Details: Attempted results found
+[2025-07-08 23:48:47] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 23:48:47] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 23:48:47] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
