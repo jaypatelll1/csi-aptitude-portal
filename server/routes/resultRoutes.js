@@ -8,7 +8,8 @@ const {
   getPaginatedResultsByExam,
   pastResult,
   getResultsByUsers,
-  getCorrectIncorrect
+  getCorrectIncorrect,
+  getTestAnalysisByUsers
 } = require('../controllers/resultController');
 const { authorizeRoles } = require('../middlewares/roleAuthMiddleware');
 
@@ -28,6 +29,8 @@ router.post('/create-result/:student_id/:exam_id',createResultforStudents)
 // READ: Get all results
 router.get('/all/:exam_id', authorizeRoles, getPaginatedResultsByExam); // pagination
 router.get("/student/:user_id", getResultsByUsers)
+router.get("/testAnalysis/student/:user_id", getTestAnalysisByUsers)
+
 
 // imp get result when past test is clicked 
 router.get('/allpast/:exam_id', authorizeRoles, pastResult);

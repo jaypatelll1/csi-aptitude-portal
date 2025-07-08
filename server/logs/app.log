@@ -66,3 +66,405 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-07 00:00:04] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
 [2025-07-07 00:00:04] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
 [2025-07-07 00:00:05] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-07 18:12:35] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-07 18:12:44] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-07 18:12:44] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-07 18:12:44] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-07 18:12:45] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-07 18:12:45] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-07 18:12:46] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-07 18:12:46] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-07 18:12:46] info: User ID: 1, Activity: Viewed paginated past exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE
+[2025-07-07 18:12:48] info: User ID: 1, Activity: Viewed users, Status: success, Details: Page: all, Limit: all, Year filter: BE
+[2025-07-07 18:13:56] info: User ID: 617, Activity: Register user, Status: success, Details: User registered successfully
+[2025-07-07 18:17:22] info: User ID: 1, Activity: Viewed users, Status: success, Details: Page: all, Limit: all, Year filter: BE
+[2025-07-07 18:17:31] info: User ID: 1, Activity: Viewed users, Status: success, Details: Page: all, Limit: all, Year filter: BE
+[2025-07-07 18:19:27] info: User ID: 1, Activity: Viewed users, Status: success, Details: Page: all, Limit: all, Year filter: BE
+[2025-07-07 19:02:44] info: User ID: 617, Activity: Password reset, Status: success, Details: Password reset successfully
+[2025-07-07 19:38:32] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-07 19:38:36] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-07 19:38:36] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-07 19:38:37] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-07 19:38:37] info: User ID: 1, Activity: Viewed paginated past exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE
+[2025-07-07 19:38:37] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-07 19:38:37] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-07 19:38:37] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-07 19:38:38] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:07:06] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:07:06] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 01:07:07] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 01:07:07] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:07:08] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 01:07:08] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 01:07:08] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:07:08] info: User ID: 1, Activity: Viewed paginated past exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE
+[2025-07-08 01:08:42] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:08:47] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 01:08:47] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 01:08:48] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:08:48] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 01:08:48] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:08:49] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 01:10:37] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 01:10:37] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:10:37] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 01:10:37] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:10:37] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 01:10:37] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 01:10:46] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:11:06] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-08 01:11:07] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-08 01:11:15] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 01:11:15] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 01:11:15] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 01:11:17] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:11:17] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:11:17] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 01:11:19] info: User ID: 1, Activity: Viewed users, Status: success, Details: Page: all, Limit: all, Year filter: BE
+[2025-07-08 01:13:34] info: User ID: 617, Activity: Update user details, Status: success, Details: User details updated successfully
+[2025-07-08 01:15:21] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:15:21] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 01:15:23] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 01:15:23] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:15:23] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 01:15:23] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:15:23] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 01:15:51] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:20:25] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:20:38] info: User ID: 1, Activity: Schedule/Publish Exam, Status: success, Details: Published Exam successfully and saved as scheduled
+[2025-07-08 01:20:41] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:20:43] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:20:48] info: User ID: 1, Activity: Schedule/Publish Exam, Status: success, Details: Published Exam successfully and saved as scheduled
+[2025-07-08 01:20:49] info: User ID: 1, Activity: Mark Exam as live, Status: success, Details: Marked Exam as live successfully
+[2025-07-08 01:20:50] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:20:54] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:20:55] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:20:55] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 01:20:57] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 01:20:57] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 01:20:57] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 01:20:57] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 01:21:43] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:21:47] info: User ID: 2, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:21:47] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:21:48] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:21:48] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:23:50] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:23:51] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:23:51] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:23:51] info: User ID: 2, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:24:08] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:12] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:15] error: User ID: 295, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:21] error: User ID: 386, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:24:27] error: User ID: 115, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:25:40] info: User ID: 388, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:25:46] info: User ID: 388, Activity: Password reset, Status: success, Details: Password reset successfully
+[2025-07-08 01:25:56] info: User ID: 388, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:25:56] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:25:57] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:25:57] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:25:57] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:26:12] info: User ID: 387, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:26:17] info: User ID: 387, Activity: Password reset, Status: success, Details: Password reset successfully
+[2025-07-08 01:26:30] error: User ID: 386, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:26:40] info: User ID: 386, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:26:46] info: User ID: 386, Activity: Password reset, Status: success, Details: Password reset successfully
+[2025-07-08 01:27:04] error: User ID: 389, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-08 01:27:05] info: User ID: 389, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:27:09] info: User ID: 389, Activity: Password reset, Status: success, Details: Password reset successfully
+[2025-07-08 01:27:17] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-08 01:27:22] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-08 01:27:27] info: User ID: 389, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:27:27] info: User ID: 389, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:27:27] info: User ID: 389, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:27:28] info: User ID: 389, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:27:28] info: User ID: 389, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:27:29] info: User ID: 389, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:27:29] info: User ID: 389, Activity: Delete Response, Status: success, Details: No response found to delete for the given exam_id and student_id.
+[2025-07-08 01:27:30] info: User ID: 389, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-08 01:28:06] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:09] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:11] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:13] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:15] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:17] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:19] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:22] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:25] info: User ID: 389, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:28:29] info: User ID: 389, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:28:30] info: User ID: 389, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:28:30] info: User ID: 389, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:28:30] info: User ID: 389, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:28:46] info: User ID: 388, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:28:46] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:28:46] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:28:47] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:28:47] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:29:24] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:29:24] info: User ID: 388, Activity: Delete Response, Status: success, Details: No response found to delete for the given exam_id and student_id.
+[2025-07-08 01:29:26] info: User ID: 388, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-08 01:29:53] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:30:07] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:30:16] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:31:18] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:31:46] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:32:05] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:32:55] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:33:20] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:33:28] info: User ID: 388, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:33:37] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:33:37] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:33:37] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:34:17] info: User ID: 387, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 01:34:17] info: User ID: 387, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:34:18] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:34:18] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:34:18] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:34:19] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:34:20] info: User ID: 387, Activity: Delete Response, Status: success, Details: No response found to delete for the given exam_id and student_id.
+[2025-07-08 01:34:20] info: User ID: 387, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-08 01:34:41] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:34:49] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:36:03] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:36:11] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:36:26] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:36:49] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:37:04] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:37:16] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:37:23] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:37:45] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:03] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:09] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:16] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:20] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:23] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:27] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:30] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:33] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:37] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:40] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:38:45] info: User ID: 387, Activity: Submit Response, Status: success, Details: Response submitted successfully
+[2025-07-08 01:45:12] info: User ID: 387, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:45:13] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:45:13] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:45:13] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:47:47] info: User ID: 387, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:47:48] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:47:48] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:47:48] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:53:48] info: User ID: 387, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:53:48] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:53:49] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:53:51] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:53:51] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:53:52] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:53:54] info: User ID: 387, Activity: View Correct Incorrect, Status: success, Details: Results fetched successfully
+[2025-07-08 01:54:26] info: User ID: 387, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:54:27] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:54:27] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:54:36] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:54:37] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:54:37] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:54:39] info: User ID: 387, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 01:54:40] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:54:40] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 01:54:43] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:54:43] info: User ID: 387, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 01:54:43] info: User ID: 387, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:16:26] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 10:16:26] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 10:16:27] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 10:16:28] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:16:28] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 10:16:28] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 10:16:28] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:17:15] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:17:15] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 10:17:16] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 10:17:16] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 10:17:16] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:17:17] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 10:26:23] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 10:26:24] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:26:24] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 10:26:24] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:26:24] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 10:26:24] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 10:29:05] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-08 10:29:06] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-08 10:29:08] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:29:08] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-08 10:29:08] info: User ID: 1, Activity: Get Last Exam Stats, Status: success, Details: Last exam stats fetched successfully
+[2025-07-08 10:29:08] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-08 10:34:27] info: User ID: 388, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-08 10:34:27] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:34:28] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:34:28] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:29] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:47] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:34:47] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:34:48] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:57] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:57] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:57] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:58] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:58] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:58] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:58] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:59] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:59] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:34:59] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:34:59] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:00] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:00] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:00] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:35:00] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:00] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:01] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:01] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:01] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:02] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:02] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:02] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:03] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:03] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:04] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:04] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:04] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:05] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:05] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:05] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:06] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:06] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:06] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:07] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:07] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:08] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:08] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:09] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:09] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:09] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:10] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:10] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:10] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:10] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:10] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:11] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:35:11] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:35:12] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:12] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:35:12] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:36:35] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:36:36] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:36:36] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:51] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:51] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:38:51] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:51] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:51] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:38:52] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:52] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:53] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:53] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:54] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:54] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:54] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:54] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:55] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:38:55] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:38:55] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:38:56] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:11] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:39:11] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:39:12] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:16] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:17] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:17] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:17] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:17] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:18] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:18] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:18] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:18] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:39:19] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:19] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:19] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:39:19] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:19] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:20] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:20] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:20] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:21] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:21] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:21] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:21] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:22] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:22] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:22] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:23] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:23] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:23] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:23] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:24] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:24] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:24] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:25] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:25] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:25] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:26] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:26] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:26] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:27] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:27] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:27] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:28] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:28] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:29] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:29] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:29] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:29] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:30] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:30] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:30] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:30] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:31] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:31] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:31] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:32] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:32] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:32] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:33] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:33] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:33] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:34] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:34] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:34] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:36] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:39:36] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:36] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:39:37] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:37] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:37] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:41] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:39:43] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:39:46] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:57] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:39:57] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:39:58] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:39:58] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:40:00] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:40:04] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:40:04] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:40:09] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:40:10] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:40:10] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:40:11] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:40:13] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:40:14] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:40:14] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:40:22] info: User ID: 388, Activity: View Correct Incorrect, Status: success, Details: Results fetched successfully
+[2025-07-08 10:40:24] info: User ID: 388, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-08 10:40:25] info: User ID: 388, Activity: View Results, Status: success, Details: Results found
+[2025-07-08 10:40:25] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-08 10:40:25] info: User ID: 388, Activity: View Responses, Status: success, Details: Responses found

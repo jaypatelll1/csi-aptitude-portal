@@ -1,11 +1,11 @@
 const cron = require('node-cron');
 const pool = require('../config/db');
-const { calculateAndStoreTotalScore } = require('./scoreUtils');
-const { student_analysis } = require('./student_analysis');
-const { generateRank } = require('../models/rankModel');
+const { calculateScoreForMCQs } = require('./scoreUtils');
+const { user_analysis } = require('./user_anlaysis');
+const { generateStudentRanks } = require('../models/rankModel');
 
 // Run this job every minute (adjust schedule as needed)
-const autoUpdate = cron.schedule('*/5 * * * *', async () => {
+const autoUpdate = cron.schedule('* * * * *', async () => {
   try {
     // Update exams that are scheduled and have an end_time before the current time
     const result = await pool.query(
@@ -29,7 +29,7 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
           continue;
         }
 
-        await calculateAndStoreTotalScore(examId);
+        
 
         // Fetch student IDs from responses
         const responseResult = await pool.query(
@@ -41,12 +41,13 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
 
         // Create results and student analysis for each student
         for (const studentId of studentIds) {
-          await student_analysis(examId, studentId);
+          const result = await calculateScoreForMCQs(examId, studentId)
+          await user_analysis(examId, studentId,result);
         }
       }
-      if (generateRank === true) {
+      if (generate_rank === true) {
         console.log('generate_rank is true');
-        await generateRank();
+        await generateStudentRanks();
       }
     } else {
       console.log('No exams were updated.');

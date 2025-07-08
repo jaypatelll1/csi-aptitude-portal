@@ -245,6 +245,41 @@ const getResultsByUsers = async (req, res) => {
   }
 }
 
+const getTestAnalysisByUsers = async (req, res) => {
+  const { user_id } = req.params;
+  const id = req.user.id;
+
+  try {
+    const results = await resultModel.getResultsByUsers(user_id);
+
+    // Filter only attempted tests
+    const attemptedResults = results.filter(r => r.isAttempted);
+
+    if (!attemptedResults.length) {
+      await logActivity({
+        user_id: id,
+        activity: 'View Results',
+        status: 'failure',
+        details: 'No attempted results found',
+      });
+      return res.status(404).json({ message: 'No attempted results found.' });
+    }
+
+    await logActivity({
+      user_id: id,
+      activity: 'View Results',
+      status: 'success',
+      details: 'Attempted results found',
+    });
+
+    res.status(200).json({ results: attemptedResults });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 
 const pastResult = async (req, res) => {
   try {
@@ -320,5 +355,6 @@ module.exports = {
   pastResult,
   getResultsByUsers,
   getCorrectIncorrect,
-  createResultforStudents
+  createResultforStudents,
+  getTestAnalysisByUsers
 };
