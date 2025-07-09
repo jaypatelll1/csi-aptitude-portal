@@ -14,6 +14,7 @@ const uploadQuestionFile = async (req, res) => {
     try {
         const worker = new Worker(path.join(__dirname, "..", "workers", "questionFileParser.js"), {
             workerData: { filePath, examId, fileExtension }
+            
         });
 
         const timeout = setTimeout(() => {

@@ -14,8 +14,7 @@ if (!Array.isArray(workerData.jsonData) || workerData.jsonData.length === 0) {
     return;
 }
 
-// Get role from workerData
-const role = workerData.role; // Role is directly passed
+const role = workerData.role;
 
 async function processUsers() {
     try {
@@ -24,27 +23,29 @@ async function processUsers() {
         let index = 0;
         for (const row of workerData.jsonData) {
             try {
-                const name = row[0] || '';
-                const email = (typeof row[1] === 'object' && row[1] !== null) ? row[1].text : row[1] || '';
-                const department = row[2] || '';
-                const year = row[3] || '';
-                const rollno = row[4] || '';
-                const phone = row[5] || '';
+                console.log(`Processing Row ${index + 1}:`, row);
+
+                const name = row.name?.trim() || '';
+                const emailRaw = row.email;
+                const email = (typeof emailRaw === 'object' && emailRaw !== null) ? emailRaw.text : emailRaw?.trim() || '';
+                const department = row.department?.trim() || '';
+                const year = row.year?.trim() || '';
+                const rollno = row.rollno?.toString().trim() || '';
+                const phone = row.phone?.toString().trim() || '';
+                const plainPassword = row.password?.toString().trim() || generateRandomPassword(8, true);
 
                 if (!name || !email || !department || !year || !rollno || !phone) {
                     warnings.push(`Row ${index + 1}: Skipped due to invalid data`);
                     continue;
                 }
 
-                // Check if the user already exists
                 const existingUser = await query(`SELECT role FROM users WHERE email = $1`, [email]);
                 if (existingUser.rows.length > 0) {
                     warnings.push(`Row ${index + 1}: Skipped - User already exists (${email})`);
                     continue;
                 }
 
-                const password = generateRandomPassword(8, true);
-                const passwordHash = await hashPassword(password.toString());
+                const passwordHash = await hashPassword(plainPassword);
                 const createdAt = new Date().toISOString();
 
                 const queryText = `
@@ -52,9 +53,10 @@ async function processUsers() {
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 `;
 
-                const values = [name, email, passwordHash, role, createdAt, 'NOTACTIVE', department, year, rollno, phone.toString()];
+                const values = [name, email, passwordHash, role, createdAt, 'NOTACTIVE', department, year, rollno, phone];
                 await query(queryText, values);
-                await sendBulkEmailToUsers(email, password);
+
+                await sendBulkEmailToUsers(email, plainPassword);
                 warnings.push(`Row ${index + 1}: Successfully processed - ${email}`);
 
             } catch (error) {
@@ -81,11 +83,11 @@ async function processUsers() {
     }
 }
 
-// Run the processing function
 processUsers().catch(error => {
     console.error('Unhandled worker error:', error);
     parentPort.postMessage({ status: 'error', message: 'Unhandled worker error' });
 });
+
 
 
 
