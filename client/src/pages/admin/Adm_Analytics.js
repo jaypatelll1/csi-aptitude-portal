@@ -30,19 +30,107 @@ function Adm_Analytics() {
   const [hasData, setHasData] = useState(false);
   const departmentDataTimerRef = useRef(null);
 
-  // Function to check if any meaningful data exists
+  // Fixed Function to check if any meaningful data exists
   const checkDataAvailability = (data) => {
-    const hasAccuracy = data.accuracy_rate !== undefined && data.accuracy_rate !== null;
-    const hasCategories = data.category_performance && data.category_performance.length > 0;
-    const hasTopPerformers = data.top_performer && data.top_performer.length > 0;
-    const hasBottomPerformers = data.bottom_performer && data.bottom_performer.length > 0;
-    const hasParticipation = data.participation_rate !== undefined && data.participation_rate !== null;
-    const hasPerformanceTime = data.performance_over_time && data.performance_over_time.length > 0;
-    const hasDeptRank = data.dept_ranks && data.dept_ranks.department_rank;
-    const hasStudentCount = data.studentCount && data.studentCount.student_count > 0;
+    console.log("Checking data availability:", data);
+    
+    if (!data || !data.result || data.result.length === 0) {
+      console.log("No data.result or empty array");
+      return false;
+    }
+    
+    // Check if there's at least one department with meaningful data
+    const hasData = data.result.some(dept => {
+      console.log("Checking dept:", dept.department_name, {
+        accuracy_rate: dept.accuracy_rate,
+        total_score: dept.total_score,
+        student_count: dept.student_count,
+        performance_over_time: dept.performance_over_time,
+        subject_performance: dept.subject_performance
+      });
+      
+      // Check if any of these properties exist and are not null/undefined
+      // Note: 0 is a valid value for scores and rates
+      return (
+        dept.accuracy_rate !== null && dept.accuracy_rate !== undefined
+      ) || (
+        dept.total_score !== null && dept.total_score !== undefined
+      ) || (
+        dept.student_count !== null && dept.student_count !== undefined && dept.student_count >= 0
+      ) || (
+        dept.performance_over_time && Array.isArray(dept.performance_over_time) && dept.performance_over_time.length > 0
+      ) || (
+        dept.subject_performance && typeof dept.subject_performance === 'object' && Object.keys(dept.subject_performance).length > 0
+      );
+    });
+    
+    console.log("Data availability result:", hasData);
+    return hasData;
+  };
 
-    return hasAccuracy || hasCategories || hasTopPerformers || hasBottomPerformers || 
-           hasParticipation || hasPerformanceTime || hasDeptRank || hasStudentCount;
+  // Improved Process the new API response format
+  const processApiResponse = (apiData) => {
+    if (!apiData || !apiData.result) {
+      console.log("No apiData or apiData.result");
+      return null;
+    }
+
+    console.log("Processing API data for department:", selectedDepartment);
+    console.log("Available departments:", apiData.result.map(d => d.department_name));
+
+    // Find the department data (there might be multiple entries for different years)
+    const departmentData = apiData.result.filter(dept => 
+      dept.department_name === selectedDepartment
+    );
+
+    console.log("Filtered department data:", departmentData);
+
+    if (departmentData.length === 0) {
+      console.log("No data found for department:", selectedDepartment);
+      return null;
+    }
+
+    // Use the first entry if multiple exist, or aggregate if needed
+    const deptData = departmentData[0]; // For now, just use the first entry
+    
+    // Create the aggregated data structure
+    const aggregatedData = {
+      accuracy_rate: deptData.accuracy_rate || 0,
+      category_performance: [],
+      top_performer: [], // You might need to fetch this separately
+      bottom_performer: [], // You might need to fetch this separately
+      participation_rate: 100, // Calculate based on your logic
+      performance_over_time: deptData.performance_over_time || [],
+      dept_ranks: { department_rank: deptData.department_rank || null },
+      studentCount: { student_count: deptData.student_count || 0 }
+    };
+
+    // Process subject performance data
+    if (deptData.subject_performance && typeof deptData.subject_performance === 'object') {
+      aggregatedData.category_performance = Object.keys(deptData.subject_performance).map(subject => {
+        const subjectData = deptData.subject_performance[subject];
+        const score = subjectData.score || 0;
+        const maxScore = subjectData.max_score || 1; // Avoid division by zero
+        
+        return {
+          category: subject,
+          average_category_score: maxScore > 0 ? (score / maxScore) * 100 : 0,
+          max_category_score: 100
+        };
+      });
+    }
+
+    // Format performance over time data
+    if (deptData.performance_over_time && Array.isArray(deptData.performance_over_time)) {
+      aggregatedData.performance_over_time = deptData.performance_over_time.map((exam, index) => ({
+        exam_id: exam.exam_id || `exam_${index + 1}`,
+        created_on: exam.created_on || `Exam ${index + 1}`,
+        average_score: exam.avg_score || exam.average_score || 0
+      }));
+    }
+
+    console.log("Processed aggregated data:", aggregatedData);
+    return aggregatedData;
   };
 
   // Fetch department data function
@@ -65,7 +153,7 @@ function Adm_Analytics() {
 
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
-        `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${department}`,
+        `${API_BASE_URL}/api/analysis/department`,
         { withCredentials: true }
       );
 
@@ -83,28 +171,47 @@ function Adm_Analytics() {
       }
 
       // Process the response data
-      const data = response.data;
-      console.log("Department Analysis Data:", data);
+      const rawData = response.data;
+      console.log("Raw API Response:", rawData);
       
       // Check if meaningful data exists
-      const dataExists = checkDataAvailability(data);
-      setHasData(dataExists);
+      const dataExists = checkDataAvailability(rawData);
+      if (!dataExists) {
+        setError(`No meaningful data available for ${department} department`);
+        setIsLoading(false);
+        setHasData(false);
+        return;
+      }
+
+      // Process the API response to match the expected format
+      const processedData = processApiResponse(rawData);
       
-      setCategoryWiseData(data.category_performance || []);
-      setTopPerformers(data.top_performer || []);
-      setBottomPerformers(data.bottom_performer || []);
-      setParticipationRate(data.participation_rate || []);
-      setAccuracyData(data.accuracy_rate || []);
-      setPerformanceOverTime(data.performance_over_time || []);
-      setDeptRank(data.dept_ranks || []);
+      if (!processedData) {
+        setError(`No data available for ${department} department`);
+        setIsLoading(false);
+        setHasData(false);
+        return;
+      }
+
+      console.log("Processed Data:", processedData);
       
-      if (data.dept_ranks?.department_rank) {
-        superscript(setDSup, data.dept_ranks.department_rank);
+      setHasData(true);
+      setCategoryWiseData(processedData.category_performance || []);
+      setTopPerformers(processedData.top_performer || []);
+      setBottomPerformers(processedData.bottom_performer || []);
+      setParticipationRate(processedData.participation_rate || 0);
+      setAccuracyData(processedData.accuracy_rate || 0);
+      setPerformanceOverTime(processedData.performance_over_time || []);
+      setDeptRank(processedData.dept_ranks || {});
+      
+      if (processedData.dept_ranks?.department_rank) {
+        superscript(setDSup, processedData.dept_ranks.department_rank);
       }
       
-      setStudentCount(data.studentCount?.student_count || 0);
+      setStudentCount(processedData.studentCount?.student_count || 0);
       setError(null);
       setIsLoading(false);
+      console.log("studentCount:", processedData.studentCount?.student_count || 0);
 
     } catch (err) {
       console.error("Error fetching department data:", err);
@@ -116,18 +223,17 @@ function Adm_Analytics() {
       }
 
       setIsLoading(false);
-      // setError(`Failed to fetch ${department} department analysis`);
-      <NoDataAvailable />;
+      setError(`Failed to fetch ${department} department analysis`);
       setHasData(false);
       
       // Reset all data states on error
       setCategoryWiseData([]);
       setTopPerformers([]);
       setBottomPerformers([]);
-      setParticipationRate([]);
-      setAccuracyData([]);
+      setParticipationRate(0);
+      setAccuracyData(0);
       setPerformanceOverTime([]);
-      setDeptRank([]);
+      setDeptRank({});
       setStudentCount(0);
       setDSup("");
     }
@@ -154,12 +260,12 @@ function Adm_Analytics() {
   const filteredAccuracyData = [
     {
       name: "Correct",
-      value: Number(accuracyData?.accuracy_rate),
+      value: Number(accuracyData) * 100,
       fill: "#4CAF50",
     },
     {
       name: "Wrong",
-      value: 100 - Number(accuracyData?.accuracy_rate),
+      value: 100 - (Number(accuracyData) * 100),
       fill: "#F44336",
     },
   ];
@@ -176,7 +282,7 @@ function Adm_Analytics() {
   const donutChartData = {
     title: "Accuracy Rate",
     chartData:
-      filteredAccuracyData?.length > 0
+      filteredAccuracyData?.length > 0 && Number(accuracyData) >= 0
         ? filteredAccuracyData
         : [
           { name: "Correct", value: 0, fill: "#4CAF50" },
@@ -189,12 +295,12 @@ function Adm_Analytics() {
     chartData: [
       {
         name: "Participated",
-        value: Number(participationRate?.participation_rate) || 0,
+        value: Number(participationRate) || 0,
         fill: "#1349C5",
       },
       {
         name: "Not Participated",
-        value: +Number(100 - participationRate?.participation_rate).toFixed(2) || 100,
+        value: Number(100 - participationRate).toFixed(2) || 100,
         fill: "#6F91F0",
       },
     ],
@@ -207,7 +313,7 @@ function Adm_Analytics() {
       .map((category) => ({
         name: category?.category,
         yourScore: Number(category?.average_category_score),
-        maxMarks: Number(category?.max_category_score) || 0,
+        maxMarks: Number(category?.max_category_score) || 100,
       })),
   };
 
@@ -260,11 +366,11 @@ function Adm_Analytics() {
           Please check back later or contact your administrator if this issue persists.
         </p>
         <button 
-  className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-  onClick={() => {fetchDepartmentData(selectedDepartment)}}
->
-  REFRESH
-</button>
+          className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          onClick={() => {fetchDepartmentData(selectedDepartment)}}
+        >
+          REFRESH
+        </button>
       </div>
     </div>
   );
@@ -364,10 +470,10 @@ function Adm_Analytics() {
                   <LineChartComponent
                     data={performanceOverTimeData}
                     xAxisKey="name"
-                    lineDataKey="Percentage"
+                    lineDataKey="Average"
                   />
                 ) : (
-                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+                  <p className="text-gray-500 text-lg font-semibold">No Performance Data Available</p>
                 )}
               </div>
             </div>
@@ -375,18 +481,14 @@ function Adm_Analytics() {
             {/* Other Components */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5 ml-5 mr-5">
               <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
-                {accuracyData?.accuracy_rate !== undefined ? (
-                  <DonutChartComponent data={donutChartData} />
-                ) : (
-                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
-                )}
+                <DonutChartComponent data={donutChartData} />
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">
                 {radarChartData.chartData?.length > 0 ? (
                   <RadarChartComponent data={radarChartData} />
                 ) : (
                   <p className="text-gray-500 text-lg font-semibold text-center">
-                    No Data Available
+                    No Subject Performance Data Available
                   </p>
                 )}
               </div>
