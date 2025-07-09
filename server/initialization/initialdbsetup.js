@@ -152,121 +152,32 @@ CREATE TABLE IF NOT EXISTS student_analysis (
 );
 
 
-CREATE TABLE IF NOT EXISTS student_rank (
-    rank_id SERIAL PRIMARY KEY,
-    student_id INTEGER,
-    department_name branch_enum NOT NULL,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_score INTEGER NOT NULL,
-    student_name VARCHAR(255),
-    overall_rank INTEGER NOT NULL,
-    department_rank INTEGER NOT NULL,
-    year year_enum,
-
-    CONSTRAINT student_rank_student_id_fkey
-        FOREIGN KEY (student_id)
-        REFERENCES public.users(user_id)
-        ON DELETE CASCADE
+CREATE TABLE student_ranks (
+  rank_id SERIAL PRIMARY KEY,
+  student_id INTEGER UNIQUE,
+  student_name VARCHAR(255),
+  department_name TEXT NOT NULL,
+  year TEXT NOT NULL,
+  total_score INTEGER NOT NULL,
+  overall_rank INTEGER NOT NULL,
+  department_rank INTEGER NOT NULL,
+  last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
-
-
-CREATE TABLE IF NOT EXISTS department_analysis (
-    id SERIAL PRIMARY KEY,
-    department_name VARCHAR(100) NOT NULL,
-    year VARCHAR(10) NOT NULL,
-    accuracy_rate DOUBLE PRECISION DEFAULT 0.0,
-    subject_performance JSONB DEFAULT '{}'::jsonb,
-    performance_over_time JSONB DEFAULT '[]'::jsonb,
-    department_rank INTEGER,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_score DOUBLE PRECISION DEFAULT 0,
-    max_score DOUBLE PRECISION DEFAULT 0,
-    student_count INTEGER DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS logs (
-    logs_id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    activity VARCHAR(255) NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50),
-    details TEXT,
-
-    CONSTRAINT logs_user_id_fkey
-        FOREIGN KEY (user_id)
-        REFERENCES public.users(user_id)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS rank (
-    rank_id SERIAL PRIMARY KEY,
-    student_id INTEGER UNIQUE,
-    student_name VARCHAR(255),
-    department_name TEXT NOT NULL,
-    year TEXT NOT NULL,
-    total_score INTEGER NOT NULL,
-    overall_rank INTEGER NOT NULL,
-    department_rank INTEGER NOT NULL,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT rank_student_id_key UNIQUE (student_id)
-);
-
-CREATE TABLE IF NOT EXISTS sessions (
-    id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL,
-    token TEXT NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS teacher_responses (
-    response_id SERIAL PRIMARY KEY,
-    teacher_id INTEGER,
-    exam_id INTEGER,
-    question_id INTEGER,
-    selected_option CHAR(1),
-    selected_options JSONB,
-    text_answer TEXT,
-    question_type question_type_enum NOT NULL,
-    answered_at TIMESTAMP,
-    response_status response_status DEFAULT 'draft'::response_status,
-
-    CONSTRAINT teacher_responses_teacher_id_fkey
-        FOREIGN KEY (teacher_id)
-        REFERENCES public.users(user_id),
-
-    CONSTRAINT teacher_responses_exam_id_fkey
-        FOREIGN KEY (exam_id)
-        REFERENCES public.exams(exam_id),
-
-    CONSTRAINT teacher_responses_question_id_fkey
-        FOREIGN KEY (question_id)
-        REFERENCES public.questions(question_id)
-);
-
-
-CREATE TABLE IF NOT EXISTS user_analysis (
-    student_id INTEGER PRIMARY KEY,
-    student_name TEXT NOT NULL,
-    department_name TEXT NOT NULL,
-    year TEXT NOT NULL,
-    accuracy_rate DOUBLE PRECISION DEFAULT 0.0,
-    completion_rate DOUBLE PRECISION DEFAULT 0.0,
-    category JSONB DEFAULT '{}'::jsonb,
-    performance_over_time JSONB DEFAULT '[]'::jsonb,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_score INTEGER,
-    max_score INTEGER,
-
-    CONSTRAINT user_analysis_student_id_fkey
-        FOREIGN KEY (student_id)
-        REFERENCES public.users(user_id)
-        ON DELETE CASCADE
+CREATE TABLE department_analysis (
+  id SERIAL PRIMARY KEY,
+  department_name VARCHAR(100) NOT NULL,
+  year VARCHAR(10) NOT NULL,
+  accuracy_rate DOUBLE PRECISION DEFAULT 0.0,
+  subject_performance JSONB DEFAULT '{}'::jsonb,
+  performance_over_time JSONB DEFAULT '[]'::jsonb,
+  department_rank INTEGER,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  total_score DOUBLE PRECISION DEFAULT 0,
+  max_score DOUBLE PRECISION DEFAULT 0,
+  student_count INTEGER DEFAULT 0,
+  CONSTRAINT unique_department_year UNIQUE (department_name, year)
 );
 
 

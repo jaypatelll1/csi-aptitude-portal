@@ -1,122 +1,113 @@
 const { sockettAuthMiddleware } = require('../middlewares/jwtAuthMiddleware');
-// const {
-//   submitResponse,
-//   submitFinalResponsesAndChangeStatus,
-//   deleteExistingResponses,
-//   submittedUnansweredQuestions,
-// } = require('../models/responseModel');
+// const { submitFinalResponsesAndChangeStatus } = require('../models/responseModel');
 
-const timers = {}; // Store timers per user-exam session (key = `${user_id}-${exam_id}`)
+const activeSessions = new Map(); // sessionKey => { remainingTime, interval, submitted }
+const pausedSessions = new Map(); // sessionKey => remainingTime
 
 const initSocketHandlers = (io) => {
-  io.use(sockettAuthMiddleware); // Enable JWT auth middleware if available
+  io.use(sockettAuthMiddleware);
 
   io.on('connection', (socket) => {
-    console.log('🔌 New client connected:', socket.id);
-
     const user_id = parseInt(socket.user.id);
+    console.log('🔌 New client connected:', socket.id, `(User ID: ${user_id})`);
 
-    socket.on('start_exam', async ({ exam_id, duration }) => {
+    socket.on('start_exam', ({ exam_id, duration }) => {
       const sessionKey = `${user_id}-${exam_id}`;
-      const existingTimer = timers[sessionKey];
 
-      // Check if exam already started from another tab/device
-      if (existingTimer && !existingTimer.submitted && !existingTimer.paused) {
-        console.log(`🚫 Duplicate session detected for ${sessionKey}`);
+      // 🚫 Prevent multiple active sessions
+
+      console.log(activeSessions)
+      if (activeSessions.has(sessionKey)) {
         socket.emit('already_active', {
-          message:
-            'You are already attempting this exam from another tab or device.',
+          message: 'You are already attempting this exam from another tab or device.',
         });
         return;
       }
 
-      // Resume or restart session
-      if (existingTimer) {
-        if (existingTimer.submitted) {
-          timers[sessionKey] = {
-            remainingTime: duration,
-            interval: null,
-            paused: false,
-            pauseTime: null,
-            submitted: false,
-          };
-        } else if (existingTimer.paused) {
-          existingTimer.remainingTime = existingTimer.pauseTime;
-          existingTimer.pauseTime = null;
-          existingTimer.paused = false;
-        }
-      } else {
-        // Start new session
-        timers[sessionKey] = {
-          remainingTime: duration,
-          interval: null,
-          paused: false,
-          pauseTime: null,
-          submitted: false,
-        };
+      let remainingTime = duration;
 
-        // Optional: clear any existing draft responses
+      // ♻️ Resume if paused
+      if (pausedSessions.has(sessionKey)) {
+        remainingTime = pausedSessions.get(sessionKey);
+        pausedSessions.delete(sessionKey);
+        console.log(`🔁 Resuming paused session ${sessionKey} with ${remainingTime}s`);
+      } else {
+        console.log(`▶️ Starting new session ${sessionKey} with duration ${duration}s`);
+        // Optionally clean drafts:
         // await deleteExistingResponses(exam_id, user_id);
-        // await submittedUnansweredQuestions(exam_id, user_id);
       }
 
-      socket.join(user_id); // Join room to receive events
+      // ✅ Immediately lock session to prevent race conditions
+      activeSessions.set(sessionKey, {
+        remainingTime,
+        interval: null,
+        submitted: false,
+      });
 
-      // Timer setup
-      if (!timers[sessionKey].interval) {
-        timers[sessionKey].interval = setInterval(() => {
-          timers[sessionKey].remainingTime--;
+      socket.join(user_id);
 
-          io.to(user_id).emit('timer_update', {
-            exam_id,
-            remainingTime: timers[sessionKey].remainingTime,
+      // ⏱️ Start the countdown
+      const interval = setInterval(() => {
+        const session = activeSessions.get(sessionKey);
+        if (!session) return;
+
+        session.remainingTime--;
+
+        io.to(user_id).emit('timer_update', {
+          remainingTime: session.remainingTime,
+        });
+
+        if (session.remainingTime <= 0) {
+          clearInterval(session.interval);
+          session.submitted = true;
+
+          io.to(user_id).emit('exam_ended', {
+            message: "⏰ Time's up!!",
           });
 
-          if (timers[sessionKey].remainingTime <= 0) {
-            clearInterval(timers[sessionKey].interval);
+          console.log(`✅ Auto-submitted exam ${exam_id} for user ${user_id}`);
+          // await submitFinalResponsesAndChangeStatus(user_id, exam_id);
+        }
+      }, 1000);
 
-            io.to(user_id).emit(
-              'exam_ended',
-              { message: "⏰ Time's up!!" },
-              () => {
-                timers[sessionKey].submitted = true;
-                console.log(`✅ Auto-submitted exam ${exam_id} for user ${user_id}`);
-                // await submitFinalResponsesAndChangeStatus(user_id, exam_id);
-              }
-            );
-          }
-        }, 1000);
-      }
-
-      console.log(
-        `▶️ Exam ${exam_id} started for user ${user_id} (duration ${duration}s)`
-      );
+      // 🛠️ Patch interval back into session map
+      const session = activeSessions.get(sessionKey);
+      if (session) session.interval = interval;
     });
 
-    // Manual submission
     socket.on('submit_responses', ({ exam_id }) => {
       const sessionKey = `${user_id}-${exam_id}`;
-      if (timers[sessionKey]) {
-        clearInterval(timers[sessionKey].interval);
-        timers[sessionKey].submitted = true;
-        console.log(`📨 Manual submission for exam ${exam_id}, user ${user_id}`);
+      const session = activeSessions.get(sessionKey);
+
+      if (session) {
+        clearInterval(session.interval);
+        session.submitted = true;
+        activeSessions.delete(sessionKey);
+        pausedSessions.delete(sessionKey); // ensure clean
+
+        console.log(`📨 Manual submission for ${sessionKey}`);
         // await submitFinalResponsesAndChangeStatus(user_id, exam_id);
       }
     });
 
-    // Handle disconnect — pause active exams
     socket.on('disconnect', () => {
       console.log(`❌ Client disconnected: ${socket.id}`);
 
-      for (const sessionKey in timers) {
-        if (sessionKey.startsWith(`${user_id}-`)) {
-          if (!timers[sessionKey].submitted) {
-            timers[sessionKey].paused = true;
-            timers[sessionKey].pauseTime = timers[sessionKey].remainingTime;
-            clearInterval(timers[sessionKey].interval);
-            timers[sessionKey].interval = null;
-            console.log(`⏸️ Paused session ${sessionKey} at ${timers[sessionKey].pauseTime}s`);
-          }
+      for (const [sessionKey, session] of activeSessions.entries()) {
+        if (sessionKey.startsWith(`${user_id}-`) && !session.submitted) {
+          clearInterval(session.interval);
+          activeSessions.delete(sessionKey);
+          pausedSessions.set(sessionKey, session.remainingTime);
+
+          console.log(`⏸️ Paused session ${sessionKey} at ${session.remainingTime}s`);
+
+          // ⌛ Auto-expire paused session after 5 mins
+          setTimeout(() => {
+            if (pausedSessions.has(sessionKey)) {
+              console.log(`🗑️ Expiring paused session: ${sessionKey}`);
+              pausedSessions.delete(sessionKey);
+            }
+          }, 5 * 60 * 1000); // 5 minutes
         }
       }
     });

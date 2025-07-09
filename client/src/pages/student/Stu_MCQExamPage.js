@@ -126,29 +126,7 @@ const Stu_MCQExamPage = () => {
     }
   }, [tabSwitchCount, testSubmitted, isSubmitting]);
 
-  // Socket connection and exam end detection
-  useEffect(() => {
-    const socketConnect = async () => {
-      if (!socketRef.current && examId && Duration) {
-        const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        socketRef.current = io(`${API_BASE_URL}/exams/start-exam`, {
-          withCredentials: true,
-        });
-        const socket = socketRef.current;
-        socket.on("exam_ended", () => {
-          submitFinalResponse();
-          setTimeUp(true);
-        });
-      }
-    };
-    socketConnect();
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.off("exam_ended");
-        socketRef.current.disconnect();
-      }
-    };
-  }, [examId, Duration]);
+
 
   // Handle time up
   useEffect(() => {

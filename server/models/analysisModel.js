@@ -41,6 +41,7 @@ const getUserAnalysisById = async (student_id) => {
 
 
 
+
 const getOverallResultsOfAStudent = async (student_id) => {
   try {
     const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 ORDER BY created_at DESC;`;

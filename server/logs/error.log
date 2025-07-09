@@ -43,3 +43,11 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-08 01:27:17] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
 [2025-07-08 01:27:22] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
 [2025-07-08 23:36:53] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 00:27:48] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 00:28:59] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 01:02:22] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 18:52:15] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 19:08:26] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 19:09:40] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 20:00:30] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 21:56:04] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
