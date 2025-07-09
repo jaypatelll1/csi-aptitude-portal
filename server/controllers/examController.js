@@ -378,7 +378,7 @@ const getPaginatedDraftedExams = async (req, res) => {
 
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role, branchFilter);
-      exams = await examModel.getExamsByStatus(status, role, branchFilter,yearFilter);
+      exams = await examModel.getExamsByStatus(status, role, branchFilter, yearFilter);
     } else {
       Count = await examModel.ExamCount(status, role, branchFilter);
       exams = await examModel.getPaginatedExams(
@@ -426,7 +426,7 @@ const getPaginatedLiveExams = async (req, res) => {
     const yearFilter = role === 'TPO' ? 'BE' : null;
     if (!page && !limit) {
       Count = await examModel.ExamCount(status, role);
-      exams = await examModel.getExamsByStatus(status, role, branchFilter,yearFilter);
+      exams = await examModel.getExamsByStatus(status, role, branchFilter, yearFilter);
       await logActivity({
         user_id,
         activity: `Viewed non-paginated live exams`,
@@ -518,7 +518,8 @@ const getPaginatedPastExams = async (req, res) => {
       Count: Count || 0,
       ...(page && limit ? { page: parseInt(page), limit: parseInt(limit) } : {})
     };
-const time = process.env.time;
+    const time = parseInt(process.env.time) || 300; // fallback to 5 mins if unset
+
     // 5. Cache the response
     await redis.set(cacheKey, JSON.stringify(response), 'EX', time);
 

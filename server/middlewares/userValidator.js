@@ -11,13 +11,14 @@ const registerUserValidator = [
   body('email')
     .isEmail()
     .withMessage('Valid email is required')
-    .normalizeEmail()
-    .custom((value) => {
-      if (!value.endsWith('@atharvacoe.ac.in')) {
-        throw new Error('Email must end with @atharvacoe.ac.in');
-      }
-      return true;
-    }),
+    .normalizeEmail(),
+    // putting constraint that email must end with @atharvacoe.ac.in
+    // .custom((value) => {
+    //   if (!value.endsWith('@atharvacoe.ac.in')) {
+    //     throw new Error('Email must end with @atharvacoe.ac.in');
+    //   }
+    //   return true;
+    // }),
     (req, res, next) => {
       const errors = validationResult(req);
       if(!errors.isEmpty()){
@@ -59,13 +60,7 @@ const updateUserValidator = [
     .optional()
     .isEmail()
     .withMessage('Valid email is required')
-    .normalizeEmail()
-    .custom((value) => {
-      if (!value.endsWith('@atharvacoe.ac.in')) {
-        throw new Error('Email must end with @atharvacoe.ac.in');
-      }
-      return true;
-    }),
+    .normalizeEmail(),
   body('password')
     .optional()
     .isLength({ min: 8 })
