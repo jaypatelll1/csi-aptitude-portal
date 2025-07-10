@@ -235,7 +235,7 @@ async function getStudentRank(student_id) {
 }
 
 
-async function user_analysis(department, year) {
+async function user_analysis(year) {
   try {
     const queryText = `
       SELECT 
@@ -253,10 +253,10 @@ async function user_analysis(department, year) {
         ua.updated_at
       FROM rank AS r
       JOIN user_analysis AS ua ON r.student_id = ua.student_id
-      WHERE r.department_name = $1 AND r.year = $2;
+      WHERE r.year = $1;
     `;
 
-    const result = await query(queryText, [department, year]);
+    const result = await query(queryText, [year]);
     return result.rows;
   } catch (error) {
     console.error('❌ Error fetching user analysis:', error);

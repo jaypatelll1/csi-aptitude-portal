@@ -1905,3 +1905,6 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-10 16:08:09] info: User ID: 50, Activity: View Results, Status: success, Details: Results found
 [2025-07-10 16:08:09] info: User ID: 50, Activity: View Responses, Status: success, Details: Responses found
 [2025-07-10 16:08:15] info: User ID: 50, Activity: View Correct Incorrect, Status: success, Details: Results fetched successfully
+[2025-07-10 20:56:51] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-10 20:57:03] info: User ID: undefined, Activity: View overall Results, Status: success, Details: Results found
+[2025-07-10 21:03:07] info: User ID: undefined, Activity: View overall Results, Status: success, Details: Results found
