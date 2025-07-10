@@ -39,6 +39,38 @@ const getUserAnalysis = async (req, res) => {
   }
 };
 
+
+const deptUserAnalysis = async (req, res) => {
+  const { student_id } = req.params;
+
+  try {
+    const result = await analysisModel.dept_user_analysis(req.query.department_name);
+
+    if (!result || result.length === 0) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View overall Results',
+        status: 'failure',
+        details: 'Results not found',
+      });
+      return res.status(404).json({ message: 'Results not found.' });
+    }
+
+    await logActivity({
+      user_id: student_id,
+      activity: 'View overall Results',
+      status: 'success',
+      details: 'Results found',
+    });
+
+    res.status(200).json({ results: result });
+  } catch (error) {
+    console.error('❌ Error in userAnalysis:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 const userAnalysis = async (req, res) => {
   const { student_id } = req.params;
 
@@ -424,6 +456,7 @@ module.exports = {
   getDepartmentAnalysis, //----------------
   getUserAnalysis, //--------------
   userAnalysis,
+  deptUserAnalysis,
   getSingleUserAnalysis,
   overallAnalysis
 };

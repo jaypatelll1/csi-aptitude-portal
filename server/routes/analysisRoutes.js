@@ -13,7 +13,8 @@ const {
   getUserAnalysis,
   userAnalysis,
   getSingleUserAnalysis,
-  overallAnalysis
+  overallAnalysis,
+  deptUserAnalysis,
 } = require('../controllers/analysisController');
 
 const router = express.Router();
@@ -38,5 +39,8 @@ router.get('/student-analysis/:student_id', getSingleUserAnalysis) // This will 
 router.get('/department/:department_name', getDepartmentAnalysis); //-----------------
 router.get('/overallAnalysis', overallAnalysis);
 router.get('/user/:student_id', getUserAnalysis); //---------------
+router.get('/dept-student-analysis', deptUserAnalysis) 
+// department
+
 
 module.exports = router;

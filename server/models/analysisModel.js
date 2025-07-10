@@ -265,6 +265,34 @@ async function user_analysis(year) {
 }
 
 
+async function dept_user_analysis(department) {
+  try {
+    const queryText = `
+      SELECT 
+        r.student_id,
+        r.department_name,
+        r.year,
+        r.overall_rank,
+        r.department_rank,
+        ua.total_score,
+        ua.max_score,
+        ua.accuracy_rate,
+        ua.completion_rate,
+        ua.category,
+        ua.performance_over_time,
+        ua.updated_at
+      FROM rank AS r
+      JOIN user_analysis AS ua ON r.student_id = ua.student_id
+      WHERE r.department_name = $1;
+    `;
+
+    const result = await query(queryText, [department]);
+    return result.rows;
+  } catch (error) {
+    console.error('❌ Error fetching user analysis:', error);
+    throw error;
+  }
+}
 
 
 const topScorers = async () => {
@@ -430,6 +458,7 @@ module.exports = {
   getDepartmentAnalysis, //---------------
   getUserAnalysisById, //---------------
   user_analysis,
+  dept_user_analysis,
   getSingleUserAnalysis,
   topScorers,
   weakScorers,
