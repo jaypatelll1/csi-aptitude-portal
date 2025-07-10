@@ -2,6 +2,7 @@
 // - Smooth chart animation using chartReady
 // - Full-page "No Data Available" fallback if no data for student
 // - Clean, maintainable structure
+// - FIXED: Cannot read properties of undefined (reading 'length') error
 
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -71,32 +72,42 @@ function Adm_StudentAnalytics() {
   const fetchAllData = async () => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const url = `${API_BASE_URL}/api/analysis/all-analysis`;
+    const url = `${API_BASE_URL}/api/analysis/user/${user_id}`;
       const response = await axios.get(url, {
         withCredentials: true,
         headers: { "x-user-id": user_id },
       });
 
-      setStudentName(response.data?.rank?.student_name || "Student Name Not Available");
-      setDepartment(response.data?.rank?.department_name || "");
-      setData(response.data?.overall_resultS);
-      setAvgData(response.data?.avg_results);
-      setRankData(response.data?.rank);
+      // Handle the new JSON structure
+      const result = response.data?.result;
+      console.log("API Response:", response.data);
+      setStudentName(result?.student_name || "Student Name Not Available");
+      setDepartment(result?.department_name || "");
+      
+      // Convert single result to array format for compatibility
+      const resultArray = result ? [result] : [];
+      setData(resultArray);
+      setAvgData(response.data?.avg_results || []);
+      setRankData(response.data?.rank || []);
+      
       if (response.data.rank) {
         superscript(setDSup, response.data.rank.department_rank);
         superscript(setOSup, response.data.rank.overall_rank);
       }
-      setPerformanceOverTime(response.data?.performance_over_time);
-      if (response.data?.test_completion_data) {
-        const { attempted, total } = response.data.test_completion_data;
+      setPerformanceOverTime(result?.performance_over_time || []);
+      
+      // Handle test completion data from the result
+      if (result?.total_score && result?.max_score) {
+        const completionRate = parseFloat(result.total_score / result.max_score);
         setTestCompletionData({
           title: "Test Completion Rate",
           chartData: [
-            { name: "Completed", value: attempted, fill: "#1349C5" },
-            { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
+            { name: "Completed", value: Math.round(completionRate * 100), fill: "#1349C5" },
+            { name: "Remaining", value: Math.round((1 - completionRate) * 100), fill: "#6F91F0" },
           ],
         });
       }
+      
       setLoading(false);
       setTimeout(() => setChartReady(true), 100);
     } catch (error) {
@@ -114,20 +125,30 @@ function Adm_StudentAnalytics() {
   useEffect(() => {
     setCorrect(0);
     setTotal(0);
-    data.forEach((exam) => setCorrect((prev) => prev + exam.total_score));
-    data.forEach((exam) => setTotal((prev) => prev + exam.max_score));
+    if (data && Array.isArray(data)) {
+      data.forEach((result) => {
+        if (result.category) {
+          // Calculate total score and max score from category data
+          Object.values(result.category).forEach((category) => {
+            setCorrect((prev) => prev + (category.score || 0));
+            setTotal((prev) => prev + (category.max_score || 0));
+          });
+        }
+      });
+    }
   }, [data]);
 
   const noDataAvailable =
-    data.length === 0 && avgData.length === 0 && performanceOverTime.length === 0;
+
+    (!performanceOverTime || performanceOverTime.length === 0);
 
   const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
     chartData: performanceOverTime?.map((exam) => ({
-      name: exam?.created_on,
-      Average: exam?.average_score,
-    })),
+      name: `Exam ${exam?.exam_id}`,
+      Average: Math.round((exam?.score / exam?.max_score) * 100),
+    })) || [],
   };
 
   const accuracyData = {
@@ -149,21 +170,22 @@ function Adm_StudentAnalytics() {
   const subjectPerformanceData = {
     title: "Topic-wise Performance",
     chartData: (() => {
-      const validData = data.filter((exam) => exam.category);
-      const allSubjects = [
-        ...new Set(validData.flatMap((exam) => Object.keys(exam.category).filter((s) => s !== "null"))),
-      ];
-      return allSubjects.map((subject) => {
-        const totalScore = validData.reduce(
-          (sum, exam) => sum + (parseFloat(exam.category[subject]?.score) || 0),
-          0
-        );
-        const totalMax = validData.reduce(
-          (sum, exam) => sum + (parseFloat(exam.category[subject]?.max_score) || 0),
-          0
-        );
-        const average = totalMax > 0 ? parseFloat(((totalScore / totalMax) * 100).toFixed(2)) : 0;
-        return { name: subject, yourScore: totalScore, average, maxMarks: totalMax };
+      if (!data || !Array.isArray(data) || data.length === 0) return [];
+      
+      const result = data[0]; // Get the first (and likely only) result
+      if (!result.category) return [];
+      
+      return Object.entries(result.category).map(([subject, categoryData]) => {
+        const score = categoryData.score || 0;
+        const maxScore = categoryData.max_score || 0;
+        const percentage = maxScore > 0 ? parseFloat(((score / maxScore) * 100).toFixed(2)) : 0;
+        
+        return { 
+          name: subject, 
+          yourScore: score, 
+          average: percentage, 
+          maxMarks: maxScore 
+        };
       });
     })(),
     colors: { yourScore: "#1349C5", average: "#6A88F7", maxMarks: "#D3D3D3" },

@@ -153,7 +153,7 @@ function Adm_Analytics() {
 
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
-        `${API_BASE_URL}/api/analysis/department`,
+        `${API_BASE_URL}/api/analysis/department/${department}`,
         { withCredentials: true }
       );
 
@@ -312,7 +312,7 @@ function Adm_Analytics() {
       ?.filter((category) => category?.category != null && category?.category !== "null")
       .map((category) => ({
         name: category?.category,
-        yourScore: Number(category?.average_category_score),
+        yourScore: Number(category?.average_category_score).toFixed(2) || 0,
         maxMarks: Number(category?.max_category_score) || 100,
       })),
   };
