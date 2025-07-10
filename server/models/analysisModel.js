@@ -235,12 +235,11 @@ async function getStudentRank(student_id) {
 }
 
 
-async function user_analysis(year) {
+async function user_analysis(department, year) {
   try {
     const queryText = `
       SELECT 
         r.student_id,
-        r.student_name,
         r.department_name,
         r.year,
         r.overall_rank,
@@ -254,16 +253,19 @@ async function user_analysis(year) {
         ua.updated_at
       FROM rank AS r
       JOIN user_analysis AS ua ON r.student_id = ua.student_id
-      WHERE r.year = $1;
+      WHERE r.department_name = $1 AND r.year = $2;
     `;
 
-    const result = await query(queryText, [year]);
+    const result = await query(queryText, [department, year]);
     return result.rows;
   } catch (error) {
     console.error('❌ Error fetching user analysis:', error);
     throw error;
   }
 }
+
+
+
 
 const topScorers = async () => {
   try {
