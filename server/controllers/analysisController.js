@@ -5,22 +5,36 @@ const { student_analysis } = require('../utils/student_analysis');
 
 
 const getDepartmentAnalysis = async (req, res) => {
-  const { department_name } = req.params; // ✔️ from route param
-  const { year } = req.query;             // ✔️ from query param
+  const { department_name } = req.params; // from route param
+  const { year } = req.query;             // from query param
 
   try {
+    // Fetch main department analysis data
     const result = await analysisModel.getDepartmentAnalysis(department_name, year);
 
     if (!result || result.length === 0) {
       return res.status(404).json({ message: 'Department analysis not found.' });
     }
 
-    res.status(200).json({ result });
+    // Fetch top 5 and weak 5 scorers in the department
+    const [top_scorers, weak_scorers] = await Promise.all([
+      analysisModel.deptTopScorers(department_name),
+      analysisModel.deptWeakScorers(department_name)
+    ]);
+
+    // Send full response
+    res.status(200).json({
+      department_analysis: result,
+      top_scorers,
+      weak_scorers
+    });
+
   } catch (error) {
     console.error('Error fetching department analysis:', error.message);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const getUserAnalysis = async (req, res) => {
   const { student_id } = req.params;
@@ -159,8 +173,8 @@ const overallAnalysis = async (req, res) => {
       overall_accuracy_rate
     ] = await Promise.all([
       analysisModel.getDeptAvgScores(year),
-      analysisModel.topScorers(),
-      analysisModel.weakScorers(),
+      analysisModel.topScorers(year),
+      analysisModel.weakScorers(year),
       analysisModel.getAllDepartmentsPerformanceOverTime(),
       analysisModel.overallAccuracyRate(year)
     ]);

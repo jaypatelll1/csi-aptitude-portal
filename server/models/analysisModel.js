@@ -26,18 +26,52 @@ const getDepartmentAnalysis = async (department_name, year) => {
   return result.rows;
 };
 
-const getUserAnalysisById = async (student_id) => {
-  const queryText = `
-    SELECT * FROM user_analysis
-    WHERE student_id = $1
-  `;
+const deptTopScorers = async (department) => {
+  try {
+    const result = await query(`
+      SELECT * 
+      FROM rank 
+      WHERE department_name = $1
+      ORDER BY overall_rank ASC 
+      LIMIT 5;
+    `, [department]);
+    return result.rows;
+  } catch (error) {
+    console.log('Error in topScorers:', error);
+    throw error;
+  }
+};
 
-  const result = await query(queryText, [student_id]);
-  return result.rows[0]; // return single object
+const deptWeakScorers = async (department) => {
+  try {
+    const result = await query(`
+      SELECT * FROM (
+        SELECT * 
+        FROM student_rank 
+        WHERE department_name = $1
+        ORDER BY overall_rank DESC 
+        LIMIT 5
+        ) AS subquery
+        ORDER BY overall_rank ASC;
+        `, [department]);
+    return result.rows;
+  } catch (error) {
+    console.log('Error in weakScorers:', error);
+    throw error;
+  }
 };
 
 
 
+const getUserAnalysisById = async (student_id) => {
+  const queryText = `
+        SELECT * FROM user_analysis
+        WHERE student_id = $1
+      `;
+
+  const result = await query(queryText, [student_id]);
+  return result.rows[0]; // return single object
+};
 
 
 
@@ -296,32 +330,44 @@ async function dept_user_analysis(department) {
 }
 
 
-const topScorers = async () => {
+
+
+const topScorers = async (year) => {
   try {
     const result = await query(`
-        SELECT * FROM rank ORDER BY overall_rank ASC LIMIT 5;
-    `);
+      SELECT * 
+      FROM rank 
+      WHERE year = $1
+      ORDER BY overall_rank ASC 
+      LIMIT 5;
+    `, [year]);
     return result.rows;
   } catch (error) {
-    console.log(error);
+    console.log('Error in topScorers:', error);
+    throw error;
   }
 };
-const weakScorers = async () => {
+
+const weakScorers = async (year) => {
   try {
-    // Students scoring less than 40% of total marks
     const result = await query(`
-        SELECT * FROM (
-        SELECT * FROM student_rank 
+      SELECT * FROM (
+        SELECT * 
+        FROM student_rank 
+        WHERE year = $1
         ORDER BY overall_rank DESC 
         LIMIT 5
-    ) AS subquery
-    ORDER BY overall_rank ASC;
-    `);
+      ) AS subquery
+      ORDER BY overall_rank ASC;
+    `, [year]);
     return result.rows;
   } catch (error) {
-    console.log(error);
+    console.log('Error in weakScorers:', error);
+    throw error;
   }
 };
+
+
 const getDeptAvgScores = async (year) => {
   try {
     const result = await query(
@@ -457,6 +503,8 @@ module.exports = {
   getStudentRank,
   getPerformanceOverTime,
   getDepartmentAnalysis, //---------------
+  deptTopScorers,
+  deptWeakScorers,
   getUserAnalysisById, //---------------
   user_analysis,
   dept_user_analysis,
