@@ -95,12 +95,6 @@ function Adm_StudentAnalytics() {
       const resultArray = result ? [result] : [];
       setData(resultArray);
       setAvgData(response.data?.avg_results || []);
-      setRankData(response.data?.rank || []);
-      
-      if (response.data.rank) {
-        superscript(setDSup, response.data.rank.department_rank);
-        superscript(setOSup, response.data.rank.overall_rank);
-      }
       setPerformanceOverTime(result?.performance_over_time || []);
       
       // Handle test completion data using completion_rate from API
@@ -114,6 +108,42 @@ function Adm_StudentAnalytics() {
           ],
         });
       }
+
+      // Fetch rank data from the new API endpoint
+      if (result?.department_name && result?.year) {
+        const rankUrl = `${API_BASE_URL}/api/analysis/student-analysis/${user_id}?department_name=${result.department_name}&year=${result.year}`;
+        
+        try {
+          const rankResponse = await axios.get(rankUrl, {
+            withCredentials: true,
+            headers: { "x-user-id": user_id },
+          });
+          
+          console.log("Rank API Response:", rankResponse.data);
+          
+          // Set rank data from the new API response
+          if (rankResponse.data?.results) {
+            const results = rankResponse.data.results;
+            setRankData({
+              department_rank: results.department_rank,
+              overall_rank: results.overall_rank
+            });
+            
+            // Set superscript for ranks
+            if (results.department_rank) {
+              superscript(setDSup, results.department_rank);
+            }
+            if (results.overall_rank) {
+              superscript(setOSup, results.overall_rank);
+            }
+          }
+        } catch (rankError) {
+          console.error("Error fetching rank data:", rankError);
+          // Set default rank data if rank API fails
+          setRankData({});
+        }
+      }
+      console.log(rankData)
       
       setLoading(false);
       setTimeout(() => setChartReady(true), 100);
