@@ -151,6 +151,25 @@ CREATE TABLE IF NOT EXISTS student_analysis (
         ON DELETE CASCADE
 );
 
+CREATE TABLE user_analysis (
+  student_id INTEGER PRIMARY KEY,
+  student_name TEXT NOT NULL,
+  department_name TEXT NOT NULL,
+  year TEXT NOT NULL,
+  accuracy_rate DOUBLE PRECISION DEFAULT 0.0,
+  completion_rate DOUBLE PRECISION DEFAULT 0.0,
+  category JSONB DEFAULT '{}'::jsonb,
+  performance_over_time JSONB DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  total_score INTEGER,
+  max_score INTEGER,
+  
+  CONSTRAINT user_analysis_student_id_fkey
+    FOREIGN KEY (student_id)
+    REFERENCES public.users(user_id)
+);
+
+
 
 CREATE TABLE student_rank (
   rank_id SERIAL PRIMARY KEY,
@@ -163,6 +182,37 @@ CREATE TABLE student_rank (
   department_rank INTEGER NOT NULL,
   last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE rank (
+  rank_id SERIAL PRIMARY KEY,
+  student_id INTEGER UNIQUE,
+  student_name VARCHAR(255),
+  department_name TEXT NOT NULL,
+  year TEXT NOT NULL,
+  total_score INTEGER NOT NULL,
+  overall_rank INTEGER NOT NULL,
+  department_rank INTEGER NOT NULL,
+  last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT rank_student_id_key UNIQUE (student_id)
+);
+
+CREATE TABLE logs (
+  logs_id SERIAL PRIMARY KEY,
+  user_id INTEGER,
+  activity VARCHAR(255) NOT NULL,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status VARCHAR(50),
+  details TEXT,
+
+  CONSTRAINT logs_user_id_fkey
+    FOREIGN KEY (user_id)
+    REFERENCES public.users(user_id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
 
 
 CREATE TABLE department_analysis (

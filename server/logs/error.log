@@ -51,3 +51,55 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-09 19:09:40] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
 [2025-07-09 20:00:30] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
 [2025-07-09 21:56:04] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-09 23:16:17] error: User ID: 2, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:49:54] error: User ID: 623, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:50:28] error: User ID: 623, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:50:53] error: User ID: 624, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:51:22] error: User ID: 624, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:54:01] error: User ID: 624, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:54:07] error: User ID: 624, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:55:02] error: User ID: 624, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:56:58] error: User ID: 623, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:57:04] error: User ID: 623, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:57:28] error: User ID: 623, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:58:08] error: User ID: 623, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:58:30] error: User ID: 625, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:58:57] error: User ID: 625, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 00:59:43] error: User ID: 625, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:00:15] error: User ID: 625, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:00:36] error: User ID: 626, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:01:03] error: User ID: 626, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:01:38] error: User ID: 626, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:02:08] error: User ID: 626, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:02:32] error: User ID: 628, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:02:58] error: User ID: 628, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:03:38] error: User ID: 628, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:04:07] error: User ID: 628, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:04:55] error: User ID: 622, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:05:23] error: User ID: 622, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:05:53] error: User ID: 622, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:06:44] error: User ID: 622, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:07:17] error: User ID: 622, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:07:42] error: User ID: 619, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:08:09] error: User ID: 619, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:08:48] error: User ID: 619, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:09:22] error: User ID: 619, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:09:52] error: User ID: 619, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:10:28] error: User ID: 628, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:10:48] error: User ID: 629, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:11:21] error: User ID: 629, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:12:05] error: User ID: 629, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:12:36] error: User ID: 629, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:12:56] error: User ID: 630, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:13:18] error: User ID: 630, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:13:58] error: User ID: 630, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:14:28] error: User ID: 630, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:15:03] error: User ID: 631, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:15:37] error: User ID: 631, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:16:19] error: User ID: 631, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 01:16:57] error: User ID: 631, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 16:04:55] error: User ID: 51, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-10 16:05:16] error: User ID: 55, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-10 16:05:20] error: User ID: 55, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-10 16:05:24] error: User ID: 55, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-10 16:06:03] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
