@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS student_analysis (
 );
 
 
-CREATE TABLE student_ranks (
+CREATE TABLE student_rank (
   rank_id SERIAL PRIMARY KEY,
   student_id INTEGER UNIQUE,
   student_name VARCHAR(255),
