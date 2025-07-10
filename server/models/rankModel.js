@@ -149,37 +149,32 @@ async function getStudentRanksInOrderTpo(data) {
       SELECT 
         u.user_id AS "user_id",
         u.name AS "name",
-        sr.department_name AS "department",
-        sr.department_rank AS "department_rank",
-        sr.overall_rank AS "overall_rank",
-        sr.total_score AS "total_score",
+        ua.department_name AS "department",
+        ua.total_score AS "total_score",
+        ua.max_score AS "max_score",
+        ua.accuracy_rate AS "accuracy_rate",
+        ua.completion_rate AS "completion_rate",
         u.email AS "email",
         u.phone AS "phone"
-      FROM student_rank sr
-      JOIN users u ON sr.student_id = u.user_id
+      FROM user_analysis ua
+      JOIN users u ON ua.student_id = u.user_id
       WHERE u.year = 'BE'`;
 
     const queryParams = [];
     let paramIndex = 1;
 
     if (data.department) {
-      queryText += ` AND sr.department_name = $${paramIndex}`;
+      queryText += ` AND ua.department_name = $${paramIndex}`;
       queryParams.push(data.department);
       paramIndex++;
     }
 
     if (data.filter === "top-performers") {
-      queryText += data.department 
-        ? ` ORDER BY sr.department_rank ASC` 
-        : ` ORDER BY sr.overall_rank ASC`;
+      queryText += ` ORDER BY ua.total_score DESC`;
     } else if (data.filter === "bottom-performers") {
-      queryText += data.department 
-        ? ` ORDER BY sr.department_rank DESC` 
-        : ` ORDER BY sr.overall_rank DESC`;
+      queryText += ` ORDER BY ua.total_score ASC`;
     } else {
-      queryText += data.department 
-        ? ` ORDER BY sr.department_rank ASC` 
-        : ` ORDER BY sr.overall_rank ASC`;
+      queryText += ` ORDER BY ua.total_score DESC`;
     }
 
     console.log(queryText, queryParams);
@@ -187,10 +182,11 @@ async function getStudentRanksInOrderTpo(data) {
     return result.rows;
 
   } catch (error) {
-    console.log('Error fetching data', error);
+    console.log('❌ Error fetching data from user_analysis:', error);
     return [];
   }
 }
+
 
 
 module.exports = { generateStudentRanks, getStudentRanksInOrder,generateDepartmentRanks, getStudentRanksInOrderTpo };

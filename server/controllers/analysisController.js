@@ -5,7 +5,8 @@ const { student_analysis } = require('../utils/student_analysis');
 
 
 const getDepartmentAnalysis = async (req, res) => {
-  const { department_name, year } = req.query;
+  const { department_name } = req.params; // ✔️ from route param
+  const { year } = req.query;             // ✔️ from query param
 
   try {
     const result = await analysisModel.getDepartmentAnalysis(department_name, year);
@@ -20,6 +21,7 @@ const getDepartmentAnalysis = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const getUserAnalysis = async (req, res) => {
   const { student_id } = req.params;
 

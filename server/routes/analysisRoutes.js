@@ -30,7 +30,8 @@ router.get('/all-analysis', generateAllAnalysis)
 router.post('/student-analysis', generateStudentAnalysis)
 router.post('/student-analysis/:student_id/:exam_id', generateStudentAnalysisUsingId)
 
-router.get('/department', getDepartmentAnalysis); //-----------------
+// router.get('/department', getDepartmentAnalysis); //-----------------
+router.get('/department/:department_name', getDepartmentAnalysis); //-----------------
 router.get('/user/:student_id', getUserAnalysis); //---------------
 
 module.exports = router;
