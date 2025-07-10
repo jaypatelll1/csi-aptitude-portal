@@ -50,9 +50,9 @@ function Stu_Dashboard() {
 
   // Function to format date to dd/MM/yyyy format
   const formatToDateString = (date) => {
-    if (!date) return '';
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    if (!date) return "";
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
@@ -61,7 +61,7 @@ function Stu_Dashboard() {
   const filterByDateRange = (testsToFilter, start, end) => {
     if (!start || !end) return testsToFilter;
 
-    return testsToFilter.filter(test => {
+    return testsToFilter.filter((test) => {
       const testDate = new Date(test.Date);
       return testDate >= start && testDate <= end;
     });
@@ -71,22 +71,24 @@ function Stu_Dashboard() {
   const fetchAnalyticsData = async () => {
     setAnalyticsLoading(true);
     setAnalyticsError(null);
-    
+
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
         `${API_BASE_URL}/api/exams/results/testAnalysis/student/${userData.id}`,
         {
           withCredentials: true,
-        }
+        },
       );
-      
-      setAnalyticsData(response.data.results );
+
+      setAnalyticsData(response.data.results);
       console.log("Analytics Data:", response.data.results);
       setAnalyticsLoading(false);
     } catch (error) {
       console.error("Error fetching analytics data:", error);
-      setAnalyticsError("Failed to fetch analytics data. Please try again later.");
+      setAnalyticsError(
+        "Failed to fetch analytics data. Please try again later.",
+      );
       setAnalyticsLoading(false);
     }
   };
@@ -97,9 +99,12 @@ function Stu_Dashboard() {
       // Group by exam_id and keep only the latest attempt
       const uniqueTestsMap = new Map();
 
-      result.forEach(test => {
+      result.forEach((test) => {
         const existingTest = uniqueTestsMap.get(test.exam_id);
-        if (!existingTest || new Date(test.Date) > new Date(existingTest.Date)) {
+        if (
+          !existingTest ||
+          new Date(test.Date) > new Date(existingTest.Date)
+        ) {
           uniqueTestsMap.set(test.exam_id, test);
         }
       });
@@ -108,7 +113,7 @@ function Stu_Dashboard() {
 
       // Apply date filtering
       if (startDate) {
-        uniqueTests = uniqueTests.filter(test => {
+        uniqueTests = uniqueTests.filter((test) => {
           const testDate = new Date(test.Date);
           const filterDate = new Date(startDate);
           // Set time to start of day for proper comparison
@@ -123,25 +128,32 @@ function Stu_Dashboard() {
       if (sort === "ALL") {
         sortedTests = uniqueTests;
       } else if (sort === "ATTEMPTED") {
-        sortedTests = uniqueTests.filter(test =>
-          test.isAttempted === true ||
-          test.status === "finished" ||
-          test.status === "completed" ||
-          test.status === "submitted"
+        sortedTests = uniqueTests.filter(
+          (test) =>
+            test.isAttempted === true ||
+            test.status === "finished" ||
+            test.status === "completed" ||
+            test.status === "submitted",
         );
       } else if (sort === "NOT ATTEMPTED") {
-        sortedTests = uniqueTests.filter(test =>
-          test.isAttempted === false ||
-          test.status === "not_attempted" ||
-          test.status === "pending" ||
-          (!test.isAttempted && test.status !== "finished" && test.status !== "completed" && test.status !== "submitted")
+        sortedTests = uniqueTests.filter(
+          (test) =>
+            test.isAttempted === false ||
+            test.status === "not_attempted" ||
+            test.status === "pending" ||
+            (!test.isAttempted &&
+              test.status !== "finished" &&
+              test.status !== "completed" &&
+              test.status !== "submitted"),
         );
       }
 
       // Sort by date (older to newer) only when date filter is applied
       let finalSortedTests = sortedTests;
       if (startDate) {
-        finalSortedTests = [...sortedTests].sort((a, b) => new Date(a.Date) - new Date(b.Date));
+        finalSortedTests = [...sortedTests].sort(
+          (a, b) => new Date(a.Date) - new Date(b.Date),
+        );
       }
 
       setTests(finalSortedTests);
@@ -175,7 +187,7 @@ function Stu_Dashboard() {
         });
         dispatch(setExam(response.data.exams));
         setTests(response.data.exams || []);
-
+        // console.log("Tests fetched successfully:", response.data.exams);
       } catch (error) {
         console.error("error getting response ", err);
         setError(`Failed to fetch tests. Please try again later.`);
@@ -192,11 +204,10 @@ function Stu_Dashboard() {
           `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
           {
             withCredentials: true,
-          }
+          },
         );
         dispatch(setExam(response.data.results));
         setResult(response.data.results || []);
-
       } catch (error) {
         console.error("error getting response ", err);
         setError(`Failed to fetch tests. Please try again later.`);
@@ -209,12 +220,12 @@ function Stu_Dashboard() {
         `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
         {
           withCredentials: true,
-        }
+        },
       );
 
       const responseExamId = await axios.get(
         `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       setResult(pastPaper.data.results);
@@ -247,7 +258,7 @@ function Stu_Dashboard() {
       if (detailsRef.current && !detailsRef.current.contains(event.target)) {
         closeDetails();
       }
-      
+
       // Handle Calendar component separately
       if (calendarRef.current && !calendarRef.current.contains(event.target)) {
         setIsCalendarOpen(false);
@@ -313,7 +324,8 @@ function Stu_Dashboard() {
     if (!name) return "";
     const nameParts = name.trim().split(" ");
     const firstInitial = nameParts[0]?.charAt(0) || "";
-    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "";
+    const lastInitial =
+      nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "";
     return (firstInitial + lastInitial).toUpperCase();
   };
 
@@ -380,7 +392,9 @@ function Stu_Dashboard() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
+          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
+            Dashboard
+          </h1>
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}
@@ -427,11 +441,13 @@ function Stu_Dashboard() {
                       onClick={handleCalendarToggle}
                       className="bg-white border border-gray-300 rounded-2xl px-3 py-1 text-sm focus:outline-none hover:bg-gray-50 cursor-pointer"
                     >
-                      {startDate ? formatToDateString(startDate) : 'Select Date'}
+                      {startDate
+                        ? formatToDateString(startDate)
+                        : "Select Date"}
                     </button>
 
                     {isCalendarOpen && (
-                      <div 
+                      <div
                         ref={calendarRef}
                         className="absolute z-50 bg-white border border-gray-300 rounded shadow-lg p-3 mt-8 top-full right-0"
                         onClick={(e) => e.stopPropagation()}
@@ -447,7 +463,7 @@ function Stu_Dashboard() {
                         />
                       </div>
                     )}
-                    
+
                     <button
                       onClick={handleDateReset}
                       className="bg-red-500 rounded-3xl text-white px-3 py-1 text-sm hover:bg-red-600 transition-colors"
@@ -485,6 +501,7 @@ function Stu_Dashboard() {
                     duration={test.duration}
                     status={test.status}
                     questionCount={test.total_questions}
+                    isEligible={test.iseligibletoattempt}
                     lastDate={formatToReadableDate(test.created_at)}
                   />
                 ))
@@ -508,8 +525,7 @@ function Stu_Dashboard() {
               <p className="col-span-full text-center text-gray-500">
                 {filter === "past" && startDate
                   ? "No exams found in the selected date range."
-                  : "No exams available."
-                }
+                  : "No exams available."}
               </p>
             )}
           </div>
@@ -517,7 +533,10 @@ function Stu_Dashboard() {
           {/* Analytics Section */}
           <div className="mt-5 mb-8">
             <h1 className="font-semibold text-black text-lg">Analytics</h1>
-            <div className="flex overflow-x-auto space-x-4 mt-3" style={{ scrollbarWidth: "none" }}>
+            <div
+              className="flex overflow-x-auto space-x-4 mt-3"
+              style={{ scrollbarWidth: "none" }}
+            >
               {analyticsLoading ? (
                 <div className="flex justify-center items-center w-full">
                   <Loader />
@@ -538,7 +557,9 @@ function Stu_Dashboard() {
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">No analytics data available.</p>
+                <p className="text-center text-gray-500">
+                  No analytics data available.
+                </p>
               )}
             </div>
           </div>
