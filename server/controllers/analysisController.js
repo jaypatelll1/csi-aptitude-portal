@@ -104,34 +104,62 @@ const getSingleUserAnalysis = async (req, res) => {
 };
 
 
-// const overallAnalysis = async (req, res) => {
-//   const { student_id } = req.params;  
-//   try {
-//     const result = await analysisModel.overallAnalysis(req.query.year);
+const overallAnalysis = async (req, res) => {
+  const year = req.query.year || 'BE'; // allow filtering by year (default BE)
+  const cacheKey = `analytics:overall:${year}`;
 
-//     if (!result || result.length === 0) {
-//       await logActivity({
-//         user_id: student_id,
-//         activity: 'View overall Results',
-//         status: 'failure',
-//         details: 'Results not found',
-//       });
-//       return res.status(404).json({ message: 'Results not found.' });
-//     }
+  try {
+    // Step 1: Check Redis Cache
+    const cachedData = await getCachedAnalytics(cacheKey);
+    if (cachedData) {
+      console.log(`✅ Cache Hit: ${cacheKey}`);
+      return res.status(200).json(JSON.parse(cachedData));
+    }
 
-//     await logActivity({
-//       user_id: student_id,
-//       activity: 'View overall Results',
-//       status: 'success',
-//       details: 'Results found',
-//     });
+    // Step 2: Cache Miss → Fetch from DB
+    console.log(`⏳ Cache Miss: Fetching ${cacheKey} from DB`);
 
-//     res.status(200).json({ results: result });
-//   } catch (error) {
-//     console.error('❌ Error in overallAnalysis:', error);
-//     res.status(500).json({ error: error.message });
-//   }
-// }
+    const [
+      dept_avg,
+      top_performers,
+      bottom_performers,
+      performance_over_time_raw,
+      overall_accuracy_rate
+    ] = await Promise.all([
+      analysisModel.getDeptAvgScores(year),
+      analysisModel.topScorers(),
+      analysisModel.weakScorers(),
+      analysisModel.getAllDepartmentsPerformanceOverTime(),
+      analysisModel.overallAccuracyRate(year)
+    ]);
+
+    // Transform performance_over_time into an object grouped by department
+    const performance_over_time = {};
+    performance_over_time_raw.forEach((dept) => {
+      performance_over_time[dept.department_name] = dept.performance_over_time;
+    });
+
+    // Final response object
+    const analyticsData = {
+      dept_avg,
+      top_performers,
+      bottom_performers,
+      performance_over_time,
+      overall_accuracy_rate
+    };
+
+    // Step 3: Cache the result for future requests
+    await fetchAndCacheAnalytics(cacheKey, analyticsData);
+
+    // Step 4: Return the response
+    return res.status(200).json(analyticsData);
+
+  } catch (error) {
+    console.error('❌ Error in getAllTpoAnalysis:', error.message);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 const getOverallResultsOfAStudent = async (req, res) => {
   const { student_id } = req.params;
@@ -396,5 +424,6 @@ module.exports = {
   getDepartmentAnalysis, //----------------
   getUserAnalysis, //--------------
   userAnalysis,
-  getSingleUserAnalysis
+  getSingleUserAnalysis,
+  overallAnalysis
 };

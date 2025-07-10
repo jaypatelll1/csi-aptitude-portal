@@ -240,6 +240,7 @@ async function user_analysis(year) {
     const queryText = `
       SELECT 
         r.student_id,
+        r.student_name,
         r.department_name,
         r.year,
         r.overall_rank,
@@ -264,30 +265,88 @@ async function user_analysis(year) {
   }
 }
 
+const topScorers = async () => {
+  try {
+    const result = await query(`
+        SELECT * FROM rank ORDER BY overall_rank ASC LIMIT 5;
+    `);
+    return result.rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+const weakScorers = async () => {
+  try {
+    // Students scoring less than 40% of total marks
+    const result = await query(`
+        SELECT * FROM (
+        SELECT * FROM student_rank 
+        ORDER BY overall_rank DESC 
+        LIMIT 5
+    ) AS subquery
+    ORDER BY overall_rank ASC;
+    `);
+    return result.rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+const getDeptAvgScores = async (year) => {
+  try {
+    const result = await query(
+      `
+      SELECT 
+        department_name,
+        ROUND(
+          CASE 
+            WHEN student_count = 0 THEN 0
+            ELSE (total_score / student_count)::numeric
+          END, 2
+        ) AS avg_score
+      FROM 
+        department_analysis
+      WHERE 
+        year = $1
+      ORDER BY 
+        avg_score DESC;
+      `,
+      [year] // <-- parameterized input
+    );
+    return result.rows;
+  } catch (error) {
+    console.log('Error fetching department average scores:', error);
+    throw error;
+  }
+};
 
-// async function overallAnalysis() {
-//   try {
-//     const sql = `
-//             SELECT 
-//                 exam_id, 
-//                 department_name, 
-//                 student_id, 
-//                 student_name, 
-//                 exam_name, 
-//                 category, 
-//                 total_score, 
-//                 max_score, 
-//                 attempted
-//             FROM student_analysis;
-//         `;
+const getAllDepartmentsPerformanceOverTime = async () => {
+  try {
+    const result = await query(`
+      SELECT department_name, performance_over_time 
+      FROM department_analysis
+      ORDER BY department_rank ASC;
+    `);
+    return result.rows; // Array of { department_name, performance_over_time }
+  } catch (error) {
+    console.error('Error fetching performance over time:', error);
+    throw error;
+  }
+};
+const overallAccuracyRate = async (year) => {
+  try {
+    const sql = `
+      SELECT ROUND(AVG(accuracy_rate)::numeric, 4) AS overall_accuracy_rate
+      FROM department_analysis
+      WHERE year = $1;
+    `;
+    const result = await query(sql, [year]);
+    return result.rows[0]?.overall_accuracy_rate || 0.0;
+  } catch (error) {
+    console.error('❌ Error fetching overall accuracy rate:', error.message);
+    throw error;
+  }
+};
 
-//     const result = await query(sql);
-//     return result.rows; // Return all rows
-//   } catch (error) {
-//     console.error('Error fetching overall student analysis:', error);
-//     throw error;
-//   } 
-// }
 
 async function getSingleUserAnalysis(student_id, department_name, year) {
   try {
@@ -370,5 +429,9 @@ module.exports = {
   getUserAnalysisById, //---------------
   user_analysis,
   getSingleUserAnalysis,
-  overallAnalysis
+  topScorers,
+  weakScorers,
+  getDeptAvgScores,
+  getAllDepartmentsPerformanceOverTime,
+  overallAccuracyRate,
 };
