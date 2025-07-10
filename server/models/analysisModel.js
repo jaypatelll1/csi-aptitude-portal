@@ -270,6 +270,7 @@ async function dept_user_analysis(department) {
     const queryText = `
       SELECT 
         r.student_id,
+        ua.student_name,
         r.department_name,
         r.year,
         r.overall_rank,
