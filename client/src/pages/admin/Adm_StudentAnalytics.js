@@ -3,6 +3,7 @@
 // - Full-page "No Data Available" fallback if no data for student
 // - Clean, maintainable structure
 // - FIXED: Cannot read properties of undefined (reading 'length') error
+// - Updated to use accuracy_rate and completion_rate directly from API response
 
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -33,6 +34,8 @@ function Adm_StudentAnalytics() {
   const [studentName, setStudentName] = useState("");
   const [department, setDepartment] = useState("");
   const [chartReady, setChartReady] = useState(false);
+  const [accuracyRate, setAccuracyRate] = useState(0);
+  const [completionRate, setCompletionRate] = useState(0);
 
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
@@ -72,7 +75,7 @@ function Adm_StudentAnalytics() {
   const fetchAllData = async () => {
     try {
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const url = `${API_BASE_URL}/api/analysis/user/${user_id}`;
+      const url = `${API_BASE_URL}/api/analysis/user/${user_id}`;
       const response = await axios.get(url, {
         withCredentials: true,
         headers: { "x-user-id": user_id },
@@ -83,6 +86,10 @@ function Adm_StudentAnalytics() {
       console.log("API Response:", response.data);
       setStudentName(result?.student_name || "Student Name Not Available");
       setDepartment(result?.department_name || "");
+      
+      // Set accuracy rate and completion rate from API response
+      setAccuracyRate(result?.accuracy_rate || 0);
+      setCompletionRate(result?.completion_rate || 0);
       
       // Convert single result to array format for compatibility
       const resultArray = result ? [result] : [];
@@ -96,14 +103,14 @@ function Adm_StudentAnalytics() {
       }
       setPerformanceOverTime(result?.performance_over_time || []);
       
-      // Handle test completion data from the result
-      if (result?.total_score && result?.max_score) {
-        const completionRate = parseFloat(result.total_score / result.max_score);
+      // Handle test completion data using completion_rate from API
+      if (result?.completion_rate !== undefined) {
+        const completionRatePercent = Math.round(result.completion_rate * 100);
         setTestCompletionData({
           title: "Test Completion Rate",
           chartData: [
-            { name: "Completed", value: Math.round(completionRate * 100), fill: "#1349C5" },
-            { name: "Remaining", value: Math.round((1 - completionRate) * 100), fill: "#6F91F0" },
+            { name: "Completed", value: completionRatePercent, fill: "#1349C5" },
+            { name: "Remaining", value: 100 - completionRatePercent, fill: "#6F91F0" },
           ],
         });
       }
@@ -138,9 +145,7 @@ function Adm_StudentAnalytics() {
     }
   }, [data]);
 
-  const noDataAvailable =
-
-    (!performanceOverTime || performanceOverTime.length === 0);
+  const noDataAvailable = (!performanceOverTime || performanceOverTime.length === 0);
 
   const performanceOverTimeData = {
     title: "Performance Over Time",
@@ -151,17 +156,18 @@ function Adm_StudentAnalytics() {
     })) || [],
   };
 
+  // Updated accuracy data to use accuracy_rate from API
   const accuracyData = {
     title: "Accuracy Rate",
     chartData: [
       {
         name: "Correct",
-        value: total > 0 ? Math.round((correct / total) * 100) : 0,
+        value: Math.round(accuracyRate * 100),
         fill: "#28A745",
       },
       {
         name: "Wrong",
-        value: total > 0 ? Math.round(((total - correct) / total) * 100) : 0,
+        value: Math.round((1 - accuracyRate) * 100),
         fill: "#DC3545",
       },
     ],
@@ -232,7 +238,6 @@ function Adm_StudentAnalytics() {
               <h1 className="text-3xl font-bold text-gray-800">Analytics</h1>
               <div className="text-right flex gap-6 items-end">
                 <p className="text-xl font-bold text-blue-600">{department}</p>
-
                 <p className="text-xl font-bold text-blue-600">{studentName}</p>
               </div>
             </div>
