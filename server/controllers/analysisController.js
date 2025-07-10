@@ -39,8 +39,101 @@ const getUserAnalysis = async (req, res) => {
   }
 };
 
+const userAnalysis = async (req, res) => {
+  const { student_id } = req.params;
+
+  try {
+    const result = await analysisModel.user_analysis(req.query.department_name, req.query.year);
+
+    if (!result || result.length === 0) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View overall Results',
+        status: 'failure',
+        details: 'Results not found',
+      });
+      return res.status(404).json({ message: 'Results not found.' });
+    }
+
+    await logActivity({
+      user_id: student_id,
+      activity: 'View overall Results',
+      status: 'success',
+      details: 'Results found',
+    });
+
+    res.status(200).json({ results: result });
+  } catch (error) {
+    console.error('❌ Error in userAnalysis:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getSingleUserAnalysis = async (req, res) => {
+  const { student_id } = req.params;
+
+  try {
+    const result = await analysisModel.getSingleUserAnalysis(
+      student_id,
+      req.query.department_name,
+      req.query.year
+    );
+
+    if (!result || result.length === 0) {
+      await logActivity({
+        user_id: student_id,
+        activity: 'View overall Results',
+        status: 'failure',
+        details: 'Results not found',
+      });
+      return res.status(404).json({ message: 'Results not found.' });
+    }
+
+    await logActivity({
+      user_id: student_id,
+      activity: 'View overall Results',
+      status: 'success',
+      details: 'Results found',
+    });
+
+    res.status(200).json({ results: result });
+  } catch (error) {
+    console.error('❌ Error in getSingleUserAnalysis:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 
+// const overallAnalysis = async (req, res) => {
+//   const { student_id } = req.params;  
+//   try {
+//     const result = await analysisModel.overallAnalysis(
+      
+//     );
+
+//     if (!result || result.length === 0) {
+//       await logActivity({
+//         user_id: student_id,
+//         activity: 'View overall Results',
+//         status: 'failure',
+//         details: 'Results not found',
+//       });
+//       return res.status(404).json({ message: 'Results not found.' });
+//     }
+
+//     await logActivity({
+//       user_id: student_id,
+//       activity: 'View overall Results',
+//       status: 'success',
+//       details: 'Results found',
+//     });
+
+//     res.status(200).json({ results: result });
+//   } catch (error) {
+//     console.error('❌ Error in overallAnalysis:', error);
+//     res.status(500).json({ error: error.message });
+//   }
+// }
 
 const getOverallResultsOfAStudent = async (req, res) => {
   const { student_id } = req.params;
@@ -303,5 +396,7 @@ module.exports = {
   getPerformanceOverTime,
   generateAllAnalysis,
   getDepartmentAnalysis, //----------------
-  getUserAnalysis //--------------
+  getUserAnalysis, //--------------
+  userAnalysis,
+  getSingleUserAnalysis
 };

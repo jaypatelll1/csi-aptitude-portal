@@ -159,6 +159,30 @@ async function checkStudentAnalysis(exam_id, student_id) {
   }
 }
 
+// async function overall() {
+//   try {
+//     const sql = `
+//             SELECT 
+//                 exam_id, 
+//                 department_name, 
+//                 student_id, 
+//                 student_name, 
+//                 exam_name, 
+//                 category, 
+//                 total_score, 
+//                 max_score, 
+//                 attempted
+//             FROM student_analysis;
+//         `;
+
+//     const result = await query(sql);
+//     return result.rows; // Return all rows
+//   } catch (error) {
+//     console.error('Error fetching overall student analysis:', error);
+//     throw error;
+//   } 
+// }
+
 async function insertStudentAnalysis(data) {
   try {
     const sql = `
@@ -220,7 +244,7 @@ const avgResults = async (student_id) => {
 async function getStudentRank(student_id) {
   try {
     const result = await query(
-      `SELECT * FROM student_rank WHERE student_id=$1;`,
+      `SELECT * FROM rank WHERE student_id=$1;`,
       [student_id]
     );
     if (!result.rows === 0) {
@@ -232,6 +256,79 @@ async function getStudentRank(student_id) {
     throw error;
   }
 }
+
+
+async function user_analysis(department, year) {
+  try {
+    const queryText = `
+      SELECT 
+        r.student_id,
+        r.department_name,
+        r.year,
+        r.overall_rank,
+        r.department_rank,
+        ua.total_score,
+        ua.max_score,
+        ua.accuracy_rate,
+        ua.completion_rate,
+        ua.category,
+        ua.performance_over_time,
+        ua.updated_at
+      FROM rank AS r
+      JOIN user_analysis AS ua ON r.student_id = ua.student_id
+      WHERE r.department_name = $1 AND r.year = $2;
+    `;
+
+    const result = await query(queryText, [department, year]);
+    return result.rows;
+  } catch (error) {
+    console.error('❌ Error fetching user analysis:', error);
+    throw error;
+  }
+}
+
+
+
+async function getSingleUserAnalysis(student_id, department_name, year) {
+  try {
+    const sql = `
+      SELECT 
+        r.student_id,
+        r.department_name,
+        r.year,
+        r.overall_rank,
+        r.department_rank,
+        ua.total_score,
+        ua.max_score,
+        ua.accuracy_rate,
+        ua.completion_rate,
+        ua.category,
+        ua.performance_over_time,
+        ua.updated_at
+      FROM rank AS r
+      JOIN user_analysis AS ua 
+        ON r.student_id = ua.student_id 
+        AND r.department_name = ua.department_name 
+        AND r.year = ua.year
+      WHERE r.student_id = $1 AND r.department_name = $2 AND r.year = $3;
+    `;
+
+    const result = await query(sql, [student_id, department_name, year]);
+
+    if (result.rows.length === 0) {
+      return null; // or []
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('❌ Error in getStudentCombinedAnalysis:', error.message);
+    throw error;
+  }
+}
+
+
+
+
 
 async function getPerformanceOverTime(student_id) {
   try {
@@ -270,5 +367,8 @@ module.exports = {
   getStudentRank,
   getPerformanceOverTime,
   getDepartmentAnalysis, //---------------
-  getUserAnalysisById //---------------
+  getUserAnalysisById, //---------------
+  user_analysis,
+  getSingleUserAnalysis,
+  
 };
