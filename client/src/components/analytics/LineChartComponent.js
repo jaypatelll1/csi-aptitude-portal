@@ -26,16 +26,26 @@ const LineChartComponent = ({ data }) => {
     );
   };
 
-  // Custom label component for data points
+    // Custom label component for data points
   const CustomLabel = (props) => {
-    const { x, y, value } = props;
+    const { x, y, value, index } = props;
+    let xOffset = 0;
+    
+    // Adjust position for first and last data points
+    if (index === 0) {
+      xOffset = 10; // Move first label slightly right
+    } else if (index === data.chartData.length - 1) {
+      xOffset = -10; // Move last label slightly left
+    }
+    
     return (
       <text
-        x={x}
+        x={x + xOffset}
         y={y - 10} // Position above the point
         textAnchor="middle"
         fill="#666"
         fontSize="14"
+        
       >
         {value}
       </text>
@@ -45,7 +55,7 @@ const LineChartComponent = ({ data }) => {
   return (
     <div className="flex flex-col items-start w-full">
       <h2 className="text-xl font-medium text-[#1349C5] self-start">{data.title}</h2>
-      <div className="w-full max-w-[800px]  ">
+      <div className="w-full    ">
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={data.chartData}>
             <CartesianGrid strokeDasharray="4 4" />

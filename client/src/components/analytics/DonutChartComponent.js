@@ -6,11 +6,12 @@ const DonutChartComponent = ({ data }) => {
 
   const total = data.chartData.reduce((sum, entry) => sum + entry.value, 0);
   const percentageData = data.chartData.reduce((acc, entry) => {
-    acc[entry.name] = ((entry.value / total) * 100).toFixed(0);
+    acc[entry.name] = Math.round((entry.value / total) * 100);
     return acc;
   }, {});
 
-  const displayPercentage = hoveredValue ? percentageData[hoveredValue] : percentageData["Correct"];
+  // Center always shows "Correct" percentage as whole number
+  const displayPercentage = percentageData["Correct"];
 
   return (
     <div className="flex flex-col relative items-center ">
@@ -37,7 +38,12 @@ const DonutChartComponent = ({ data }) => {
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip 
+              formatter={(value, name) => [
+                `${((value / total) * 100).toFixed(2)}%`, 
+                name
+              ]}
+            />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
