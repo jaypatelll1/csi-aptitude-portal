@@ -43,7 +43,7 @@ const userAnalysis = async (req, res) => {
   const { student_id } = req.params;
 
   try {
-    const result = await analysisModel.user_analysis(req.query.department_name, req.query.year);
+    const result = await analysisModel.user_analysis(req.query.year);
 
     if (!result || result.length === 0) {
       await logActivity({
@@ -107,9 +107,7 @@ const getSingleUserAnalysis = async (req, res) => {
 // const overallAnalysis = async (req, res) => {
 //   const { student_id } = req.params;  
 //   try {
-//     const result = await analysisModel.overallAnalysis(
-      
-//     );
+//     const result = await analysisModel.overallAnalysis(req.query.year);
 
 //     if (!result || result.length === 0) {
 //       await logActivity({
