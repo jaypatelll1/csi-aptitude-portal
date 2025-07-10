@@ -118,7 +118,7 @@ const Stu_PastCard = ({ test }) => {
               />
             </g>
           </svg>
-          <h4>Number of Questions: {test ? test.questions : "Loading..."}</h4>
+         <h4>Number of Questions:  {test ? test.questions  : "Loading..."}</h4>
         </p>
         <p className="font-bold flex items-center">
           <svg

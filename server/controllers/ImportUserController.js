@@ -22,12 +22,24 @@ const uploadFile = async (req, res) => {
             const workbook = new ExcelJS.Workbook();
             await workbook.xlsx.readFile(filePath);
             const worksheet = workbook.worksheets[0];
+const headers = [];
+    worksheet.getRow(1).eachCell((cell, colNumber) => {
+        headers.push(cell.text.toLowerCase().trim());
+    });
 
-            worksheet.eachRow((row, rowNumber) => {
-                if (rowNumber !== 1) {
-                    jsonData.push(row.values.slice(1));
-                }
-            });
+    // ✅ Start from second row
+    worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+
+        const rowData = {};
+        row.eachCell((cell, colNumber) => {
+            const key = headers[colNumber - 1];
+            rowData[key] = (cell && typeof cell === 'object') ? cell.text : cell;
+        });
+
+        jsonData.push(rowData);
+    });
+    
         } else if (fileExtension === ".csv") {
             jsonData = await parseCSVusers(filePath);
         } else {
@@ -38,6 +50,7 @@ const uploadFile = async (req, res) => {
 
         const worker = new Worker(path.resolve(__dirname, "../workers/fileParser.js"), {
             workerData: { jsonData, fileExtension, role } // Pass the correct role based on the uploader's role
+          
         });
 
         let hasResponded = false;

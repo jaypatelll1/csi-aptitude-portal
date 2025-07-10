@@ -56,7 +56,7 @@ async function getAllResults(student_id) {
 }
 
 // READ: Fetch a single result by ID
-async function getResultById(exam_id, student_id) {
+const getResultById= async (exam_id, student_id)=> {
   const queryText =
     'SELECT * FROM results WHERE exam_id = $1 AND student_id=$2;';
   const values = [exam_id, student_id];
@@ -71,6 +71,7 @@ async function getResultById(exam_id, student_id) {
     console.error('Error fetching result:', err);
   }
 }
+// getResultById(274,3)
 
 // UPDATE: Update a result
 async function updateResult(result) {
@@ -118,59 +119,62 @@ const getPaginatedResultsByExam = async (exam_id, page, limit) => {
 
 const getResultsByUsers = async (user_id) => {
   const queryText = `
-SELECT DISTINCT
-    e.exam_name,
-    e.exam_id,
-    e.duration,
-    e.end_time,
-    r.total_score,
-    r.max_score,
-    r.student_id,
-    e.status,
-    r.result_id,
-    CASE
-      WHEN r.exam_id IS NOT NULL THEN true
-      ELSE false
-    END AS "isAttempted"
-FROM exams e
-LEFT JOIN results r 
-  ON r.exam_id = e.exam_id AND r.student_id = $1
-WHERE e.status = 'past'
-ORDER BY e.end_time DESC;
-
+    SELECT 
+        e.exam_name,
+        e.exam_id,
+        e.duration,
+        e.end_time,
+        r.total_score,
+        r.max_score,
+        r.student_id,
+        e.status,
+        r.result_id,
+        COUNT(q.question_id) AS total_questions,
+        CASE
+          WHEN r.exam_id IS NOT NULL THEN true
+          ELSE false
+        END AS "isAttempted"
+    FROM exams e
+    LEFT JOIN results r 
+      ON r.exam_id = e.exam_id AND r.student_id = $1
+    LEFT JOIN questions q 
+      ON q.exam_id = e.exam_id
+    WHERE e.status = 'past'
+    GROUP BY 
+        e.exam_name, e.exam_id, e.duration, e.end_time,
+        r.total_score, r.max_score, r.student_id, e.status, r.result_id, r.exam_id
+    ORDER BY e.end_time DESC;
   `;
 
   const result = await query(queryText, [user_id]);
-  //  console.log('result is ', result);
 
-  // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return date.toLocaleDateString('en-IN', options);
   };
 
-  // Calculate status for each result
   const resultsWithStatus = result.rows.map((row) => {
-    const percentage = (row.total_score / row.max_score) * 100; // Up to 3 decimal places
-    const status = percentage >= 35 ? 'Passed' : 'Failed'; // Pass/Fail based on 35%
+    const percentage = (row.total_score / row.max_score) * 100;
+    const status = percentage >= 35 ? 'Passed' : 'Failed';
+
     return {
       exam_name: row.exam_name,
-
       total_score: row.total_score,
       max_score: row.max_score,
       duration: row.duration,
-      exam_name: row.exam_name,
-      Date: formatToReadableDate(row.end_time), // Format date
-      percentage: Number(percentage), // Include calculated percentage
-      status: status, // Pass or Fail
-      isAttempted: row.isAttempted, // Whether the exam was attempted
+      Date: formatToReadableDate(row.end_time),
+      percentage: Number(percentage),
+      status: status,
+      isAttempted: row.isAttempted,
       exam_id: row.exam_id,
+      total_questions: parseInt(row.total_questions, 10)
     };
   });
 
   return resultsWithStatus;
 };
+
 
 // question_ext, options, question_id
 async function getCorrectIncorrect(student_id, exam_id) {
@@ -221,6 +225,8 @@ AND r.exam_id = $2;
   }
 }
 
+
+
 module.exports = {
   createResult,
   getAllResults,
@@ -231,3 +237,5 @@ module.exports = {
   getResultsByUsers,
   getCorrectIncorrect,
 };
+
+

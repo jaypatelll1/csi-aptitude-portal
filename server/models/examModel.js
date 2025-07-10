@@ -271,40 +271,62 @@ const getExamsByStatus = async (status, role, branch, year = null) => {
 
 
 
-const getExamsForUser = async (status, target_branches, target_years) => {
+const getExamsForUser = async (status, target_branches, target_years, student_id) => {
   try {
     const queryTEXT = `
-       SELECT DISTINCT
-  e.exam_id,
-  e.exam_name,
-  e.status,
-  e.target_branches,
-  e.target_years,
-  e.duration,
-  e.created_at,
-  e.start_time,
-  e.end_time,
-  COUNT(q.exam_id) AS total_questions  
-FROM exams AS e
-JOIN questions AS q ON q.exam_id = e.exam_id
-WHERE 
-  e.status = $1 AND e.exam_for = 'Student'                     
-  AND e.target_branches @> $2::branch_enum[]  
-  AND e.target_years @> $3::year_enum[]      
-GROUP BY e.exam_id, e.status, e.target_branches, e.target_years  
-ORDER BY e.exam_id DESC;                  
+      SELECT DISTINCT
+        e.exam_id,
+        e.exam_name,
+        e.status,
+        e.target_branches,
+        e.target_years,
+        e.duration,
+        e.created_at,
+        e.start_time,
+        e.end_time,
+        COUNT(q.exam_id) AS total_questions,
+        CASE 
+          WHEN submitted_resp.student_id IS NULL THEN true
+          ELSE false
+        END AS isEligibleToAttempt
+      FROM exams AS e
+      JOIN questions AS q ON q.exam_id = e.exam_id
+      LEFT JOIN (
+        SELECT DISTINCT exam_id, student_id
+        FROM responses
+        WHERE student_id = $4 AND status = 'submitted'
+      ) AS submitted_resp
+        ON submitted_resp.exam_id = e.exam_id
+      WHERE 
+        e.status = $1 
+        AND e.exam_for = 'Student'                     
+        AND e.target_branches @> $2::branch_enum[]  
+        AND e.target_years @> $3::year_enum[]      
+      GROUP BY 
+        e.exam_id, 
+        e.status, 
+        e.target_branches, 
+        e.target_years, 
+        submitted_resp.student_id
+      ORDER BY e.exam_id DESC;
     `;
 
-
-    const result = await pool.query(queryTEXT, [status, target_branches, target_years]);
-
+    const result = await pool.query(queryTEXT, [
+      status,
+      target_branches,
+      target_years,
+      student_id,
+    ]);
 
     return result;
   } catch (error) {
     console.error('Error fetching exams:', error.message);
-    throw error; // Re-throw the error for higher-level handling
+    throw error;
   }
 };
+
+
+
 
 const getExamsForTeachers = async (status) => {
   console.log(status)

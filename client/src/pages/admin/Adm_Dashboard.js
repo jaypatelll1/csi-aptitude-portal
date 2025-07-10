@@ -92,20 +92,22 @@ const Adm_Dashboard = () => {
           axios.get(`${API_BASE_URL}/api/stats/all-tests?exam_for=Student`, {
             withCredentials: true,
           }),
-          axios.get(`${API_BASE_URL}/api/stats/last-test?exam_for=Student`, {
-            withCredentials: true,
-          }),
+          // axios.get(`${API_BASE_URL}/api/stats/last-test?exam_for=Student`, {
+          //   withCredentials: true,
+          // }),
         ]);
 
         const studentsCount = studentsRes.data.totalStudentsCount;
         const liveTestsCount = testsRes.data.liveTestsCount;
         const scheduledTestsCount = testsRes.data.scheduledTestsCount;
+        const pastTestsCount = testsRes.data.pastTestsCount;
        
 
         setTileData([
           { label: "Live Tests", value: liveTestsCount },
           { label: "Scheduled Tests", value: scheduledTestsCount },
           { label: "Active Students", value: studentsCount },
+          { label: "Past Tests", value: pastTestsCount },
           
         ]);
       } catch (error) {

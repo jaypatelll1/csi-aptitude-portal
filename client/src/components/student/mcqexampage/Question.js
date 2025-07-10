@@ -84,6 +84,11 @@ const Question = () => {
         exam_id: examId,
         duration: Duration * 60,
       });
+      
+socket.on("already_active", ({ message }) => {
+    alert(message || "Already logged in for this exam.");
+    navigate("/home", { replace: true });
+  });
 
       socket.on("timer_update", (data) => setRemainingTime(data.remainingTime));
       socket.on("exam_ended", () => {
