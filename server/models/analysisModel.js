@@ -47,12 +47,12 @@ const deptWeakScorers = async (department) => {
     const result = await query(`
       SELECT * FROM (
         SELECT * 
-        FROM student_rank 
+        FROM rank 
         WHERE department_name = $1
-        ORDER BY overall_rank DESC 
+        ORDER BY department_rank DESC 
         LIMIT 5
         ) AS subquery
-        ORDER BY overall_rank ASC;
+        ORDER BY department_rank ASC;
         `, [department]);
     return result.rows;
   } catch (error) {
@@ -354,7 +354,7 @@ const weakScorers = async (year) => {
     const result = await query(`
       SELECT * FROM (
         SELECT * 
-        FROM student_rank 
+        FROM rank 
         WHERE year = $1
         ORDER BY overall_rank DESC 
         LIMIT 5
