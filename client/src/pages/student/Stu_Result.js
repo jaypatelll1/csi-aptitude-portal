@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Stu_SidebarViewResult from "../../components/student/viewresult/Stu_SidebarViewResult";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Stu_Navbar from "../../components/student/Stu_Navbar";
@@ -18,10 +18,47 @@ function Stu_Result() {
   const [isPassed, setIsPassed] = useState(false);
   const [userName, setUserName] = useState("");
   const [error, setError] = useState(null);
+  const sidebarRef = useRef(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fix the useLocation hook implementation
   const location = useLocation();
   const student_id = useSelector((state) => state.user.user.id);
+
+  // Handle click outside sidebar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        // Only close sidebar on mobile/tablet screens
+        if (window.innerWidth < 1280) { // xl breakpoint
+          setSidebarOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      // Close sidebar on mobile/tablet when resizing
+      if (window.innerWidth < 1280) {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   useEffect(() => {
     // Get the exam_id from location state
@@ -51,11 +88,11 @@ function Stu_Result() {
 
       const res = await axios.get(
         `${API_BASE_URL}/api/exams/results/correct-incorrect/${currentExamId}/${student_id}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(
         "Fetching data from:",
-        `${API_BASE_URL}/api/exams/results/correct-incorrect/${currentExamId}/${student_id}`
+        `${API_BASE_URL}/api/exams/results/correct-incorrect/${currentExamId}/${student_id}`,
       );
       console.log("API Response:", res.data);
 
@@ -80,11 +117,13 @@ function Stu_Result() {
       }
 
       // Set other data from response if available
-      if (res.data.exam) setExam(Array.isArray(res.data.exam) ? res.data.exam : [res.data.exam]);
+      if (res.data.exam)
+        setExam(Array.isArray(res.data.exam) ? res.data.exam : [res.data.exam]);
       if (res.data.exam_id) setExamId(res.data.exam_id);
       if (res.data.userEmail) setUserEmail(res.data.userEmail);
       if (res.data.totalMarks !== undefined) setTotalMarks(res.data.totalMarks);
-      if (res.data.obtainedMarks !== undefined) setObtainedMarks(res.data.obtainedMarks);
+      if (res.data.obtainedMarks !== undefined)
+        setObtainedMarks(res.data.obtainedMarks);
       if (res.data.isPassed !== undefined) setIsPassed(res.data.isPassed);
       if (res.data.userName) setUserName(res.data.userName);
 
@@ -110,13 +149,15 @@ function Stu_Result() {
     processed.questionText = question.question_text || question.questionText;
 
     // Ensure question_id is available
-    processed.question_id = question.question_id || question.questionId || question.id || 0;
+    processed.question_id =
+      question.question_id || question.questionId || question.id || 0;
 
     // Ensure category is preserved from the original question
     processed.category = question.category || "TEST";
 
     // Determine the question type
-    processed.questionType = question.question_type || question.questionType || "mcq";
+    processed.questionType =
+      question.question_type || question.questionType || "mcq";
 
     // Determine if this is a multiple answer question
     processed.isMultipleAnswer =
@@ -156,7 +197,8 @@ function Stu_Result() {
 
     // Ensure correct handling of unanswered questions
     if (processed.isMultipleAnswer) {
-      processed.isUnanswered = !processed.selectedOptions || processed.selectedOptions.length === 0;
+      processed.isUnanswered =
+        !processed.selectedOptions || processed.selectedOptions.length === 0;
     } else {
       processed.isUnanswered =
         processed.selectedOption === null ||
@@ -176,7 +218,10 @@ function Stu_Result() {
       } else {
         // Fallback to empty array if no correct answers found
         processed.correctAnswers = [];
-        console.warn("Multiple answer question without correct answers array:", question);
+        console.warn(
+          "Multiple answer question without correct answers array:",
+          question,
+        );
       }
     } else {
       // For single answer questions
@@ -189,7 +234,11 @@ function Stu_Result() {
     }
 
     // Handle options - convert array to object if needed
-    if (!processed.options && question.options && Array.isArray(question.options)) {
+    if (
+      !processed.options &&
+      question.options &&
+      Array.isArray(question.options)
+    ) {
       const optionsObj = {};
       // Map numeric array to letter keys: [92, 96, 98, 100] → {'a': 92, 'b': 96, ...}
       question.options.forEach((value, index) => {
@@ -218,7 +267,8 @@ function Stu_Result() {
     setCurrentQuestionIndex(index);
   };
 
-  const examName = exam.find((e) => e.exam_id === Number(exam_id))?.exam_name || "Test";
+  const examName =
+    exam.find((e) => e.exam_id === Number(exam_id))?.exam_name || "Test";
 
   if (loading) {
     return (
@@ -233,7 +283,10 @@ function Stu_Result() {
       <div className="flex justify-center items-center h-screen">
         <div className="text-red-500">
           <p>Error: {error}</p>
-          <button onClick={fetchData} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg">
+          <button
+            onClick={fetchData}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+          >
             Retry
           </button>
         </div>
@@ -248,185 +301,241 @@ function Stu_Result() {
           <Stu_Navbar hideTitle={true} />
         </div>
 
-        <div className="flex">
-          <Stu_Sidebar />
+        <div className="flex relative">
+          {/* Sidebar */}
+          <div
+            ref={sidebarRef}
+            className={`fixed top-0 left-0 h-full bg-white text-white z-50 transform ${
+              sidebarOpen
+                ? "translate-x-0"
+                : "-translate-x-full xl:translate-x-0"
+            } transition-transform duration-300 w-64 xl:block`}
+          >
+            <Stu_Sidebar />
+          </div>
 
-          <div className="w-9/12 h-screen px-8 py-6 bg-[#F5F6F8] ml-0 md:ml-64">
-            <div className="flex flex-start ">
-            <button
-              className="text-blue-500 flex items-center hover:text-blue-700 mr-4 mt-0 mb-2"
-              onClick={() => window.history.back()}
-            >
-              <svg
-                className="w-5 h-5 mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-             
-            </button>
-            {/* Display the category of the current question, not a global category */}
-            {questions.length > 0 && (
-              <h1 className="text-5xl font-bold text-black sm:text-base  uppercase mb-2">
-                {questions[currentQuestionIndex]?.category || "TEST"}
-              </h1>
-            )}
-           </div>
+          {/* Overlay for mobile when sidebar is open */}
+          {sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
 
+          {/* Main Content */}
+          <div className={`flex-1 h-screen px-4 md:px-8 py-6 bg-[#F5F6F8] transition-all duration-300 ${
+            sidebarOpen ? 'xl:ml-64' : 'xl:ml-64'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                {/* Mobile sidebar toggle button */}
+                <button
+                  onClick={toggleSidebar}
+                  className="xl:hidden p-2 text-gray-600 hover:text-gray-900 mr-2"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </button>
+
+                <button
+                  className="text-blue-500 flex items-center hover:text-blue-700 mr-4"
+                  onClick={() => window.history.back()}
+                >
+                  <svg
+                    className="w-5 h-5 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Display the category of the current question */}
+                {questions.length > 0 && (
+                  <h1 className="text-2xl md:text-2xl font-bold text-black uppercase">
+                    {questions[currentQuestionIndex]?.category || "TEST"}
+                  </h1>
+                )}
+              </div>
+            </div>
+
+            {/* Exam name */}
             {exam
               ?.filter((examItem) => examItem.exam_id === Number(exam_id))
               .map((examItem) => (
-                <h1 key={examItem.exam_id} className="text-xl font-bold text-gray-800 mb-4">
+                <h1
+                  key={examItem.exam_id}
+                  className="text-lg md:text-xl font-bold text-gray-800 mb-4 mt-2"
+                >
                   {examItem.exam_name}
                 </h1>
               ))}
-            <div className="relative bg-white p-6 rounded-xl shadow-lg h-5/6 mt-4 overflow-hidden">
+
+            {/* Question content */}
+            <div className="relative bg-white p-4 md:p-6 rounded-xl shadow-lg h-5/6 mt-4 overflow-hidden">
               {questions.length > 0 ? (
                 <>
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-semibold text-black select-none">
+                    <h2 className="text-lg md:text-2xl font-semibold text-black select-none">
                       {currentQuestionIndex + 1}.{" "}
                       {questions[currentQuestionIndex]?.questionText ||
                         questions[currentQuestionIndex]?.question_text ||
                         "Question not available"}
                     </h2>
-                    
                   </div>
 
                   <div className="space-y-4">
                     {questions[currentQuestionIndex]?.options &&
-                      Object.entries(questions[currentQuestionIndex].options).map(
-                        ([key, value]) => {
-                          const currentQuestion = questions[currentQuestionIndex];
+                      Object.entries(
+                        questions[currentQuestionIndex].options,
+                      ).map(([key, value]) => {
+                        const currentQuestion = questions[currentQuestionIndex];
 
-                          // Handle display logic differently based on question type
-                          if (currentQuestion.isMultipleAnswer) {
-                            // Multiple answer question
-                            const isSelected =
-                              currentQuestion.selectedOptions &&
-                              currentQuestion.selectedOptions.includes(key);
-                            const isCorrectAnswer =
-                              currentQuestion.correctAnswers &&
-                              currentQuestion.correctAnswers.includes(key);
+                        // Handle display logic differently based on question type
+                        if (currentQuestion.isMultipleAnswer) {
+                          // Multiple answer question
+                          const isSelected =
+                            currentQuestion.selectedOptions &&
+                            currentQuestion.selectedOptions.includes(key);
+                          const isCorrectAnswer =
+                            currentQuestion.correctAnswers &&
+                            currentQuestion.correctAnswers.includes(key);
 
-                            let checkboxClass =
-                              "w-5 h-5 inline-block mr-2 rounded border border-gray-400 flex justify-center items-center";
-                            let optionClass =
-                              "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
-                            let symbol = "";
+                          let checkboxClass =
+                            "w-5 h-5 inline-block mr-2 rounded border border-gray-400 flex justify-center items-center";
+                          let optionClass =
+                            "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
+                          let symbol = "";
 
-                            if (isSelected) {
-                              if (isCorrectAnswer) {
-                                checkboxClass =
-                                  "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center";
-                                symbol = "✓";
-                                optionClass += " bg-green-50";
-                              } else {
-                                checkboxClass =
-                                  "w-5 h-5 inline-block mr-2 rounded bg-red-500 text-white flex justify-center items-center";
-                                symbol = "✗";
-                                optionClass += " bg-red-50";
-                              }
-                            } else if (isCorrectAnswer) {
-                              // Highlight missed correct answers
+                          if (isSelected) {
+                            if (isCorrectAnswer) {
                               checkboxClass =
-                                "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center opacity-70";
+                                "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center";
                               symbol = "✓";
                               optionClass += " bg-green-50";
+                            } else {
+                              checkboxClass =
+                                "w-5 h-5 inline-block mr-2 rounded bg-red-500 text-white flex justify-center items-center";
+                              symbol = "✗";
+                              optionClass += " bg-red-50";
                             }
+                          } else if (isCorrectAnswer) {
+                            // Highlight missed correct answers
+                            checkboxClass =
+                              "w-5 h-5 inline-block mr-2 rounded bg-green-500 text-white flex justify-center items-center opacity-70";
+                            symbol = "✓";
+                            optionClass += " bg-green-50";
+                          }
 
-                            return (
-                              <div key={key} className={optionClass}>
-                                <span className={checkboxClass}>
-                                  <span className="text-xs font-bold">{symbol}</span>
+                          return (
+                            <div key={key} className={optionClass}>
+                              <span className={checkboxClass}>
+                                <span className="text-xs font-bold">
+                                  {symbol}
                                 </span>
-                                <span className="ml-2">{value}</span>
-                                {isCorrectAnswer && !isSelected && (
-                                  <span className="ml-2 text-sm text-green-600 font-medium">
-                                    (Correct Answer - Missed)
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          } else {
-                            // Single answer question (existing logic)
-                            const isSelected =
-                              String(currentQuestion?.selectedOption) === String(key);
-                            const isCorrectAnswer =
-                              String(key) === String(currentQuestion?.correctAnswer);
+                              </span>
+                              <span className="ml-2 text-sm md:text-base">{value}</span>
+                              {isCorrectAnswer && !isSelected && (
+                                <span className="ml-2 text-xs md:text-sm text-green-600 font-medium">
+                                  (Correct Answer - Missed)
+                                </span>
+                              )}
+                            </div>
+                          );
+                        } else {
+                          // Single answer question (existing logic)
+                          const isSelected =
+                            String(currentQuestion?.selectedOption) ===
+                            String(key);
+                          const isCorrectAnswer =
+                            String(key) ===
+                            String(currentQuestion?.correctAnswer);
 
-                            let circleClass =
-                              "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
-                            let optionClass =
-                              "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
-                            let symbol = "";
+                          let circleClass =
+                            "w-5 h-5 inline-block mr-2 rounded-full border border-gray-400 flex justify-center items-center";
+                          let optionClass =
+                            "flex items-center p-2 rounded-lg hover:bg-gray-100 transition cursor-default";
+                          let symbol = "";
 
-                            if (isSelected) {
-                              if (isCorrectAnswer) {
-                                circleClass =
-                                  "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
-                                symbol = "✓";
-                                optionClass += " bg-green-50";
-                              } else {
-                                circleClass =
-                                  "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
-                                symbol = "✗";
-                                optionClass += " bg-red-50";
-                              }
-                            } else if (isCorrectAnswer) {
-                              // Always highlight the correct answer
+                          if (isSelected) {
+                            if (isCorrectAnswer) {
                               circleClass =
                                 "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
                               symbol = "✓";
                               optionClass += " bg-green-50";
+                            } else {
+                              circleClass =
+                                "w-5 h-5 inline-block mr-2 rounded-full bg-red-500 text-white flex justify-center items-center";
+                              symbol = "✗";
+                              optionClass += " bg-red-50";
                             }
-
-                            return (
-                              <div key={key} className={optionClass}>
-                                <span className={circleClass}>
-                                  <span className="text-xs font-bold">{symbol}</span>
-                                </span>
-                                <span className="ml-2">{value}</span>
-                                {isCorrectAnswer && !isSelected && (
-                                  <span className="ml-2 text-sm text-green-600 font-medium">
-                                    (Correct Answer)
-                                  </span>
-                                )}
-                              </div>
-                            );
+                          } else if (isCorrectAnswer) {
+                            // Always highlight the correct answer
+                            circleClass =
+                              "w-5 h-5 inline-block mr-2 rounded-full bg-green-500 text-white flex justify-center items-center";
+                            symbol = "✓";
+                            optionClass += " bg-green-50";
                           }
+
+                          return (
+                            <div key={key} className={optionClass}>
+                              <span className={circleClass}>
+                                <span className="text-xs font-bold">
+                                  {symbol}
+                                </span>
+                              </span>
+                              <span className="ml-2 text-sm md:text-base">{value}</span>
+                              {isCorrectAnswer && !isSelected && (
+                                <span className="ml-2 text-xs md:text-sm text-green-600 font-medium">
+                                  (Correct Answer)
+                                </span>
+                              )}
+                            </div>
+                          );
                         }
-                      )}
+                      })}
                   </div>
 
                   {/* Question type explanation */}
                   {questions[currentQuestionIndex]?.isMultipleAnswer && (
                     <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-sm text-blue-800">
-                        <strong>Note:</strong> This question requires multiple correct answers. All
-                        correct answers are highlighted in green.
+                      <p className="text-xs md:text-sm text-blue-800">
+                        <strong>Note:</strong> This question requires multiple
+                        correct answers. All correct answers are highlighted in
+                        green.
                       </p>
                     </div>
                   )}
 
-                  <div className="absolute bottom-5 w-full left-0 flex justify-between px-6">
+                  <div className="absolute bottom-5 w-full left-0 flex justify-between px-4 md:px-6">
                     <button
-                      className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300"
+                      className="px-3 md:px-4 py-2 bg-gray-500 text-white rounded-lg disabled:bg-gray-300 text-sm md:text-base"
                       disabled={currentQuestionIndex === 0}
                       onClick={handlePreviousQuestion}
                     >
                       Previous
                     </button>
                     <button
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300"
+                      className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300 text-sm md:text-base"
                       disabled={currentQuestionIndex === questions.length - 1}
                       onClick={handleNextQuestion}
                     >
@@ -448,19 +557,22 @@ function Stu_Result() {
             </div>
           </div>
 
-          <Stu_SidebarViewResult
-            name={examName}
-            questions={questions}
-            currentIndex={currentQuestionIndex}
-            onQuestionClick={handleQuestionNavigation}
-            totalMarks={totalMarks}
-            obtainedMarks={obtainedMarks}
-            isPassed={isPassed}
-            userName={userName || "Student"}
-            currentExamId={exam_id}
-            student_id={student_id}
-            API_BASE_URL={process.env.REACT_APP_BACKEND_BASE_URL}
-          />
+          {/* Right Sidebar - Results */}
+          <div className="hidden lg:block">
+            <Stu_SidebarViewResult
+              name={examName}
+              questions={questions}
+              currentIndex={currentQuestionIndex}
+              onQuestionClick={handleQuestionNavigation}
+              totalMarks={totalMarks}
+              obtainedMarks={obtainedMarks}
+              isPassed={isPassed}
+              userName={userName || "Student"}
+              currentExamId={exam_id}
+              student_id={student_id}
+              API_BASE_URL={process.env.REACT_APP_BACKEND_BASE_URL}
+            />
+          </div>
         </div>
       </div>
     </>

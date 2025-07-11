@@ -43,29 +43,6 @@ function Stu_Navbar({ hideTitle = false }) {
         {/* Top Bar */}
         <div className="bg-white h-14 border-b border-gray-200 flex items-center">
           {/* Burger Icon Button */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="xl:hidden text-gray-800 focus:outline-none pl-4"
-          >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={
-                  sidebarOpen
-                    ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
-                    : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
-                }
-              />
-            </svg>
-          </button>
 
           {!hideTitle && (
             <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
