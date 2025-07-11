@@ -30,106 +30,86 @@ function Adm_Analytics() {
   const [hasData, setHasData] = useState(false);
   const departmentDataTimerRef = useRef(null);
 
-  // Fixed Function to check if any meaningful data exists
+  // Function to check if any meaningful data exists
   const checkDataAvailability = (data) => {
-    console.log("Checking data availability:", data);
-    
-    if (!data || !data.result || data.result.length === 0) {
-      console.log("No data.result or empty array");
+    if (!data) {
       return false;
     }
     
-    // Check if there's at least one department with meaningful data
-    const hasData = data.result.some(dept => {
-      console.log("Checking dept:", dept.department_name, {
-        accuracy_rate: dept.accuracy_rate,
-        total_score: dept.total_score,
-        student_count: dept.student_count,
-        performance_over_time: dept.performance_over_time,
-        subject_performance: dept.subject_performance
-      });
-      
-      // Check if any of these properties exist and are not null/undefined
-      // Note: 0 is a valid value for scores and rates
-      return (
-        dept.accuracy_rate !== null && dept.accuracy_rate !== undefined
-      ) || (
-        dept.total_score !== null && dept.total_score !== undefined
-      ) || (
-        dept.student_count !== null && dept.student_count !== undefined && dept.student_count >= 0
-      ) || (
-        dept.performance_over_time && Array.isArray(dept.performance_over_time) && dept.performance_over_time.length > 0
-      ) || (
-        dept.subject_performance && typeof dept.subject_performance === 'object' && Object.keys(dept.subject_performance).length > 0
-      );
-    });
+    // Check if there's meaningful data in any of the expected properties
+    const hasData = (
+      // Check for department_analysis array
+      (data.department_analysis && Array.isArray(data.department_analysis) && data.department_analysis.length > 0) ||
+      // Check for top_scorers array
+      (data.top_scorers && Array.isArray(data.top_scorers) && data.top_scorers.length > 0) ||
+      // Check for weak_scorers array
+      (data.weak_scorers && Array.isArray(data.weak_scorers) && data.weak_scorers.length > 0)
+    );
     
-    console.log("Data availability result:", hasData);
     return hasData;
   };
 
-  // Improved Process the new API response format
+  // Updated processApiResponse function to work with actual API structure - NO CALCULATIONS
   const processApiResponse = (apiData) => {
-    if (!apiData || !apiData.result) {
-      console.log("No apiData or apiData.result");
+    if (!apiData) {
       return null;
     }
-
-    console.log("Processing API data for department:", selectedDepartment);
-    console.log("Available departments:", apiData.result.map(d => d.department_name));
-
-    // Find the department data (there might be multiple entries for different years)
-    const departmentData = apiData.result.filter(dept => 
-      dept.department_name === selectedDepartment
-    );
-
-    console.log("Filtered department data:", departmentData);
-
-    if (departmentData.length === 0) {
-      console.log("No data found for department:", selectedDepartment);
-      return null;
-    }
-
-    // Use the first entry if multiple exist, or aggregate if needed
-    const deptData = departmentData[0]; // For now, just use the first entry
+    
+    // Get the department analysis data (first item in the array)
+    const departmentData = apiData.department_analysis?.[0] || {};
     
     // Create the aggregated data structure
     const aggregatedData = {
-      accuracy_rate: deptData.accuracy_rate || 0,
+      accuracy_rate: departmentData.accuracy_rate || 0,
       category_performance: [],
-      top_performer: [], // You might need to fetch this separately
-      bottom_performer: [], // You might need to fetch this separately
-      participation_rate: 100, // Calculate based on your logic
-      performance_over_time: deptData.performance_over_time || [],
-      dept_ranks: { department_rank: deptData.department_rank || null },
-      studentCount: { student_count: deptData.student_count || 0 }
+      top_performer: apiData.top_scorers || [],
+      bottom_performer: apiData.weak_scorers || [],
+      participation_rate: 100, // Calculate based on student_count if needed
+      performance_over_time: departmentData.performance_over_time || [],
+      dept_ranks: { 
+        department_rank: departmentData.department_rank || null 
+      },
+      studentCount: { 
+        student_count: departmentData.student_count || 0 
+      }
     };
 
-    // Process subject performance data
-    if (deptData.subject_performance && typeof deptData.subject_performance === 'object') {
-      aggregatedData.category_performance = Object.keys(deptData.subject_performance).map(subject => {
-        const subjectData = deptData.subject_performance[subject];
-        const score = subjectData.score || 0;
-        const maxScore = subjectData.max_score || 1; // Avoid division by zero
+    // Process subject performance data if available - REMOVE CALCULATIONS
+    if (departmentData.subject_performance && typeof departmentData.subject_performance === 'object') {
+      aggregatedData.category_performance = Object.keys(departmentData.subject_performance).map(subject => {
+        const subjectData = departmentData.subject_performance[subject];
+        
+        // Handle different possible structures - STORE RAW VALUES
+        let score ;
+        let maxScore ;
+        
+        if (typeof subjectData === 'object' && subjectData !== null) {
+          score = subjectData.score || subjectData.total_score || 0;
+          maxScore = subjectData.max_score || 100;
+        } else if (typeof subjectData === 'number') {
+          score = subjectData;
+        }
         
         return {
           category: subject,
-          average_category_score: maxScore > 0 ? (score / maxScore) * 100 : 0,
-          max_category_score: 100
+          raw_score: score, // Store actual raw score
+          max_score: maxScore, // Store actual max score
+          // Remove percentage calculations - keep raw values for radar chart
+          average_category_score: score, // Use raw score instead of percentage
+          max_category_score: maxScore // Use actual max score
         };
       });
     }
 
     // Format performance over time data
-    if (deptData.performance_over_time && Array.isArray(deptData.performance_over_time)) {
-      aggregatedData.performance_over_time = deptData.performance_over_time.map((exam, index) => ({
+    if (departmentData.performance_over_time && Array.isArray(departmentData.performance_over_time)) {
+      aggregatedData.performance_over_time = departmentData.performance_over_time.map((exam, index) => ({
         exam_id: exam.exam_id || `exam_${index + 1}`,
-        created_on: exam.created_on || `Exam ${index + 1}`,
-        average_score: exam.avg_score || exam.average_score || 0
+        created_on: exam.created_on || exam.date || `Exam ${index + 1}`,
+        average_score: exam.avg_score || exam.average_score || exam.score || 0
       }));
     }
 
-    console.log("Processed aggregated data:", aggregatedData);
     return aggregatedData;
   };
 
@@ -172,7 +152,6 @@ function Adm_Analytics() {
 
       // Process the response data
       const rawData = response.data;
-      console.log("Raw API Response:", rawData);
       
       // Check if meaningful data exists
       const dataExists = checkDataAvailability(rawData);
@@ -192,8 +171,6 @@ function Adm_Analytics() {
         setHasData(false);
         return;
       }
-
-      console.log("Processed Data:", processedData);
       
       setHasData(true);
       setCategoryWiseData(processedData.category_performance || []);
@@ -211,11 +188,8 @@ function Adm_Analytics() {
       setStudentCount(processedData.studentCount?.student_count || 0);
       setError(null);
       setIsLoading(false);
-      console.log("studentCount:", processedData.studentCount?.student_count || 0);
 
     } catch (err) {
-      console.error("Error fetching department data:", err);
-
       // Clear timer on error
       if (departmentDataTimerRef.current) {
         clearTimeout(departmentDataTimerRef.current);
@@ -245,7 +219,7 @@ function Adm_Analytics() {
     setError(null);
   };
 
-  // Fix: Simplified useEffect - removed initialLoad logic
+  // Simplified useEffect - removed initialLoad logic
   useEffect(() => {
     fetchDepartmentData(selectedDepartment);
 
@@ -306,14 +280,15 @@ function Adm_Analytics() {
     ],
   };
 
+  // Radar chart data now uses raw scores without calculations
   const radarChartData = {
     title: "Subject-wise Performance",
     chartData: categoryWiseData
       ?.filter((category) => category?.category != null && category?.category !== "null")
       .map((category) => ({
         name: category?.category,
-        yourScore: Number(category?.average_category_score).toFixed(2) || 0,
-        maxMarks: Number(category?.max_category_score) || 100,
+        yourScore: Number(category?.raw_score) || 0, // Use raw score
+        maxMarks: Number(category?.max_score) || 100, // Use actual max score
       })),
   };
 
@@ -438,7 +413,7 @@ function Adm_Analytics() {
           </div>
         )}
 
-        {/* Fix: Better loading state that doesn't cover the entire screen */}
+        {/* Better loading state that doesn't cover the entire screen */}
         {isLoading ? (
           <div className="flex ">
             <div className="bg-white rounded-lg  h-screen">
