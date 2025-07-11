@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useSelector } from "react-redux"; // Add this import
+import { useSelector } from "react-redux";
 import axios from "axios";
 import Stu_Sidebar from "../../components/student/Stu_Sidebar";
 import Details from "../../components/NavbarDetails";
@@ -27,12 +27,14 @@ function Stu_Analytics() {
   const [loading, setLoading] = useState(true);
   const [chartReady, setChartReady] = useState(false);
   const [categoryData, setCategoryData] = useState(null);
+  const [hasData, setHasData] = useState(false); // New state to track if any data exists
+  const [apiError, setApiError] = useState(null); // Track API errors
   
   // Get user data from Redux store
   const user = useSelector((state) => state.user.user);
   
   // Use user's actual department and year from profile
-  const [selectedDepartment, setSelectedDepartment] = useState(user?.department );
+  const [selectedDepartment, setSelectedDepartment] = useState(user?.department);
   const [selectedYear, setSelectedYear] = useState(user?.year);
 
   const sidebarRef = useRef(null);
@@ -96,6 +98,8 @@ function Stu_Analytics() {
   const fetchAllData = async () => {
     try {
       setLoading(true);
+      setApiError(null);
+      setHasData(false);
       
       // Build the dynamic URL using actual user data
       const url = buildApiUrl(user_id, selectedDepartment, selectedYear);
@@ -111,15 +115,25 @@ function Stu_Analytics() {
       // Access the results from the response
       const apiData = response.data.results || response.data;
       
-      if (apiData) {
+      if (apiData && Object.keys(apiData).length > 0) {
+        let dataFound = false;
+        
         // Set basic data
-        setData(apiData.overall_results || []);
-        setAvgData(apiData.avg_results || []);
+        if (apiData.overall_results && apiData.overall_results.length > 0) {
+          setData(apiData.overall_results);
+          dataFound = true;
+        }
+        
+        if (apiData.avg_results && apiData.avg_results.length > 0) {
+          setAvgData(apiData.avg_results);
+          dataFound = true;
+        }
         
         // Extract and set category data
-        if (apiData.category) {
+        if (apiData.category && Object.keys(apiData.category).length > 0) {
           setCategoryData(apiData.category);
           console.log("Category data:", apiData.category);
+          dataFound = true;
         }
         
         // Set rank data
@@ -128,6 +142,11 @@ function Stu_Analytics() {
           overall_rank: apiData.overall_rank || 0
         };
         setRankData(rankInfo);
+        
+        // If we have valid ranks, consider it as data
+        if (apiData.department_rank > 0 || apiData.overall_rank > 0) {
+          dataFound = true;
+        }
         
         // Set superscripts for ranks
         if (apiData.department_rank) {
@@ -144,13 +163,12 @@ function Stu_Analytics() {
           setUserName(user.name);
         }
         
-        // Handle performance over time data - IMPROVED VERSION
+        // Handle performance over time data
         if (apiData.performance_over_time && Array.isArray(apiData.performance_over_time)) {
           console.log("Raw performance_over_time data:", apiData.performance_over_time);
           
           const validPerformanceData = apiData.performance_over_time
             .filter(item => {
-              // Filter out empty objects and invalid data
               return item && 
                      typeof item === 'object' && 
                      Object.keys(item).length > 0 && 
@@ -163,7 +181,6 @@ function Stu_Analytics() {
               const maxScore = item.max_score || 1;
               const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
               
-              // Create exam name from exam_name or exam_id
               const examName = item.exam_name || `Exam ${item.exam_id}`;
               
               return {
@@ -172,38 +189,57 @@ function Stu_Analytics() {
                 score: score,
                 max_score: maxScore,
                 exam_id: item.exam_id,
-                // Add tooltip data
                 tooltipLabel: `${examName}: ${score}/${maxScore} (${percentage}%)`
               };
             })
-            .sort((a, b) => a.exam_id - b.exam_id); // Sort by exam_id to maintain chronological order
+            .sort((a, b) => a.exam_id - b.exam_id);
           
           console.log("Processed performance data:", validPerformanceData);
           setPerformanceOverTime(validPerformanceData);
+          
+          if (validPerformanceData.length > 0) {
+            dataFound = true;
+          }
         } else {
           console.log("No valid performance_over_time data found");
           setPerformanceOverTime([]);
         }
         
         // Calculate test completion data
-        const completionRate = apiData.completion_rate || 0;
-        const attempted = Math.round(completionRate * 100);
-        const remaining = 100 - attempted;
-        
-        setTestCompletionData({
-          title: "Test Completion Rate",
-          chartData: [
-            { name: "Completed", value: attempted, fill: "#1349C5" },
-            { name: "Remaining", value: remaining, fill: "#6F91F0" },
-          ],
-        });
+        if (apiData.completion_rate !== undefined && apiData.completion_rate !== null) {
+          const completionRate = apiData.completion_rate || 0;
+          const attempted = Math.round(completionRate * 100);
+          const remaining = 100 - attempted;
+          
+          setTestCompletionData({
+            title: "Test Completion Rate",
+            chartData: [
+              { name: "Completed", value: attempted, fill: "#1349C5" },
+              { name: "Remaining", value: remaining, fill: "#6F91F0" },
+            ],
+          });
+          dataFound = true;
+        }
         
         // Set correct and total scores
-        setCorrect(apiData.total_score || 0);
-        setTotal(apiData.max_score || 0);
+        if (apiData.total_score !== undefined || apiData.max_score !== undefined) {
+          setCorrect(apiData.total_score || 0);
+          setTotal(apiData.max_score || 0);
+          if (apiData.total_score > 0 || apiData.max_score > 0) {
+            dataFound = true;
+          }
+        }
+        
+        // Update hasData state
+        setHasData(dataFound);
+        
+        if (!dataFound) {
+          console.log("No meaningful data found in API response");
+        }
         
       } else {
-        console.warn("No data received from API");
+        console.warn("No data received from API or empty response");
+        setHasData(false);
       }
       
       setLoading(false);
@@ -211,6 +247,8 @@ function Stu_Analytics() {
     } catch (error) {
       console.error("Error fetching data:", error);
       console.error("Error details:", error.response?.data || error.message);
+      setApiError(error.response?.data?.message || error.message || "Failed to fetch data");
+      setHasData(false);
       setLoading(false);
     }
   };
@@ -271,13 +309,10 @@ function Stu_Analytics() {
       
       const result = [];
       
-      // Process each category in the categoryData
       Object.entries(categoryData).forEach(([categoryName, categoryDetails]) => {
-        // Skip if categoryDetails is not an object with score and max_score
         if (typeof categoryDetails === 'object' && categoryDetails !== null && 
             categoryDetails.hasOwnProperty('score') && categoryDetails.hasOwnProperty('max_score')) {
           
-          // Format category name for display
           const displayName = categoryName.replace(/_/g, ' ')
             .replace(/\b\w/g, l => l.toUpperCase());
           
@@ -298,11 +333,46 @@ function Stu_Analytics() {
     },
   };
 
-  const noDataAvailable =
-    (!data || data.length === 0) && 
-    (!avgData || avgData.length === 0) && 
-    (!performanceOverTime || performanceOverTime.length === 0) &&
-    (!categoryData || Object.keys(categoryData).length === 0);
+  // Enhanced No Data Available Component
+  const NoDataScreen = () => (
+    <div className="flex items-center justify-center h-96">
+      <div className="text-center max-w-md mx-auto">
+        <div className="mb-6">
+          <svg 
+            className="w-24 h-24 mx-auto text-gray-300 mb-4" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={1} 
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">No Analytics Data Available</h3>
+        <p className="text-gray-500 text-sm mb-4">
+          {apiError 
+            ? `Error: ${apiError}` 
+            : "We couldn't find any analytics data for your current selection."
+          }
+        </p>
+        <div className="text-xs text-gray-400 space-y-1">
+          <p>• Make sure you have completed some tests</p>
+          <p>• Check if your department and year are correct</p>
+          <p>• Try refreshing the page</p>
+        </div>
+        <button 
+          onClick={fetchAllData}
+          className="mt-6 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex bg-gray-100 mb-4 overflow-x-hidden">
@@ -351,15 +421,8 @@ function Stu_Analytics() {
             <div className="flex items-center justify-center h-96">
               <Loader />
             </div>
-          ) : noDataAvailable ? (
-            <div className="flex items-center justify-center h-96">
-              <div className="text-center">
-                <p className="text-gray-500 text-lg mb-2">No Data Available</p>
-                <p className="text-gray-400 text-sm">
-                  Try selecting a different department or year
-                </p>
-              </div>
-            </div>
+          ) : !hasData ? (
+            <NoDataScreen />
           ) : (
             <>
               <div className="flex justify-between items-center mt-5 ml-5">
@@ -386,7 +449,7 @@ function Stu_Analytics() {
                   </div>
                 </div>
 
-                {/* Line Chart - Performance Over Time - ENHANCED VERSION */}
+                {/* Line Chart - Performance Over Time */}
                 <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
                   <div className="w-full">
                     {performanceOverTime && performanceOverTime.length > 0 ? (

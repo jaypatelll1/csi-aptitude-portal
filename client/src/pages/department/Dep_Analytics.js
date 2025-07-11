@@ -28,9 +28,32 @@ function Dep_Analytics() {
   const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
 
+  // New state for year filtering
+  const [selectedYearTop, setSelectedYearTop] = useState("BE");
+  const [selectedYearBottom, setSelectedYearBottom] = useState("BE");
+  const [filteredTopPerformers, setFilteredTopPerformers] = useState([]);
+  const [filteredBottomPerformers, setFilteredBottomPerformers] = useState([]);
+
   // Refs and Redux State
   const sidebarRef = useRef(null);
   const user_department = useSelector((state) => state.user.user.department);
+
+  // Available years
+  const years = ["FE", "SE", "TE", "BE"];
+
+  // Filter functions
+  const filterPerformersByYear = (performers, year) => {
+    return performers.filter(performer => performer.year === year);
+  };
+
+  // Update filtered data when year selection or original data changes
+  useEffect(() => {
+    setFilteredTopPerformers(filterPerformersByYear(topPerformers, selectedYearTop));
+  }, [topPerformers, selectedYearTop]);
+
+  useEffect(() => {
+    setFilteredBottomPerformers(filterPerformersByYear(bottomPerformers, selectedYearBottom));
+  }, [bottomPerformers, selectedYearBottom]);
 
   // Data Fetching
   const fetchAllDeptData = async () => {
@@ -148,6 +171,24 @@ function Dep_Analytics() {
     else changeUsestateValue("th");
   };
 
+  // Filter dropdown component
+  const FilterDropdown = ({ selectedYear, onYearChange, title }) => (
+    <div className="mb-4 flex items-center justify-between">
+      <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+      <select
+        value={selectedYear}
+        onChange={(e) => onYearChange(e.target.value)}
+        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        {years.map((year) => (
+          <option key={year} value={year}>
+            {year}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
   // Render
   return (
     <div className="min-h-screen flex overflow-x-hidden bg-white">
@@ -246,27 +287,43 @@ function Dep_Analytics() {
                   </p>
                 )}
               </div>
-              <div>
-                <TableComponent
+              
+              {/* Top Performers with Filter */}
+              <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                <FilterDropdown
+                  selectedYear={selectedYearTop}
+                  onYearChange={setSelectedYearTop}
                   title="Top Performers"
-                  data={topPerformers.length > 0 ? topPerformers : []}
-                  type="department"
                 />
-                {topPerformers.length === 0 && (
+                <TableComponent
+                  title=""
+                  data={filteredTopPerformers.length > 0 ? filteredTopPerformers : []}
+                  type="department"
+                  showYear={true}
+                />
+                {filteredTopPerformers.length === 0 && (
                   <p className="text-gray-500 text-lg font-semibold text-center">
-                    No Data Available
+                    No Data Available for {selectedYearTop}
                   </p>
                 )}
               </div>
-              <div>
-                <TableComponent
+
+              {/* Bottom Performers with Filter */}
+              <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+                <FilterDropdown
+                  selectedYear={selectedYearBottom}
+                  onYearChange={setSelectedYearBottom}
                   title="Bottom Performers"
-                  data={bottomPerformers.length > 0 ? bottomPerformers : []}
-                  type="department"
                 />
-                {bottomPerformers.length === 0 && (
+                <TableComponent
+                  title=""
+                  data={filteredBottomPerformers.length > 0 ? filteredBottomPerformers : []}
+                  type="department"
+                  showYear={true}
+                />
+                {filteredBottomPerformers.length === 0 && (
                   <p className="text-gray-500 text-lg font-semibold text-center">
-                    No Data Available
+                    No Data Available for {selectedYearBottom}
                   </p>
                 )}
               </div>
