@@ -19,10 +19,29 @@ function Stu_Dashboard() {
   let examId = useSelector((state) => state.exam.examId);
 
   const [tests, setTests] = useState([]);
-  const [filter, setFilter] = useState("all");
-  const [sort, setSort] = useState("ALL");
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(new Date());
+  
+  // Get initial filter state from sessionStorage or default to "all"
+  const [filter, setFilter] = useState(() => {
+    const savedFilter = sessionStorage.getItem('dashboard_filter');
+    return savedFilter || "all";
+  });
+  
+  // Get initial sort state from sessionStorage or default to "ALL"
+  const [sort, setSort] = useState(() => {
+    const savedSort = sessionStorage.getItem('dashboard_sort');
+    return savedSort || "ALL";
+  });
+  
+  // Get initial date states from sessionStorage
+  const [startDate, setStartDate] = useState(() => {
+    const savedStartDate = sessionStorage.getItem('dashboard_startDate');
+    return savedStartDate ? new Date(savedStartDate) : null;
+  });
+  
+  const [endDate, setEndDate] = useState(() => {
+    const savedEndDate = sessionStorage.getItem('dashboard_endDate');
+    return savedEndDate ? new Date(savedEndDate) : new Date();
+  });
 
   // Enhanced date picker states
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -44,6 +63,31 @@ function Stu_Dashboard() {
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Effect to save filter state to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('dashboard_filter', filter);
+  }, [filter]);
+
+  // Effect to save sort state to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('dashboard_sort', sort);
+  }, [sort]);
+
+  // Effect to save date states to sessionStorage whenever they change
+  useEffect(() => {
+    if (startDate) {
+      sessionStorage.setItem('dashboard_startDate', startDate.toISOString());
+    } else {
+      sessionStorage.removeItem('dashboard_startDate');
+    }
+  }, [startDate]);
+
+  useEffect(() => {
+    if (endDate) {
+      sessionStorage.setItem('dashboard_endDate', endDate.toISOString());
+    }
+  }, [endDate]);
 
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
@@ -227,11 +271,6 @@ function Stu_Dashboard() {
         },
       );
 
-      const responseExamId = await axios.get(
-        `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
-        { withCredentials: true },
-      );
-
       setResult(pastPaper.data.results);
     } catch (err) {
       console.error("error getting response ", err);
@@ -318,9 +357,11 @@ function Stu_Dashboard() {
   }, []);
 
   const handleFilterChange = (e) => {
-    setFilter(e.target.value);
+    const newFilter = e.target.value;
+    setFilter(newFilter);
+    
     // Reset date filters when switching between live and past
-    if (e.target.value === "all") {
+    if (newFilter === "all") {
       setStartDate(null);
       setEndDate(new Date());
     }
@@ -357,6 +398,14 @@ function Stu_Dashboard() {
   const handleCalendarToggle = (e) => {
     e.stopPropagation();
     setIsCalendarOpen(!isCalendarOpen);
+  };
+
+  // Function to clear all saved filter states (optional - you can call this when user logs out)
+  const clearFilterStates = () => {
+    sessionStorage.removeItem('dashboard_filter');
+    sessionStorage.removeItem('dashboard_sort');
+    sessionStorage.removeItem('dashboard_startDate');
+    sessionStorage.removeItem('dashboard_endDate');
   };
 
   // Show loader until both tests and analytics are loaded
