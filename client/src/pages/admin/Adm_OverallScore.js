@@ -23,7 +23,7 @@ function Adm_OverallScore() {
     avgData: [],
     topPerformers: [],
     bottomPerformers: [],
-    participationRate: { participation_rate: 0 },
+    overallAccuracyRate: { overall_accuracy_rate: 0 },
     performanceOverTime: []
   });
 
@@ -36,12 +36,11 @@ function Adm_OverallScore() {
       setLoading(true);
       setError(null);
       
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const url = `${API_BASE_URL}/api/tpo-analysis/all-tpo-analysis`;
+      const url = "http://localhost:4000/api/analysis/overallAnalysis";
       const response = await axios.get(url, { withCredentials: true });
       
-      // Access the nested analyticsData property
-      const analysisData = response.data // <-- Add .analyticsData here
+      // Access the response data directly
+      const analysisData = response.data;
       
       console.log("Analysis Data:", analysisData); // Debug log
       
@@ -51,7 +50,7 @@ function Adm_OverallScore() {
           avgData: analysisData.dept_avg || [],
           topPerformers: analysisData.top_performers || [],
           bottomPerformers: analysisData.bottom_performers || [],
-          participationRate: analysisData.participation_rate || { participation_rate: 0 },
+          overallAccuracyRate: { overall_accuracy_rate: analysisData.overall_accuracy_rate || 0 },
           performanceOverTime: analysisData.performance_over_time || []
         });
       }
@@ -70,28 +69,33 @@ function Adm_OverallScore() {
 
 
   // Memoized chart data calculations
-  const participationRateData = React.useMemo(() => ({
-    title: "Participation Rate",
-    chartData: [
-      {
-        name: "Participated",
-        value: Number(chartData.participationRate?.participation_rate) || 0,
-        fill: "#1349C5",
-      },
-      {
-        name: "Not Participated",
-        value: Number((100 - (chartData.participationRate?.participation_rate || 0)).toFixed(2)) || 100,
-        fill: "#6F91F0",
-      },
-    ],
-  }), [chartData.participationRate]);
+  const overallAccuracyRateData = React.useMemo(() => {
+    const accuracyRate = Number(chartData.overallAccuracyRate?.overall_accuracy_rate || 0);
+    const accuracyPercentage = Math.round(accuracyRate * 100);
+    
+    return {
+      title: "Overall Accuracy Rate",
+      chartData: [
+        {
+          name: "Accurate",
+          value: accuracyPercentage,
+          fill: "#1349C5",
+        },
+        {
+          name: "Inaccurate",
+          value: 100 - accuracyPercentage,
+          fill: "#6F91F0",
+        },
+      ],
+    };
+  }, [chartData.overallAccuracyRate]);
 
   const barChartData = React.useMemo(() => ({
     title: "Department Average Score",
     dataKey: "department",
     chartData: chartData.avgData?.map((department) => ({
       department: department?.department_name,
-      score: department?.avg_score,
+      score: Number(department?.avg_score),
     })) || [],
   }), [chartData.avgData]);
 
@@ -100,10 +104,11 @@ function Adm_OverallScore() {
       return { title: "Performance Over Time", chartData: [] };
     }
 
+    // Get all unique dates from the performance data
     const allDates = [
       ...new Set(
         Object.entries(chartData.performanceOverTime).flatMap(([key, value]) =>
-          value.map((entry) => entry.created_on).filter(Boolean)
+          value.map((entry) => entry.date).filter(Boolean)
         )
       ),
     ];
@@ -113,10 +118,10 @@ function Adm_OverallScore() {
     const mergedData = sortedDates.map((date) => {
       const dataPoint = { date };
       Object.entries(chartData.performanceOverTime).forEach(([deptKey, entries]) => {
-        const deptName = deptKey.replace("dept_", "").toUpperCase();
-        const sameDayEntries = entries.filter((entry) => entry.created_on === date);
+        const deptName = deptKey.toUpperCase();
+        const sameDayEntries = entries.filter((entry) => entry.date === date);
         if (sameDayEntries.length > 0) {
-          const totalScore = sameDayEntries.reduce((sum, entry) => sum + entry.average_score, 0);
+          const totalScore = sameDayEntries.reduce((sum, entry) => sum + entry.avg_score, 0);
           const avgScore = totalScore / sameDayEntries.length;
           dataPoint[deptName] = Number(avgScore.toFixed(1));
         } else {
@@ -269,8 +274,8 @@ function Adm_OverallScore() {
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-md">
-                {participationRateData.chartData?.some((item) => item.value > 0) ? (
-                  <PieChartComponent data={participationRateData} />
+                {overallAccuracyRateData.chartData?.some((item) => item.value > 0) ? (
+                  <PieChartComponent data={overallAccuracyRateData} />
                 ) : (
                   <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
                 )}
