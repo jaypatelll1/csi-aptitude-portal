@@ -29,14 +29,18 @@ function Stu_Dashboard() {
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [result, setResult] = useState([]);
-  const [analyticsData, setAnalyticsData] = useState([]); // New state for analytics data
+  const [analyticsData, setAnalyticsData] = useState([]);
   const detailsRef = useRef(null);
-  const calendarRef = useRef(null); // Separate ref for calendar
+  const calendarRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Combined loading states
   const [loading, setLoading] = useState(true);
-  const [analyticsLoading, setAnalyticsLoading] = useState(true); // Separate loading state for analytics
+  const [testsLoading, setTestsLoading] = useState(true);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  
   const [error, setError] = useState(null);
-  const [analyticsError, setAnalyticsError] = useState(null); // Separate error state for analytics
+  const [analyticsError, setAnalyticsError] = useState(null);
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -67,7 +71,7 @@ function Stu_Dashboard() {
     });
   };
 
-  // New function to fetch analytics data
+  // Modified function to fetch analytics data
   const fetchAnalyticsData = async () => {
     setAnalyticsLoading(true);
     setAnalyticsError(null);
@@ -83,12 +87,12 @@ function Stu_Dashboard() {
 
       setAnalyticsData(response.data.results);
       console.log("Analytics Data:", response.data.results);
-      setAnalyticsLoading(false);
     } catch (error) {
       console.error("Error fetching analytics data:", error);
       setAnalyticsError(
         "Failed to fetch analytics data. Please try again later.",
       );
+    } finally {
       setAnalyticsLoading(false);
     }
   };
@@ -164,7 +168,7 @@ function Stu_Dashboard() {
   const [filteredAnalytics, setFilteredAnalytics] = useState([]);
 
   const fetchTests = async (filterType) => {
-    setLoading(true);
+    setTestsLoading(true);
 
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let payload;
@@ -189,7 +193,7 @@ function Stu_Dashboard() {
         setTests(response.data.exams || []);
         // console.log("Tests fetched successfully:", response.data.exams);
       } catch (error) {
-        console.error("error getting response ", err);
+        console.error("error getting response ", error);
         setError(`Failed to fetch tests. Please try again later.`);
       }
     } else if (filterType === "past") {
@@ -209,7 +213,7 @@ function Stu_Dashboard() {
         dispatch(setExam(response.data.results));
         setResult(response.data.results || []);
       } catch (error) {
-        console.error("error getting response ", err);
+        console.error("error getting response ", error);
         setError(`Failed to fetch tests. Please try again later.`);
       }
     }
@@ -229,12 +233,18 @@ function Stu_Dashboard() {
       );
 
       setResult(pastPaper.data.results);
-      setLoading(false);
     } catch (err) {
       console.error("error getting response ", err);
       setError(`Failed to fetch tests. Please try again later.`);
+    } finally {
+      setTestsLoading(false);
     }
   };
+
+  // Combined loading effect - wait for both tests and analytics to complete
+  useEffect(() => {
+    setLoading(testsLoading || analyticsLoading);
+  }, [testsLoading, analyticsLoading]);
 
   // Fixed click outside handler with separate handling for sidebar, details, and calendar
   useEffect(() => {
@@ -348,6 +358,72 @@ function Stu_Dashboard() {
     e.stopPropagation();
     setIsCalendarOpen(!isCalendarOpen);
   };
+
+  // Show loader until both tests and analytics are loaded
+  if (loading) {
+    return (
+      <div className={`flex h-screen`}>
+        {/* Sidebar */}
+        <div
+          ref={sidebarRef}
+          className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+          } transition-transform duration-300 w-64 xl:block`}
+        >
+          <Stu_Sidebar />
+        </div>
+
+        {/* Main Section with Loader */}
+        <div
+          id="main-section"
+          className={`bg-white h-max w-full overflow-hidden transition-all duration-300 xl:ml-64`}
+        >
+          {/* Top Bar */}
+          <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
+            {/* Burger Icon Button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="xl:hidden text-gray-800 focus:outline-none"
+            >
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d={
+                    sidebarOpen
+                      ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
+                      : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
+                  }
+                />
+              </svg>
+            </button>
+            <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
+              Dashboard
+            </h1>
+            <div
+              className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
+              onClick={openDetails}
+            >
+              {getInitials(userData.name)}
+            </div>
+            <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
+          </div>
+
+          {/* Loader centered in the main content area */}
+          <div className="flex justify-center items-center h-96">
+            <Loader />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex h-screen`}>
@@ -485,11 +561,7 @@ function Stu_Dashboard() {
 
           {/* Test Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 mt-5">
-            {loading ? (
-              <div className="absolute inset-0 flex justify-center items-center col-span-full">
-                <Loader />
-              </div>
-            ) : error ? (
+            {error ? (
               <p className="col-span-full text-center">{error}</p>
             ) : tests.length > 0 ? (
               filter === "all" ? (
@@ -537,11 +609,7 @@ function Stu_Dashboard() {
               className="flex overflow-x-auto space-x-4 mt-3"
               style={{ scrollbarWidth: "none" }}
             >
-              {analyticsLoading ? (
-                <div className="flex justify-center items-center w-full">
-                  <Loader />
-                </div>
-              ) : analyticsError ? (
+              {analyticsError ? (
                 <p className="text-center text-red-500">{analyticsError}</p>
               ) : analyticsData.length > 0 ? (
                 analyticsData.map((test, index) => (
