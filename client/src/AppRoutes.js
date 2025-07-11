@@ -40,6 +40,7 @@ import Dep_TestStudentList from "./pages/department/Dep_TestStudentList";
 import Dep_Analytics from "./pages/department/Dep_Analytics";
 import Dep_StudentAnalysis from "./pages/department/Dep_StudentAnalysis";
 import Dep_StudentAnalytics from "./pages/department/Dep_StudentAnalytics";
+import Dep_McqGenerator from "./pages/department/Dep_McqGenerator";
 
 import Teacher_Dashboard from "./pages/teacher/Teacher_Dashboard";
 import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
@@ -389,6 +390,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Department"]}>
             <Dep_StudentAnalytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/department/mcq-generator"
+        element={
+          <ProtectedRoute allowedRoles={["Department"]}>
+            <Dep_McqGenerator />
           </ProtectedRoute>
         }
       />
