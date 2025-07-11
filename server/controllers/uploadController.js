@@ -34,21 +34,23 @@ const uploadImage = async (req, res) => {
 };
 
 const deleteImage = async (req, res) => {
-  const { key } = req.params; // Pass image key like "images/filename.jpg"
+  const { key } = req.params; // e.g. "filename.jpg"
 
   if (!key) return res.status(400).json({ error: "Image key required" });
+
+  const s3Key = `images/${key}`; // 💡 prepend path if not included
 
   try {
     const command = new DeleteObjectCommand({
       Bucket: bucket,
-      Key: key,
+      Key: s3Key,
     });
 
     await s3.send(command);
 
     res.status(200).json({ success: true, message: "Image deleted" });
   } catch (err) {
-    console.error("Delete error:", err);
+    console.error("❌ Delete error:", err);
     res.status(500).json({ error: "Delete failed", details: err.message });
   }
 };
