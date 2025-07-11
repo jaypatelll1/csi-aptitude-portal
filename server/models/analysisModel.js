@@ -274,6 +274,7 @@ async function user_analysis(year) {
     const queryText = `
       SELECT 
         r.student_id,
+        r.student_name,
         r.department_name,
         r.year,
         r.overall_rank,
