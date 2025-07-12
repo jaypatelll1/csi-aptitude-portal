@@ -21,6 +21,7 @@ async function department_analysis(studentAnalysis, examId) {
       exam_id: examId,
       avg_score: Number(total_score) || 0,
       max_score: Number(max_score) || 0,
+      date: new Date().toISOString().slice(0, 10)
     };
 
     // Get current data if it exists (to merge)
