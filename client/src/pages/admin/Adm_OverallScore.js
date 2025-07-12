@@ -35,8 +35,9 @@ function Adm_OverallScore() {
     try {
       setLoading(true);
       setError(null);
+    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       
-      const url = "http://localhost:4000/api/analysis/overallAnalysis";
+      const url = `${API_BASE_URL}api/analysis/overallAnalysis`;
       const response = await axios.get(url, { withCredentials: true });
       
       // Access the response data directly
