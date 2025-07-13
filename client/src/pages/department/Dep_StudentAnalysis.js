@@ -46,14 +46,18 @@ const Dep_StudentAnalysis = () => {
 
   const handleFilter = async (filter) => {
     try {
+      // setLoading(true);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      
+      // Always fetch all students first
       const response = await axios.get(`${API_BASE_URL}/api/analysis/dept-student-analysis`, {
         withCredentials: true,
         params: {
           department_name: currentUser?.department,
-          filter: filter === "" ? "all" : filter,
+          filter: "all",
         },
       });
+      
       console.log("Filter Response:", response.data);
       if (response && response.data) {
         // Check if response.data has results property (based on your API structure)
@@ -71,12 +75,28 @@ const Dep_StudentAnalysis = () => {
           studentsData = [];
         }
         
-        setStudents(studentsData);
-        setNumberofpages(Math.ceil(studentsData.length / limit));
+        // Now filter the data based on the filter option
+        let filteredData = studentsData;
+        
+        if (filter === "top-performers") {
+          // Sort by rank (assuming lower rank number = better performance) - ascending order
+          filteredData = studentsData
+            .filter(student => student.department_rank && student.department_rank !== null)
+            .sort((a, b) => parseInt(a.department_rank) - parseInt(b.department_rank));
+        } else if (filter === "bottom-performers") {
+          // Sort by rank (assuming higher rank number = worse performance) - descending order
+          filteredData = studentsData
+            .filter(student => student.department_rank && student.department_rank !== null)
+            .sort((a, b) => parseInt(b.department_rank) - parseInt(a.department_rank));
+        }
+        
+        setStudents(filteredData);
+        setNumberofpages(Math.ceil(filteredData.length / limit));
+        setfilterPref(filter); // Update the filter preference
       }
     } catch (error) {
       console.log("Error fetching student analysis data", error);
-      setStudents([]); // Set empty array on error
+      setStudents([]); // Set empty array on error 
     } finally {
       setLoading(false);
     }
