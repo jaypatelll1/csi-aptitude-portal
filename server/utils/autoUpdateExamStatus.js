@@ -13,7 +13,7 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
     const result = await pool.query(
       `UPDATE exams SET status = 'past'
        WHERE status = 'live' AND end_time < CURRENT_TIMESTAMP
-       RETURNING CURRENT_TIMESTAMP, end_time, exam_id, exam_for;`
+       RETURNING CURRENT_TIMESTAMP, end_time, exam_id, exam_for,exam_name;`
     );
 
     if (result.rows.length > 0) {
@@ -21,8 +21,10 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
       console.log(`${result.rows.length} exams updated to 'past'.`);
 
       for (const row of result.rows) {
+        console.log(row)
         const examId = row.exam_id;
         const examType = row.exam_for;
+        const examName = row.exam_name;
 
         if (examType === 'Teacher') {
           console.log(`🧑‍🏫 Skipping teacher exam ${examId}`);
@@ -41,7 +43,7 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
 
         // Spawn a thread for each student
         const studentPromises = studentIds.map((studentId) =>
-          processStudentInThread(examId, studentId)
+          processStudentInThread(examId, studentId,examName)
         );
 
         const results = await Promise.allSettled(studentPromises);
@@ -71,12 +73,12 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
 });
 
 // Function to spawn a worker thread for student processing
-function processStudentInThread(examId, studentId) {
+function processStudentInThread(examId, studentId,examName) {
   return new Promise((resolve, reject) => {
     const workerPath = path.resolve(__dirname, '../workers/studentWorker.js');
 
     const thread = new ThreadWorker(workerPath, {
-      workerData: { examId, studentId }
+      workerData: { examId, studentId,examName }
     });
 
     thread.on('message', resolve);

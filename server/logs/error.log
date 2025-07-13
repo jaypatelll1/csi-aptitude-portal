@@ -103,3 +103,7 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-10 16:05:20] error: User ID: 55, Activity: Login attempt, Status: failure, Details: Invalid password
 [2025-07-10 16:05:24] error: User ID: 55, Activity: Login attempt, Status: failure, Details: Invalid password
 [2025-07-10 16:06:03] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-10 22:29:59] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-10 22:34:43] error: User ID: 1, Activity: Delete Exam, Status: failure, Details: Could not delete Exam
+[2025-07-10 22:39:39] error: User ID: 1, Activity: Delete Exam, Status: failure, Details: Could not delete Exam
+[2025-07-10 22:47:44] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found

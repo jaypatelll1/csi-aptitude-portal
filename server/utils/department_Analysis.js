@@ -1,6 +1,6 @@
 const { query } = require('../config/db');
 
-async function department_analysis(studentAnalysis, examId) {
+async function department_analysis(studentAnalysis, examId,examName) {
   try {
     const {
       department_name,
@@ -11,6 +11,7 @@ async function department_analysis(studentAnalysis, examId) {
       total_score,
       max_score,
     } = studentAnalysis;
+    console.log(examName)
 
     if (!department_name || !year) {
       throw new Error('department_name or year is missing');
@@ -21,7 +22,9 @@ async function department_analysis(studentAnalysis, examId) {
       exam_id: examId,
       avg_score: Number(total_score) || 0,
       max_score: Number(max_score) || 0,
-      date: new Date().toISOString().slice(0, 10)
+      date: new Date().toISOString().slice(0, 10),
+      exam:examName
+
     };
 
     // Get current data if it exists (to merge)

@@ -6,12 +6,13 @@ const { department_analysis } = require('../utils/department_Analysis');
 const { query } = require('../config/db');
 
 (async () => {
-  const { examId, studentId } = workerData;
+  const { examId, studentId ,examName} = workerData;
+  console.log(workerData)
 
   try {
     const result = await calculateScoreForMCQs(examId, studentId);
     const analysis = await user_analysis(examId, studentId, result);
-    await department_analysis(analysis, examId);
+    await department_analysis(analysis, examId,examName);
 
     parentPort.postMessage({ success: true, studentId });
   } catch (err) {

@@ -20,8 +20,6 @@ function Dep_StudentAnalytics() {
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
   const [dSup, setDSup] = useState("");
   const [oSup, setOSup] = useState("");
-  const [correct, setCorrect] = useState(0);
-  const [total, setTotal] = useState(0);
   const [rankData, setRankData] = useState({});
   const [apiData, setApiData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +34,7 @@ function Dep_StudentAnalytics() {
   const location = useLocation();
   const user_id = location.state?.user_id;
   const student_year = location.state?.year;
+  const student_name = location.state?.student_name || "Unknown Student";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -131,24 +130,28 @@ function Dep_StudentAnalytics() {
       }
 
       if (results?.completion_rate !== undefined) {
-        const completionRate = Math.round(results.completion_rate * 100);
+        const completionRate = Math.round(results.completion_rate);
+        const incompleteRate = 100 - completionRate;
         
         setTestCompletionData({
           title: "Test Completion Rate",
           chartData: [
             { name: "Completed", value: completionRate, fill: "#1349C5" },
-            { name: "Remaining", value: 100 - completionRate, fill: "#6F91F0" },
+            { name: "Remaining", value: incompleteRate, fill: "#6F91F0" },
           ],
         });
       } else if (results?.test_completion_data) {
         const { attempted, total: totalTests } = results.test_completion_data;
         
         if (attempted !== undefined && totalTests !== undefined) {
+          const completionPercentage = Math.round((attempted / totalTests) * 100);
+          const incompletePercentage = 100 - completionPercentage;
+          
           setTestCompletionData({
             title: "Test Completion Rate",
             chartData: [
-              { name: "Completed", value: attempted, fill: "#1349C5" },
-              { name: "Remaining", value: totalTests - attempted, fill: "#6F91F0" },
+              { name: "Completed", value: completionPercentage, fill: "#1349C5" },
+              { name: "Remaining", value: incompletePercentage, fill: "#6F91F0" },
             ],
           });
         }
@@ -225,18 +228,6 @@ function Dep_StudentAnalytics() {
     return () => clearTimeout(timer);
   }, [user_id, userData, student_year]);
 
-  useEffect(() => {
-    let c = 0, t = 0;
-    data.forEach((exam) => {
-      if (exam?.total_score !== undefined && exam?.max_score !== undefined) {
-        c += exam.total_score;
-        t += exam.max_score;
-      }
-    });
-    setCorrect(c);
-    setTotal(t);
-  }, [data]);
-
   const noData = data.length === 0 && 
                  avgData.length === 0 && 
                  performanceOverTime.length === 0 &&
@@ -245,33 +236,32 @@ function Dep_StudentAnalytics() {
                  !rankData?.accuracy_rate &&
                  !rankData?.category;
 
+  // Fixed accuracy rate data handling
   const accuracyData = (() => {
-    let accuracyRate = 0;
-    
-    if (rankData?.accuracy_rate !== undefined) {
-      accuracyRate = Math.round(rankData.accuracy_rate * 100);
-    } else if (rankData?.total_score !== undefined && rankData?.max_score !== undefined && rankData.max_score > 0) {
-      accuracyRate = Math.round((rankData.total_score / rankData.max_score) * 100);
-    } else if (total > 0) {
-      accuracyRate = Math.round((correct / total) * 100);
+    if (rankData?.accuracy_rate !== undefined && rankData.accuracy_rate !== null) {
+      const accuracyRate = Math.round(rankData.accuracy_rate);
+      const wrongRate = 100 - accuracyRate;
+      
+      return {
+        title: "Accuracy Rate",
+        chartData: [
+          {
+            name: "Correct",
+            value: accuracyRate,
+            fill: "#28A745",
+          },
+          {
+            name: "Wrong",
+            value: wrongRate,
+            fill: "#DC3545",
+          },
+        ],
+      };
     }
     
-    return {
-      title: "Accuracy Rate",
-      chartData: [
-        {
-          name: "Correct",
-          value: accuracyRate,
-          fill: "#28A745",
-        },
-        {
-          name: "Wrong",
-          value: 100 - accuracyRate,
-          fill: "#DC3545",
-        },
-      ],
-    };
+    return null;
   })();
+
 
   const performanceOverTimeData = {
     title: "Performance Over Time",
@@ -282,6 +272,7 @@ function Dep_StudentAnalytics() {
     })) || [],
   };
 
+  // Use raw category data
   const subjectPerformanceData = {
     title: "Topic-wise Performance",
     chartData: (() => {
@@ -294,13 +285,12 @@ function Dep_StudentAnalytics() {
       return Object.entries(categoryData).map(([subject, categoryInfo]) => {
         const score = categoryInfo?.score || 0;
         const maxScore = categoryInfo?.max_score || 0;
-        const percentage = maxScore > 0 ? parseFloat(((score / maxScore) * 100).toFixed(2)) : 0;
         
         return { 
           name: subject, 
-          yourScore: score, 
-          average: percentage, 
-          maxMarks: maxScore 
+          yourScore: score, // Raw score
+          average: score, // Use raw score instead of percentage
+          maxMarks: maxScore // Raw max score
         };
       });
     })(),
@@ -399,9 +389,13 @@ function Dep_StudentAnalytics() {
           </div>
         ) : (
           <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
-              Student Analytics
-            </h1>
+            <div className="flex items-center justify-between mb-5">
+              <h1 className="text-3xl font-bold text-gray-800"> Student Analytics</h1>
+              <div className="text-right flex gap-6 items-end">
+                <p className="text-xl font-bold text-blue-600">{student_year}</p>
+                <p className="text-xl font-bold text-blue-600">{student_name}</p>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -441,7 +435,13 @@ function Dep_StudentAnalytics() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-6 mt-6">
            <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
-                <DonutChartComponent data={accuracyData} />
+                {accuracyData ? (
+                  <DonutChartComponent data={accuracyData} />
+                ) : (
+                  <div className="bg-white p-6 rounded-lg shadow h-64 flex items-center justify-center">
+                    <p className="text-gray-500">No accuracy data available</p>
+                  </div>
+                )}
               </div>
               
            <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 flex items-center justify-center col-span-3">
