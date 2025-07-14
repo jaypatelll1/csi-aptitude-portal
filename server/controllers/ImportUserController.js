@@ -6,7 +6,7 @@ const { Worker } = require("worker_threads");
 
 const uploadFile = async (req, res) => {
     try {
-       const {role} = req.query;
+        const { role } = req.query;
 
         if (!req.file) {
             return res.status(400).json({ status: "error", message: "No file uploaded" });
@@ -22,24 +22,24 @@ const uploadFile = async (req, res) => {
             const workbook = new ExcelJS.Workbook();
             await workbook.xlsx.readFile(filePath);
             const worksheet = workbook.worksheets[0];
-const headers = [];
-    worksheet.getRow(1).eachCell((cell, colNumber) => {
-        headers.push(cell.text.toLowerCase().trim());
-    });
+            const headers = [];
+            worksheet.getRow(1).eachCell((cell, colNumber) => {
+                headers.push(cell.text.toLowerCase().trim());
+            });
 
-    // ✅ Start from second row
-    worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return;
+            // ✅ Start from second row
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
 
-        const rowData = {};
-        row.eachCell((cell, colNumber) => {
-            const key = headers[colNumber - 1];
-            rowData[key] = (cell && typeof cell === 'object') ? cell.text : cell;
-        });
+                const rowData = {};
+                row.eachCell((cell, colNumber) => {
+                    const key = headers[colNumber - 1];
+                    rowData[key] = (cell && typeof cell === 'object') ? cell.text : cell;
+                });
 
-        jsonData.push(rowData);
-    });
-    
+                jsonData.push(rowData);
+            });
+
         } else if (fileExtension === ".csv") {
             jsonData = await parseCSVusers(filePath);
         } else {
@@ -50,7 +50,7 @@ const headers = [];
 
         const worker = new Worker(path.resolve(__dirname, "../workers/fileParser.js"), {
             workerData: { jsonData, fileExtension, role } // Pass the correct role based on the uploader's role
-          
+
         });
 
         let hasResponded = false;

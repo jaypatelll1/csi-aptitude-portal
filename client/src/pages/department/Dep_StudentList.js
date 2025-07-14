@@ -70,7 +70,7 @@ const Dep_StudentList = () => {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
-      let response = await axios.post(`${API_BASE_URL}/api/users/?role=Student`, formData, {
+      let response = await axios.post(`${API_BASE_URL}/api/users/upload?role=Student`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
