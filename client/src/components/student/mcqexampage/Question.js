@@ -245,18 +245,15 @@ socket.on("already_active", ({ message }) => {
       
       switch (type) {
         case 'single':
-          await singleResponse(data.option, data.questionId, data.questionType);
-          // Mark as answered in Redux after successful save
+         
           dispatch(setSelectedOption({ index: currentQuestionIndex, option: data.option, answered: true, cleared: false }));
           break;
         case 'multiple':
-          await multipleResponse(data.options, data.questionId, data.questionType);
-          // Mark as answered in Redux after successful save
+          
           dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options: data.options, answered: true, cleared: false }));
           break;
         case 'text':
-          await textResponse(data.text, data.questionId, data.questionType);
-          // Mark as answered in Redux after successful save
+          
           dispatch(setTextAnswer({ index: currentQuestionIndex, text: data.text, answered: true, cleared: false }));
           break;
       }
@@ -304,15 +301,10 @@ socket.on("already_active", ({ message }) => {
   };
 
   const handleClearResponse = async (id) => {
-    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-    const url = `${API_BASE_URL}/api/exams/responses/exams/clear-response`;
+
 
     try {
-      await axios.put(
-        url,
-        { studentId: userId, examId: Number(examId), questionId: id },
-        { withCredentials: true }
-      );
+     
 
       if (currentQuestion?.question_type === "single_choice") {
         dispatch(setSelectedOption({ index: currentQuestionIndex, option: null, answered: false, cleared: true }));
