@@ -104,11 +104,7 @@ const submitFinalResponsesAndChangeStatus = async (req, res) => {
   }
 };
 
-// responses : {
-//   "question_id": number,
-//   "selected_option": character;
-// }
-// Submit all responses together
+
 const submitAllResponses = async (req, res) => {
   const { exam_id } = req.params;
   const { responses } = req.body;
