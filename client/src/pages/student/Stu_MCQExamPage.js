@@ -26,7 +26,7 @@ const Stu_MCQExamPage = () => {
   const examId = location.state?.examId;
   const Duration = location.state?.Duration;
 const questions = useSelector((state) => state.questions.questions);
-
+// console.log(questions)
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
     if (rootElement.requestFullscreen) {
@@ -37,27 +37,38 @@ const questions = useSelector((state) => state.questions.questions);
       console.warn("Fullscreen API is not supported in this browser.");
     }
   };
+const buildResponsesPayload = (questions) => {
+  return questions.map((q) => ({
+    question_id: q.question_id,
+    selected_option: q.selectedOption || null,
+    selected_options: q.selectedOoptions || null,
+    text_answer: q.textAnswer || null,
+    question_type: q.question_type
+  }));
+};
 
-  const submitFinalResponse = async () => {
-    try {
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
-      await axios.put(url, {}, { withCredentials: true });
-      console.log("Final response submitted successfully");
-    } catch (error) {
-      console.error("Error submitting final response:", error);
-      throw error; // Re-throw to handle in calling function
-    }
-  };
+  const submitFinalResponse = async (questions) => {
+  const responses = buildResponsesPayload(questions); // 👈 prepare payload
+// console.log(responses);
+  try {
+    const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+    const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
+    await axios.put(url, { responses }, { withCredentials: true });
+    console.log("Final response submitted successfully");
+  } catch (error) {
+    console.error("Error submitting final response:", error);
+    throw error;
+  }
+};
 
-  const handleSubmitTest = async () => {
+  const handleSubmitTest = async (questions) => {
     if (isSubmitting || testSubmitted) return; // Prevent multiple submissions
     
     setIsSubmitting(true);
     setTestSubmitted(true);
     
     try {
-      await submitFinalResponse();
+      await submitFinalResponse(questions);
       socketRef.current?.emit("submit_responses");
       
       // Clear Redux state
@@ -128,7 +139,7 @@ const questions = useSelector((state) => state.questions.questions);
 
     if (tabSwitchCount >= MAX_TAB_SWITCHES && !testSubmitted && !isSubmitting) {
       alert("You switched tabs too many times. The test will be submitted now.");
-      handleSubmitTest();
+      handleSubmitTest(questions);
     }
   }, [tabSwitchCount, testSubmitted, isSubmitting]);
 
@@ -191,7 +202,7 @@ const questions = useSelector((state) => state.questions.questions);
         )}
 
         <Question socketRef={socketRef} />
-        <Sidebar name={userName} onSubmitTest={handleSubmitTest} />
+        <Sidebar name={userName} onSubmitTest={()=>handleSubmitTest(questions)} />
       </div>
     </div>
   );

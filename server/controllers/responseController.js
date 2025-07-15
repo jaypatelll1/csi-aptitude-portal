@@ -84,21 +84,25 @@ const submitResponse = async (req, res) => {
 
 const submitFinalResponsesAndChangeStatus = async (req, res) => {
   const { exam_id } = req.params;
-  const student_id = req.user.id; // Assume the student ID is available via JWT
+  const student_id = req.user.id;
+  const responses = req.body.responses; // Array of response objects
 
-  if (!student_id || !exam_id) {
+  if (!student_id || !exam_id || !Array.isArray(responses)) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
-    const response = await responseModel.submitFinalResponsesAndChangeStatus(
+    const result = await responseModel.submitFinalResponsesAndChangeStatus(
       student_id,
-      exam_id
+      exam_id,
+      responses
     );
 
-    res
-      .status(201)
-      .json({ message: 'Responses submitted successfully', response });
+    res.status(201).json({
+      message: 'Responses submitted successfully',
+      updatedCount: result.length,
+      updatedResponses: result,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
