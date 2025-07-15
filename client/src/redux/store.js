@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
-import storage from "redux-persist/lib/storage/session";
+import storage from 'redux-persist/lib/storage'; 
 import questionReducer from "./questionSlice";
 import userReducer from "./userSlice";
 import examReducer from "./ExamSlice";

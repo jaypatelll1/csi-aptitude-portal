@@ -23,7 +23,7 @@ const pool = new Pool({
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
   ssl: sslConfig,
-   max: 20,                  // limit clients in pool
+   max: 50,                  // limit clients in pool
       idleTimeoutMillis: 30000, // disconnect idle clients
 });
 

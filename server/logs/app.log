@@ -1905,3 +1905,161 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-10 16:08:09] info: User ID: 50, Activity: View Results, Status: success, Details: Results found
 [2025-07-10 16:08:09] info: User ID: 50, Activity: View Responses, Status: success, Details: Responses found
 [2025-07-10 16:08:15] info: User ID: 50, Activity: View Correct Incorrect, Status: success, Details: Results fetched successfully
+[2025-07-15 18:54:30] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 18:54:56] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 18:56:37] info: User ID: 2, Activity: Register user, Status: success, Details: User registered successfully
+[2025-07-15 19:03:30] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:03:34] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:03:38] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:03:43] info: User ID: 2, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 19:03:43] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 19:03:43] error: User ID: 2, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 19:03:43] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:03:49] error: User ID: 2, Activity: View overall Results, Status: failure, Details: Results not found
+[2025-07-15 19:03:57] error: User ID: 2, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 19:03:57] info: User ID: 2, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 19:03:58] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:04:02] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:04:02] info: User ID: 2, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:04:44] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 19:04:44] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:04:45] info: User ID: 1, Activity: Viewed paginated past exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE
+[2025-07-15 19:04:46] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:04:46] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:04:46] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:04:46] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:04:57] info: User ID: 1, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:04:58] info: User ID: 1, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:05:47] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:08:17] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-15 19:08:22] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-15 19:08:24] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-15 19:08:49] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2025-07-15 19:09:55] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 19:09:56] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:09:57] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:09:57] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:09:57] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:09:57] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:11:00] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:11:00] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:11:04] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:11:04] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:11:22] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:11:22] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:11:25] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:11:25] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:11:52] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:11:52] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:12:11] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:12:11] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:12:17] info: User ID: 1, Activity: Delete Exam, Status: success, Details: Exam deleted successfully
+[2025-07-15 19:12:25] info: User ID: 1, Activity: New Exam, Status: success, Details: New Exam created successfully and saved as draft
+[2025-07-15 19:13:13] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:13:13] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:13:31] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:13:31] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:13:45] info: User ID: 1, Activity: Viewed users, Status: success, Details: Page: all, Limit: all, Year filter: BE
+[2025-07-15 19:13:48] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:13:48] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:13:49] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:13:49] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:13:49] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:24:59] info: User ID: 1, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 19:25:00] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:25:01] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:01] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:01] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:25:01] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:25:15] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:25:16] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:16] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:16] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:25:16] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:25:23] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:25:23] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:23] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:23] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:25:23] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:25:34] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:38] info: User ID: 1, Activity: View Particular Exam, Status: success, Details: Viewed Exams details
+[2025-07-15 19:25:38] info: User ID: 1, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:25:46] info: User ID: 1, Activity: Schedule/Publish Exam, Status: success, Details: Published Exam successfully and saved as scheduled
+[2025-07-15 19:25:46] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:25:46] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:46] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:46] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:25:46] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:25:52] info: User ID: 1, Activity: Mark Exam as live, Status: success, Details: Marked Exam as live successfully
+[2025-07-15 19:25:52] info: User ID: 1, Activity: Schedule/Publish Exam, Status: success, Details: Published Exam successfully and saved as scheduled
+[2025-07-15 19:25:53] info: User ID: 1, Activity: Get All Students Stats, Status: success, Details: All students stats fetched successfully
+[2025-07-15 19:25:53] info: User ID: 1, Activity: Viewed paginated draft exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:53] info: User ID: 1, Activity: Viewed non-paginated live exams, Status: success, Details: Role: TPO, Branch: null
+[2025-07-15 19:25:53] info: User ID: 1, Activity: Viewed paginated scheduled exams, Status: success, Details: Page: undefined, Limit: undefined, Year: BE, Role: TPO, Branch: all
+[2025-07-15 19:25:53] info: User ID: 1, Activity: Get All Tests Stats, Status: success, Details: All tests stats fetched successfully
+[2025-07-15 19:40:37] error: User ID: 52, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:40:46] error: User ID: 52, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:41:21] error: User ID: 47, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:41:30] error: User ID: 54, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:41:49] error: User ID: 55, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 19:41:53] info: User ID: 55, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 19:41:53] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:41:54] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:41:55] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 19:41:58] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:41:58] info: User ID: 55, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 19:41:58] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:41:58] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:41:58] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:41:59] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:41:59] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:42:00] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:42:00] info: User ID: 55, Activity: Delete Response, Status: success, Details: No response found to delete for the given exam_id and student_id.
+[2025-07-15 19:42:01] info: User ID: 55, Activity: View Question, Status: success, Details: View Questions successfully
+[2025-07-15 19:43:28] info: User ID: 55, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 19:43:28] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 19:43:28] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:43:28] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:43:29] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:43:30] info: User ID: 55, Activity: Viewed paginated responses, Status: success, Details: Page: All, Limit: All
+[2025-07-15 19:47:38] info: User ID: 55, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 19:47:39] info: User ID: 55, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 19:47:39] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 19:47:40] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 19:47:40] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:49:57] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 19:49:57] info: User ID: 55, Activity: Viewed paginated responses, Status: success, Details: Page: All, Limit: All
+[2025-07-15 20:01:57] info: User ID: 55, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 20:01:57] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 20:02:44] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 20:02:44] info: User ID: 55, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 20:02:44] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 20:02:44] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 20:02:50] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 20:02:50] info: User ID: 55, Activity: Viewed paginated responses, Status: success, Details: Page: All, Limit: All
+[2025-07-15 20:04:13] info: User ID: 55, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 20:04:13] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 20:04:13] info: User ID: 55, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 20:04:13] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 20:04:13] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 20:04:39] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 20:04:39] info: User ID: 55, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 20:04:39] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 20:04:39] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 20:06:45] info: User ID: 55, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 20:06:45] error: User ID: 55, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 20:06:45] info: User ID: 55, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 20:06:46] info: User ID: 55, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 20:07:21] error: User ID: 54, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 20:07:25] error: User ID: 54, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 20:07:36] error: User ID: 56, Activity: Login attempt, Status: failure, Details: Invalid password
+[2025-07-15 20:08:12] info: User ID: 56, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 20:08:18] info: User ID: 56, Activity: Password reset, Status: success, Details: Password reset successfully
+[2025-07-15 20:08:32] info: User ID: 56, Activity: Login attempt, Status: success, Details: User logged in successfully
+[2025-07-15 20:08:33] info: User ID: 56, Activity: Viewed exams for user, Status: success, Details: Filters applied: Status = live
+[2025-07-15 20:08:33] info: User ID: 56, Activity: View Results, Status: success, Details: Results found
+[2025-07-15 20:08:37] error: User ID: 56, Activity: View Results, Status: failure, Details: No attempted results found
+[2025-07-15 20:08:38] info: User ID: 56, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 20:08:40] info: User ID: 56, Activity: View Responses, Status: success, Details: Responses found
+[2025-07-15 20:08:40] info: User ID: 56, Activity: Delete Response, Status: success, Details: No response found to delete for the given exam_id and student_id.
+[2025-07-15 20:08:41] info: User ID: 56, Activity: View Question, Status: success, Details: View Questions successfully
