@@ -25,6 +25,7 @@ const Stu_MCQExamPage = () => {
 
   const examId = location.state?.examId;
   const Duration = location.state?.Duration;
+const questions = useSelector((state) => state.questions.questions);
 
   const enableFullscreen = () => {
     const rootElement = document.documentElement;
@@ -79,10 +80,15 @@ const Stu_MCQExamPage = () => {
     navigate("/home", { replace: true });
   };
 
+
   useEffect(() => {
     window.addEventListener("offline", handleOffline);
     return () => window.removeEventListener("offline", handleOffline);
   }, []);
+
+
+
+  
 
   // Disable keyboard input
   useEffect(() => {

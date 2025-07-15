@@ -341,7 +341,6 @@ function Stu_Dashboard() {
       });
       dispatch(clearUser());
       dispatch(clearExamId(examId));
-      dispatch(clearQuestions());
 
       navigate("/", { replace: true });
     } catch (error) {

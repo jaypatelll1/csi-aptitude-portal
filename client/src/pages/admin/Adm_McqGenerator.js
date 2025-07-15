@@ -143,7 +143,7 @@ const Adm_McqGenerator = ({ onClose }) => {
 
       if (uploadedFile) {
         // Use the PDF-specific endpoint
-        apiEndpoint = "https://questiongen-pdf.onrender.com/generate_mcqs_from_pdf";
+        apiEndpoint = "https://finalquestiongen.onrender.com/generate_mcqs_from_pdf";
 
         const formData = new FormData();
         formData.append("pdf_file", uploadedFile);
@@ -160,7 +160,7 @@ const Adm_McqGenerator = ({ onClose }) => {
         headers["Content-Type"] = "multipart/form-data";
       } else {
         // Use the existing topic-based endpoint
-        apiEndpoint = "https://questiongen-pdf.onrender.com/generate_mcqs";
+        apiEndpoint = "https://finalquestiongen.onrender.com/generate_mcqs";
 
         requestData = {
           topic: topic.trim(),

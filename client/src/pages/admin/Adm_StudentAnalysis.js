@@ -32,7 +32,7 @@ const Adm_StudentAnalysis = () => {
     setSearchTerm(term);
   };
 
-  // Fetch students data from new API
+  // Fetch students data from API
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -47,13 +47,10 @@ const Adm_StudentAnalysis = () => {
           // Sort students by overall_rank in ascending order
           const sortedStudents = response.data.results.sort((a, b) => a.overall_rank - b.overall_rank);
           setStudents(sortedStudents);
-          console.log("Fetched and sorted students:", sortedStudents);
         } else {
-          console.error("Invalid response format:", response.data);
           setStudents([]);
         }
       } catch (error) {
-        console.error("Error fetching students:", error);
         setStudents([]);
       } finally {
         setLoading(false);
@@ -63,7 +60,7 @@ const Adm_StudentAnalysis = () => {
     fetchStudents();
   }, []);
 
-  // Filter students based on search term and department
+  // Filter students based on search term, department, and rank
   useEffect(() => {
     let filtered = [...students];
 
@@ -75,13 +72,12 @@ const Adm_StudentAnalysis = () => {
       });
     }
 
-    // Apply search filter
+    // Apply search filter first
     if (searchTerm && searchTerm.trim() !== "") {
       const searchLower = searchTerm.toLowerCase().trim();
       filtered = filtered.filter((student) => {
         const studentId = (student.student_id || "").toString();
-        const studentname = (student.student_name || "").toLowerCase();
-
+        const studentName = (student.student_name || student.name || "").toLowerCase();
         const departmentName = (student.department_name || "").toLowerCase();
         const year = (student.year || "").toLowerCase();
         const overallRank = (student.overall_rank || "").toString();
@@ -89,6 +85,7 @@ const Adm_StudentAnalysis = () => {
         
         return (
           studentId.includes(searchTerm) ||
+          studentName.includes(searchLower) ||
           departmentName.includes(searchLower) ||
           year.includes(searchLower) ||
           overallRank.includes(searchTerm) ||
@@ -97,7 +94,25 @@ const Adm_StudentAnalysis = () => {
       });
     }
 
+    // Apply rank filter - just sort
+    if (selectedRank && selectedRank !== "") {
+      if (selectedRank === "top-performers" || selectedRank === "top_performer" || selectedRank === "top") {
+        // Sort by overall_rank ascending (best ranks first: 1, 2, 3, 4...)
+        filtered = filtered.sort((a, b) => a.overall_rank - b.overall_rank);
+      } else if (selectedRank === "bottom-performers" || selectedRank === "bottom_performer" || selectedRank === "bottom") {
+        // Sort by overall_rank descending (worst ranks first: 14, 13, 12, 11...)
+        filtered = filtered.sort((a, b) => b.overall_rank - a.overall_rank);
+      } else {
+        // Default sorting for other filters
+        filtered = filtered.sort((a, b) => a.overall_rank - b.overall_rank);
+      }
+    } else {
+      // No rank filter - sort by overall_rank ascending (best ranks first)
+      filtered = filtered.sort((a, b) => a.overall_rank - b.overall_rank);
+    }
+
     setFilteredStudents(filtered);
+    
     const totalPages = Math.ceil(filtered.length / limit);
     setNumberofpages(Math.max(1, totalPages));
     
@@ -105,7 +120,7 @@ const Adm_StudentAnalysis = () => {
     if (page > totalPages && totalPages > 0) {
       setPage(1);
     }
-  }, [selectedDepartment, students, searchTerm, limit, page]);
+  }, [selectedDepartment, selectedRank, students, searchTerm, limit, page]);
 
   const toggleFilter = () => {
     setShowFilter(!showFilter);
@@ -141,8 +156,6 @@ const Adm_StudentAnalysis = () => {
     
     // Clear search term when applying filters to avoid confusion
     setSearchTerm("");
-    
-    console.log("Applied filter - Department:", department, "Rank:", rank);
   };
 
   // Close sidebar when clicking outside
@@ -267,12 +280,51 @@ const Adm_StudentAnalysis = () => {
             </div>
           </div>
           
+          {/* Filter Status Display */}
+          {(selectedRank || selectedDepartment) && (
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Active Filters:</span>
+                  {selectedDepartment && selectedDepartment !== "all" && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                      Department: {selectedDepartment}
+                    </span>
+                  )}
+                  {selectedRank && (
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
+                      Rank: {selectedRank.replace('-', ' ').replace('_', ' ')}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedDepartment(undefined);
+                    setSelectedRank("");
+                    setSearchTerm("");
+                    setPage(1);
+                  }}
+                  className="text-sm text-red-600 hover:text-red-800"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          )}
+          
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <Loader />
             </div>
           ) : (
             <>
+              <div className="mb-4 text-sm text-gray-600">
+                Showing {getCurrentPageData().length} of {filteredStudents.length} students
+                {students.length !== filteredStudents.length && (
+                  <span> (filtered from {students.length} total)</span>
+                )}
+              </div>
+              
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
