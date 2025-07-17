@@ -7,14 +7,7 @@ if (!process.env.PGDATABASE || !process.env.PGUSER || !process.env.PGPASSWORD ||
   process.exit(1);
 }
 
-const sslConfig = process.env.NODE_ENV === 'production'
-  ? {
-      rejectUnauthorized: true,
-      ca: fs.readFileSync('./global-bundle.pem').toString(),
-    }
-  : {
-      rejectUnauthorized: false,
-    };
+
 
 const pool = new Pool({
   host: process.env.PGHOST,
@@ -22,7 +15,7 @@ const pool = new Pool({
   user: process.env.PGUSER, // fixed key
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-  ssl: sslConfig,
+  ssl: false,
    max: 50,                  // limit clients in pool
       idleTimeoutMillis: 30000, // disconnect idle clients
 });
