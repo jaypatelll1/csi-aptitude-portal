@@ -97,7 +97,7 @@ const Dep_Dashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/stats/all-students/department?department=${user_department}&role=Student`, {
+          axios.get(`${API_BASE_URL}/api/stats/all-students/department?department=ECS&role=Student`, {
             withCredentials: true,
           }),
           axios.get(`${API_BASE_URL}/api/stats/all-tests?exam_for=Student`, {
