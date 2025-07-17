@@ -92,9 +92,9 @@ const Adm_Dashboard = () => {
           axios.get(`${API_BASE_URL}/api/stats/all-tests?exam_for=Student`, {
             withCredentials: true,
           }),
-          // axios.get(`${API_BASE_URL}/api/stats/last-test?exam_for=Student`, {
-          //   withCredentials: true,
-          // }),
+          axios.get(`${API_BASE_URL}/api/stats/last-test?exam_for=Student`, {
+            withCredentials: true,
+          }),
         ]);
 
         const studentsCount = studentsRes.data.totalStudentsCount;

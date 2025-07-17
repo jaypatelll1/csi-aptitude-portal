@@ -1,15 +1,30 @@
+/**
+ * object format for login user : {
+ *  "email":"",
+ *  "password":""
+ * }
+ *
+ *
+ * object format for register request
+ * {
+ *  "name":"",
+ *  "email":"",
+ *  "passowrd":"",
+ *  "role":""
+ * }
+ */
+
 // const bcrypt = require('bcryptjs');
+const db = require('../config/db'); // your db.js file
 require('dotenv').config();
 const { generateToken, generateResetToken } = require('../utils/token');
-const redis = require('../config/redisClient');
-const clearUserCache = require('../utils/clearUserCache');
 const { logActivity } = require('../utils/logActivity');
 const { hashPassword, verifyPassword } = require('../utils/hashUtil');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
 const transporter = require('../config/email');
 const { token } = require('morgan');
-const { generateRandomPassword } = require("../utils/randomPassword")
+const {generateRandomPassword} = require("../utils/randomPassword")
 const { sendBulkEmailToUsers, sendResetPasswordEmail, } = require('../utils/emailSender');
 const dotenv = require('dotenv');
 const decryptPassword = require('../utils/decryptPassword');
@@ -18,7 +33,7 @@ dotenv.config();
 const registerUser = async (req, res) => {
   const { name, email, role, year, department, rollno, phone } =
     req.body;
-  if (role === "Teacher") {
+  if(role === "Teacher"){
     if (
       !name ||
       !email ||
@@ -28,7 +43,7 @@ const registerUser = async (req, res) => {
       console.log('All fields are required!');
       return res.status(400).json({ error: 'All fields are required' });
     }
-  } else {
+  }else{
     if (
       !name ||
       !email ||
@@ -64,7 +79,6 @@ const registerUser = async (req, res) => {
     );
 
     if (newUser) {
-      await clearUserCache();
       await logActivity({
         user_id: newUser.user_id,
         activity: 'Register user',
@@ -110,7 +124,15 @@ const loginUser = async (req, res) => {
       });
       return res.status(400).json({ error: 'Invalid email or password' });
     }
+    // Check if an active session already exists
+   const activeSession = await db.query(
+  'SELECT * FROM sessions WHERE user_id = $1 AND is_active = true',
+  [result.user_id]
+   );
 
+   if (activeSession.rows.length > 0) {
+   return res.status(403).json({ error: 'User already logged in from another device' });
+   } 
     // JWT token signing
     const userData = {
       id: result.user_id,
@@ -121,6 +143,11 @@ const loginUser = async (req, res) => {
 
     const token = await generateToken(userData);
     const resettoken = await generateResetToken(userData);
+    
+    await db.query(
+  'INSERT INTO sessions (user_id, token, is_active) VALUES ($1, $2, true)',
+  [result.user_id, token]
+   );
 
     await logActivity({
       user_id: userData.id,
@@ -251,7 +278,7 @@ const updateUser = async (req, res) => {
 
     // Update the user in the database with the changed fields
     const updatedUser = await userModel.updateUser(id, updatedFields);
-    await clearUserCache();
+
     // Log the activity for user update
     await logActivity({
       user_id: id,
@@ -273,8 +300,6 @@ const deleteUser = async (req, res) => {
   try {
     console.log('Delete user id:', id);
     const deletedUser = await userModel.deleteUser(id);
-    await clearUserCache();
-
     await logActivity({
       user_id: id,
       activity: 'Delete user',
@@ -295,30 +320,13 @@ const getAllPaginatedUsers = async (req, res) => {
   const user_role = req.user.role; // Get current user's role
   const { page, limit, role, department } = req.query;
 
-  // Add year filter for TPO
-  const isTPO = user_role === 'TPO';
-  const yearFilter = isTPO ? 'BE' : null;
-
-  const cacheKey = `users:${role || 'all'}:${department || 'all'}:${page || 'all'}:${limit || 'all'}:${yearFilter || 'none'}`;
-
+  let users;
   try {
-
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      // console.log('✅ Cache Hit for key:', cacheKey);
-      const parsed = JSON.parse(cached);
-      return res.status(200).json({
-        page: page ? parseInt(page) : undefined,
-        limit: limit ? parseInt(limit) : undefined,
-        User_Count: parsed.count,
-        users: parsed.data
-      });
-    } else {
-      // console.log('❌ Cache Miss for key:', cacheKey);
-    }
-
     const numeberOfUsers = await userModel.getUserCount();
-    let users;
+
+    // Add year filter for TPO
+    const isTPO = user_role === 'TPO';
+    const yearFilter = isTPO ? 'BE' : null;
 
     if (!page && !limit && !department) {
       users = await userModel.getAllStudents(role, yearFilter); // modified
@@ -344,11 +352,6 @@ const getAllPaginatedUsers = async (req, res) => {
         );
       }
     }
-
-    const cacheTTL = parseInt(process.env.time) || 300;
-
-    await redis.setex(cacheKey, cacheTTL, JSON.stringify({ data: users, count: numeberOfUsers }));
-
 
     await logActivity({
       user_id: user_id,

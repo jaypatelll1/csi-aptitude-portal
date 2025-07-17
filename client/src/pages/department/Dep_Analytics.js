@@ -13,119 +13,53 @@ import DisplayComponent from "../../components/analytics/DisplayComponent";
 import LineChartComponent from "../../components/analytics/LineChartComponent";
 import Loader from "../../components/Loader";
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
 function Dep_Analytics() {
   // State Declarations
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [accuracyData, setAccuracyData] = useState({});
+  const [accuracyData, setAccuracyData] = useState([]);
   const [categoryWiseData, setCategoryWiseData] = useState([]);
   const [topPerformers, setTopPerformers] = useState([]);
   const [bottomPerformers, setBottomPerformers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [participationRate, setParticipationRate] = useState([]);
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
-  const [deptRank, setDeptRank] = useState({});
+  const [deptRank, setDeptRank] = useState([]);
   const [studentCount, setStudentCount] = useState(0);
   const [dSup, setDSup] = useState("");
-
-  // New state for year filtering
-  const [selectedYearTop, setSelectedYearTop] = useState("BE");
-  const [selectedYearBottom, setSelectedYearBottom] = useState("BE");
-  const [filteredTopPerformers, setFilteredTopPerformers] = useState([]);
-  const [filteredBottomPerformers, setFilteredBottomPerformers] = useState([]);
 
   // Refs and Redux State
   const sidebarRef = useRef(null);
   const user_department = useSelector((state) => state.user.user.department);
-
-  // Available years
-  const years = ["FE", "SE", "TE", "BE"];
-
-  // Filter functions
-  const filterPerformersByYear = (performers, year) => {
-    return performers.filter(performer => performer.year === year);
-  };
-
-  // Update filtered data when year selection or original data changes
-  useEffect(() => {
-    setFilteredTopPerformers(filterPerformersByYear(topPerformers, selectedYearTop));
-  }, [topPerformers, selectedYearTop]);
-
-  useEffect(() => {
-    setFilteredBottomPerformers(filterPerformersByYear(bottomPerformers, selectedYearBottom));
-  }, [bottomPerformers, selectedYearBottom]);
+  const departmentAnalysis = useSelector(
+    (state) => state.analysis.departmentAnalysis[user_department]
+  ); // Fetch data from redux
 
   // Data Fetching
   const fetchAllDeptData = async () => {
     try {
-      setLoading(true);
+      setCategoryWiseData(departmentAnalysis.category_performance);
+      setTopPerformers(departmentAnalysis.top_performer);
+      setBottomPerformers(departmentAnalysis.bottom_performer);
+      setParticipationRate(departmentAnalysis.participation_rate);
+      setAccuracyData(departmentAnalysis.accuracy_rate);
+      setPerformanceOverTime(departmentAnalysis.performance_over_time);
 
-      const response = await axios.get(
-        `${API_BASE_URL}/api/analysis/department/${user_department}`,
-        {
-          withCredentials: true,
-        },
-      );
+      setDeptRank(departmentAnalysis.dept_ranks);
+      superscript(setDSup, departmentAnalysis.dept_ranks?.department_rank);
 
-      const data = response.data;
-      const departmentData = data.department_analysis[0]; // Get the first department data
-      console.log("Department Data:", departmentData);
-      console.log("API Response Data:", data);
+      setStudentCount(departmentAnalysis.studentCount.student_count);
 
-      if (departmentData) {
-        // Set accuracy data
-        setAccuracyData({
-          accuracy_rate: departmentData.accuracy_rate * 100, // Convert to percentage
-        });
-
-        // Set category-wise data from subject_performance
-        const categoryData = Object.entries(
-          departmentData.subject_performance,
-        ).map(([category, performance]) => ({
-          category: category,
-          average_category_score: performance.score,
-          max_category_score: performance.max_score,
-        }));
-        setCategoryWiseData(categoryData);
-
-        // Set performance over time data
-        const performanceData = departmentData.performance_over_time.map(
-          (exam) => ({
-            created_on: exam.date || `Exam ${exam.exam_id}`,
-            average_score: ((exam.avg_score / exam.max_score) * 100).toFixed(2), // Convert to percentage
-          }),
-        );
-        setPerformanceOverTime(performanceData);
-
-        // Set department rank
-        setDeptRank({
-          department_rank: departmentData.department_rank,
-        });
-        superscript(setDSup, departmentData.department_rank);
-
-        // Set student count
-        setStudentCount(departmentData.student_count);
-      }
-
-      // Set top performers
-      setTopPerformers(data.top_scorers || []);
-
-      // Set bottom performers (using weak_scorers from the API)
-      setBottomPerformers(data.weak_scorers || []);
-
-      setLoading(false);
+      setLoading(false); // Set loading to false once all data is fetched
     } catch (error) {
       console.error("Error fetching data:", error);
-      setLoading(false);
+      setLoading(false); // Ensure loading is disabled even if an error occurs
     }
   };
 
   // Effects
   useEffect(() => {
-    if (user_department) {
-      fetchAllDeptData();
-    }
-  }, [user_department]);
+    fetchAllDeptData();
+  }, [user_department, loading]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -137,18 +71,34 @@ function Dep_Analytics() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Accuracy Rate Data for Pie Chart
-  const accuracyRateData = {
+  // Chart Data Preparation
+  const donutChartData = {
     title: "Accuracy Rate",
     chartData: [
       {
-        name: "Accurate",
-        value: Math.round(accuracyData?.accuracy_rate) || 0,
+        name: "Correct",
+        value: Number(accuracyData?.accuracy_rate) || 0,
+        fill: "#4CAF50",
+      },
+      {
+        name: "Wrong",
+        value: 100 - (Number(accuracyData?.accuracy_rate) || 0),
+        fill: "#F44336",
+      },
+    ],
+  };
+
+  const participationRateData = {
+    title: "Participation Rate",
+    chartData: [
+      {
+        name: "Participated",
+        value: Number(participationRate?.participation_rate) || 0,
         fill: "#1349C5",
       },
       {
-        name: "Inaccurate",
-        value: 100 - (Math.round(accuracyData?.accuracy_rate) || 0),
+        name: "Not Participated",
+        value: 100 - (Number(participationRate?.participation_rate) || 0),
         fill: "#6F91F0",
       },
     ],
@@ -159,8 +109,19 @@ function Dep_Analytics() {
     color: "#0703fc",
     chartData: performanceOverTime?.map((exam) => ({
       name: exam?.created_on,
-      Average: Number(exam?.average_score),
+      Average: exam?.average_score,
     })),
+  };
+
+  const radarChartData = {
+    title: "Subject-wise Performance",
+    chartData: categoryWiseData
+      ?.filter((category) => category?.category && category?.category !== "null")
+      .map((category) => ({
+        name: category?.category,
+        yourScore: Number(category?.average_category_score) || 0,
+        maxMarks: Number(category?.max_category_score) || 0,
+      })),
   };
 
   const superscript = (changeUsestateValue, rank) => {
@@ -170,24 +131,6 @@ function Dep_Analytics() {
     else if (condition === 3) changeUsestateValue("rd");
     else changeUsestateValue("th");
   };
-
-  // Filter dropdown component
-  const FilterDropdown = ({ selectedYear, onYearChange, title }) => (
-    <div className="mb-4 flex items-center justify-between">
-      <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-      <select
-        value={selectedYear}
-        onChange={(e) => onYearChange(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      >
-        {years.map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
 
   // Render
   return (
@@ -230,17 +173,11 @@ function Dep_Analytics() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d={
-                      sidebarOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
+                    d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                   />
                 </svg>
               </button>
-              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7">
-                Branch Analytics
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-800 xl:ml-7">Branch Analytics</h1>
               <div className="mr-96"></div> {/* Spacer to balance the layout */}
             </div>
 
@@ -255,75 +192,52 @@ function Dep_Analytics() {
                   />
                 </div>
                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center mt-4 border border-gray-200">
-                  <DisplayComponent
-                    title="Total Students"
-                    rank={studentCount || 0}
-                  />
+                  <DisplayComponent title="Total Students" rank={studentCount || 0} />
                 </div>
               </div>
 
               <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 flex-grow flex flex-col items-center col-span-2">
-                {performanceOverTime.length > 0 ? (
+                {performanceOverTime.length > 0 ? ( //Ensures data is not empty or null
                   <LineChartComponent
                     data={performanceOverTimeData}
                     xAxisKey="name"
-                    lineDataKey="Average"
+                    lineDataKey="Percentage"
                   />
                 ) : (
-                  <p className="text-gray-500 text-lg font-semibold">
-                    No Data Available
-                  </p>
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
                 )}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-6 ml-5 mr-5 w-full">
               <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                {accuracyRateData.chartData?.some((item) => item.value > 0) ? (
-                  <PieChartComponent data={accuracyRateData} />
+                {participationRateData.chartData?.some((item) => item.value > 0) ? ( //Ensures data is not empty or null
+                  <PieChartComponent data={participationRateData} />
                 ) : (
-                  <p className="text-gray-500 text-lg font-semibold">
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+                )}
+              </div>
+              <div>
+                <TableComponent
+                  title="Top Performers"
+                  data={topPerformers.length > 0 ? topPerformers : []} //Ensures data is not empty or null
+                  type="department"
+                />
+                {topPerformers.length === 0 && (
+                  <p className="text-gray-500 text-lg font-semibold text-center">
                     No Data Available
                   </p>
                 )}
               </div>
-              
-              {/* Top Performers with Filter */}
-              <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                <FilterDropdown
-                  selectedYear={selectedYearTop}
-                  onYearChange={setSelectedYearTop}
-                  title="Top Performers"
-                />
+              <div>
                 <TableComponent
-                  title=""
-                  data={filteredTopPerformers.length > 0 ? filteredTopPerformers : []}
-                  type="department"
-                  showYear={true}
-                />
-                {filteredTopPerformers.length === 0 && (
-                  <p className="text-gray-500 text-lg font-semibold text-center">
-                    No Data Available for {selectedYearTop}
-                  </p>
-                )}
-              </div>
-
-              {/* Bottom Performers with Filter */}
-              <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-                <FilterDropdown
-                  selectedYear={selectedYearBottom}
-                  onYearChange={setSelectedYearBottom}
                   title="Bottom Performers"
-                />
-                <TableComponent
-                  title=""
-                  data={filteredBottomPerformers.length > 0 ? filteredBottomPerformers : []}
+                  data={bottomPerformers.length > 0 ? bottomPerformers : []} //Ensures data is not empty or null
                   type="department"
-                  showYear={true}
                 />
-                {filteredBottomPerformers.length === 0 && (
+                {bottomPerformers.length === 0 && (
                   <p className="text-gray-500 text-lg font-semibold text-center">
-                    No Data Available for {selectedYearBottom}
+                    No Data Available
                   </p>
                 )}
               </div>

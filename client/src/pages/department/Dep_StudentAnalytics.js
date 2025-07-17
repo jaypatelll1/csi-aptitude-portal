@@ -20,21 +20,17 @@ function Dep_StudentAnalytics() {
   const [performanceOverTime, setPerformanceOverTime] = useState([]);
   const [dSup, setDSup] = useState("");
   const [oSup, setOSup] = useState("");
-  const [rankData, setRankData] = useState({});
-  const [apiData, setApiData] = useState(null);
+  const [correct, setCorrect] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [rankData, setRankData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [chartReady, setChartReady] = useState(false);
-  const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
 
   const sidebarRef = useRef(null);
   const detailsRef = useRef(null);
-  
   const userData = useSelector((state) => state.user.user);
   const location = useLocation();
   const user_id = location.state?.user_id;
-  const student_year = location.state?.year;
-  const student_name = location.state?.student_name || "Unknown Student";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -48,11 +44,6 @@ function Dep_StudentAnalytics() {
   }, []);
 
   const superscript = (setter, rank) => {
-    if (!rank || rank === 0) {
-      setter("");
-      return;
-    }
-    
     const mod = rank % 10;
     if (mod === 1) setter("st");
     else if (mod === 2) setter("nd");
@@ -62,235 +53,116 @@ function Dep_StudentAnalytics() {
 
   const fetchAllData = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      
       const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const department_name = userData?.department_name || userData?.department;
-      const year = student_year;
-      
-      const validationErrors = [];
-      
-      if (!user_id) validationErrors.push('Missing user_id');
-      if (!department_name) validationErrors.push('Missing department_name');
-      if (!year) validationErrors.push('Missing year');
-      if (!API_BASE_URL) validationErrors.push('Missing API_BASE_URL');
-      
-      if (validationErrors.length > 0) {
-        setError(`Validation failed: ${validationErrors.join(', ')}`);
-        setLoading(false);
-        return;
-      }
-      
-      const url = `${API_BASE_URL}/api/analysis/student-analysis/${user_id}?department_name=${encodeURIComponent(department_name)}&year=${encodeURIComponent(year)}`;
-      
+      const url = `${API_BASE_URL}/api/analysis/all-analysis`;
       const res = await axios.get(url, {
         withCredentials: true,
-        headers: { 
-          "x-user-id": user_id,
-          "Content-Type": "application/json"
-        },
-        timeout: 15000
+        headers: { "x-user-id": user_id },
       });
-      
-      if (!res.data) {
-        setError('No data received from server');
-        setLoading(false);
-        return;
+
+      setData(res.data?.overall_resultS || []);
+      setAvgData(res.data?.avg_results || []);
+      setRankData(res.data?.rank || {});
+
+      if (res.data?.rank) {
+        superscript(setDSup, res.data.rank.department_rank);
+        superscript(setOSup, res.data.rank.overall_rank);
       }
 
-      const responseData = res.data;
-      setApiData(responseData);
-      
-      const results = responseData?.results || responseData;
-      
-      const overallResults = results?.overall_resultS || [];
-      const avgResults = results?.avg_results || [];
-      const performanceData = results?.performance_over_time || [];
-      
-      const rankInfo = {
-        department_rank: results?.department_rank,
-        overall_rank: results?.overall_rank,
-        accuracy_rate: results?.accuracy_rate,
-        completion_rate: results?.completion_rate,
-        total_score: results?.total_score,
-        max_score: results?.max_score,
-        category: results?.category
-      };
-      
-      setData(overallResults);
-      setAvgData(avgResults);
-      setRankData(rankInfo);
-      setPerformanceOverTime(performanceData);
-      console.log("Performance Data:", results);
-
-      if (rankInfo && Object.keys(rankInfo).length > 0) {
-        superscript(setDSup, rankInfo.department_rank);
-        superscript(setOSup, rankInfo.overall_rank);
-      }
-
-      if (results?.completion_rate !== undefined) {
-        const completionRate = Math.round(results.completion_rate);
-        const incompleteRate = 100 - completionRate;
-        
+      if (res.data?.test_completion_data) {
+        const { attempted, total } = res.data.test_completion_data;
         setTestCompletionData({
           title: "Test Completion Rate",
           chartData: [
-            { name: "Completed", value: completionRate, fill: "#1349C5" },
-            { name: "Remaining", value: incompleteRate, fill: "#6F91F0" },
+            { name: "Completed", value: attempted, fill: "#1349C5" },
+            { name: "Remaining", value: total - attempted, fill: "#6F91F0" },
           ],
         });
-      } else if (results?.test_completion_data) {
-        const { attempted, total: totalTests } = results.test_completion_data;
-        
-        if (attempted !== undefined && totalTests !== undefined) {
-          const completionPercentage = Math.round((attempted / totalTests) * 100);
-          const incompletePercentage = 100 - completionPercentage;
-          
-          setTestCompletionData({
-            title: "Test Completion Rate",
-            chartData: [
-              { name: "Completed", value: completionPercentage, fill: "#1349C5" },
-              { name: "Remaining", value: incompletePercentage, fill: "#6F91F0" },
-            ],
-          });
-        }
       }
 
-      const hasData = overallResults.length > 0 || 
-                      avgResults.length > 0 || 
-                      performanceData.length > 0 ||
-                      (rankInfo.department_rank && rankInfo.overall_rank) ||
-                      results?.accuracy_rate !== undefined ||
-                      results?.category !== undefined;
-      
+      setPerformanceOverTime(res.data?.performance_over_time || []);
       setLoading(false);
-      setRetryCount(0);
       setTimeout(() => setChartReady(true), 100);
-      
-    } catch (error) {
-      let errorMessage = 'Failed to fetch data';
-      
-      if (error.response?.status === 404) {
-        errorMessage = 'Student data not found';
-      } else if (error.response?.status === 401) {
-        errorMessage = 'Unauthorized access';
-      } else if (error.response?.status === 403) {
-        errorMessage = 'Access forbidden';
-      } else if (error.response?.status === 500) {
-        errorMessage = 'Server error';
-      } else if (error.code === 'ECONNABORTED') {
-        errorMessage = 'Request timeout';
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-      
-      setError(errorMessage);
+    } catch (e) {
+      console.error("Error fetching analytics:", e);
       setLoading(false);
     }
-  };
-
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
-    fetchAllData();
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!user_id) {
-        setLoading(false);
-        setError('Missing user ID. Please navigate to this page with proper parameters.');
-        return;
-      }
-      
-      if (!userData) {
-        setLoading(false);
-        setError('User data not loaded. Please try refreshing the page.');
-        return;
-      }
-      
-      const departmentName = userData?.department_name || userData?.department;
-      if (!departmentName) {
-        setLoading(false);
-        setError('Department information not available. Please check your profile settings.');
-        return;
-      }
-      
-      if (!student_year) {
-        setLoading(false);
-        setError('Student year information missing. Please navigate from student list.');
-        return;
-      }
-      
-      fetchAllData();
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [user_id, userData, student_year]);
+    if (user_id) fetchAllData();
+  }, [user_id]);
 
-  const noData = data.length === 0 && 
-                 avgData.length === 0 && 
-                 performanceOverTime.length === 0 &&
-                 (!rankData || (!rankData.department_rank && !rankData.overall_rank)) &&
-                 !testCompletionData &&
-                 !rankData?.accuracy_rate &&
-                 !rankData?.category;
+  useEffect(() => {
+    let c = 0,
+      t = 0;
+    data.forEach((exam) => {
+      c += exam.total_score;
+      t += exam.max_score;
+    });
+    setCorrect(c);
+    setTotal(t);
+  }, [data]);
 
-  // Fixed accuracy rate data handling
-  const accuracyData = (() => {
-    if (rankData?.accuracy_rate !== undefined && rankData.accuracy_rate !== null) {
-      const accuracyRate = Math.round(rankData.accuracy_rate);
-      const wrongRate = 100 - accuracyRate;
-      
-      return {
-        title: "Accuracy Rate",
-        chartData: [
-          {
-            name: "Correct",
-            value: accuracyRate,
-            fill: "#28A745",
-          },
-          {
-            name: "Wrong",
-            value: wrongRate,
-            fill: "#DC3545",
-          },
-        ],
-      };
-    }
-    
-    return null;
-  })();
+  const noData =
+    data.length === 0 &&
+    avgData.length === 0 &&
+    performanceOverTime.length === 0;
 
+  const accuracyData = {
+    title: "Accuracy Rate",
+    chartData: [
+      {
+        name: "Correct",
+        value: total > 0 ? Math.round((correct / total) * 100) : 0,
+        fill: "#28A745",
+      },
+      {
+        name: "Wrong",
+        value: total > 0 ? Math.round(100 - (correct / total) * 100) : 0,
+        fill: "#DC3545",
+      },
+    ],
+  };
 
   const performanceOverTimeData = {
     title: "Performance Over Time",
     color: "#0703fc",
-    chartData: performanceOverTime?.map((exam) => ({
-     name: `${exam?.exam_name}`,
-     Average: Math.round((exam?.score / exam?.max_score) * 100),
-    })) || [],
+    chartData:
+      performanceOverTime?.map((e) => ({
+        name: e?.created_on,
+        Average: e?.average_score,
+      })) || [],
   };
 
-  // Use raw category data
   const subjectPerformanceData = {
     title: "Topic-wise Performance",
     chartData: (() => {
-      const categoryData = rankData?.category;
-      
-      if (!categoryData || typeof categoryData !== 'object') {
-        return [];
-      }
-      
-      return Object.entries(categoryData).map(([subject, categoryInfo]) => {
-        const score = categoryInfo?.score || 0;
-        const maxScore = categoryInfo?.max_score || 0;
-        
-        return { 
-          name: subject, 
-          yourScore: score, // Raw score
-          average: score, // Use raw score instead of percentage
-          maxMarks: maxScore // Raw max score
+      const valid = data.filter((e) => e.category);
+      const subjects = [
+        ...new Set(
+          valid.flatMap((e) =>
+            Object.keys(e.category).filter((s) => s !== "null"),
+          ),
+        ),
+      ];
+      return subjects.map((subject) => {
+        const totalScore = valid.reduce(
+          (sum, e) => sum + (parseFloat(e.category[subject]?.score) || 0),
+          0,
+        );
+        const totalMax = valid.reduce(
+          (sum, e) => sum + (parseFloat(e.category[subject]?.max_score) || 0),
+          0,
+        );
+        return {
+          name: subject,
+          yourScore: totalScore,
+          average:
+            totalMax > 0
+              ? parseFloat(((totalScore / totalMax) * 100).toFixed(2))
+              : 0,
+          maxMarks: totalMax,
         };
       });
     })(),
@@ -298,7 +170,7 @@ function Dep_StudentAnalytics() {
   };
 
   const getInitials = (name) => {
-    if (!name) return "U";
+    if (!name) return "";
     const parts = name.trim().split(" ");
     return (parts[0]?.[0] || "") + (parts[parts.length - 1]?.[0] || "");
   };
@@ -311,7 +183,6 @@ function Dep_StudentAnalytics() {
       >
         <Dep_Sidebar />
       </div>
-      
       <div className="flex flex-col flex-1 xl:ml-64">
         <div className="bg-white h-14 border-b border-gray-200 flex items-center px-6 shadow-sm">
           <button
@@ -340,73 +211,29 @@ function Dep_StudentAnalytics() {
             onClick={() => setIsDetailsOpen(!isDetailsOpen)}
             className="ml-auto h-9 w-9 rounded-full bg-blue-300 flex items-center justify-center text-blue-700 text-sm cursor-pointer"
           >
-            {getInitials(userData?.name)}
+            {getInitials(userData.name)}
           </div>
           <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
         </div>
 
         {loading ? (
-          <div className="flex flex-col justify-center items-center h-[80vh]">
+          <div className="flex justify-center items-center h-[80vh]">
             <Loader />
-           
-          </div>
-        ) : error ? (
-          <div className="flex flex-col justify-center items-center h-[80vh]">
-            <div className="text-center max-w-md">
-              <div className="text-red-500 text-lg mb-2">⚠️ Error</div>
-              <p className="text-gray-700 mb-4">{error}</p>
-              
-              <button
-                onClick={handleRetry}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mr-2"
-              >
-                Retry ({retryCount})
-              </button>
-              
-              <button
-                onClick={() => window.history.back()}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-              >
-                Go Back
-              </button>
-            </div>
           </div>
         ) : noData ? (
-          <div className="flex flex-col justify-center items-center h-[80vh]">
-            <div className="text-center">
-              <div className="text-gray-400 text-4xl mb-4">📊</div>
-              <p className="text-gray-500 text-lg mb-2">No Data Available</p>
-              <p className="text-gray-400 text-sm mb-4">
-                No analytics data found for this student
-              </p>
-              <button
-                onClick={handleRetry}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-              >
-                Refresh
-              </button>
-            </div>
+          <div className="flex justify-center items-center h-[80vh]">
+            <p className="text-gray-500 text-lg">No Data Available</p>
           </div>
         ) : (
           <div className="p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h1 className="text-3xl font-bold text-gray-800"> Student Analytics</h1>
-              <div className="text-right flex gap-6 items-end">
-                <p className="text-xl font-bold text-blue-600">{student_year}</p>
-                <p className="text-xl font-bold text-blue-600">{student_name}</p>
-              </div>
-            </div>
-            
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Analytics</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 border border-gray-200">
                 <DisplayComponent
                   title="Department Rank"
                   rank={rankData?.department_rank}
                   superscript={dSup}
                 />
-                </div>
-                 <div className="bg-white shadow-lg rounded-lg p-10 flex flex-col items-center ml-4 mt-4 border border-gray-200">
                 <DisplayComponent
                   title="Overall Rank"
                   rank={rankData?.overall_rank}
@@ -414,53 +241,36 @@ function Dep_StudentAnalytics() {
                   className="mt-4"
                 />
               </div>
-              </div>
-              <div className="bg-white shadow-lg rounded-lg p-5 border border-gray-200 mr-4 col-span-2 flex flex-col items-center">
-                <div className="w-full">
-                {chartReady && performanceOverTimeData.chartData.length > 0 ? (
+              <div className="md:col-span-2">
+                {chartReady && (
                   <LineChartComponent
                     data={performanceOverTimeData}
                     xAxisKey="name"
                     lineDataKey="Average"
                     lineColor="#0703fc"
                   />
-                ) : (
-                  <div className="bg-white p-6 rounded-lg shadow h-64 flex items-center justify-center">
-                    <p className="text-gray-500">No performance data available</p>
-                  </div>
                 )}
               </div>
-            </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-6 mt-6">
-           <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col ml-4 items-center border border-gray-200 col-span-2">
-                {accuracyData ? (
-                  <DonutChartComponent data={accuracyData} />
-                ) : (
-                  <div className="bg-white p-6 rounded-lg shadow h-64 flex items-center justify-center">
-                    <p className="text-gray-500">No accuracy data available</p>
-                  </div>
-                )}
+              <div className="col-span-2">
+                <DonutChartComponent data={accuracyData} />
               </div>
-              
-           <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 flex items-center justify-center col-span-3">
+              <div className="col-span-3">
                 {subjectPerformanceData.chartData.length > 0 ? (
                   <RadarChartComponent data={subjectPerformanceData} />
                 ) : (
-                  <div className="bg-white p-6 rounded-lg shadow h-64 flex items-center justify-center">
-                    <p className="text-gray-500">No subject performance data available</p>
-                  </div>
+                  <p className="text-center text-gray-500">No Data Available</p>
                 )}
               </div>
-              
-                <div className="bg-white shadow-lg rounded-lg p-6 border mr-4 border-gray-200 flex items-center justify-center col-span-2">
+              <div className="col-span-2">
                 {testCompletionData ? (
                   <PieChartComponent data={testCompletionData} />
                 ) : (
-                  <div className="bg-white p-6 rounded-lg shadow h-64 flex items-center justify-center">
-                    <p className="text-gray-500">No test completion data available</p>
-                  </div>
+                  <p className="text-center text-gray-500">
+                    Loading Test Completion Data...
+                  </p>
                 )}
               </div>
             </div>

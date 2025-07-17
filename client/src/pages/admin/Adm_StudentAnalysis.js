@@ -17,6 +17,7 @@ const Adm_StudentAnalysis = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
+  const [deletedUsers, setDeletedUsers] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -32,87 +33,90 @@ const Adm_StudentAnalysis = () => {
     setSearchTerm(term);
   };
 
-  // Fetch students data from API
+  // Fetch students data with ranks from API
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchStudentsWithRanks = async () => {
       try {
         setLoading(true);
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         
-        const response = await axios.get(`${API_BASE_URL}/api/analysis/student-analysis?year=BE`, {
+        // First try to get ranked data (which includes all students with ranks)
+        const rankedResponse = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
           withCredentials: true,
+          params: {
+            filter: "all",
+            department: "", // Get all departments
+          },
         });
         
-        if (response && response.data && response.data.results) {
-          // Sort students by overall_rank in ascending order
-          const sortedStudents = response.data.results.sort((a, b) => a.overall_rank - b.overall_rank);
-          setStudents(sortedStudents);
+        if (rankedResponse && rankedResponse.data) {
+          const rankedData = Array.isArray(rankedResponse.data) ? rankedResponse.data : [];
+          setStudents(rankedData);
+          console.log("Fetched students with ranks:", rankedData);
         } else {
-          setStudents([]);
+          // Fallback to regular student fetch if rank endpoint fails
+          const response = await axios.get(`${API_BASE_URL}/api/users/?role=Student`, {
+            withCredentials: true,
+          });
+          const studentData = response.data.users || response.data;
+          setStudents(Array.isArray(studentData) ? studentData : []);
+          console.log("Fetched students (no ranks):", studentData);
         }
       } catch (error) {
-        setStudents([]);
+        console.error("Error fetching students:", error);
+        // Try fallback method if rank endpoint fails
+        try {
+          const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+          const response = await axios.get(`${API_BASE_URL}/api/users/?role=Student`, {
+            withCredentials: true,
+          });
+          const studentData = response.data.users || response.data;
+          setStudents(Array.isArray(studentData) ? studentData : []);
+        } catch (fallbackError) {
+          console.error("Fallback fetch also failed:", fallbackError);
+          setStudents([]);
+        }
       } finally {
         setLoading(false);
       }
     };
     
-    fetchStudents();
-  }, []);
+    fetchStudentsWithRanks();
+  }, [deletedUsers]);
 
-  // Filter students based on search term, department, and rank
+  // Filter students based on search term and department
   useEffect(() => {
     let filtered = [...students];
 
     // Apply department filter (only if a specific department is selected)
     if (selectedDepartment && selectedDepartment !== "" && selectedDepartment !== "all") {
       filtered = filtered.filter((student) => {
-        const studentDept = student.department_name;
+        const studentDept = student.department || student.department_name;
         return studentDept === selectedDepartment;
       });
     }
 
-    // Apply search filter first
+    // Apply search filter
     if (searchTerm && searchTerm.trim() !== "") {
       const searchLower = searchTerm.toLowerCase().trim();
       filtered = filtered.filter((student) => {
-        const studentId = (student.student_id || "").toString();
-        const studentName = (student.student_name || student.name || "").toLowerCase();
-        const departmentName = (student.department_name || "").toLowerCase();
-        const year = (student.year || "").toLowerCase();
-        const overallRank = (student.overall_rank || "").toString();
-        const departmentRank = (student.department_rank || "").toString();
+        const name = (student.name || student.student_name || "").toLowerCase();
+        const email = (student.email || "").toLowerCase();
+        const department = (student.department || student.department_name || "").toLowerCase();
+        const phone = (student.phone || "").toString();
+        const userId = (student.user_id || student.student_id || "").toString();
         
         return (
-          studentId.includes(searchTerm) ||
-          studentName.includes(searchLower) ||
-          departmentName.includes(searchLower) ||
-          year.includes(searchLower) ||
-          overallRank.includes(searchTerm) ||
-          departmentRank.includes(searchTerm)
+          name.includes(searchLower) ||
+          email.includes(searchLower) ||
+          department.includes(searchLower) ||
+          phone.includes(searchTerm) ||
+          userId.includes(searchTerm)
         );
       });
     }
 
-    // Apply rank filter - just sort
-    if (selectedRank && selectedRank !== "") {
-      if (selectedRank === "top-performers" || selectedRank === "top_performer" || selectedRank === "top") {
-        // Sort by overall_rank ascending (best ranks first: 1, 2, 3, 4...)
-        filtered = filtered.sort((a, b) => a.overall_rank - b.overall_rank);
-      } else if (selectedRank === "bottom-performers" || selectedRank === "bottom_performer" || selectedRank === "bottom") {
-        // Sort by overall_rank descending (worst ranks first: 14, 13, 12, 11...)
-        filtered = filtered.sort((a, b) => b.overall_rank - a.overall_rank);
-      } else {
-        // Default sorting for other filters
-        filtered = filtered.sort((a, b) => a.overall_rank - b.overall_rank);
-      }
-    } else {
-      // No rank filter - sort by overall_rank ascending (best ranks first)
-      filtered = filtered.sort((a, b) => a.overall_rank - b.overall_rank);
-    }
-
     setFilteredStudents(filtered);
-    
     const totalPages = Math.ceil(filtered.length / limit);
     setNumberofpages(Math.max(1, totalPages));
     
@@ -120,7 +124,7 @@ const Adm_StudentAnalysis = () => {
     if (page > totalPages && totalPages > 0) {
       setPage(1);
     }
-  }, [selectedDepartment, selectedRank, students, searchTerm, limit, page]);
+  }, [selectedDepartment, students, searchTerm, limit, page]);
 
   const toggleFilter = () => {
     setShowFilter(!showFilter);
@@ -149,13 +153,39 @@ const Adm_StudentAnalysis = () => {
     return pages;
   };
 
-  const handleFilterChange = (department, rank) => {
-    setSelectedDepartment(department);
-    setSelectedRank(rank);
-    setPage(1); // Reset to first page
-    
-    // Clear search term when applying filters to avoid confusion
-    setSearchTerm("");
+  const handleFilterChange = async (department, rank) => {
+    try {
+      setLoading(true);
+      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+      
+      // Always fetch fresh ranked data when filter changes
+      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
+        withCredentials: true,
+        params: {
+          filter: rank === "" || rank === "all" ? "all" : rank,
+          department: department === "" ? "" : department, // Send empty string for all departments
+        },
+      });
+      
+      if (response && response.data) {
+        const rankedData = Array.isArray(response.data) ? response.data : [];
+        setStudents(rankedData); // Update base students data with fresh ranked data
+        setSelectedDepartment(department);
+        setSelectedRank(rank);
+        setPage(1); // Reset to first page
+        
+        // Clear search term when applying filters to avoid confusion
+        setSearchTerm("");
+        
+        console.log("Applied filter - Department:", department, "Rank:", rank, "Data:", rankedData);
+      }
+    } catch (error) {
+      console.error("Error fetching student ranks:", error);
+      // Don't clear existing data on filter error, just show error
+      alert("Failed to apply filter. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Close sidebar when clicking outside
@@ -171,6 +201,14 @@ const Adm_StudentAnalysis = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Initial load - fetch all students with ranks
+  useEffect(() => {
+    // Don't call handleFilterChange on initial load if we already have data
+    if (students.length === 0) {
+      handleFilterChange("", "all");
+    }
+  }, []); // Empty dependency array for initial load only
 
   // Get current page data
   const getCurrentPageData = () => {
@@ -280,55 +318,16 @@ const Adm_StudentAnalysis = () => {
             </div>
           </div>
           
-          {/* Filter Status Display */}
-          {(selectedRank || selectedDepartment) && (
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">Active Filters:</span>
-                  {selectedDepartment && selectedDepartment !== "all" && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
-                      Department: {selectedDepartment}
-                    </span>
-                  )}
-                  {selectedRank && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
-                      Rank: {selectedRank.replace('-', ' ').replace('_', ' ')}
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={() => {
-                    setSelectedDepartment(undefined);
-                    setSelectedRank("");
-                    setSearchTerm("");
-                    setPage(1);
-                  }}
-                  className="text-sm text-red-600 hover:text-red-800"
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-          )}
-          
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <Loader />
             </div>
           ) : (
             <>
-              <div className="mb-4 text-sm text-gray-600">
-                Showing {getCurrentPageData().length} of {filteredStudents.length} students
-                {students.length !== filteredStudents.length && (
-                  <span> (filtered from {students.length} total)</span>
-                )}
-              </div>
-              
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-4 px-4">Student ID</th>
+                    <th className="text-left py-4 px-4">User ID.</th>
                     <th className="text-left py-4 px-4">Name</th>
                     <th className="text-left py-4 px-4">Department</th>
                     <th className="text-center py-4 px-4">Dept. Rank</th>
@@ -339,10 +338,10 @@ const Adm_StudentAnalysis = () => {
                 <tbody>
                   {getCurrentPageData().length > 0 ? (
                     getCurrentPageData().map((student, index) => (
-                      <tr key={student.student_id || index} className="border-b hover:bg-gray-50">
-                        <td className="py-4 px-4">{student.student_id}</td>
+                      <tr key={student.user_id || student.student_id || index} className="border-b hover:bg-gray-50">
+                        <td className="py-4 px-4">{student.student_id || student.user_id}</td>
                         <td className="py-4 px-4">{student.student_name || student.name}</td>
-                        <td className="py-4 px-4">{student.department_name || "N/A"}</td>
+                        <td className="py-4 px-4">{student.department_name || student.department || "N/A"}</td>
                         <td className="py-4 px-4 text-center">
                           {student.department_rank ? getOrdinalSuffix(parseInt(student.department_rank)) : "N/A"}
                         </td>
@@ -351,7 +350,7 @@ const Adm_StudentAnalysis = () => {
                         </td>
                         <td className="py-4 px-4 text-center">
                           <button
-                            onClick={() => handleAnalyticsClick(student.student_id)}
+                            onClick={() => handleAnalyticsClick(student.student_id || student.user_id)}
                             className="p-2 hover:bg-gray-100 rounded"
                           >
                             <svg
@@ -370,7 +369,7 @@ const Adm_StudentAnalysis = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="text-center py-6 text-gray-500">
+                      <td colSpan="6" className="text-center py-6 text-gray-500">
                         {searchTerm ? `No students found matching "${searchTerm}"` : "No data available"}
                       </td>
                     </tr>
@@ -378,7 +377,7 @@ const Adm_StudentAnalysis = () => {
                 </tbody>
               </table>
               
-              {filteredStudents.length > 0 && numberofpages > 1 && (
+              {getPageNumbers().length > 1 && (
                 <div className="flex justify-center items-center mt-5">
                   <svg
                     onClick={handlePrevPage}

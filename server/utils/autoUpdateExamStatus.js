@@ -1,98 +1,66 @@
 const cron = require('node-cron');
-const path = require('path');
-const { Worker: ThreadWorker } = require('worker_threads');
 const pool = require('../config/db');
-const { generateStudentRanks,generateDepartmentRanks } = require('../models/rankModel');
+const { calculateScoreForMCQs } = require('./scoreUtils');
+const { user_analysis } = require('./user_anlaysis');
+const { generateStudentRanks } = require('../models/rankModel');
 
-console.log('⏰ Cron job scheduled to run every minute');
-
-const autoUpdate = cron.schedule('*/5 * * * *', async () => {
+// Run this job every minute (adjust schedule as needed)
+const autoUpdate = cron.schedule('* * * * *', async () => {
   try {
-    console.log('⏳ Checking for exams that ended...');
-
+    // Update exams that are scheduled and have an end_time before the current time
     const result = await pool.query(
-      `UPDATE exams SET status = 'past'
-       WHERE status = 'live' AND end_time < CURRENT_TIMESTAMP
-       RETURNING CURRENT_TIMESTAMP, end_time, exam_id, exam_for,exam_name;`
+      `UPDATE exams SET status = 'past' WHERE status = 'live' AND end_time < CURRENT_TIMESTAMP RETURNING CURRENT_TIMESTAMP, end_time, exam_id, exam_for;` // Use RETURNING to get the updated exam_id
     );
 
     if (result.rows.length > 0) {
       let generate_rank = true;
       console.log(`${result.rows.length} exams updated to 'past'.`);
 
+      // Process each exam that was updated
       for (const row of result.rows) {
-        console.log(row)
         const examId = row.exam_id;
         const examType = row.exam_for;
-        const examName = row.exam_name;
 
+        // Check if the exam is for teacher
         if (examType === 'Teacher') {
-          console.log(`🧑‍🏫 Skipping teacher exam ${examId}`);
+          console.log(`Skipping the result generation for teacher exam ${examId}`);
           generate_rank = false;
+          console.log('generate_rank is set to false');
           continue;
         }
 
-        // Get student IDs for the exam
+        
+
+        // Fetch student IDs from responses
         const responseResult = await pool.query(
-          `SELECT DISTINCT student_id FROM responses WHERE exam_id = $1`,
+          `SELECT DISTINCT student_id FROM responses WHERE exam_id = $1;`,
           [examId]
         );
+        console.log(responseResult.rows);
         const studentIds = responseResult.rows.map((row) => row.student_id);
 
-        console.log(`📚 Found ${studentIds.length} students for exam ${examId}`);
-
-        // Spawn a thread for each student
-        const studentPromises = studentIds.map((studentId) =>
-          processStudentInThread(examId, studentId,examName)
-        );
-
-        const results = await Promise.allSettled(studentPromises);
-
-        for (const res of results) {
-          if (res.status === 'fulfilled') {
-            console.log(`✅ Student ${res.value.studentId} processed`);
-          } else {
-            console.error(`❌ Error for student:`, res.reason);
-          }
+        // Create results and student analysis for each student
+        for (const studentId of studentIds) {
+          const result = await calculateScoreForMCQs(examId, studentId)
+          await user_analysis(examId, studentId,result);
         }
       }
-
-      if (generate_rank) {
-        console.log('🏆 Generating student ranks...');
+      if (generate_rank === true) {
+        console.log('generate_rank is true');
         await generateStudentRanks();
-        await generateDepartmentRanks();
       }
-
     } else {
-      console.log('📭 No exams were updated.');
+      console.log('No exams were updated.');
     }
-
   } catch (error) {
-    console.error('❌ Error in cron job:', error);
+    console.error('Error updating exam statuses:', error);
   }
 });
 
-// Function to spawn a worker thread for student processing
-function processStudentInThread(examId, studentId,examName) {
-  return new Promise((resolve, reject) => {
-    const workerPath = path.resolve(__dirname, '../workers/studentWorker.js');
-
-    const thread = new ThreadWorker(workerPath, {
-      workerData: { examId, studentId,examName }
-    });
-
-    thread.on('message', resolve);
-    thread.on('error', reject);
-    thread.on('exit', (code) => {
-      if (code !== 0)
-        reject(new Error(`Worker thread exited with code ${code}`));
-    });
-  });
-}
-
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('🛑 Stopping cron job...');
-  autoUpdate.stop();
+  console.log('Stopping cron jobs...');
+  autoUpdate.stop(); // Stop cron job
+  console.log('Exiting process.');
   process.exit();
 });

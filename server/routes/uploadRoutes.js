@@ -13,7 +13,7 @@ const {limiter} = require('../middlewares/rateLimitMiddleware');
 router.post("/upload-image", limiter(5), s3upload.single("image"), uploadImage);
 
 // Route to delete an image from Cloudinary & Database
-router.delete("/delete-image/:key", deleteImage);
+router.delete("/delete-image/:question_id", deleteImage);
 
 module.exports = router;
 

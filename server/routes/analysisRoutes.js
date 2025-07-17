@@ -9,12 +9,6 @@ const {
   getStudentRank,
   getPerformanceOverTime,
   generateAllAnalysis,
-  getDepartmentAnalysis,
-  getUserAnalysis,
-  userAnalysis,
-  getSingleUserAnalysis,
-  overallAnalysis,
-  deptUserAnalysis,
 } = require('../controllers/analysisController');
 
 const router = express.Router();
@@ -31,16 +25,7 @@ router.get('/performance-over-time/:student_id', getPerformanceOverTime)
 
 router.get('/all-analysis', generateAllAnalysis)
 
-router.get('/student-analysis', userAnalysis) // This will return all student analysis
-router.get('/student-analysis/:student_id', getSingleUserAnalysis) // This will return analysis of a particular student
-
-
-// router.get('/department', getDepartmentAnalysis); //-----------------
-router.get('/department/:department_name', getDepartmentAnalysis); //-----------------
-router.get('/overallAnalysis', overallAnalysis);
-router.get('/user/:student_id', getUserAnalysis); //---------------
-router.get('/dept-student-analysis', deptUserAnalysis) 
-// department
-
+router.post('/student-analysis', generateStudentAnalysis)
+router.post('/student-analysis/:student_id/:exam_id', generateStudentAnalysisUsingId)
 
 module.exports = router;

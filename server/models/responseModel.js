@@ -153,54 +153,15 @@ const submittedUnansweredQuestions = async (exam_id, student_id) => {
   return result.rows;
 };
 
-
-
-const submitFinalResponsesAndChangeStatus = async (student_id, exam_id, responses) => {
-
-  try {
-
-
-    for (const response of responses) {
-      const {
-        question_id,
-        selected_option,
-        selected_options,
-        text_answer,
-        question_type,
-      } = response;
-console.log(response);
-      const query = `
-        UPDATE responses
-        SET
-          selected_option = $1,
-          answered_at = NOW(),
-          status = 'submitted',
-          selected_options = $2,
-          text_answer = $3,
-          question_type = $4
-        WHERE exam_id = $5 AND student_id = $6 AND question_id = $7;
-      `;
-
-      const values = [
-        selected_option,
-        selected_options,
-        text_answer,
-        question_type,
-        exam_id,
-        student_id,
-        question_id,
-      ];
-
-      await pool.query(query, values);
-    }
-
-    
-    return { success: true, message: 'Responses updated successfully' };
-  } catch (err) {
-    
-    console.error('Error updating responses:', err);
-    throw err;
-  } 
+const submitFinalResponsesAndChangeStatus = async (student_id, exam_id) => {
+  const query = `
+      UPDATE responses
+      SET status = $1, answered_at = NOW()
+      WHERE exam_id = $2 AND student_id = $3
+      RETURNING *;
+    `;
+  const result = await pool.query(query, ['submitted', exam_id, student_id]);
+  return result.rows;
 };
 
 // Get responses by student for an exam

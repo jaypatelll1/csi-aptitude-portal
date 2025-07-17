@@ -87,7 +87,7 @@ app.use('/api/export', exportRoutes);
 // app.use('/api/users', fileRoutes);
 // app.use('/api/exams', fileRoutes);
 app.use('/api/stats', jwtAuthMiddleware, statsRoutes);
-app.use('/api/analysis', jwtAuthMiddleware, analysisRoutes); //-----------
+app.use('/api/analysis', jwtAuthMiddleware, analysisRoutes);
 app.use('/api/department-analysis', jwtAuthMiddleware, deptRoutes);
 app.use('/api/tpo-analysis', jwtAuthMiddleware, tpoRoutes);
 app.use('/api/rank', jwtAuthMiddleware, rankRoutes);

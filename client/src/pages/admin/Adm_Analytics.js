@@ -32,85 +32,17 @@ function Adm_Analytics() {
 
   // Function to check if any meaningful data exists
   const checkDataAvailability = (data) => {
-    if (!data) {
-      return false;
-    }
-    
-    // Check if there's meaningful data in any of the expected properties
-    const hasData = (
-      // Check for department_analysis array
-      (data.department_analysis && Array.isArray(data.department_analysis) && data.department_analysis.length > 0) ||
-      // Check for top_scorers array
-      (data.top_scorers && Array.isArray(data.top_scorers) && data.top_scorers.length > 0) ||
-      // Check for weak_scorers array
-      (data.weak_scorers && Array.isArray(data.weak_scorers) && data.weak_scorers.length > 0)
-    );
-    
-    return hasData;
-  };
+    const hasAccuracy = data.accuracy_rate !== undefined && data.accuracy_rate !== null;
+    const hasCategories = data.category_performance && data.category_performance.length > 0;
+    const hasTopPerformers = data.top_performer && data.top_performer.length > 0;
+    const hasBottomPerformers = data.bottom_performer && data.bottom_performer.length > 0;
+    const hasParticipation = data.participation_rate !== undefined && data.participation_rate !== null;
+    const hasPerformanceTime = data.performance_over_time && data.performance_over_time.length > 0;
+    const hasDeptRank = data.dept_ranks && data.dept_ranks.department_rank;
+    const hasStudentCount = data.studentCount && data.studentCount.student_count > 0;
 
-  // Updated processApiResponse function to work with actual API structure - NO CALCULATIONS
-  const processApiResponse = (apiData) => {
-    if (!apiData) {
-      return null;
-    }
-    
-    // Get the department analysis data (first item in the array)
-    const departmentData = apiData.department_analysis?.[0] || {};
-    
-    // Create the aggregated data structure
-    const aggregatedData = {
-      accuracy_rate: departmentData.accuracy_rate || 0,
-      category_performance: [],
-      top_performer: apiData.top_scorers || [],
-      bottom_performer: apiData.weak_scorers || [],
-      participation_rate: 100, // Calculate based on student_count if needed
-      performance_over_time: departmentData.performance_over_time || [],
-      dept_ranks: { 
-        department_rank: departmentData.department_rank || null 
-      },
-      studentCount: { 
-        student_count: departmentData.student_count || 0 
-      }
-    };
-
-    // Process subject performance data if available - REMOVE CALCULATIONS
-    if (departmentData.subject_performance && typeof departmentData.subject_performance === 'object') {
-      aggregatedData.category_performance = Object.keys(departmentData.subject_performance).map(subject => {
-        const subjectData = departmentData.subject_performance[subject];
-        
-        // Handle different possible structures - STORE RAW VALUES
-        let score ;
-        let maxScore ;
-        
-        if (typeof subjectData === 'object' && subjectData !== null) {
-          score = subjectData.score || subjectData.total_score || 0;
-          maxScore = subjectData.max_score || 100;
-        } else if (typeof subjectData === 'number') {
-          score = subjectData;
-        }
-        
-        return {
-          category: subject,
-          raw_score: score, // Store actual raw score
-          max_score: maxScore, // Store actual max score
-          // Remove percentage calculations - keep raw values for radar chart
-          average_category_score: score, // Use raw score instead of percentage
-          max_category_score: maxScore // Use actual max score
-        };
-      });
-    }
-
-    // Format performance over time data
-    if (departmentData.performance_over_time && Array.isArray(departmentData.performance_over_time)) {
-      aggregatedData.performance_over_time = departmentData.performance_over_time.map((exam, index) => ({
-        exam_id: exam.exam_id || `exam_${index + 1}`,
-        created_on: exam.created_on || exam.date || `Exam ${index + 1}`,
-        average_score: exam.avg_score || exam.average_score || exam.score || 0
-      }));
-    }
-
-    return aggregatedData;
+    return hasAccuracy || hasCategories || hasTopPerformers || hasBottomPerformers || 
+           hasParticipation || hasPerformanceTime || hasDeptRank || hasStudentCount;
   };
 
   // Fetch department data function
@@ -133,7 +65,7 @@ function Adm_Analytics() {
 
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
-        `${API_BASE_URL}/api/analysis/department/${department}`,
+        `${API_BASE_URL}/api/department-analysis/all-dept-analysis/${department}`,
         { withCredentials: true }
       );
 
@@ -151,45 +83,32 @@ function Adm_Analytics() {
       }
 
       // Process the response data
-      const rawData = response.data;
+      const data = response.data;
+      console.log("Department Analysis Data:", data);
       
       // Check if meaningful data exists
-      const dataExists = checkDataAvailability(rawData);
-      if (!dataExists) {
-        setError(`No meaningful data available for ${department} department`);
-        setIsLoading(false);
-        setHasData(false);
-        return;
-      }
-
-      // Process the API response to match the expected format
-      const processedData = processApiResponse(rawData);
+      const dataExists = checkDataAvailability(data);
+      setHasData(dataExists);
       
-      if (!processedData) {
-        setError(`No data available for ${department} department`);
-        setIsLoading(false);
-        setHasData(false);
-        return;
+      setCategoryWiseData(data.category_performance || []);
+      setTopPerformers(data.top_performer || []);
+      setBottomPerformers(data.bottom_performer || []);
+      setParticipationRate(data.participation_rate || []);
+      setAccuracyData(data.accuracy_rate || []);
+      setPerformanceOverTime(data.performance_over_time || []);
+      setDeptRank(data.dept_ranks || []);
+      
+      if (data.dept_ranks?.department_rank) {
+        superscript(setDSup, data.dept_ranks.department_rank);
       }
       
-      setHasData(true);
-      setCategoryWiseData(processedData.category_performance || []);
-      setTopPerformers(processedData.top_performer || []);
-      setBottomPerformers(processedData.bottom_performer || []);
-      setParticipationRate(processedData.participation_rate || 0);
-      setAccuracyData(processedData.accuracy_rate || 0);
-      setPerformanceOverTime(processedData.performance_over_time || []);
-      setDeptRank(processedData.dept_ranks || {});
-      
-      if (processedData.dept_ranks?.department_rank) {
-        superscript(setDSup, processedData.dept_ranks.department_rank);
-      }
-      
-      setStudentCount(processedData.studentCount?.student_count || 0);
+      setStudentCount(data.studentCount?.student_count || 0);
       setError(null);
       setIsLoading(false);
 
     } catch (err) {
+      console.error("Error fetching department data:", err);
+
       // Clear timer on error
       if (departmentDataTimerRef.current) {
         clearTimeout(departmentDataTimerRef.current);
@@ -197,17 +116,18 @@ function Adm_Analytics() {
       }
 
       setIsLoading(false);
-      setError(`Failed to fetch ${department} department analysis`);
+      // setError(`Failed to fetch ${department} department analysis`);
+      <NoDataAvailable />;
       setHasData(false);
       
       // Reset all data states on error
       setCategoryWiseData([]);
       setTopPerformers([]);
       setBottomPerformers([]);
-      setParticipationRate(0);
-      setAccuracyData(0);
+      setParticipationRate([]);
+      setAccuracyData([]);
       setPerformanceOverTime([]);
-      setDeptRank({});
+      setDeptRank([]);
       setStudentCount(0);
       setDSup("");
     }
@@ -219,7 +139,7 @@ function Adm_Analytics() {
     setError(null);
   };
 
-  // Simplified useEffect - removed initialLoad logic
+  // Fix: Simplified useEffect - removed initialLoad logic
   useEffect(() => {
     fetchDepartmentData(selectedDepartment);
 
@@ -234,12 +154,12 @@ function Adm_Analytics() {
   const filteredAccuracyData = [
     {
       name: "Correct",
-      value: Number(accuracyData) * 100,
+      value: Number(accuracyData?.accuracy_rate),
       fill: "#4CAF50",
     },
     {
       name: "Wrong",
-      value: 100 - (Number(accuracyData) * 100),
+      value: 100 - Number(accuracyData?.accuracy_rate),
       fill: "#F44336",
     },
   ];
@@ -256,7 +176,7 @@ function Adm_Analytics() {
   const donutChartData = {
     title: "Accuracy Rate",
     chartData:
-      filteredAccuracyData?.length > 0 && Number(accuracyData) >= 0
+      filteredAccuracyData?.length > 0
         ? filteredAccuracyData
         : [
           { name: "Correct", value: 0, fill: "#4CAF50" },
@@ -269,26 +189,25 @@ function Adm_Analytics() {
     chartData: [
       {
         name: "Participated",
-        value: Number(participationRate) || 0,
+        value: Number(participationRate?.participation_rate) || 0,
         fill: "#1349C5",
       },
       {
         name: "Not Participated",
-        value: Number(100 - participationRate).toFixed(2) || 100,
+        value: +Number(100 - participationRate?.participation_rate).toFixed(2) || 100,
         fill: "#6F91F0",
       },
     ],
   };
 
-  // Radar chart data now uses raw scores without calculations
   const radarChartData = {
     title: "Subject-wise Performance",
     chartData: categoryWiseData
       ?.filter((category) => category?.category != null && category?.category !== "null")
       .map((category) => ({
         name: category?.category,
-        yourScore: Number(category?.raw_score) || 0, // Use raw score
-        maxMarks: Number(category?.max_score) || 100, // Use actual max score
+        yourScore: Number(category?.average_category_score),
+        maxMarks: Number(category?.max_category_score) || 0,
       })),
   };
 
@@ -341,11 +260,11 @@ function Adm_Analytics() {
           Please check back later or contact your administrator if this issue persists.
         </p>
         <button 
-          className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          onClick={() => {fetchDepartmentData(selectedDepartment)}}
-        >
-          REFRESH
-        </button>
+  className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+  onClick={() => {fetchDepartmentData(selectedDepartment)}}
+>
+  REFRESH
+</button>
       </div>
     </div>
   );
@@ -413,7 +332,7 @@ function Adm_Analytics() {
           </div>
         )}
 
-        {/* Better loading state that doesn't cover the entire screen */}
+        {/* Fix: Better loading state that doesn't cover the entire screen */}
         {isLoading ? (
           <div className="flex ">
             <div className="bg-white rounded-lg  h-screen">
@@ -445,10 +364,10 @@ function Adm_Analytics() {
                   <LineChartComponent
                     data={performanceOverTimeData}
                     xAxisKey="name"
-                    lineDataKey="Average"
+                    lineDataKey="Percentage"
                   />
                 ) : (
-                  <p className="text-gray-500 text-lg font-semibold">No Performance Data Available</p>
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
                 )}
               </div>
             </div>
@@ -456,14 +375,18 @@ function Adm_Analytics() {
             {/* Other Components */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5 mt-5 mb-5 ml-5 mr-5">
               <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center">
-                <DonutChartComponent data={donutChartData} />
+                {accuracyData?.accuracy_rate !== undefined ? (
+                  <DonutChartComponent data={donutChartData} />
+                ) : (
+                  <p className="text-gray-500 text-lg font-semibold">No Data Available</p>
+                )}
               </div>
               <div className="bg-white p-6 rounded-xl shadow-md">
                 {radarChartData.chartData?.length > 0 ? (
                   <RadarChartComponent data={radarChartData} />
                 ) : (
                   <p className="text-gray-500 text-lg font-semibold text-center">
-                    No Subject Performance Data Available
+                    No Data Available
                   </p>
                 )}
               </div>

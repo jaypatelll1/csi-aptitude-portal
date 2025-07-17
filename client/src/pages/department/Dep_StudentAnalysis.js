@@ -22,16 +22,9 @@ const Dep_StudentAnalysis = () => {
   const navigate = useNavigate();
   const sidebarRef = useRef(null);
   
-  // Fixed: Pass both user_id and year to analytics
-  const handleAnalyticsClick = (student) => {
-    navigate(`/department/student-analytics`, { 
-      state: { 
-        user_id: student.student_id, // Use student_id as user_id
-        year: student.year ,
-        student_name: student.student_name,
-        department_name: student.department_name
-      } 
-    });
+
+  const handleAnalyticsClick = (user_id) => {
+    navigate(`/department/student-analytics`, { state: { user_id } });
   };
 
   const handleSearch = (e) => {
@@ -46,57 +39,20 @@ const Dep_StudentAnalysis = () => {
 
   const handleFilter = async (filter) => {
     try {
-      // setLoading(true);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      
-      // Always fetch all students first
-      const response = await axios.get(`${API_BASE_URL}/api/analysis/dept-student-analysis`, {
+      const response = await axios.get(`${API_BASE_URL}/api/rank/generate-rank-order`, {
         withCredentials: true,
         params: {
-          department_name: currentUser?.department,
-          filter: "all",
+          filter: filter === "" ? "all" : filter,
+          department: currentUser?.department,
         },
       });
-      
-      console.log("Filter Response:", response.data);
-      if (response && response.data) {
-        // Check if response.data has results property (based on your API structure)
-        let studentsData = [];
-        if (response.data.results && Array.isArray(response.data.results)) {
-          studentsData = response.data.results;
-        } else if (Array.isArray(response.data)) {
-          studentsData = response.data;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          studentsData = response.data.data;
-        } else if (response.data.students && Array.isArray(response.data.students)) {
-          studentsData = response.data.students;
-        } else {
-          console.log("Unexpected response structure:", response.data);
-          studentsData = [];
-        }
-        
-        // Now filter the data based on the filter option
-        let filteredData = studentsData;
-        
-        if (filter === "top-performers") {
-          // Sort by rank (assuming lower rank number = better performance) - ascending order
-          filteredData = studentsData
-            .filter(student => student.department_rank && student.department_rank !== null)
-            .sort((a, b) => parseInt(a.department_rank) - parseInt(b.department_rank));
-        } else if (filter === "bottom-performers") {
-          // Sort by rank (assuming higher rank number = worse performance) - descending order
-          filteredData = studentsData
-            .filter(student => student.department_rank && student.department_rank !== null)
-            .sort((a, b) => parseInt(b.department_rank) - parseInt(a.department_rank));
-        }
-        
-        setStudents(filteredData);
-        setNumberofpages(Math.ceil(filteredData.length / limit));
-        setfilterPref(filter); // Update the filter preference
+      if (response) {
+        setStudents(response.data);
+        setNumberofpages(Math.ceil(response.data.length / limit));
       }
     } catch (error) {
-      console.log("Error fetching student analysis data", error);
-      setStudents([]); // Set empty array on error 
+      console.log("Error fetching student ranks in asc order", error);
     } finally {
       setLoading(false);
     }
@@ -104,13 +60,6 @@ const Dep_StudentAnalysis = () => {
 
   // Filter students based on search term
   useEffect(() => {
-    // Ensure students is an array before proceeding
-    if (!Array.isArray(students)) {
-      setFilteredStudents([]);
-      setNumberofpages(1);
-      return;
-    }
-
     let filtered = [...students];
 
     // Apply search filter
@@ -144,7 +93,10 @@ const Dep_StudentAnalysis = () => {
   }, [students, searchTerm, limit, page]);
 
   useEffect(() => {
+   
     handleFilter(filterPref);
+
+    // fetchStudentsWithRanks();
   }, [currentUser, limit, filterPref]);
 
   const handlePrevPage = () => {
@@ -176,20 +128,19 @@ const Dep_StudentAnalysis = () => {
     const endIndex = startIndex + limit;
     return filteredStudents.slice(startIndex, endIndex);
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setSidebarOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+   useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+          setSidebarOpen(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+  
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, []);
 
   return (
     <div className="min-h-screen flex">
@@ -280,10 +231,10 @@ const Dep_StudentAnalysis = () => {
           </div>
 
           {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <Loader />
-            </div>
-          ) : (
+  <div className="flex justify-center items-center py-20">
+    <Loader />
+  </div>
+) : (
             <>
               <table className="w-full">
                 <thead>
@@ -298,15 +249,15 @@ const Dep_StudentAnalysis = () => {
                 <tbody>
                   {getCurrentPageData().length > 0 ? (
                     getCurrentPageData().map((student) => (
-                      <tr key={student.student_id} className="border-b hover:bg-gray-50">
+                      <tr key={student.user_id} className="border-b hover:bg-gray-50">
                         <td className="py-4 px-4">{student.student_id}</td>
                         <td className="py-4 px-4">{student.student_name}</td>
                         <td className="py-4 px-4">{student.department_name || "N/A"}</td>
                         <td className="py-4 px-4">{student.department_rank}</td>
                         <td className="py-4 px-4 text-center">
                           <button
-                            onClick={() => handleAnalyticsClick(student)}
-                            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                            onClick={() => handleAnalyticsClick(student.student_id)}
+                            className="p-2"
                           >
                             <svg
                               width="20"
@@ -324,7 +275,7 @@ const Dep_StudentAnalysis = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="text-center py-6 text-gray-500">
+                      <td colSpan="6" className="text-center py-6 text-gray-500">
                         {searchTerm ? `No students found matching "${searchTerm}"` : "No data available"}
                       </td>
                     </tr>

@@ -20,8 +20,6 @@ const Stu_TestInstruction = () => {
   const dispatch = useDispatch();
 
   const exam = useSelector((state) => state.exam.exam);
-  const questions = useSelector((state) => state.questions.questions);
-
   // console.log('exam',exam);
 
   // const Duration = useSelector((state)=>state.time)
@@ -31,81 +29,90 @@ const Stu_TestInstruction = () => {
   const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
   useEffect(() => {
-  const checkAndInitializeResponses = async () => {
-    // ✅ 1. If questions are already in Redux, skip fetch
-    if (questions && questions.length > 0) {
-      console.log("✅ Using cached questions from Redux");
-      return;
-    }
-
-    try {
-      const draftCheckRes = await axios.get(
-        `${API_BASE_URL}/api/exams/responses/user_id?status=draft`,
-        { withCredentials: true }
-      );
-
-      const examIdExists = draftCheckRes.data.includes(examId);
-
-      if (!examIdExists) {
-        // ❌ Exam not initialized, reset and initialize
-        await axios.delete(`${API_BASE_URL}/api/exams/responses/questions/${examId}`, {
-          withCredentials: true,
-        });
-
-        await axios.post(
-          `${API_BASE_URL}/api/exams/responses/initialize/${examId}`,
-          {},
+    const checkAndInitializeResponses = async () => {
+      try {
+        // Fetch user responses
+        const response = await axios.get(
+          `${API_BASE_URL}/api/exams/responses/user_id?status=draft`,
           { withCredentials: true }
         );
 
-        // ✅ Fetch fresh questions and randomize
-        const questionRes = await axios.get(
-          `${API_BASE_URL}/api/exams/questions/students/${examId}`,
-          { withCredentials: true }
-        );
+        if (!response.data.includes(examId)) {
+          // If examId is not in responses, delete old and initialize new responses
+          await axios.delete(`${API_BASE_URL}/api/exams/responses/questions/${examId}`, {
+            withCredentials: true,
+          });
 
-        const shuffled = [...questionRes.data];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          await axios.post(
+            `${API_BASE_URL}/api/exams/responses/initialize/${examId}`,
+            {},
+            { withCredentials: true }
+          );
+
+          // console.log("Responses initialized successfully.");
+
+          const fetchQuestions = async () => {
+            try {
+              const response = await axios.get(
+                `${API_BASE_URL}/api/exams/questions/students/${examId}`,
+                { withCredentials: true }
+              );
+
+              // Shuffle the questions to randomize the order
+              const shuffleArray = (array) => {
+                for (let i = array.length - 1; i > 0; i--) {
+                  const j = Math.floor(Math.random() * (i + 1)); // Random index
+                  [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+                }
+              };
+
+              const questions = response.data;
+
+              // Shuffle the array of questions
+              shuffleArray(questions);
+
+              let formattedQuestions = questions.map((q) => ({
+                ...q,
+                answered: false,
+                visited: false,
+                selectedOption: null,
+                selectedOptions: null,
+                textAnswer: null,
+              }));
+              dispatch(setQuestions(formattedQuestions));
+            } catch (error) {
+              console.error("Error fetching questions:", error.response || error);
+            }
+          };
+
+          fetchQuestions();
+        } else if (response.data.includes(examId)) {
+          const responses = await axios.get(`${API_BASE_URL}/api/exams/responses/${examId}`, {
+            withCredentials: true,
+          });
+
+          // Format questions with selected options directly in map()
+          const formattedQuestions = responses.data.responses.map((q) => ({
+            ...q,
+            answered: q.selected_option !== null,
+            visited: q.selected_option !== null,
+            selectedOption: q.selected_option || null, // Directly use selected_option
+            selectedOptions: q.selected_options || null,
+            textAnswer: q.text_answer || null,
+          }));
+
+          // Dispatch once to update Redux state
+          dispatch(setQuestions(formattedQuestions));
         }
-
-        const formattedQuestions = shuffled.map((q) => ({
-          ...q,
-          answered: false,
-          visited: false,
-          selectedOption: null,
-          selectedOptions: null,
-          textAnswer: null,
-        }));
-
-        dispatch(setQuestions(formattedQuestions));
-      } else {
-        // ✅ Exam already has draft — fetch it
-        const responses = await axios.get(`${API_BASE_URL}/api/exams/responses/${examId}`, {
-          withCredentials: true,
-        });
-
-        const formattedQuestions = responses.data.responses.map((q) => ({
-          ...q,
-          answered: q.selected_option !== null || q.text_answer || (q.selected_options && q.selected_options.length > 0),
-          visited: true,
-          selectedOption: q.selected_option || null,
-          selectedOptions: q.selected_options || [],
-          textAnswer: q.text_answer || "",
-        }));
-
-        dispatch(setQuestions(formattedQuestions));
+      } catch (error) {
+        console.error("Error in initiating responses:", error.response || error);
       }
-    } catch (error) {
-      console.error("❌ Error in initiating responses:", error.response || error);
-    }
-  };
+    };
 
-  if (examId) {
-    checkAndInitializeResponses();
-  }
-}, [examId, dispatch, questions]);
+    if (examId) {
+      checkAndInitializeResponses();
+    }
+  }, [examId]); // Depend on `examId` so it only runs when `examId` changes
 
   const handleStartTest = () => {
     console.log(examId);

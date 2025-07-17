@@ -32,6 +32,7 @@ const uploadImage = async (req, res) => {
     res.status(500).json({ error: "Upload failed", details: err.message });
   }
 };
+
 const deleteImage = async (req, res) => {
   const { key } = req.params; // Pass image key like "images/filename.jpg"
 
@@ -51,6 +52,5 @@ const deleteImage = async (req, res) => {
     res.status(500).json({ error: "Delete failed", details: err.message });
   }
 };
-
 
 module.exports = { uploadImage, deleteImage };

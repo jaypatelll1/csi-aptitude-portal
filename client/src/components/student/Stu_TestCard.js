@@ -3,13 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 
-const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, status,isEligible }) => {
+const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, status }) => {
   const [submit, setSubmit] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const isEligibleToAttempt = isEligible;
-  // console.log("isEligibleToAttempt:", isEligibleToAttempt);
 
   // let  submit = useSelector((state) => state.exam.submittedExamIds );
 
@@ -146,7 +143,7 @@ const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, sta
 
       <button
         className={`font-semibold text-sm px-4 py-2 rounded-md shadow absolute bottom-3 right-3 
-    ${isEligibleToAttempt===false? "bg-gray-400 text-gray-700 cursor-not-allowed" : "bg-blue-700 text-white hover:bg-blue-800"}`}
+    ${status === "scheduled" || isDisabled === true ? "bg-gray-400 text-gray-700 cursor-not-allowed" : "bg-blue-700 text-white hover:bg-blue-800"}`}
         onClick={(e) => {
           handleChange(e);
         }}

@@ -237,68 +237,32 @@ const Adm_InputQuestions = () => {
   // const handleRemoveImage = () => {
   //   setImageUrl("");
   // };
- const handleRemoveImage = async () => {
-  if (!questionId) {
-    // If no questionId, just clear the image URL from UI
-    setImageUrl("");
-    return;
-  }
-
-  // Extract image key from the imageUrl
-  let imageKey = "";
-  if (imageUrl) {
-    try {
-      // Extract the image key from the URL
-      const urlParts = imageUrl.split('/');
-      let fullFileName = urlParts[urlParts.length - 1]; // Get the last part (filename)
-      
-      // Remove query parameters if present
-      fullFileName = fullFileName.split('?')[0];
-      
-      // Remove timestamp prefix (format: "1752240241319-filename.ext")
-      if (fullFileName.includes('-')) {
-        imageKey = fullFileName.split('-').slice(1).join('-'); // Remove first part before first dash
-      } else {
-        imageKey = fullFileName; // If no dash, use full filename
-      }
-    } catch (error) {
-      console.error("Error extracting image key from URL:", error);
-      alert("Unable to extract image key from URL.");
+  const handleRemoveImage = async () => {
+    if (!questionId) {
+      // alert("No question ID found");
+      setImageUrl("");
       return;
     }
-  }
 
-  if (!imageKey) {
-    alert("No image key found to delete.");
-    return;
-  }
+    try {
+      let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
 
-  try {
-    let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-    // Call backend to delete image with imageKey as URL parameter
-    const response = await axios.delete(
-      `${API_BASE_URL}/api/delete-image/${imageKey}`,
-      {
+      // Call backend to delete image
+      const response = await axios.delete(`${API_BASE_URL}/api/delete-image/${questionId}`, {
         withCredentials: true,
-      }
-    );
+      });
 
-    if (response.data.success) {
-      setImageUrl(""); // Clear image from UI
-      alert("Image deleted successfully.");
-    } else {
-      alert("Failed to delete image.");
-    }
-  } catch (error) {
-    console.error("Error deleting image:", error);
-    if (error.response?.data?.message) {
-      alert(`Error: ${error.response.data.message}`);
-    } else {
+      if (response.data.success) {
+        setImageUrl(""); // Clear image from UI
+      } else {
+        alert("Failed to delete image.");
+      }
+    } catch (error) {
+      console.error("Error deleting image:", error);
       alert("An error occurred while deleting the image.");
     }
-  }
-};
+  };
+
   
   const handleSubmit = async () => {
     if (

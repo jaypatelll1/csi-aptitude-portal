@@ -3,7 +3,7 @@ const fs = require("fs");
 const { Worker } = require("worker_threads");
 
 const uploadQuestionFile = async (req, res) => {
-    const timeoutDuration = 500000; // 500 seconds timeout
+    const timeoutDuration = 30000; // 30 seconds timeout
     let hasResponded = false;
 
     const filePath = path.resolve("uploads", req.file.filename);
@@ -14,7 +14,6 @@ const uploadQuestionFile = async (req, res) => {
     try {
         const worker = new Worker(path.join(__dirname, "..", "workers", "questionFileParser.js"), {
             workerData: { filePath, examId, fileExtension }
-            
         });
 
         const timeout = setTimeout(() => {

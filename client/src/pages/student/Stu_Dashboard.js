@@ -19,75 +19,27 @@ function Stu_Dashboard() {
   let examId = useSelector((state) => state.exam.examId);
 
   const [tests, setTests] = useState([]);
-  
-  // Get initial filter state from sessionStorage or default to "all"
-  const [filter, setFilter] = useState(() => {
-    const savedFilter = sessionStorage.getItem('dashboard_filter');
-    return savedFilter || "all";
-  });
-  
-  // Get initial sort state from sessionStorage or default to "ALL"
-  const [sort, setSort] = useState(() => {
-    const savedSort = sessionStorage.getItem('dashboard_sort');
-    return savedSort || "ALL";
-  });
-  
-  // Get initial date states from sessionStorage
-  const [startDate, setStartDate] = useState(() => {
-    const savedStartDate = sessionStorage.getItem('dashboard_startDate');
-    return savedStartDate ? new Date(savedStartDate) : null;
-  });
-  
-  const [endDate, setEndDate] = useState(() => {
-    const savedEndDate = sessionStorage.getItem('dashboard_endDate');
-    return savedEndDate ? new Date(savedEndDate) : new Date();
-  });
+  const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("ALL");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(new Date());
 
   // Enhanced date picker states
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [result, setResult] = useState([]);
-  const [analyticsData, setAnalyticsData] = useState([]);
+  const [analyticsData, setAnalyticsData] = useState([]); // New state for analytics data
   const detailsRef = useRef(null);
-  const calendarRef = useRef(null);
+  const calendarRef = useRef(null); // Separate ref for calendar
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // Combined loading states
   const [loading, setLoading] = useState(true);
-  const [testsLoading, setTestsLoading] = useState(true);
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
-  
+  const [analyticsLoading, setAnalyticsLoading] = useState(true); // Separate loading state for analytics
   const [error, setError] = useState(null);
-  const [analyticsError, setAnalyticsError] = useState(null);
+  const [analyticsError, setAnalyticsError] = useState(null); // Separate error state for analytics
   const sidebarRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // Effect to save filter state to sessionStorage whenever it changes
-  useEffect(() => {
-    sessionStorage.setItem('dashboard_filter', filter);
-  }, [filter]);
-
-  // Effect to save sort state to sessionStorage whenever it changes
-  useEffect(() => {
-    sessionStorage.setItem('dashboard_sort', sort);
-  }, [sort]);
-
-  // Effect to save date states to sessionStorage whenever they change
-  useEffect(() => {
-    if (startDate) {
-      sessionStorage.setItem('dashboard_startDate', startDate.toISOString());
-    } else {
-      sessionStorage.removeItem('dashboard_startDate');
-    }
-  }, [startDate]);
-
-  useEffect(() => {
-    if (endDate) {
-      sessionStorage.setItem('dashboard_endDate', endDate.toISOString());
-    }
-  }, [endDate]);
 
   // Helper function to format date to readable format
   const formatToReadableDate = (isoString) => {
@@ -98,9 +50,9 @@ function Stu_Dashboard() {
 
   // Function to format date to dd/MM/yyyy format
   const formatToDateString = (date) => {
-    if (!date) return "";
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
@@ -109,34 +61,32 @@ function Stu_Dashboard() {
   const filterByDateRange = (testsToFilter, start, end) => {
     if (!start || !end) return testsToFilter;
 
-    return testsToFilter.filter((test) => {
+    return testsToFilter.filter(test => {
       const testDate = new Date(test.Date);
       return testDate >= start && testDate <= end;
     });
   };
 
-  // Modified function to fetch analytics data
+  // New function to fetch analytics data
   const fetchAnalyticsData = async () => {
     setAnalyticsLoading(true);
     setAnalyticsError(null);
-
+    
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
         `${API_BASE_URL}/api/exams/results/testAnalysis/student/${userData.id}`,
         {
           withCredentials: true,
-        },
+        }
       );
-
-      setAnalyticsData(response.data.results);
+      
+      setAnalyticsData(response.data.results );
       console.log("Analytics Data:", response.data.results);
+      setAnalyticsLoading(false);
     } catch (error) {
       console.error("Error fetching analytics data:", error);
-      setAnalyticsError(
-        "Failed to fetch analytics data. Please try again later.",
-      );
-    } finally {
+      setAnalyticsError("Failed to fetch analytics data. Please try again later.");
       setAnalyticsLoading(false);
     }
   };
@@ -147,12 +97,9 @@ function Stu_Dashboard() {
       // Group by exam_id and keep only the latest attempt
       const uniqueTestsMap = new Map();
 
-      result.forEach((test) => {
+      result.forEach(test => {
         const existingTest = uniqueTestsMap.get(test.exam_id);
-        if (
-          !existingTest ||
-          new Date(test.Date) > new Date(existingTest.Date)
-        ) {
+        if (!existingTest || new Date(test.Date) > new Date(existingTest.Date)) {
           uniqueTestsMap.set(test.exam_id, test);
         }
       });
@@ -161,7 +108,7 @@ function Stu_Dashboard() {
 
       // Apply date filtering
       if (startDate) {
-        uniqueTests = uniqueTests.filter((test) => {
+        uniqueTests = uniqueTests.filter(test => {
           const testDate = new Date(test.Date);
           const filterDate = new Date(startDate);
           // Set time to start of day for proper comparison
@@ -176,32 +123,25 @@ function Stu_Dashboard() {
       if (sort === "ALL") {
         sortedTests = uniqueTests;
       } else if (sort === "ATTEMPTED") {
-        sortedTests = uniqueTests.filter(
-          (test) =>
-            test.isAttempted === true ||
-            test.status === "finished" ||
-            test.status === "completed" ||
-            test.status === "submitted",
+        sortedTests = uniqueTests.filter(test =>
+          test.isAttempted === true ||
+          test.status === "finished" ||
+          test.status === "completed" ||
+          test.status === "submitted"
         );
       } else if (sort === "NOT ATTEMPTED") {
-        sortedTests = uniqueTests.filter(
-          (test) =>
-            test.isAttempted === false ||
-            test.status === "not_attempted" ||
-            test.status === "pending" ||
-            (!test.isAttempted &&
-              test.status !== "finished" &&
-              test.status !== "completed" &&
-              test.status !== "submitted"),
+        sortedTests = uniqueTests.filter(test =>
+          test.isAttempted === false ||
+          test.status === "not_attempted" ||
+          test.status === "pending" ||
+          (!test.isAttempted && test.status !== "finished" && test.status !== "completed" && test.status !== "submitted")
         );
       }
 
       // Sort by date (older to newer) only when date filter is applied
       let finalSortedTests = sortedTests;
       if (startDate) {
-        finalSortedTests = [...sortedTests].sort(
-          (a, b) => new Date(a.Date) - new Date(b.Date),
-        );
+        finalSortedTests = [...sortedTests].sort((a, b) => new Date(a.Date) - new Date(b.Date));
       }
 
       setTests(finalSortedTests);
@@ -212,7 +152,7 @@ function Stu_Dashboard() {
   const [filteredAnalytics, setFilteredAnalytics] = useState([]);
 
   const fetchTests = async (filterType) => {
-    setTestsLoading(true);
+    setLoading(true);
 
     let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     let payload;
@@ -235,9 +175,9 @@ function Stu_Dashboard() {
         });
         dispatch(setExam(response.data.exams));
         setTests(response.data.exams || []);
-        // console.log("Tests fetched successfully:", response.data.exams);
+
       } catch (error) {
-        console.error("error getting response ", error);
+        console.error("error getting response ", err);
         setError(`Failed to fetch tests. Please try again later.`);
       }
     } else if (filterType === "past") {
@@ -252,12 +192,13 @@ function Stu_Dashboard() {
           `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
           {
             withCredentials: true,
-          },
+          }
         );
         dispatch(setExam(response.data.results));
         setResult(response.data.results || []);
+
       } catch (error) {
-        console.error("error getting response ", error);
+        console.error("error getting response ", err);
         setError(`Failed to fetch tests. Please try again later.`);
       }
     }
@@ -268,22 +209,21 @@ function Stu_Dashboard() {
         `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
         {
           withCredentials: true,
-        },
+        }
+      );
+
+      const responseExamId = await axios.get(
+        `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+        { withCredentials: true }
       );
 
       setResult(pastPaper.data.results);
+      setLoading(false);
     } catch (err) {
       console.error("error getting response ", err);
       setError(`Failed to fetch tests. Please try again later.`);
-    } finally {
-      setTestsLoading(false);
     }
   };
-
-  // Combined loading effect - wait for both tests and analytics to complete
-  useEffect(() => {
-    setLoading(testsLoading || analyticsLoading);
-  }, [testsLoading, analyticsLoading]);
 
   // Fixed click outside handler with separate handling for sidebar, details, and calendar
   useEffect(() => {
@@ -307,7 +247,7 @@ function Stu_Dashboard() {
       if (detailsRef.current && !detailsRef.current.contains(event.target)) {
         closeDetails();
       }
-
+      
       // Handle Calendar component separately
       if (calendarRef.current && !calendarRef.current.contains(event.target)) {
         setIsCalendarOpen(false);
@@ -341,6 +281,7 @@ function Stu_Dashboard() {
       });
       dispatch(clearUser());
       dispatch(clearExamId(examId));
+      dispatch(clearQuestions());
 
       navigate("/", { replace: true });
     } catch (error) {
@@ -356,11 +297,9 @@ function Stu_Dashboard() {
   }, []);
 
   const handleFilterChange = (e) => {
-    const newFilter = e.target.value;
-    setFilter(newFilter);
-    
+    setFilter(e.target.value);
     // Reset date filters when switching between live and past
-    if (newFilter === "all") {
+    if (e.target.value === "all") {
       setStartDate(null);
       setEndDate(new Date());
     }
@@ -374,8 +313,7 @@ function Stu_Dashboard() {
     if (!name) return "";
     const nameParts = name.trim().split(" ");
     const firstInitial = nameParts[0]?.charAt(0) || "";
-    const lastInitial =
-      nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "";
+    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "";
     return (firstInitial + lastInitial).toUpperCase();
   };
 
@@ -398,80 +336,6 @@ function Stu_Dashboard() {
     e.stopPropagation();
     setIsCalendarOpen(!isCalendarOpen);
   };
-
-  // Function to clear all saved filter states (optional - you can call this when user logs out)
-  const clearFilterStates = () => {
-    sessionStorage.removeItem('dashboard_filter');
-    sessionStorage.removeItem('dashboard_sort');
-    sessionStorage.removeItem('dashboard_startDate');
-    sessionStorage.removeItem('dashboard_endDate');
-  };
-
-  // Show loader until both tests and analytics are loaded
-  if (loading) {
-    return (
-      <div className={`flex h-screen`}>
-        {/* Sidebar */}
-        <div
-          ref={sidebarRef}
-          className={`fixed top-0 left-0 h-full bg-gray-50 text-white z-50 transform ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-          } transition-transform duration-300 w-64 xl:block`}
-        >
-          <Stu_Sidebar />
-        </div>
-
-        {/* Main Section with Loader */}
-        <div
-          id="main-section"
-          className={`bg-white h-max w-full overflow-hidden transition-all duration-300 xl:ml-64`}
-        >
-          {/* Top Bar */}
-          <div className="bg-gray-100 h-14 border-b border-gray-200 flex items-center">
-            {/* Burger Icon Button */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="xl:hidden text-gray-800 focus:outline-none"
-            >
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d={
-                    sidebarOpen
-                      ? "M6 18L18 6M6 6l12 12" // Cross icon for "close"
-                      : "M4 6h16M4 12h16M4 18h16" // Burger icon for "open"
-                  }
-                />
-              </svg>
-            </button>
-            <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
-              Dashboard
-            </h1>
-            <div
-              className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
-              onClick={openDetails}
-            >
-              {getInitials(userData.name)}
-            </div>
-            <div ref={detailsRef}>{isDetailsOpen && <Details />}</div>
-          </div>
-
-          {/* Loader centered in the main content area */}
-          <div className="flex justify-center items-center h-96">
-            <Loader />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={`flex h-screen`}>
@@ -516,9 +380,7 @@ function Stu_Dashboard() {
               />
             </svg>
           </button>
-          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">
-            Dashboard
-          </h1>
+          <h1 className="text-xl font-medium text-gray-800 ml-5 sm:ml-60 xl:ml-5">Dashboard</h1>
           <div
             className="h-9 w-9 rounded-full bg-blue-300 ml-auto mr-5 flex items-center justify-center text-blue-700 text-sm hover:cursor-pointer"
             onClick={openDetails}
@@ -565,13 +427,11 @@ function Stu_Dashboard() {
                       onClick={handleCalendarToggle}
                       className="bg-white border border-gray-300 rounded-2xl px-3 py-1 text-sm focus:outline-none hover:bg-gray-50 cursor-pointer"
                     >
-                      {startDate
-                        ? formatToDateString(startDate)
-                        : "Select Date"}
+                      {startDate ? formatToDateString(startDate) : 'Select Date'}
                     </button>
 
                     {isCalendarOpen && (
-                      <div
+                      <div 
                         ref={calendarRef}
                         className="absolute z-50 bg-white border border-gray-300 rounded shadow-lg p-3 mt-8 top-full right-0"
                         onClick={(e) => e.stopPropagation()}
@@ -587,7 +447,7 @@ function Stu_Dashboard() {
                         />
                       </div>
                     )}
-
+                    
                     <button
                       onClick={handleDateReset}
                       className="bg-red-500 rounded-3xl text-white px-3 py-1 text-sm hover:bg-red-600 transition-colors"
@@ -609,7 +469,11 @@ function Stu_Dashboard() {
 
           {/* Test Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 mt-5">
-            {error ? (
+            {loading ? (
+              <div className="absolute inset-0 flex justify-center items-center col-span-full">
+                <Loader />
+              </div>
+            ) : error ? (
               <p className="col-span-full text-center">{error}</p>
             ) : tests.length > 0 ? (
               filter === "all" ? (
@@ -621,7 +485,6 @@ function Stu_Dashboard() {
                     duration={test.duration}
                     status={test.status}
                     questionCount={test.total_questions}
-                    isEligible={test.iseligibletoattempt}
                     lastDate={formatToReadableDate(test.created_at)}
                   />
                 ))
@@ -645,7 +508,8 @@ function Stu_Dashboard() {
               <p className="col-span-full text-center text-gray-500">
                 {filter === "past" && startDate
                   ? "No exams found in the selected date range."
-                  : "No exams available."}
+                  : "No exams available."
+                }
               </p>
             )}
           </div>
@@ -653,11 +517,12 @@ function Stu_Dashboard() {
           {/* Analytics Section */}
           <div className="mt-5 mb-8">
             <h1 className="font-semibold text-black text-lg">Analytics</h1>
-            <div
-              className="flex overflow-x-auto space-x-4 mt-3"
-              style={{ scrollbarWidth: "none" }}
-            >
-              {analyticsError ? (
+            <div className="flex overflow-x-auto space-x-4 mt-3" style={{ scrollbarWidth: "none" }}>
+              {analyticsLoading ? (
+                <div className="flex justify-center items-center w-full">
+                  <Loader />
+                </div>
+              ) : analyticsError ? (
                 <p className="text-center text-red-500">{analyticsError}</p>
               ) : analyticsData.length > 0 ? (
                 analyticsData.map((test, index) => (
@@ -673,9 +538,7 @@ function Stu_Dashboard() {
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">
-                  No analytics data available.
-                </p>
+                <p className="text-center text-gray-500">No analytics data available.</p>
               )}
             </div>
           </div>

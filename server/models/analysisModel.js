@@ -1,81 +1,5 @@
 const { query } = require('../config/db');
 
-
-const getDepartmentAnalysis = async (department_name, year) => {
-  let baseQuery = `SELECT * FROM department_analysis`;
-  const values = [];
-  const conditions = [];
-
-  if (department_name) {
-    conditions.push(`department_name = $${values.length + 1}`);
-    values.push(department_name);
-  }
-
-  if (year) {
-    conditions.push(`year = $${values.length + 1}`);
-    values.push(year);
-  }
-
-  if (conditions.length > 0) {
-    baseQuery += ` WHERE ` + conditions.join(' AND ');
-  }
-
-  baseQuery += ` ORDER BY department_rank ASC`;
-
-  const result = await query(baseQuery, values);
-  return result.rows;
-};
-
-const deptTopScorers = async (department) => {
-  try {
-    const result = await query(`
-      SELECT * 
-      FROM rank 
-      WHERE department_name = $1
-      ORDER BY overall_rank ASC 
-      LIMIT 5;
-    `, [department]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in topScorers:', error);
-    throw error;
-  }
-};
-
-const deptWeakScorers = async (department) => {
-  try {
-    const result = await query(`
-      SELECT * FROM (
-        SELECT * 
-        FROM rank 
-        WHERE department_name = $1
-        ORDER BY department_rank DESC 
-        LIMIT 5
-        ) AS subquery
-        ORDER BY department_rank ASC;
-        `, [department]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in weakScorers:', error);
-    throw error;
-  }
-};
-
-
-
-const getUserAnalysisById = async (student_id) => {
-  const queryText = `
-        SELECT * FROM user_analysis
-        WHERE student_id = $1
-      `;
-
-  const result = await query(queryText, [student_id]);
-  return result.rows[0]; // return single object
-};
-
-
-
-
 const getOverallResultsOfAStudent = async (student_id) => {
   try {
     const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 ORDER BY created_at DESC;`;
@@ -193,7 +117,6 @@ async function checkStudentAnalysis(exam_id, student_id) {
   }
 }
 
-
 async function insertStudentAnalysis(data) {
   try {
     const sql = `
@@ -255,7 +178,7 @@ const avgResults = async (student_id) => {
 async function getStudentRank(student_id) {
   try {
     const result = await query(
-      `SELECT * FROM rank WHERE student_id=$1;`,
+      `SELECT * FROM student_rank WHERE student_id=$1;`,
       [student_id]
     );
     if (!result.rows === 0) {
@@ -267,205 +190,6 @@ async function getStudentRank(student_id) {
     throw error;
   }
 }
-
-
-async function user_analysis(year) {
-  try {
-    const queryText = `
-      SELECT 
-        r.student_id,
-        r.student_name,
-        r.department_name,
-        r.year,
-        r.overall_rank,
-        r.department_rank,
-        ua.total_score,
-        ua.max_score,
-        ua.accuracy_rate,
-        ua.completion_rate,
-        ua.category,
-        ua.performance_over_time,
-        ua.updated_at
-      FROM rank AS r
-      JOIN user_analysis AS ua ON r.student_id = ua.student_id
-      WHERE r.year = $1;
-    `;
-
-    const result = await query(queryText, [year]);
-    return result.rows;
-  } catch (error) {
-    console.error('❌ Error fetching user analysis:', error);
-    throw error;
-  }
-}
-
-
-async function dept_user_analysis(department) {
-  try {
-    const queryText = `
-      SELECT 
-        r.student_id,
-        ua.student_name,
-        r.department_name,
-        r.year,
-        r.overall_rank,
-        r.department_rank,
-        ua.total_score,
-        ua.max_score,
-        ua.accuracy_rate,
-        ua.completion_rate,
-        ua.category,
-        ua.performance_over_time,
-        ua.updated_at
-      FROM rank AS r
-      JOIN user_analysis AS ua ON r.student_id = ua.student_id
-      WHERE r.department_name = $1;
-    `;
-
-    const result = await query(queryText, [department]);
-    return result.rows;
-  } catch (error) {
-    console.error('❌ Error fetching user analysis:', error);
-    throw error;
-  }
-}
-
-
-
-
-const topScorers = async (year) => {
-  try {
-    const result = await query(`
-      SELECT * 
-      FROM rank 
-      WHERE year = $1
-      ORDER BY overall_rank ASC 
-      LIMIT 5;
-    `, [year]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in topScorers:', error);
-    throw error;
-  }
-};
-
-const weakScorers = async (year) => {
-  try {
-    const result = await query(`
-      SELECT * FROM (
-        SELECT * 
-        FROM rank 
-        WHERE year = $1
-        ORDER BY overall_rank DESC 
-        LIMIT 5
-      ) AS subquery
-      ORDER BY overall_rank ASC;
-    `, [year]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in weakScorers:', error);
-    throw error;
-  }
-};
-
-
-const getDeptAvgScores = async (year) => {
-  try {
-    const result = await query(
-      `
-      SELECT 
-        department_name,
-        ROUND(
-          CASE 
-            WHEN student_count = 0 THEN 0
-            ELSE (total_score / student_count)::numeric
-          END, 2
-        ) AS avg_score
-      FROM 
-        department_analysis
-      WHERE 
-        year = $1
-      ORDER BY 
-        avg_score DESC;
-      `,
-      [year] // <-- parameterized input
-    );
-    return result.rows;
-  } catch (error) {
-    console.log('Error fetching department average scores:', error);
-    throw error;
-  }
-};
-
-const getAllDepartmentsPerformanceOverTime = async () => {
-  try {
-    const result = await query(`
-      SELECT department_name, performance_over_time 
-      FROM department_analysis
-      ORDER BY department_rank ASC;
-    `);
-    return result.rows; // Array of { department_name, performance_over_time }
-  } catch (error) {
-    console.error('Error fetching performance over time:', error);
-    throw error;
-  }
-};
-const overallAccuracyRate = async (year) => {
-  try {
-    const sql = `
-      SELECT ROUND(AVG(accuracy_rate)::numeric, 4) AS overall_accuracy_rate
-      FROM department_analysis
-      WHERE year = $1;
-    `;
-    const result = await query(sql, [year]);
-    return result.rows[0]?.overall_accuracy_rate || 0.0;
-  } catch (error) {
-    console.error('❌ Error fetching overall accuracy rate:', error.message);
-    throw error;
-  }
-};
-
-
-async function getSingleUserAnalysis(student_id, department_name, year) {
-  try {
-    const sql = `
-      SELECT 
-        r.student_id,
-        r.department_name,
-        r.year,
-        r.overall_rank,
-        r.department_rank,
-        ua.total_score,
-        ua.max_score,
-        ua.accuracy_rate,
-        ua.completion_rate,
-        ua.category,
-        ua.performance_over_time,
-        ua.updated_at
-      FROM rank AS r
-      JOIN user_analysis AS ua 
-        ON r.student_id = ua.student_id 
-        AND r.department_name = ua.department_name 
-        AND r.year = ua.year
-      WHERE r.student_id = $1 AND r.department_name = $2 AND r.year = $3;
-    `;
-
-    const result = await query(sql, [student_id, department_name, year]);
-
-    if (result.rows.length === 0) {
-      return null; // or []
-    }
-
-    return result.rows[0];
-  } catch (error) {
-    console.error('❌ Error in getStudentCombinedAnalysis:', error.message);
-    throw error;
-  }
-}
-
-
-
-
 
 async function getPerformanceOverTime(student_id) {
   try {
@@ -503,16 +227,4 @@ module.exports = {
   avgResults,
   getStudentRank,
   getPerformanceOverTime,
-  getDepartmentAnalysis, //---------------
-  deptTopScorers,
-  deptWeakScorers,
-  getUserAnalysisById, //---------------
-  user_analysis,
-  dept_user_analysis,
-  getSingleUserAnalysis,
-  topScorers,
-  weakScorers,
-  getDeptAvgScores,
-  getAllDepartmentsPerformanceOverTime,
-  overallAccuracyRate,
 };
