@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Analysis API</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --secondary: #334155;
+            --accent: #06b6d4;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #22c55e;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(6, 182, 212, 0.1) 10px,
+                rgba(6, 182, 212, 0.1) 20px
+            );
+            animation: slide 10s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(-20px); }
+            100% { transform: translateX(20px); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--accent), #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            gap: 0.5rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            padding: 3rem 0;
+        }
+
+        .section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 200px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent), #0ea5e9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .result-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            border-color: var(--accent);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .ip-address {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .risk-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .risk-low { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .risk-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .risk-high { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .risk-critical { background: rgba(239, 68, 68, 0.3); color: var(--danger); }
+
+        .confidence-bar {
+            background: var(--border);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--success));
+            transition: width 0.6s ease;
+        }
+
+        .reasons {
+            margin-top: 1rem;
+        }
+
+        .reasons ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .reasons li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reasons li:last-child {
+            border-bottom: none;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .info-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .sample-log {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+        }
+
+        .endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .endpoint {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .method-get { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .method-post { background: rgba(6, 182, 212, 0.2); color: var(--accent); }
+
+        .footer {
+            background: var(--primary);
+            border-top: 1px solid var(--border);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1>🛡️ Log Analysis API</h1>
+                <p>AI-powered web log analysis for threat detection and IP behavior assessment</p>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span id="status-text">System Operational</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="section">
+                <h2>🔍 Log Analysis</h2>
+                <div class="form-group">
+                    <label for="logContent">Paste your web server logs here:</label>
+                    <textarea 
+                        id="logContent" 
+                        class="form-control" 
+                        placeholder="192.168.1.100 - - [01/Jan/2024:12:00:00 +0000] &quot;GET /index.php?id=1' OR '1'='1 HTTP/1.1&quot; 200 1234 &quot;-&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36&quot;"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="analyzeLogs()">
+                    <span id="analyze-icon">🔍</span>
+                    <span id="analyze-text">Analyze Logs</span>
+                </button>
+                <button class="btn btn-secondary" onclick="loadSampleLogs()">
+                    📄 Load Sample Logs
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing logs with AI...</p>
+            </div>
+
+            <div class="results" id="results">
+                <div class="section">
+                    <h2>📊 Analysis Results</h2>
+                    <div id="results-content"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 API Documentation</h2>
+                <div class="endpoints">
+                    <div class="endpoint">
+                        <div class="endpoint-method method-post">POST</div>
+                        <h3>/analyze</h3>
+                        <p>Analyze web server logs for suspicious IP behavior</p>
+                        <div class="sample-log">{"log_content": "your log data here"}</div>
+                    </div>
+                    <div class="endpoint">
+                        <div class="endpoint-method method-get">GET</div>
+                        <h3>/status</h3>
+                        <p>Check system status and LLM availability</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🎯 Detection Capabilities</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>🔐 SQL Injection</h4>
+                        <p>Detects UNION SELECT, DROP TABLE, and other SQL injection patterns</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>⚠️ XSS Attacks</h4>
+                        <p>Identifies script tags, JavaScript protocols, and event handlers</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>📁 Path Traversal</h4>
+                        <p>Catches directory traversal attempts and sensitive file access</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🕵️ Admin Probing</h4>
+                        <p>Monitors access to admin panels and sensitive endpoints</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🔍 Scanner Detection</h4>
+                        <p>Identifies automated scanning tools and reconnaissance</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>⚡ Rate Limiting</h4>
+                        <p>Analyzes request rates and identifies potential DoS attacks</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📄 Sample Log Format</h2>
+                <p>The system supports standard Apache/Nginx log formats:</p>
+                <div class="sample-log">192.168.1.100 - - [01/Jan/2024:12:00:00 +0000] "GET /admin/login.php HTTP/1.1" 200 1234 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+192.168.1.100 - - [01/Jan/2024:12:00:01 +0000] "POST /search.php?q='; DROP TABLE users; -- HTTP/1.1" 500 0 "-" "sqlmap/1.6.7"</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2024 Log Analysis API. Powered by AI for enhanced security.</p>
+        </div>
+    </div>
+
+    <script>
+        // Check system status on load
+        window.addEventListener('load', checkStatus);
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                const statusText = document.getElementById('status-text');
+                const statusBadge = document.querySelector('.status-badge');
+                
+                if (data.llm_available) {
+                    statusText.textContent = 'System Operational';
+                    statusBadge.className = 'status-badge';
+                    statusBadge.style.background = 'rgba(34, 197, 94, 0.1)';
+                    statusBadge.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    statusBadge.style.color = 'var(--success)';
+                } else {
+                    statusText.textContent = 'LLM Unavailable';
+                    statusBadge.style.background = 'rgba(245, 158, 11, 0.1)';
+                    statusBadge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                    statusBadge.style.color = 'var(--warning)';
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+            }
+        }
+
+        function loadSampleLogs() {
+            const sampleLogs = `192.168.1.100 - - [01/Jan/2024:12:00:00 +0000] "GET /admin/login.php HTTP/1.1" 200 1234 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+192.168.1.100 - - [01/Jan/2024:12:00:01 +0000] "POST /search.php?q='; DROP TABLE users; -- HTTP/1.1" 500 0 "-" "sqlmap/1.6.7"
+192.168.1.100 - - [01/Jan/2024:12:00:02 +0000] "GET /index.php?id=1 UNION SELECT user,pass FROM users HTTP/1.1" 200 2345 "-" "Mozilla/5.0"
+10.0.0.1 - - [01/Jan/2024:12:00:03 +0000] "GET /index.html HTTP/1.1" 200 1024 "-" "Mozilla/5.0 (compatible; Googlebot/2.1)"
+203.0.113.5 - - [01/Jan/2024:12:00:04 +0000] "GET /wp-admin/ HTTP/1.1" 404 512 "-" "Nikto/2.1.6"
+203.0.113.5 - - [01/Jan/2024:12:00:05 +0000] "GET /phpmyadmin/ HTTP/1.1" 404 512 "-" "Nikto/2.1.6"
+203.0.113.5 - - [01/Jan/2024:12:00:06 +0000] "GET /admin/ HTTP/1.1" 404 512 "-" "Nikto/2.1.6"`;
+            
+            document.getElementById('logContent').value = sampleLogs;
+        }
+
+        async function analyzeLogs() {
+            const logContent = document.getElementById('logContent').value.trim();
+            
+            if (!logContent) {
+                alert('Please enter some log content to analyze');
+                return;
+            }
+
+            // Update UI
+            const analyzeBtn = document.querySelector('.btn-primary');
+            const analyzeIcon = document.getElementById('analyze-icon');
+            const analyzeText = document.getElementById('analyze-text');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            analyzeBtn.disabled = true;
+            analyzeIcon.textContent = '⏳';
+            analyzeText.textContent = 'Analyzing...';
+            loading.style.display = 'block';
+            results.style.display = 'none';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ log_content: logContent })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error('Analysis error:', error);
+            } finally {
+                // Reset UI
+                analyzeBtn.disabled = false;
+                analyzeIcon.textContent = '🔍';
+                analyzeText.textContent = 'Analyze Logs';
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            const resultsContent = document.getElementById('results-content');
+            const results = document.getElementById('results');
+            
+            let html = `
+                <div class="result-header">
+                    <h3>Analysis Complete</h3>
+                    <div class="status-badge">
+                        📊 ${data.total_ips} IPs analyzed
+                    </div>
+                </div>
+            `;
+
+            data.results.forEach(result => {
+                const riskClass = `risk-${result.risk_level || 'medium'}`;
+                const confidencePercent = Math.round((result.confidence || 0) * 100);
+                
+                html += `
+                    <div class="result-item">
+                        <div class="result-header">
+                            <div class="ip-address">${result.ip}</div>
+                            <div class="risk-badge ${riskClass}">${result.risk_level || 'medium'}</div>
+                        </div>
+                        
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${confidencePercent}%"></div>
+                        </div>
+                        <p>Confidence: ${confidencePercent}%</p>
+                        
+                        <div class="reasons">
+                            <h4>Analysis Results:</h4>
+                            <ul>
+                                ${result.reasons ? result.reasons.map(reason => `<li>• ${reason}</li>`).join('') : '<li>• No specific threats detected</li>'}
+                            </ul>
+                        </div>
+                        
+                        ${result.should_block ? 
+                            '<div style="color: var(--danger); font-weight: bold; margin-top: 1rem;">⚠️ RECOMMENDED: Block this IP</div>' : 
+                            '<div style="color: var(--success); margin-top: 1rem;">✅ No immediate action required</div>'
+                        }
+                        
+                        ${result.error ? `<div style="color: var(--warning); margin-top: 1rem;">⚠️ Error: ${result.error}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            resultsContent.innerHTML = html;
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

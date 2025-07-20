@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Security Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Security Dashboard</h1>
+        <div class="row">
+            <div class="col-md-8">
+                <h3>Recent Threats</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>IP Address</th>
+                            <th>Risk Level</th>
+                            <th>Time</th>
+                            <th>Reasons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for threat in threats %}
+                        <tr class="{{ 'table-danger' if threat[1] == 'critical' else 'table-warning' }}">
+                            <td><a href="/ip/{{ threat[0] }}">{{ threat[0] }}</a></td>
+                            <td>{{ threat[1] }}</td>
+                            <td>{{ threat[2] }}</td>
+                            <td>{{ threat[3] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <h3>Metrics</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <p>Total IPs Analyzed: {{ metrics[0] }}</p>
+                        <p>Blocked IPs: {{ metrics[1] }}</p>
+                        <p>Avg Confidence: {{ metrics[2]|round(2) }}</p>
+                        <p>Avg Processing Time: {{ metrics[3]|round(2) }}s</p>
+                    </div>
+                </div>
+                <h3 class="mt-4">Threat Distribution</h3>
+                <ul class="list-group">
+                    {% for level, count in threat_dist.items() %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ level|capitalize }}
+                        <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
