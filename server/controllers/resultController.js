@@ -215,11 +215,11 @@ const getPaginatedResultsByExam = async (req, res) => {
 };
 
 const getResultsByUsers = async (req, res) => {
-  const { user_id } = req.params;
+  const { user_id, year, department } = req.params;
 
   const id = req.user.id;
   try {
-    const results = await resultModel.getResultsByUsers(user_id);
+    const results = await resultModel.getResultsByUsers(user_id, department, year);
     if (!results) {
       await logActivity({
         user_id: id,
@@ -246,11 +246,11 @@ const getResultsByUsers = async (req, res) => {
 }
 
 const getTestAnalysisByUsers = async (req, res) => {
-  const { user_id } = req.params;
+  const { user_id, year, department } = req.params;
   const id = req.user.id;
 
   try {
-    const results = await resultModel.getResultsByUsers(user_id);
+    const results = await resultModel.getResultsByUsers(user_id, department, year);
 
     // Filter only attempted tests
     const attemptedResults = results.filter(r => r.isAttempted);

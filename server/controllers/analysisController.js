@@ -175,7 +175,7 @@ const overallAnalysis = async (req, res) => {
       analysisModel.getDeptAvgScores(year),
       analysisModel.topScorers(year),
       analysisModel.weakScorers(year),
-      analysisModel.getAllDepartmentsPerformanceOverTime(),
+      analysisModel.getAllDepartmentsPerformanceOverTime(year),
       analysisModel.overallAccuracyRate(year)
     ]);
 
