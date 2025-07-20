@@ -110,14 +110,14 @@ async function deleteResult(exam_id) {
 // Pagination
 // Get all results for a specific exam with pagination
 const getPaginatedResultsByExam = async (exam_id, page, limit) => {
-  const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
-  const paginatedqueryText = paginate(queryText, page, limit);
+    const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
+    const paginatedqueryText = paginate(queryText, page, limit);
   const result = await query(paginatedqueryText);
   return result.rows;
   // console.log('rresult is ',result.rows);
 };
 
-const getResultsByUsers = async (user_id) => {
+const getResultsByUsers = async (user_id, department, year) => {
   const queryText = `
     SELECT 
         e.exam_name,
@@ -129,24 +129,25 @@ const getResultsByUsers = async (user_id) => {
         r.student_id,
         e.status,
         r.result_id,
-        COUNT(q.question_id) AS total_questions,
-        CASE
-          WHEN r.exam_id IS NOT NULL THEN true
-          ELSE false
-        END AS "isAttempted"
+        q_counts.total_questions,
+        (r.exam_id IS NOT NULL) AS "isAttempted"
     FROM exams e
     LEFT JOIN results r 
       ON r.exam_id = e.exam_id AND r.student_id = $1
-    LEFT JOIN questions q 
-      ON q.exam_id = e.exam_id
-    WHERE e.status = 'past'
-    GROUP BY 
-        e.exam_name, e.exam_id, e.duration, e.end_time,
-        r.total_score, r.max_score, r.student_id, e.status, r.result_id, r.exam_id
+    LEFT JOIN (
+        SELECT exam_id, COUNT(*) AS total_questions
+        FROM questions
+        GROUP BY exam_id
+    ) q_counts
+      ON q_counts.exam_id = e.exam_id
+    WHERE 
+      e.status = 'past'
+      AND $2 = ANY(e.target_branches)
+      AND $3 = ANY(e.target_years)
     ORDER BY e.end_time DESC;
   `;
 
-  const result = await query(queryText, [user_id]);
+  const result = await query(queryText, [user_id, department, year]);
 
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
@@ -164,7 +165,7 @@ const getResultsByUsers = async (user_id) => {
       max_score: row.max_score,
       duration: row.duration,
       Date: formatToReadableDate(row.end_time),
-      percentage: Number(percentage),
+      percentage: Number(percentage.toFixed(2)),
       status: status,
       isAttempted: row.isAttempted,
       exam_id: row.exam_id,
@@ -174,6 +175,8 @@ const getResultsByUsers = async (user_id) => {
 
   return resultsWithStatus;
 };
+
+
 
 
 // question_ext, options, question_id

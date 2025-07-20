@@ -123,7 +123,7 @@ function Stu_Dashboard() {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const response = await axios.get(
-        `${API_BASE_URL}/api/exams/results/testAnalysis/student/${userData.id}`,
+        `${API_BASE_URL}/api/exams/results/testAnalysis/student/${userData.id}/${userData.year}/${userData.department}`,
         {
           withCredentials: true,
         },
@@ -249,7 +249,7 @@ function Stu_Dashboard() {
       try {
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(
-          `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
+          `${API_BASE_URL}/api/exams/results/student/${userData.id}/${userData.year}/${userData.department}`,
           {
             withCredentials: true,
           },
@@ -265,7 +265,7 @@ function Stu_Dashboard() {
     try {
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
       const pastPaper = await axios.get(
-        `${API_BASE_URL}/api/exams/results/student/${userData.id}`,
+        `${API_BASE_URL}/api/exams/results/student/${userData.id}/${userData.year}/${userData.department}`,
         {
           withCredentials: true,
         },
