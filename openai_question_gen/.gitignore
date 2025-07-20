@@ -3,3 +3,5 @@ venv
 mcq_generator.log
 __pycache__
 .vercel
+
+temp.py

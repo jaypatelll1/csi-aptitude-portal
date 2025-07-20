@@ -1,0 +1,1019 @@
+{
+  "analytics": {
+    "average_time_per_question": 29.6,
+    "bloom_taxonomy_distribution": {
+      "analyze": 6,
+      "apply": 20,
+      "understand": 24
+    },
+    "difficulty_score": 0.5,
+    "quality_indicators": {
+      "has_bloom_levels": true,
+      "has_explanations": true,
+      "has_tags": true
+    },
+    "total_estimated_time_minutes": 24.7
+  },
+  "cached": false,
+  "metadata": {
+    "batch_count": 2,
+    "bloom_taxonomy_levels": [
+      "remember",
+      "understand",
+      "apply",
+      "analyze",
+      "evaluate",
+      "create"
+    ],
+    "difficulty": "medium",
+    "generation_time": "2025-07-11T08:58:52.307492",
+    "model_used": "Groq Llama3-70B (fallback)",
+    "question_types_included": [
+      "general_knowledge",
+      "quantitative_aptitude",
+      "verbal_ability",
+      "technical",
+      "logical_reasoning"
+    ],
+    "topic": "Python Programming",
+    "total_questions": 25,
+    "unique_questions": 50
+  },
+  "num_questions": 50,
+  "questions": [
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'self' parameter is used to refer to the current instance of the class and is passed implicitly when a method is called.",
+      "id": 1,
+      "options": {
+        "A": "To refer to the current instance of the class",
+        "B": "To refer to the parent class",
+        "C": "To refer to a global variable",
+        "D": "To refer to a local variable"
+      },
+      "question": "What is the purpose of the 'self' parameter in a Python class?",
+      "question_type": "technical",
+      "tags": [
+        "classes",
+        "self"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 20,
+      "explanation": "In Python, strings can be indexed like lists. The index 0 refers to the first character of the string, which is 'H'.",
+      "id": 2,
+      "options": {
+        "A": "Hello, World!",
+        "B": "H",
+        "C": "Hello",
+        "D": "World!"
+      },
+      "question": "What is the output of the following code: print('Hello, World!'[0])?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "strings",
+        "indexing"
+      ]
+    },
+    {
+      "bloom_level": "analyze",
+      "correct_answer": "B",
+      "estimated_time_seconds": 40,
+      "explanation": "In Python, 'is' checks for identity (i.e., whether two objects are the same), while '==' checks for equality (i.e., whether two objects have the same value).",
+      "id": 3,
+      "options": {
+        "A": "'is' checks for equality, '==' checks for identity",
+        "B": "'is' checks for identity, '==' checks for equality",
+        "C": "'is' is used for strings, '==' is used for numbers",
+        "D": "'is' is used for numbers, '==' is used for strings"
+      },
+      "question": "What is the difference between the 'is' and '==' operators in Python?",
+      "question_type": "technical",
+      "tags": [
+        "operators",
+        "identity",
+        "equality"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'try-except' block is used to handle runtime errors, which occur during the execution of the program.",
+      "id": 4,
+      "options": {
+        "A": "To handle runtime errors",
+        "B": "To handle syntax errors",
+        "C": "To handle logical errors",
+        "D": "To handle semantic errors"
+      },
+      "question": "What is the purpose of the 'try-except' block in Python?",
+      "question_type": "technical",
+      "tags": [
+        "error_handling",
+        "try_except"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 25,
+      "explanation": "In Python, the '==' operator checks for equality, but it does not perform type conversion. Since 'x' is an integer and 'y' is a string, the comparison returns False.",
+      "id": 5,
+      "options": {
+        "A": "True",
+        "B": "False",
+        "C": "Error",
+        "D": "None"
+      },
+      "question": "What is the output of the following code: x = 5; y = '5'; print(x == y)?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "equality",
+        "type_conversion"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "C",
+      "estimated_time_seconds": 35,
+      "explanation": "In Python, the 'lambda' function is used to define an anonymous function, which is a function that is defined without a name.",
+      "id": 6,
+      "options": {
+        "A": "To define a recursive function",
+        "B": "To define a higher-order function",
+        "C": "To define a anonymous function",
+        "D": "To define a generator function"
+      },
+      "question": "What is the purpose of the 'lambda' function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lambda",
+        "anonymous_function"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'range' function generates a sequence of numbers starting from the first argument, stopping before the second argument, and incrementing by the third argument. The 'list' function is used to convert the range object to a list.",
+      "id": 7,
+      "options": {
+        "A": "[5, 4, 3, 2, 1]",
+        "B": "[5, 4, 3, 2]",
+        "C": "[5, 4, 3, 2, 1, 0]",
+        "D": "[5, 4, 3, 2, 0]"
+      },
+      "question": "What is the output of the following code: print(list(range(5, 0, -1)))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "range",
+        "list"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "C",
+      "estimated_time_seconds": 35,
+      "explanation": "In Python, the 'enumerate' function is used to iterate over a list (or other iterable) with an index.",
+      "id": 8,
+      "options": {
+        "A": "To iterate over a list",
+        "B": "To iterate over a dictionary",
+        "C": "To iterate over a list with an index",
+        "D": "To iterate over a set"
+      },
+      "question": "What is the purpose of the 'enumerate' function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "enumerate",
+        "iteration"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "A",
+      "estimated_time_seconds": 25,
+      "explanation": "In Python, the 'set' function is used to create a set, which is an unordered collection of unique elements.",
+      "id": 9,
+      "options": {
+        "A": "{1, 2, 3, 4, 5}",
+        "B": "{1, 2, 2, 3, 4, 4, 5}",
+        "C": "[1, 2, 3, 4, 5]",
+        "D": "[1, 2, 2, 3, 4, 4, 5]"
+      },
+      "question": "What is the output of the following code: print(set([1, 2, 2, 3, 4, 4, 5]))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "sets",
+        "uniqueness"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 35,
+      "explanation": "In Python, the 'zip' function is used to iterate over two lists (or other iterables) simultaneously.",
+      "id": 10,
+      "options": {
+        "A": "To iterate over two lists simultaneously",
+        "B": "To iterate over a list and a dictionary simultaneously",
+        "C": "To iterate over a list and a set simultaneously",
+        "D": "To iterate over a dictionary and a set simultaneously"
+      },
+      "question": "What is the purpose of the 'zip' function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "zip",
+        "iteration"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "D",
+      "estimated_time_seconds": 20,
+      "explanation": "In Python, the 'max' function is used to find the maximum value in a list (or other iterable).",
+      "id": 11,
+      "options": {
+        "A": "1",
+        "B": "2",
+        "C": "3",
+        "D": "5"
+      },
+      "question": "What is the output of the following code: print(max([1, 2, 3, 4, 5]))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "max",
+        "list"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 35,
+      "explanation": "In Python, the 'sorted' function is used to sort a list (or other iterable) in ascending order.",
+      "id": 12,
+      "options": {
+        "A": "To sort a list in ascending order",
+        "B": "To sort a list in descending order",
+        "C": "To sort a dictionary by key",
+        "D": "To sort a set"
+      },
+      "question": "What is the purpose of the 'sorted' function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "sorted",
+        "list"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 20,
+      "explanation": "In Python, the 'len' function is used to find the length of a string (or other sequence).",
+      "id": 13,
+      "options": {
+        "A": "12",
+        "B": "13",
+        "C": "11",
+        "D": "10"
+      },
+      "question": "What is the output of the following code: print(len('Hello, World!'))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "len",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 35,
+      "explanation": "In Python, the 'map' function is used to apply a function to each element of a list (or other iterable).",
+      "id": 14,
+      "options": {
+        "A": "To apply a function to each element of a list",
+        "B": "To apply a function to each key of a dictionary",
+        "C": "To apply a function to each element of a set",
+        "D": "To apply a function to each value of a dictionary"
+      },
+      "question": "What is the purpose of the 'map' function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "map",
+        "list"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 40,
+      "explanation": "In Python, the 'filter' function is used to filter elements of a list (or other iterable) based on a condition. The 'lambda' function is used to define an anonymous function.",
+      "id": 15,
+      "options": {
+        "A": "[1, 2, 3, 4, 5]",
+        "B": "[2, 4]",
+        "C": "[1, 3, 5]",
+        "D": "[]"
+      },
+      "question": "What is the output of the following code: print(list(filter(lambda x: x % 2 == 0, [1, 2, 3, 4, 5])))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "filter",
+        "lambda"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "D",
+      "estimated_time_seconds": 35,
+      "explanation": "In Python, the 'reduce' function is used to reduce a list (or other iterable) to a single value by applying a function cumulatively.",
+      "id": 16,
+      "options": {
+        "A": "To apply a function to each element of a list",
+        "B": "To apply a function to each key of a dictionary",
+        "C": "To apply a function to each element of a set",
+        "D": "To reduce a list to a single value"
+      },
+      "question": "What is the purpose of the 'reduce' function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "reduce",
+        "list"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "A",
+      "estimated_time_seconds": 40,
+      "explanation": "In Python, the 'combinations' function from the 'itertools' module is used to generate all possible combinations of a certain length from a list (or other iterable).",
+      "id": 17,
+      "options": {
+        "A": "[[1, 2], [1, 3], [2, 3]]",
+        "B": "[[1, 2], [2, 3]]",
+        "C": "[[1, 3], [2, 3]]",
+        "D": "[[1, 2, 3]]"
+      },
+      "question": "What is the output of the following code: print(list(combinations([1, 2, 3], 2)))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "combinations",
+        "itertools"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'join' method is used to concatenate strings.",
+      "id": 18,
+      "options": {
+        "A": "To concatenate strings",
+        "B": "To concatenate lists",
+        "C": "To concatenate dictionaries",
+        "D": "To concatenate sets"
+      },
+      "question": "What is the purpose of the 'join' method in Python?",
+      "question_type": "technical",
+      "tags": [
+        "join",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "A",
+      "estimated_time_seconds": 25,
+      "explanation": "In Python, slicing with a step of -1 is used to reverse a string.",
+      "id": 19,
+      "options": {
+        "A": "dlroW ,olleH",
+        "B": "Hello, World!",
+        "C": "dlroW olleH",
+        "D": "olleH dlroW"
+      },
+      "question": "What is the output of the following code: print('Hello, World!'[::-1])?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "slicing",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'split' method is used to split a string into a list of substrings.",
+      "id": 20,
+      "options": {
+        "A": "To split a string into a list of substrings",
+        "B": "To split a list into a string",
+        "C": "To split a dictionary into a list of key-value pairs",
+        "D": "To split a set into a list of elements"
+      },
+      "question": "What is the purpose of the 'split' method in Python?",
+      "question_type": "technical",
+      "tags": [
+        "split",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "A",
+      "estimated_time_seconds": 20,
+      "explanation": "In Python, the 'upper' method is used to convert a string to uppercase.",
+      "id": 21,
+      "options": {
+        "A": "HELLO, WORLD!",
+        "B": "hello, world!",
+        "C": "HeLlO, WoRlD!",
+        "D": "hELLO, wORLD!"
+      },
+      "question": "What is the output of the following code: print('Hello, World!'.upper())?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "upper",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "B",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'lower' method is used to convert a string to lowercase.",
+      "id": 22,
+      "options": {
+        "A": "To convert a string to uppercase",
+        "B": "To convert a string to lowercase",
+        "C": "To convert a list to a string",
+        "D": "To convert a dictionary to a string"
+      },
+      "question": "What is the purpose of the 'lower' method in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lower",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "A",
+      "estimated_time_seconds": 25,
+      "explanation": "In Python, the 'replace' method is used to replace a substring with another string.",
+      "id": 23,
+      "options": {
+        "A": "Hello, Universe!",
+        "B": "Hello, World!",
+        "C": "Hello Universe!",
+        "D": "Hello, universe!"
+      },
+      "question": "What is the output of the following code: print('Hello, World!'.replace('World', 'Universe'))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "replace",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'strip' method is used to remove leading and trailing whitespace from a string.",
+      "id": 24,
+      "options": {
+        "A": "To remove leading and trailing whitespace from a string",
+        "B": "To remove leading whitespace from a string",
+        "C": "To remove trailing whitespace from a string",
+        "D": "To remove all whitespace from a string"
+      },
+      "question": "What is the purpose of the 'strip' method in Python?",
+      "question_type": "technical",
+      "tags": [
+        "strip",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "A",
+      "estimated_time_seconds": 20,
+      "explanation": "In Python, the 'startswith' method is used to check if a string starts with a specified substring.",
+      "id": 25,
+      "options": {
+        "A": "True",
+        "B": "False",
+        "C": "None",
+        "D": "Error"
+      },
+      "question": "What is the output of the following code: print('Hello, World!'.startswith('Hello'))?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "startswith",
+        "string"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "In Python, the 'self' parameter is used to pass the class instance as an argument to class methods, allowing the method to access and modify the instance's attributes.",
+      "id": 1,
+      "options": {
+        "A": "To pass the class instance as an argument",
+        "B": "To define a static method",
+        "C": "To create a new class instance",
+        "D": "To access a global variable"
+      },
+      "question": "What is the purpose of the 'self' parameter in Python class methods?",
+      "question_type": "technical",
+      "tags": [
+        "classes",
+        "methods",
+        "self"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 20,
+      "explanation": "The `format()` method replaces the `{}` placeholder with the specified argument, resulting in the output 'Hello, world!'.",
+      "id": 2,
+      "options": {
+        "A": "Hello, !",
+        "B": "Hello, world!",
+        "C": "Hello, {}!",
+        "D": "Error: invalid syntax"
+      },
+      "question": "What is the output of the following code: `print('Hello, {}!'.format('world'))`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "strings",
+        "formatting"
+      ]
+    },
+    {
+      "bloom_level": "analyze",
+      "correct_answer": "A",
+      "estimated_time_seconds": 40,
+      "explanation": "The `==` operator checks for equality between two values, while the `is` operator checks for identity, i.e., whether both variables refer to the same object.",
+      "id": 3,
+      "options": {
+        "A": "`==` checks for equality, while `is` checks for identity",
+        "B": "`==` checks for identity, while `is` checks for equality",
+        "C": "Both operators check for equality",
+        "D": "Both operators check for identity"
+      },
+      "question": "What is the difference between the `==` and `is` operators in Python?",
+      "question_type": "technical",
+      "tags": [
+        "operators",
+        "equality",
+        "identity"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "B",
+      "estimated_time_seconds": 30,
+      "explanation": "The `__init__` method is a special method in Python classes that is called when an instance of the class is created, allowing for initialization of the instance's attributes.",
+      "id": 4,
+      "options": {
+        "A": "To define a class method",
+        "B": "To initialize a class instance",
+        "C": "To create a new class",
+        "D": "To access a class attribute"
+      },
+      "question": "What is the purpose of the `__init__` method in a Python class?",
+      "question_type": "technical",
+      "tags": [
+        "classes",
+        "init",
+        "initialization"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 25,
+      "explanation": "When `y` is assigned the value of `x`, both variables refer to the same list object. Modifying the list through `x` affects the list referred to by `y` as well.",
+      "id": 5,
+      "options": {
+        "A": "[1, 2, 3]",
+        "B": "[1, 2, 3, 4]",
+        "C": "[4]",
+        "D": "Error: undefined variable"
+      },
+      "question": "What is the output of the following code: `x = [1, 2, 3]; y = x; x.append(4); print(y)`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "lists",
+        "references",
+        "mutation"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "The `try`-`except` block is used to catch and handle runtime errors and exceptions in Python, allowing for more robust and fault-tolerant code.",
+      "id": 6,
+      "options": {
+        "A": "To handle runtime errors and exceptions",
+        "B": "To optimize code performance",
+        "C": "To define a function",
+        "D": "To create a class"
+      },
+      "question": "What is the purpose of the `try`-`except` block in Python?",
+      "question_type": "technical",
+      "tags": [
+        "error_handling",
+        "exceptions",
+        "try_except"
+      ]
+    },
+    {
+      "bloom_level": "analyze",
+      "correct_answer": "A",
+      "estimated_time_seconds": 40,
+      "explanation": "The `break` statement exits the loop, while the `continue` statement skips to the next iteration, allowing for more control over loop execution.",
+      "id": 7,
+      "options": {
+        "A": "`break` exits the loop, while `continue` skips to the next iteration",
+        "B": "`break` skips to the next iteration, while `continue` exits the loop",
+        "C": "Both statements exit the loop",
+        "D": "Both statements skip to the next iteration"
+      },
+      "question": "What is the difference between the `break` and `continue` statements in Python?",
+      "question_type": "technical",
+      "tags": [
+        "loops",
+        "break",
+        "continue"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "The `lambda` function is used to define small, anonymous functions in Python, allowing for concise and expressive code.",
+      "id": 8,
+      "options": {
+        "A": "To define a small, anonymous function",
+        "B": "To create a class instance",
+        "C": "To access a global variable",
+        "D": "To optimize code performance"
+      },
+      "question": "What is the purpose of the `lambda` function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "functions",
+        "lambda",
+        "anonymous"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "C",
+      "estimated_time_seconds": 20,
+      "explanation": "The `**` operator raises the number `x` to the power of 2, resulting in the output `25`.",
+      "id": 9,
+      "options": {
+        "A": "5",
+        "B": "10",
+        "C": "25",
+        "D": "Error: undefined variable"
+      },
+      "question": "What is the output of the following code: `x = 5; y = x ** 2; print(y)`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "operators",
+        "exponentiation"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "B",
+      "estimated_time_seconds": 30,
+      "explanation": "The `import` statement is used to import external modules or packages in Python, allowing for access to additional functionality and libraries.",
+      "id": 10,
+      "options": {
+        "A": "To define a function",
+        "B": "To import external modules or packages",
+        "C": "To access a global variable",
+        "D": "To create a class instance"
+      },
+      "question": "What is the purpose of the `import` statement in Python?",
+      "question_type": "technical",
+      "tags": [
+        "modules",
+        "import",
+        "packages"
+      ]
+    },
+    {
+      "bloom_level": "analyze",
+      "correct_answer": "A",
+      "estimated_time_seconds": 40,
+      "explanation": "Lists are mutable, meaning they can be modified after creation, while tuples are immutable, meaning they cannot be modified after creation.",
+      "id": 11,
+      "options": {
+        "A": "Lists are mutable, while tuples are immutable",
+        "B": "Lists are immutable, while tuples are mutable",
+        "C": "Both are mutable",
+        "D": "Both are immutable"
+      },
+      "question": "What is the difference between the `list` and `tuple` data structures in Python?",
+      "question_type": "technical",
+      "tags": [
+        "data_structures",
+        "lists",
+        "tuples"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "The `sorted` function is used to sort a list in ascending order, returning a new sorted list.",
+      "id": 12,
+      "options": {
+        "A": "To sort a list in ascending order",
+        "B": "To sort a list in descending order",
+        "C": "To filter a list",
+        "D": "To concatenate two lists"
+      },
+      "question": "What is the purpose of the `sorted` function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lists",
+        "sorting",
+        "sorted"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 20,
+      "explanation": "The `upper()` method returns a new string with all characters converted to uppercase.",
+      "id": 13,
+      "options": {
+        "A": "hello",
+        "B": "HELLO",
+        "C": "Hello",
+        "D": "Error: undefined method"
+      },
+      "question": "What is the output of the following code: `x = 'hello'; y = x.upper(); print(y)`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "strings",
+        "methods",
+        "upper"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "The `with` statement is used to handle file I/O operations in Python, ensuring that files are properly closed and resources are released.",
+      "id": 14,
+      "options": {
+        "A": "To handle file I/O operations",
+        "B": "To define a class method",
+        "C": "To create a list comprehension",
+        "D": "To optimize code performance"
+      },
+      "question": "What is the purpose of the `with` statement in Python?",
+      "question_type": "technical",
+      "tags": [
+        "file_io",
+        "with",
+        "context_manager"
+      ]
+    },
+    {
+      "bloom_level": "analyze",
+      "correct_answer": "A",
+      "estimated_time_seconds": 40,
+      "explanation": "The `isinstance` function checks if an object is an instance of a particular class or type, while the `type` function returns the type of an object.",
+      "id": 15,
+      "options": {
+        "A": "`isinstance` checks for instance type, while `type` checks for class type",
+        "B": "`isinstance` checks for class type, while `type` checks for instance type",
+        "C": "Both functions check for instance type",
+        "D": "Both functions check for class type"
+      },
+      "question": "What is the difference between the `isinstance` and `type` functions in Python?",
+      "question_type": "technical",
+      "tags": [
+        "types",
+        "isinstance",
+        "type"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "A",
+      "estimated_time_seconds": 30,
+      "explanation": "The `enumerate` function returns an iterator that produces tuples containing the index and value of each element in a list.",
+      "id": 16,
+      "options": {
+        "A": "To iterate over a list with indices",
+        "B": "To filter a list",
+        "C": "To sort a list",
+        "D": "To concatenate two lists"
+      },
+      "question": "What is the purpose of the `enumerate` function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lists",
+        "iteration",
+        "enumerate"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 25,
+      "explanation": "The slice `[::-1]` reverses the list, resulting in the output `[3, 2, 1]`.",
+      "id": 17,
+      "options": {
+        "A": "[1, 2, 3]",
+        "B": "[3, 2, 1]",
+        "C": "[1]",
+        "D": "Error: invalid slice"
+      },
+      "question": "What is the output of the following code: `x = [1, 2, 3]; y = x[::-1]; print(y)`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "lists",
+        "slicing",
+        "reversal"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "C",
+      "estimated_time_seconds": 30,
+      "explanation": "The `zip` function returns an iterator that aggregates elements from multiple lists, allowing for parallel iteration.",
+      "id": 18,
+      "options": {
+        "A": "To concatenate two lists",
+        "B": "To filter a list",
+        "C": "To iterate over two lists in parallel",
+        "D": "To sort a list"
+      },
+      "question": "What is the purpose of the `zip` function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lists",
+        "iteration",
+        "zip"
+      ]
+    },
+    {
+      "bloom_level": "analyze",
+      "correct_answer": "A",
+      "estimated_time_seconds": 40,
+      "explanation": "Sets are mutable, meaning they can be modified after creation, while frozensets are immutable, meaning they cannot be modified after creation.",
+      "id": 19,
+      "options": {
+        "A": "Sets are mutable, while frozensets are immutable",
+        "B": "Sets are immutable, while frozensets are mutable",
+        "C": "Both are mutable",
+        "D": "Both are immutable"
+      },
+      "question": "What is the difference between the `set` and `frozenset` data structures in Python?",
+      "question_type": "technical",
+      "tags": [
+        "data_structures",
+        "sets",
+        "frozensets"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "B",
+      "estimated_time_seconds": 30,
+      "explanation": "The `map` function applies a function to each element of a list, returning a new list with the transformed elements.",
+      "id": 20,
+      "options": {
+        "A": "To filter a list",
+        "B": "To transform a list",
+        "C": "To sort a list",
+        "D": "To concatenate two lists"
+      },
+      "question": "What is the purpose of the `map` function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lists",
+        "transformation",
+        "map"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 20,
+      "explanation": "The `replace` method returns a new string with all occurrences of the specified substring replaced.",
+      "id": 21,
+      "options": {
+        "A": "hello",
+        "B": "Hello",
+        "C": "hEllo",
+        "D": "Error: undefined method"
+      },
+      "question": "What is the output of the following code: `x = 'hello'; y = x.replace('h', 'H'); print(y)`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "strings",
+        "methods",
+        "replace"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "B",
+      "estimated_time_seconds": 30,
+      "explanation": "The `any` function returns `True` if at least one element of a list is true, and `False` otherwise.",
+      "id": 22,
+      "options": {
+        "A": "To check if all elements of a list are true",
+        "B": "To check if any element of a list is true",
+        "C": "To filter a list",
+        "D": "To sort a list"
+      },
+      "question": "What is the purpose of the `any` function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lists",
+        "any",
+        "boolean"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 25,
+      "explanation": "The `index` method returns the index of the first occurrence of the specified element in the list.",
+      "id": 23,
+      "options": {
+        "A": "0",
+        "B": "1",
+        "C": "2",
+        "D": "Error: element not found"
+      },
+      "question": "What is the output of the following code: `x = [1, 2, 3]; y = x.index(2); print(y)`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "lists",
+        "index",
+        "search"
+      ]
+    },
+    {
+      "bloom_level": "understand",
+      "correct_answer": "B",
+      "estimated_time_seconds": 30,
+      "explanation": "The `all` function returns `True` if all elements of a list are true, and `False` otherwise.",
+      "id": 24,
+      "options": {
+        "A": "To check if any element of a list is true",
+        "B": "To check if all elements of a list are true",
+        "C": "To filter a list",
+        "D": "To sort a list"
+      },
+      "question": "What is the purpose of the `all` function in Python?",
+      "question_type": "technical",
+      "tags": [
+        "lists",
+        "all",
+        "boolean"
+      ]
+    },
+    {
+      "bloom_level": "apply",
+      "correct_answer": "B",
+      "estimated_time_seconds": 25,
+      "explanation": "The `count` method returns the number of occurrences of the specified element in the list.",
+      "id": 25,
+      "options": {
+        "A": "0",
+        "B": "1",
+        "C": "2",
+        "D": "3"
+      },
+      "question": "What is the output of the following code: `x = [1, 2, 3]; y = x.count(2); print(y)`?",
+      "question_type": "quantitative_aptitude",
+      "tags": [
+        "lists",
+        "count",
+        "frequency"
+      ]
+    }
+  ]
+}

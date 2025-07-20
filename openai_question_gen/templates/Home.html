@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Route Tester</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen p-6">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8 text-center">🧪 Flask API Route Tester</h1>
+
+    <!-- Section for /health -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">/health</h2>
+      <button onclick="testEndpoint('/health')" class="bg-blue-600 text-white px-4 py-2 rounded">Check Health</button>
+      <pre class="mt-4 bg-white p-4 rounded shadow overflow-x-auto" id="healthResponse"></pre>
+    </section>
+
+    <!-- Section for /stats -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">/stats</h2>
+      <button onclick="testEndpoint('/stats')" class="bg-blue-600 text-white px-4 py-2 rounded">Fetch Stats</button>
+      <pre class="mt-4 bg-white p-4 rounded shadow overflow-x-auto" id="statsResponse"></pre>
+    </section>
+
+    <!-- Section for /switch_model -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">/switch_model</h2>
+      <button onclick="testSwitchModel()" class="bg-yellow-600 text-white px-4 py-2 rounded">Switch Model</button>
+      <pre class="mt-4 bg-white p-4 rounded shadow overflow-x-auto" id="switchResponse"></pre>
+    </section>
+
+    <!-- Section for /generate_mcqs -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-4">/generate_mcqs</h2>
+      <form id="mcqForm" class="space-y-4">
+        <input class="border p-2 w-full" type="text" name="topic" placeholder="Enter topic" required>
+        <select name="difficulty" class="border p-2 w-full">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+        <select name="question_type" class="border p-2 w-full">
+          <option value="academic">Academic</option>
+          <option value="practical">Practical</option>
+          <option value="conceptual">Conceptual</option>
+        </select>
+        <input class="border p-2 w-full" type="number" name="num_questions" min="1" max="50" value="5">
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Generate MCQs</button>
+      </form>
+      <pre class="mt-4 bg-white p-4 rounded shadow overflow-x-auto" id="mcqResponse"></pre>
+    </section>
+
+    <!-- Section for /generate_mcqs_from_pdf -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-4">/generate_mcqs_from_pdf</h2>
+      <form id="pdfForm" class="space-y-4">
+        <input type="file" name="pdf_file" accept="application/pdf" class="border p-2 w-full" required>
+        <select name="difficulty" class="border p-2 w-full">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+        <select name="question_type" class="border p-2 w-full">
+          <option value="academic">Academic</option>
+          <option value="practical">Practical</option>
+          <option value="conceptual">Conceptual</option>
+        </select>
+        <input type="number" name="num_questions" min="1" max="50" value="5" class="border p-2 w-full">
+        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded">Generate from PDF</button>
+      </form>
+      <pre class="mt-4 bg-white p-4 rounded shadow overflow-x-auto" id="pdfResponse"></pre>
+    </section>
+
+    <!-- Section for /debug_pdf -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-4">/debug_pdf</h2>
+      <form id="debugForm" class="space-y-4">
+        <input type="file" name="pdf_file" accept="application/pdf" class="border p-2 w-full" required>
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded">Debug PDF</button>
+      </form>
+      <pre class="mt-4 bg-white p-4 rounded shadow overflow-x-auto" id="debugResponse"></pre>
+    </section>
+  </div>
+
+  <script>
+    const baseURL = "http://localhost:5000";
+
+    async function testEndpoint(route) {
+      const res = await fetch(baseURL + route);
+      const json = await res.json();
+      document.getElementById(route.replace('/', '') + 'Response').textContent = JSON.stringify(json, null, 2);
+    }
+
+    async function testSwitchModel() {
+      const res = await fetch(baseURL + '/switch_model', {
+        method: 'POST'
+      });
+      const json = await res.json();
+      document.getElementById('switchResponse').textContent = JSON.stringify(json, null, 2);
+    }
+
+    document.getElementById('mcqForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const body = JSON.stringify(Object.fromEntries(form));
+      const res = await fetch(baseURL + '/generate_mcqs', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body
+      });
+      const json = await res.json();
+      document.getElementById('mcqResponse').textContent = JSON.stringify(json, null, 2);
+    });
+
+    document.getElementById('pdfForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const res = await fetch(baseURL + '/generate_mcqs_from_pdf', {
+        method: 'POST',
+        body: form
+      });
+      const json = await res.json();
+      document.getElementById('pdfResponse').textContent = JSON.stringify(json, null, 2);
+    });
+
+    document.getElementById('debugForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const res = await fetch(baseURL + '/debug_pdf', {
+        method: 'POST',
+        body: form
+      });
+      const json = await res.json();
+      document.getElementById('debugResponse').textContent = JSON.stringify(json, null, 2);
+    });
+  </script>
+</body>
+</html>

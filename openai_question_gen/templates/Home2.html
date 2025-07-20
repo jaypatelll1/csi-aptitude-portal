@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI MCQ Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4361ee',
+                        secondary: '#3f37c9',
+                        accent: '#4cc9f0',
+                        dark: '#1e1e2c'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-5 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-primary p-2 rounded-lg">
+                    <i class="fas fa-brain text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">AI MCQ Generator</h1>
+            </div>
+            <div class="flex space-x-4">
+                <a href="/info" class="text-gray-600 hover:text-primary transition-colors">
+                    <i class="fas fa-book mr-1"></i> Documentation
+                </a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+                    <i class="fas fa-cog mr-1"></i> Settings
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-12 bg-gradient-to-r from-primary to-secondary text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4">Generate Educational Questions with AI</h2>
+            <p class="text-xl max-w-3xl mx-auto mb-8">
+                Create high-quality multiple-choice questions instantly from any topic or PDF document
+            </p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="scrollToSection('topic-section')" class="bg-white text-primary px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-lightbulb mr-2"></i> Generate from Topic
+                </button>
+                <button onclick="scrollToSection('pdf-section')" class="bg-accent text-dark px-6 py-3 rounded-full font-semibold hover:bg-blue-300 transition-colors">
+                    <i class="fas fa-file-pdf mr-2"></i> Generate from PDF
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <!-- Topic-Based Generator -->
+        <section id="topic-section" class="mb-16 fade-in">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-primary text-white p-6">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fas fa-lightbulb mr-3"></i> Generate from Topic
+                    </h2>
+                    <p class="mt-2 opacity-90">Create questions based on any subject or topic</p>
+                </div>
+                <div class="p-6">
+                    <form id="topic-form" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2" for="topic">
+                                Topic/Subject <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="topic" 
+                                name="topic"
+                                placeholder="Enter a topic (e.g., Machine Learning, World History, Python Programming)"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="num-questions">
+                                    Number of Questions
+                                </label>
+                                <select 
+                                    id="num-questions" 
+                                    name="num_questions"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                >
+                                    <option value="5">5 Questions</option>
+                                    <option value="10" selected>10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                    <option value="20">20 Questions</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="difficulty">
+                                    Difficulty Level
+                                </label>
+                                <select 
+                                    id="difficulty" 
+                                    name="difficulty"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                >
+                                    <option value="easy">Easy</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="hard">Hard</option>
+                                    <option value="expert">Expert</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="question-type">
+                                    Question Type
+                                </label>
+                                <select 
+                                    id="question-type" 
+                                    name="question_type"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                >
+                                    <option value="academic">Academic</option>
+                                    <option value="practical">Practical</option>
+                                    <option value="conceptual">Conceptual</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button 
+                                type="submit"
+                                class="bg-primary hover:bg-secondary text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full md:w-auto flex items-center justify-center"
+                            >
+                                <span id="topic-generate-text">Generate Questions</span>
+                                <span id="topic-loading" class="hidden ml-2">
+                                    <div class="loading-spinner"></div>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- PDF-Based Generator -->
+        <section id="pdf-section" class="mb-16 fade-in">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-accent text-dark p-6">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fas fa-file-pdf mr-3"></i> Generate from PDF
+                    </h2>
+                    <p class="mt-2">Upload a PDF document to generate questions</p>
+                </div>
+                <div class="p-6">
+                    <form id="pdf-form" class="space-y-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2" for="pdf-file">
+                                PDF File <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center justify-center w-full">
+                                <label for="pdf-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fas fa-file-pdf text-4xl text-red-500 mb-3"></i>
+                                        <p class="mb-2 text-sm text-gray-500">
+                                            <span class="font-semibold">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p class="text-xs text-gray-500">PDF only (MAX. 16MB)</p>
+                                    </div>
+                                    <input id="pdf-file" name="pdf_file" type="file" class="hidden" accept=".pdf" required />
+                                </label>
+                            </div>
+                            <div id="file-name" class="mt-2 text-sm text-gray-600 hidden">
+                                Selected file: <span class="font-medium"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="pdf-num-questions">
+                                    Number of Questions
+                                </label>
+                                <select 
+                                    id="pdf-num-questions" 
+                                    name="num_questions"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                >
+                                    <option value="5">5 Questions</option>
+                                    <option value="10" selected>10 Questions</option>
+                                    <option value="15">15 Questions</option>
+                                    <option value="20">20 Questions</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="pdf-difficulty">
+                                    Difficulty Level
+                                </label>
+                                <select 
+                                    id="pdf-difficulty" 
+                                    name="difficulty"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                >
+                                    <option value="easy">Easy</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="hard">Hard</option>
+                                    <option value="expert">Expert</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="pdf-question-type">
+                                    Question Type
+                                </label>
+                                <select 
+                                    id="pdf-question-type" 
+                                    name="question_type"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                >
+                                    <option value="academic">Academic</option>
+                                    <option value="practical">Practical</option>
+                                    <option value="conceptual">Conceptual</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button 
+                                type="submit"
+                                class="bg-accent hover:bg-blue-300 text-dark font-semibold py-3 px-8 rounded-lg transition-colors w-full md:w-auto flex items-center justify-center"
+                            >
+                                <span id="pdf-generate-text">Generate from PDF</span>
+                                <span id="pdf-loading" class="hidden ml-2">
+                                    <div class="loading-spinner border-t-dark"></div>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="hidden fade-in">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-gray-800 text-white p-6">
+                    <h2 class="text-2xl font-bold flex items-center">
+                        <i class="fas fa-list-check mr-3"></i> Generated Questions
+                    </h2>
+                    <div id="results-meta" class="mt-2 text-sm opacity-80"></div>
+                </div>
+                <div class="p-6">
+                    <div id="results-container" class="space-y-6">
+                        <!-- Questions will be dynamically inserted here -->
+                    </div>
+                    
+                    <div id="results-actions" class="mt-8 flex flex-wrap gap-4 hidden">
+                        <button id="download-json" class="bg-gray-700 hover:bg-gray-800 text-white py-2 px-6 rounded-lg flex items-center">
+                            <i class="fas fa-download mr-2"></i> Download JSON
+                        </button>
+                        <button id="copy-json" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-6 rounded-lg flex items-center">
+                            <i class="fas fa-copy mr-2"></i> Copy JSON
+                        </button>
+                        <button id="new-generation" class="bg-primary hover:bg-secondary text-white py-2 px-6 rounded-lg flex items-center">
+                            <i class="fas fa-plus mr-2"></i> New Generation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="mt-20">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Powerful Features</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="bg-primary w-14 h-14 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-file-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">PDF Content Analysis</h3>
+                    <p class="text-gray-600">
+                        Extract meaningful topics and questions directly from uploaded PDF documents with intelligent content analysis.
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="bg-secondary w-14 h-14 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-brain text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Multiple Question Types</h3>
+                    <p class="text-gray-600">
+                        Generate academic, practical, or conceptual questions at various difficulty levels to suit your needs.
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                    <div class="bg-accent w-14 h-14 rounded-xl flex items-center justify-center mb-4">
+                        <i class="fas fa-bolt text-dark text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">AI-Powered Generation</h3>
+                    <p class="text-gray-600">
+                        Leverage advanced AI models to create high-quality, relevant questions with explanations in seconds.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 mt-20">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">AI MCQ Generator</h3>
+                    <p class="text-gray-400">
+                        Generate high-quality educational content using advanced AI models.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="/info" class="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API Status</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Examples</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Question Types</h4>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">Academic</li>
+                        <li class="text-gray-400">Practical</li>
+                        <li class="text-gray-400">Conceptual</li>
+                        <li class="text-gray-400">Technical</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500">
+                <p>© 2023 AI MCQ Generator. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const topicForm = document.getElementById('topic-form');
+        const pdfForm = document.getElementById('pdf-form');
+        const topicLoading = document.getElementById('topic-loading');
+        const topicGenerateText = document.getElementById('topic-generate-text');
+        const pdfLoading = document.getElementById('pdf-loading');
+        const pdfGenerateText = document.getElementById('pdf-generate-text');
+        const resultsSection = document.getElementById('results-section');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsMeta = document.getElementById('results-meta');
+        const resultsActions = document.getElementById('results-actions');
+        const pdfFileInput = document.getElementById('pdf-file');
+        const fileNameDisplay = document.getElementById('file-name');
+        
+        // Scroll to section
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+        
+        // Handle PDF file selection
+        pdfFileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const fileName = this.files[0].name;
+                fileNameDisplay.querySelector('span').textContent = fileName;
+                fileNameDisplay.classList.remove('hidden');
+            } else {
+                fileNameDisplay.classList.add('hidden');
+            }
+        });
+        
+        // Format generated questions
+        function formatQuestions(data) {
+            resultsContainer.innerHTML = '';
+            
+            // Update metadata
+            const meta = data.metadata;
+            const source = meta.source_file ? ` | Source: ${meta.source_file}` : '';
+            resultsMeta.innerHTML = `
+                Topic: ${meta.topic} | Difficulty: ${meta.difficulty} 
+                | Questions: ${data.questions.length}${source} 
+                | Model: ${meta.model_used || 'AI'}
+            `;
+            
+            // Render questions
+            data.questions.forEach((question, index) => {
+                const questionEl = document.createElement('div');
+                questionEl.className = 'bg-gray-50 rounded-lg p-6 border border-gray-200';
+                questionEl.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-bold text-lg text-gray-800">Question #${index + 1}</h3>
+                        <span class="bg-${getBloomColor(question.bloom_level)} text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                            ${question.bloom_level.toUpperCase()}
+                        </span>
+                    </div>
+                    <p class="text-gray-700 mb-4">${question.question}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        ${Object.entries(question.options).map(([key, value]) => `
+                            <div class="flex items-start">
+                                <span class="font-bold mr-3 mt-1">${key}.</span>
+                                <span class="${key === question.correct_answer ? 'text-green-600 font-medium' : 'text-gray-700'}">${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-4">
+                        <p class="text-sm text-blue-700"><strong>Explanation:</strong> ${question.explanation}</p>
+                    </div>
+                `;
+                resultsContainer.appendChild(questionEl);
+            });
+            
+            // Show results section and actions
+            resultsSection.classList.remove('hidden');
+            resultsActions.classList.remove('hidden');
+            scrollToSection('results-section');
+        }
+        
+        // Get color for Bloom's taxonomy level
+        function getBloomColor(level) {
+            const colors = {
+                'remember': 'gray',
+                'understand': 'blue',
+                'apply': 'green',
+                'analyze': 'purple',
+                'evaluate': 'yellow',
+                'create': 'pink'
+            };
+            return colors[level] || 'gray';
+        }
+        
+        // Handle topic form submission
+        topicForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                topic: document.getElementById('topic').value,
+                num_questions: document.getElementById('num-questions').value,
+                difficulty: document.getElementById('difficulty').value,
+                question_type: document.getElementById('question-type').value
+            };
+            
+            // Show loading state
+            topicLoading.classList.remove('hidden');
+            topicGenerateText.textContent = 'Generating...';
+            
+            try {
+                const response = await fetch('/generate_mcqs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                } else {
+                    formatQuestions(data);
+                }
+            } catch (error) {
+                alert('Failed to generate questions. Please try again.');
+                console.error(error);
+            } finally {
+                // Reset loading state
+                topicLoading.classList.add('hidden');
+                topicGenerateText.textContent = 'Generate Questions';
+            }
+        });
+        
+        // Handle PDF form submission
+        pdfForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('pdf_file', pdfFileInput.files[0]);
+            formData.append('num_questions', document.getElementById('pdf-num-questions').value);
+            formData.append('difficulty', document.getElementById('pdf-difficulty').value);
+            formData.append('question_type', document.getElementById('pdf-question-type').value);
+            
+            // Show loading state
+            pdfLoading.classList.remove('hidden');
+            pdfGenerateText.textContent = 'Processing...';
+            
+            try {
+                const response = await fetch('/generate_mcqs_from_pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                } else {
+                    formatQuestions(data);
+                }
+            } catch (error) {
+                alert('Failed to process PDF. Please try again.');
+                console.error(error);
+            } finally {
+                // Reset loading state
+                pdfLoading.classList.add('hidden');
+                pdfGenerateText.textContent = 'Generate from PDF';
+            }
+        });
+        
+        // Handle new generation button
+        document.getElementById('new-generation').addEventListener('click', () => {
+            resultsSection.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Handle download JSON button
+        document.getElementById('download-json').addEventListener('click', () => {
+            alert('JSON download functionality would be implemented here');
+        });
+        
+        // Handle copy JSON button
+        document.getElementById('copy-json').addEventListener('click', () => {
+            alert('JSON copy functionality would be implemented here');
+        });
+    </script>
+</body>
+</html>
