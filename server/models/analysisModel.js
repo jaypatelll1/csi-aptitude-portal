@@ -397,13 +397,14 @@ const getDeptAvgScores = async (year) => {
   }
 };
 
-const getAllDepartmentsPerformanceOverTime = async () => {
+const getAllDepartmentsPerformanceOverTime = async (year) => {
   try {
     const result = await query(`
       SELECT department_name, performance_over_time 
       FROM department_analysis
+      WHERE year = $1
       ORDER BY department_rank ASC;
-    `);
+    `, [year]);
     return result.rows; // Array of { department_name, performance_over_time }
   } catch (error) {
     console.error('Error fetching performance over time:', error);
