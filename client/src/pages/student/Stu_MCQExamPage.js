@@ -37,15 +37,16 @@ const questions = useSelector((state) => state.questions.questions);
       console.warn("Fullscreen API is not supported in this browser.");
     }
   };
-const buildResponsesPayload = (questions) => {
-  return questions.map((q) => ({
-    question_id: q.question_id,
-    selected_option: q.selectedOption || null,
-    selected_options: q.selectedOptions || null,
-    text_answer: q.textAnswer || null,
-    question_type: q.question_type
-  }));
-};
+  const buildResponsesPayload = (questions) => {
+    return questions.map((q) => ({
+      question_id: q.question_id,
+      selected_option: q.selectedOption || null,
+      selected_options: q.selectedOptions ? JSON.stringify(q.selectedOptions) : null,
+      text_answer: q.textAnswer || null,
+      question_type: q.question_type
+    }));
+  };
+  
 
   const submitFinalResponse = async (questions) => {
   const responses = buildResponsesPayload(questions); // 👈 prepare payload
