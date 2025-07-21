@@ -35,7 +35,7 @@ const Adm_McqGenerator = ({ onClose }) => {
 
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
-  const [numQuestions, setNumQuestions] = useState(10);
+  const [numQuestions, setNumQuestions] = useState();
   const [questionType, setQuestionType] = useState("academic");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);

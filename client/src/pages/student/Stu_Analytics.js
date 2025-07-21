@@ -27,8 +27,8 @@ function Stu_Analytics() {
   const [loading, setLoading] = useState(true);
   const [chartReady, setChartReady] = useState(false);
   const [categoryData, setCategoryData] = useState(null);
-  const [hasData, setHasData] = useState(false); // New state to track if any data exists
-  const [apiError, setApiError] = useState(null); // Track API errors
+  const [hasData, setHasData] = useState(false);
+  const [apiError, setApiError] = useState(null);
   
   // Get user data from Redux store
   const user = useSelector((state) => state.user.user);
@@ -54,6 +54,22 @@ function Stu_Analytics() {
       setUserName(user.name);
     }
   }, [user]);
+
+  // Debug logging to track the states
+  useEffect(() => {
+    console.log("State Debug:", {
+      loading,
+      chartReady,
+      hasData,
+      apiError,
+      dataLength: data.length,
+      avgDataLength: avgData.length,
+      performanceDataLength: performanceOverTime.length,
+      categoryData: categoryData ? Object.keys(categoryData).length : 0,
+      rankData,
+      testCompletionData: !!testCompletionData
+    });
+  }, [loading, chartReady, hasData, apiError, data, avgData, performanceOverTime, categoryData, rankData, testCompletionData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -101,7 +117,6 @@ function Stu_Analytics() {
       setApiError(null);
       setHasData(false);
       
-      // Build the dynamic URL using actual user data
       const url = buildApiUrl(user_id, selectedDepartment, selectedYear);
       console.log("API URL:", url);
       
@@ -112,48 +127,63 @@ function Stu_Analytics() {
       
       console.log("Full API Response:", response.data);
       
-      // Access the results from the response
       const apiData = response.data.results || response.data;
       
       if (apiData && Object.keys(apiData).length > 0) {
         let dataFound = false;
         
-        // Set basic data
-        if (apiData.overall_results && apiData.overall_results.length > 0) {
-          setData(apiData.overall_results);
-          dataFound = true;
+        // More strict validation for overall_results
+        if (apiData.overall_results && Array.isArray(apiData.overall_results) && apiData.overall_results.length > 0) {
+          const validResults = apiData.overall_results.filter(item => 
+            item && typeof item === 'object' && Object.keys(item).length > 0
+          );
+          if (validResults.length > 0) {
+            setData(validResults);
+            dataFound = true;
+          }
         }
         
-        if (apiData.avg_results && apiData.avg_results.length > 0) {
-          setAvgData(apiData.avg_results);
-          dataFound = true;
+        // More strict validation for avg_results
+        if (apiData.avg_results && Array.isArray(apiData.avg_results) && apiData.avg_results.length > 0) {
+          const validAvgResults = apiData.avg_results.filter(item => 
+            item && typeof item === 'object' && Object.keys(item).length > 0
+          );
+          if (validAvgResults.length > 0) {
+            setAvgData(validAvgResults);
+            dataFound = true;
+          }
         }
         
-        // Extract and set category data
-        if (apiData.category && Object.keys(apiData.category).length > 0) {
-          setCategoryData(apiData.category);
-          console.log("Category data:", apiData.category);
-          dataFound = true;
+        // More strict validation for category data
+        if (apiData.category && typeof apiData.category === 'object') {
+          const validCategories = Object.entries(apiData.category).filter(([key, value]) => 
+            value && typeof value === 'object' && 
+            (value.score !== undefined || value.max_score !== undefined)
+          );
+          if (validCategories.length > 0) {
+            setCategoryData(apiData.category);
+            console.log("Category data:", apiData.category);
+            dataFound = true;
+          }
         }
         
-        // Set rank data
-        const rankInfo = {
-          department_rank: apiData.department_rank || 0,
-          overall_rank: apiData.overall_rank || 0
-        };
-        setRankData(rankInfo);
-        
-        // If we have valid ranks, consider it as data
-        if (apiData.department_rank > 0 || apiData.overall_rank > 0) {
-          dataFound = true;
-        }
-        
-        // Set superscripts for ranks
-        if (apiData.department_rank) {
-          superscript(setDSup, apiData.department_rank);
-        }
-        if (apiData.overall_rank) {
-          superscript(setOSup, apiData.overall_rank);
+        // Rank validation - only consider valid if ranks are greater than 0
+        if ((apiData.department_rank && apiData.department_rank > 0) || 
+            (apiData.overall_rank && apiData.overall_rank > 0)) {
+          const rankInfo = {
+            department_rank: apiData.department_rank || 0,
+            overall_rank: apiData.overall_rank || 0
+          };
+          setRankData(rankInfo);
+          
+          if (apiData.department_rank > 0) {
+            superscript(setDSup, apiData.department_rank);
+            dataFound = true;
+          }
+          if (apiData.overall_rank > 0) {
+            superscript(setOSup, apiData.overall_rank);
+            dataFound = true;
+          }
         }
         
         // Set username if available (fallback to user from Redux)
@@ -174,7 +204,8 @@ function Stu_Analytics() {
                      Object.keys(item).length > 0 && 
                      item.hasOwnProperty('score') && 
                      item.hasOwnProperty('max_score') &&
-                     item.hasOwnProperty('exam_id');
+                     item.hasOwnProperty('exam_id') &&
+                     item.max_score > 0; // Ensure max_score is meaningful
             })
             .map((item, index) => {
               const score = item.score || 0;
@@ -205,8 +236,8 @@ function Stu_Analytics() {
           setPerformanceOverTime([]);
         }
         
-        // Calculate test completion data
-        if (apiData.completion_rate !== undefined && apiData.completion_rate !== null) {
+        // Calculate test completion data - only if meaningful completion rate
+        if (apiData.completion_rate !== undefined && apiData.completion_rate !== null && apiData.completion_rate >= 0) {
           const completionRate = apiData.completion_rate || 0;
           const attempted = Math.round(completionRate * 100);
           const remaining = 100 - attempted;
@@ -221,17 +252,18 @@ function Stu_Analytics() {
           dataFound = true;
         }
         
-        // Set correct and total scores
-        if (apiData.total_score !== undefined || apiData.max_score !== undefined) {
+        // Set correct and total scores - only if meaningful scores
+        if ((apiData.total_score !== undefined && apiData.total_score > 0) || 
+            (apiData.max_score !== undefined && apiData.max_score > 0)) {
           setCorrect(apiData.total_score || 0);
           setTotal(apiData.max_score || 0);
-          if (apiData.total_score > 0 || apiData.max_score > 0) {
-            dataFound = true;
-          }
+          dataFound = true;
         }
         
         // Update hasData state
         setHasData(dataFound);
+        
+        console.log("Data found:", dataFound);
         
         if (!dataFound) {
           console.log("No meaningful data found in API response");
@@ -242,14 +274,14 @@ function Stu_Analytics() {
         setHasData(false);
       }
       
-      setLoading(false);
-      setTimeout(() => setChartReady(true), 100);
     } catch (error) {
       console.error("Error fetching data:", error);
       console.error("Error details:", error.response?.data || error.message);
       setApiError(error.response?.data?.message || error.message || "Failed to fetch data");
       setHasData(false);
+    } finally {
       setLoading(false);
+      setTimeout(() => setChartReady(true), 100);
     }
   };
 
@@ -359,16 +391,18 @@ function Stu_Analytics() {
             : "We couldn't find any analytics data for your current selection."
           }
         </p>
-        <div className="text-xs text-gray-400 space-y-1">
+        <div className="text-xs text-gray-400 space-y-1 mb-4">
           <p>• Make sure you have completed some tests</p>
           <p>• Check if your department and year are correct</p>
           <p>• Try refreshing the page</p>
         </div>
+        
         <button 
           onClick={fetchAllData}
-          className="mt-6 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+          disabled={loading}
         >
-          Retry
+          {loading ? 'Loading...' : 'Retry'}
         </button>
       </div>
     </div>
@@ -417,11 +451,11 @@ function Stu_Analytics() {
         </div>
 
         <div className="p-6">
-          {loading || !chartReady ? (
+          {loading ? (
             <div className="flex items-center justify-center h-96">
               <Loader />
             </div>
-          ) : !hasData ? (
+          ) : !hasData || apiError ? (
             <NoDataScreen />
           ) : (
             <>
