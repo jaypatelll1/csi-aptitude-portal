@@ -25,27 +25,11 @@ def async_route(f):
             finally:
                 loop.close()
         else:
-            # There's already a running loop, use run_in_executor
-            return asyncio.create_task(f(*args, **kwargs))
-    return wrapper
-
-def require_api_key(f):
-    """Decorator to require API key authentication"""
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        api_key = request.headers.get(config.API_KEY_HEADER)
-        
-        if not api_key or not api_key.strip():
-            response = APIResponse(
-                success=False, 
-                error="Missing or invalid API key. Include X-API-Key header."
-            )
-            return jsonify(response.__dict__), 401
-            
-        # Here you could add more sophisticated API key validation
-        # For now, we just check if it exists and is not empty
-        
-        return f(*args, **kwargs)
+            # There's already a running loop, run in thread pool
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(asyncio.run, f(*args, **kwargs))
+                return future.result()
     return wrapper
 
 def rate_limit(max_requests: int = None, window_seconds: int = 60):
@@ -56,12 +40,13 @@ def rate_limit(max_requests: int = None, window_seconds: int = 60):
             # Use config value if not specified
             max_reqs = max_requests or config.RATE_LIMIT_PER_MINUTE
             
-            # Get client IP (handle proxy headers)
+            # Get client IP
             client_ip = (
                 request.headers.get('X-Forwarded-For', '').split(',')[0].strip() or
                 request.headers.get('X-Real-IP') or
                 request.environ.get('HTTP_X_REAL_IP') or
-                request.remote_addr
+                request.remote_addr or
+                '127.0.0.1'
             )
             
             # Create time window key
@@ -70,7 +55,6 @@ def rate_limit(max_requests: int = None, window_seconds: int = 60):
             
             # Check current request count
             current_requests = _rate_limit_store.get(rate_key, 0)
-            
             if current_requests >= max_reqs:
                 response = APIResponse(
                     success=False,
@@ -83,7 +67,7 @@ def rate_limit(max_requests: int = None, window_seconds: int = 60):
             
             # Cleanup old entries periodically
             if len(_rate_limit_store) > 10000:
-                cleanup_cutoff = current_window - 2  # Keep last 2 windows
+                cleanup_cutoff = current_window - 2
                 keys_to_delete = [
                     key for key in _rate_limit_store.keys()
                     if int(key.split(":")[1]) < cleanup_cutoff

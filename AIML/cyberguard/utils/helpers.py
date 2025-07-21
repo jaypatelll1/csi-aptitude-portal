@@ -9,9 +9,6 @@ def validate_ip_address(ip: str) -> bool:
     
     try:
         ip_obj = ipaddress.ip_address(ip.strip())
-        # Optionally exclude private/reserved IPs for analysis
-        # if ip_obj.is_private or ip_obj.is_reserved:
-        #     return False
         return True
     except (ValueError, AttributeError):
         return False
@@ -32,21 +29,22 @@ def extract_client_ip(request) -> str:
     # Check various proxy headers in order of preference
     possible_headers = [
         'HTTP_X_FORWARDED_FOR',
-        'HTTP_X_REAL_IP', 
+        'HTTP_X_REAL_IP',
         'HTTP_X_CLUSTER_CLIENT_IP',
         'HTTP_CLIENT_IP',
         'REMOTE_ADDR'
     ]
-    
+
     for header in possible_headers:
         ip = request.environ.get(header)
         if ip:
             # X-Forwarded-For can contain multiple IPs
             if ',' in ip:
-                ip = ip.split(',')[0].strip()
+                ip = ip.split(',').strip()
+            
             if validate_ip_address(ip):
                 return ip
-    
+
     # Fallback to request.remote_addr
     return request.remote_addr or '127.0.0.1'
 
@@ -54,9 +52,9 @@ def normalize_log_data(log_data: Optional[str]) -> Optional[str]:
     """Normalize and clean log data for analysis"""
     if not log_data:
         return None
-    
+
     # Limit size to prevent abuse
     if len(log_data) > 50000:  # 50KB limit
         log_data = log_data[:50000] + "... (truncated)"
-    
+
     return log_data.strip()
