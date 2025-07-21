@@ -4,7 +4,7 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Filter from "../../components/admin/Adm_StudentFilter";
 import AddStudent from "../../components/admin/Adm_AddStudent";
 import EditStudent from "../../components/admin/Adm_EditStudent";
-import UploadModal from "../../upload/UploadModal";
+
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Loader from "../../components/Loader";
 
@@ -23,7 +23,7 @@ const Adm_StudentList = () => {
   const [deletedUsers, setDeletedUsers] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false); // State for toggling sidebar
   const sidebarRef = useRef(null);
-  const [ModalOpen, setModalOpen] = useState(false);
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [Loading, setLoading] = useState(true); // This should show loader on mount
@@ -316,23 +316,7 @@ const Adm_StudentList = () => {
             </h1>
           </div>
           <div className="flex ml-auto mr-9">
-            <div className="bg-[#533FCC] w-32 xl:w-40 h-14 rounded-xl flex items-center justify-center mr-5 hover:bg-[#2d2170] transition-all duration-200 cursor-pointer">
-              <button
-                className="text-white font-poppins text-lg font-medium leading-normal "
-                onClick={() => setModalOpen(true)} // Open modal
-              >
-                Import Excel
-              </button>
-
-              <UploadModal
-                isOpen={ModalOpen}
-                check="Upload Students"
-                closeModal={() => setModalOpen(false)} // Close modal
-                onFileChange={handleFileChange}
-                onSubmit={handleUserSubmit}
-                isUploading={isUploading} // Pass isUploading state to the modal
-              />
-            </div>
+          
             <div
               onClick={openModal}
               className="bg-[#533FCC] w-32 xl:w-40 h-14 rounded-xl flex items-center justify-center hover:bg-[#2d2170] transition-all duration-200 cursor-pointer"
