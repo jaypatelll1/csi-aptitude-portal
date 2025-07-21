@@ -17,37 +17,37 @@ const Stu_TestCard = ({ testName, questionCount, duration, lastDate, examId, sta
 
   const isDisabled = status === "scheduled" || status === "past" || submit === true;
 
-  useEffect(() => {
-    let isMounted = true; // Flag to track if the component is mounted
+  // useEffect(() => {
+  //   let isMounted = true; // Flag to track if the component is mounted
 
-    const fetchResponseExamIds = async () => {
-      try {
-        let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(
-          `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
-          { withCredentials: true }
-        );
+  //   const fetchResponseExamIds = async () => {
+  //     try {
+  //       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
+  //       const response = await axios.get(
+  //         `${API_BASE_URL}/api/exams/responses/user_id?status=submitted`,
+  //         { withCredentials: true }
+  //       );
 
-        // if (isMounted) {
-        //   setResponseExamIds(response.data); // Store fetched data in state
-        // }
+  //       // if (isMounted) {
+  //       //   setResponseExamIds(response.data); // Store fetched data in state
+  //       // }
 
-        // Check if examId is present in the response data
-        if (response.data.includes(examId)) {
-          setSubmit(true);
-        }
-      } catch (error) {
-        console.error("Error fetching response exam IDs:", error);
-      }
-    };
+  //       // Check if examId is present in the response data
+  //       if (response.data.includes(examId)) {
+  //         setSubmit(true);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching response exam IDs:", error);
+  //     }
+  //   };
 
-    fetchResponseExamIds();
+  //   fetchResponseExamIds();
 
-    // Cleanup function
-    return () => {
-      isMounted = false; // Set flag to false when component unmounts
-    };
-  }, [examId, dispatch]);
+  //   // Cleanup function
+  //   return () => {
+  //     isMounted = false; // Set flag to false when component unmounts
+  //   };
+  // }, [examId, dispatch]);
 
   const handleChange = async () => {
     navigate("/test-instruction", { state: { examId: examId, Duration: duration }, replace: true });
