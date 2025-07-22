@@ -151,7 +151,8 @@ const getSingleUserAnalysis = async (req, res) => {
 
 
 const overallAnalysis = async (req, res) => {
-  const year = req.query.year || 'BE'; // allow filtering by year (default BE)
+  // const year = req.query.year || 'BE'; // allow filtering by year (default BE)
+  const { year } = req.params;
   const cacheKey = `analytics:overall:${year}`;
 
   try {

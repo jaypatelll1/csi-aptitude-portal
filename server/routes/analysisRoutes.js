@@ -37,7 +37,7 @@ router.get('/student-analysis/:student_id', getSingleUserAnalysis) // This will 
 
 // router.get('/department', getDepartmentAnalysis); //-----------------
 router.get('/department/:department_name', getDepartmentAnalysis); //-----------------
-router.get('/overallAnalysis', overallAnalysis);
+router.get('/overallAnalysis/:year', overallAnalysis);
 router.get('/user/:student_id', getUserAnalysis); //---------------
 router.get('/dept-student-analysis', deptUserAnalysis) 
 // department

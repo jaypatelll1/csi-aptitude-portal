@@ -48,7 +48,7 @@ async function generateStudentRanks() {
       // ✅ Debug output for verification
       console.log(`📊 Department-Year: ${deptKey}`);
       group.forEach((s) =>
-        console.log(`  ${s.student_name} — Score: ${s.total_score}, Dept Rank: ${s.department_rank}`)
+        console.log(`${s.student_name} — Score: ${s.total_score}, Dept Rank: ${s.department_rank}`)
       );
     }
 

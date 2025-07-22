@@ -5,7 +5,7 @@ import BarChartComponent from "../../components/analytics/BarChartComponent";
 import MultiLineChartComponent from "../../components/analytics/MultiLineChartComponent";
 import PieChartComponent from "../../components/analytics/PieChartComponent";
 import TableComponent from "../../components/analytics/TableComponent";
-
+import { useSelector } from "react-redux";
 
 import axios from "axios";
 import Loader from "../../components/Loader";
@@ -13,7 +13,7 @@ import Loader from "../../components/Loader";
 function Adm_OverallScore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-
+  const user = useSelector((state) => state.user);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,7 +37,7 @@ function Adm_OverallScore() {
       setError(null);
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
        
-      const url = `${API_BASE_URL}/api/analysis/overallAnalysis`;
+      const url = `${API_BASE_URL}/api/analysis/overallAnalysis/${user.user.year}`; // Use the year from user data or adjust as needed
       const response = await axios.get(url, { withCredentials: true });
       
       // Access the response data directly
@@ -65,7 +65,7 @@ function Adm_OverallScore() {
   };
 
   fetchAnalyticsData();
-}, []);
+}, [user]);
 
 
 
