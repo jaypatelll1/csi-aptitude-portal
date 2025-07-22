@@ -7,6 +7,7 @@ import EditStudent from "../../components/admin/Adm_EditStudent";
 
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 
 const Adm_StudentList = () => {
   const [showFilter, setShowFilter] = useState(false);
@@ -27,6 +28,7 @@ const Adm_StudentList = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [Loading, setLoading] = useState(true); // This should show loader on mount
+const user = useSelector((state) => state.user.user);
 
   //    Handle file change and validate file type
   const handleFileChange = (event) => {
@@ -148,7 +150,7 @@ const Adm_StudentList = () => {
      
       
       let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-      const response = await axios.get(`${API_BASE_URL}/api/users/?role=Student`, {
+      const response = await axios.get(`${API_BASE_URL}/api/users/?role=Student&year=${user.year}`, {
         withCredentials: true,
       });
       const studentData = response.data.users;

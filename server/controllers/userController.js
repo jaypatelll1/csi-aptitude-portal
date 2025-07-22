@@ -293,13 +293,12 @@ const deleteUser = async (req, res) => {
 const getAllPaginatedUsers = async (req, res) => {
   const user_id = req.user.id;
   const user_role = req.user.role; // Get current user's role
-  const { page, limit, role, department } = req.query;
+  const { page, limit, role, department,year } = req.query;
 
   // Add year filter for TPO
-  const isTPO = user_role === 'TPO';
-  const yearFilter = isTPO ? 'BE' : null;
+  
 
-  const cacheKey = `users:${role || 'all'}:${department || 'all'}:${page || 'all'}:${limit || 'all'}:${yearFilter || 'none'}`;
+  const cacheKey = `users:${role || 'all'}:${department || 'all'}:${page || 'all'}:${limit || 'all'}:${year || 'none'}`;
 
   try {
 
@@ -321,26 +320,26 @@ const getAllPaginatedUsers = async (req, res) => {
     let users;
 
     if (!page && !limit && !department) {
-      users = await userModel.getAllStudents(role, yearFilter); // modified
+      users = await userModel.getAllStudents(role, year); // modified
     } else {
       if (!role) {
         users = await userModel.getAllPaginatedUsers(
           parseInt(page),
           parseInt(limit),
-          yearFilter // added
+         year // added
         );
       } else if (role || department) {
         users = await userModel.getDepartmentUsers(
           role,
           department,
-          yearFilter // added
+          year // added
         );
       } else {
         users = await userModel.getAllPaginatedRoleUsers(
           parseInt(page),
           parseInt(limit),
           role,
-          yearFilter // added
+          year // added
         );
       }
     }
@@ -354,7 +353,7 @@ const getAllPaginatedUsers = async (req, res) => {
       user_id: user_id,
       activity: `Viewed users`,
       status: 'success',
-      details: `Page: ${page || 'all'}, Limit: ${limit || 'all'}, Year filter: ${yearFilter || 'none'}`,
+      details: `Page: ${page || 'all'}, Limit: ${limit || 'all'}, Year filter: ${year || 'none'}`,
     });
 
     return res.status(200).json({
