@@ -267,27 +267,48 @@ socket.on("already_active", ({ message }) => {
     }
   };
 
+  const saveCurrentReduxAnswer = () => {
+    const questionType = currentQuestion?.question_type;
+    if (!currentQuestion) return;
+    switch (questionType) {
+      case 'single_choice':
+        if (currentQuestion.selectedOption !== undefined && currentQuestion.selectedOption !== null) {
+          dispatch(setSelectedOption({ index: currentQuestionIndex, option: currentQuestion.selectedOption, answered: true, cleared: false }));
+        }
+        break;
+      case 'multiple_choice':
+        if (currentQuestion.selectedOptions && currentQuestion.selectedOptions.length > 0) {
+          dispatch(setMultipleSelectedOption({ index: currentQuestionIndex, options: currentQuestion.selectedOptions, answered: true, cleared: false }));
+        }
+        break;
+      case 'text':
+        if (currentQuestion.textAnswer && currentQuestion.textAnswer.trim() !== "") {
+          dispatch(setTextAnswer({ index: currentQuestionIndex, text: currentQuestion.textAnswer, answered: true, cleared: false }));
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleNextQuestion = async () => {
-    // Prevent multiple clicks while saving
     if (isSaving) return;
-    
-    // Save current response before moving to next question
     if (hasUnsavedChanges && pendingResponse) {
       await savePendingResponse();
+    } else {
+      saveCurrentReduxAnswer();
     }
-    
     if (currentQuestionIndex < questions.length - 1) {
       dispatch(visitQuestion(currentQuestionIndex + 1));
     }
   };
 
   const handleSaveCurrentQuestion = async () => {
-    // Prevent multiple clicks while saving
     if (isSaving) return;
-    
-    // Save current response without moving to next question (for last question)
     if (hasUnsavedChanges && pendingResponse) {
       await savePendingResponse();
+    } else {
+      saveCurrentReduxAnswer();
     }
   };
 
