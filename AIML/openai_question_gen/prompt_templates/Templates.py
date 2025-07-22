@@ -77,7 +77,7 @@ Return ONLY this JSON structure:
     "generation_time": "{timestamp}",
     "source": "PDF Document",
     "bloom_taxonomy_levels": ["remember", "understand", "apply", "analyze", "evaluate", "create"],
-    "question_types_included": ["general_knowledge", "quantitative_aptitude", "verbal_ability", "technical", "logical_reasoning"]
+    "question_types_included": ["general knowledge", "quantitative aptitude", "verbal ability", "technical", "logical reasoning"]
   }},
   "questions": [
     {{

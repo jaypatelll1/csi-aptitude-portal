@@ -106,6 +106,21 @@ app.get('/', (req, res) => {
   res.send('Server is running!'); // Generic message for Render health checks
 });
 
+app.get('/api/security/stats', jwtAuthMiddleware, async (req, res) => {
+  try {
+    const stats = await ipGuardianService.getStats();
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // 404 Handler for undefined routes
 // app.use((req, res, next) => {
 //   const error = new Error(`Not Found - ${req.originalUrl}`);
