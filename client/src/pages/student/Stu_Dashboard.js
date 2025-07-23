@@ -105,16 +105,6 @@ function Stu_Dashboard() {
     return `${day}/${month}/${year}`;
   };
 
-  // Function to filter tests by date range
-  const filterByDateRange = (testsToFilter, start, end) => {
-    if (!start || !end) return testsToFilter;
-
-    return testsToFilter.filter((test) => {
-      const testDate = new Date(test.Date);
-      return testDate >= start && testDate <= end;
-    });
-  };
-
   // Modified function to fetch analytics data
   const fetchAnalyticsData = async () => {
     setAnalyticsLoading(true);
@@ -130,7 +120,7 @@ function Stu_Dashboard() {
       );
 
       setAnalyticsData(response.data.results);
-      console.log("Analytics Data:", response.data.results);
+      // console.log("Analytics Data:", response.data.results);
     } catch (error) {
       console.error("Error fetching analytics data:", error);
       setAnalyticsError(

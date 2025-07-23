@@ -41,7 +41,7 @@ const Stu_PastCard = ({ test }) => {
 
   return (
     
-    <div className={`bg-white rounded-lg p-4 border flex flex-col border  ${test.isAttempted?'border-[#1AAB07]' : 'border-red-500' }`}>
+    <div className={`bg-white rounded-lg p-4 flex flex-col border  ${test.isAttempted?'border-[#1AAB07]' : 'border-red-500' }`}>
       <div className="flex justify-between items-center mb-4">
         
         <span className={`flex items-center bg-white  border ${test.isAttempted ? 'border-[#1AAB07] text-[#1AAB07]' :'border-red-500 text-red-500' } opacity-90 text-sm px-2 py-1 rounded space-x-2`}>

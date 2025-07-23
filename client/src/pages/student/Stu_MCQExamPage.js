@@ -55,7 +55,7 @@ const questions = useSelector((state) => state.questions.questions);
     const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
     const url = `${API_BASE_URL}/api/exams/responses/final/${examId}`;
     await axios.put(url, { responses }, { withCredentials: true });
-    console.log("Final response submitted successfully");
+    // console.log("Final response submitted successfully");
   } catch (error) {
     console.error("Error submitting final response:", error);
     throw error;

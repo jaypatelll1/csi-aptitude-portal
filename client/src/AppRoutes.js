@@ -26,6 +26,9 @@ import Adm_TestStudentList from "./pages/admin/Adm_TestStudentList";
 import Adm_Analytics from "./pages/admin/Adm_Analytics";
 import Adm_StudentAnalysis from "./pages/admin/Adm_StudentAnalysis";
 import Adm_StudentAnalytics from "./pages/admin/Adm_StudentAnalytics";
+import Adm_OverallScore from "./pages/admin/Adm_OverallScore";
+import Adm_McqGenerator from "./pages/admin/Adm_McqGenerator";
+import Adm_LiveTestList from "./pages/admin/Adm_LiveTestList";
 
 import Dep_Dashboard from "./pages/department/Dep_Dashboard";
 import Dep_CreateTestForm from "./pages/department/Dep_CreateTestForm";
@@ -46,8 +49,7 @@ import Teacher_Dashboard from "./pages/teacher/Teacher_Dashboard";
 import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
 import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
 import Teacher_UpcomingTest from "./pages/teacher/Teacher_UpcomingTest";
-import Adm_OverallScore from "./pages/admin/Adm_OverallScore";
-import Adm_McqGenerator from "./pages/admin/Adm_McqGenerator";
+
 
 
 import Dep_PresidentDashboard from "./pages/depPresident/Dep_PresidentDashboard";
@@ -283,6 +285,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["TPO"]}>
             <Adm_McqGenerator />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/live-test-list"
+        element={
+          <ProtectedRoute allowedRoles={["TPO"]}>
+            <Adm_LiveTestList />
           </ProtectedRoute>
         }
       />
