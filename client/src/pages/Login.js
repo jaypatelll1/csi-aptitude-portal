@@ -38,13 +38,13 @@ const Login = () => {
       new TextEncoder().encode(SECRET_KEY),
       { name: "AES-CBC" },
       false,
-      ["encrypt"]
+      ["encrypt"],
     );
 
     const encryptedData = await crypto.subtle.encrypt(
       { name: "AES-CBC", iv: new TextEncoder().encode(IV) },
       cryptoKey,
-      encodedPassword
+      encodedPassword,
     );
 
     return btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
@@ -76,7 +76,7 @@ const Login = () => {
           headers: {
             "X-Screen-Width": window.screen.width,
           },
-        }
+        },
       );
 
       if (response.data.message === "Login Successful") {
@@ -95,6 +95,9 @@ const Login = () => {
               break;
             case "Department":
               navigate("/department", { replace: true });
+              break;
+            case "Admin":
+              navigate("/sup-admin", { replace: true });
               break;
             case "Teacher":
               navigate("/teacher", { replace: true });
@@ -157,7 +160,9 @@ const Login = () => {
                 Aptitude <br />
                 <span>Portal</span>
               </h1>
-              <p className="mt-3 text-base md:text-lg">Turn your exams into success stories</p>
+              <p className="mt-3 text-base md:text-lg">
+                Turn your exams into success stories
+              </p>
             </div>
 
             <div className="mt-20 w-full">
@@ -191,7 +196,9 @@ const Login = () => {
                   type="submit"
                   disabled={loading}
                   className={`w-full py-3 text-white rounded-xl shadow-md transition transform hover:scale-105 ${
-                    loading ? "bg-gray-500 cursor-not-allowed" : "bg-black hover:bg-gray-800"
+                    loading
+                      ? "bg-gray-500 cursor-not-allowed"
+                      : "bg-black hover:bg-gray-800"
                   }`}
                 >
                   {loading ? "Logging in..." : "Login"}

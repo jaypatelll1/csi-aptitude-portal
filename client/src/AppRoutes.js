@@ -64,6 +64,8 @@ import Dep_PresidentTestTeacherList from "./pages/depPresident/Dep_PresidentTest
 import Dep_PresidentViewQuestions from "./pages/depPresident/Dep_PresidentViewQuestions";
 import Dep_PresidentResult from "./pages/depPresident/Dep_PresidentResult";
 
+import Sup_Dashboard from "./pages/super-admin/Sup_Dashboard";
+
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
 import Dep_PresidentLiveTestList from "./pages/depPresident/Dep_PresidentLiveTestList";
@@ -507,6 +509,16 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["President"]}>
             <Dep_PresidentLiveTestList/>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* super admin routes */}
+      <Route
+        path="/sup-admin"
+        element={
+          <ProtectedRoute allowedRoles={["Admin"]}>
+            <Sup_Dashboard />
           </ProtectedRoute>
         }
       />
