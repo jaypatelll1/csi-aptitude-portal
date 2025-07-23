@@ -10,7 +10,7 @@ const Sup_Sidebar = () => {
       <ul className="list-none p-0 m-0">
         <li className="flex items-center p-2 cursor-pointer transition-colors duration-300 hover:text-blue-500 group">
           <NavLink 
-            to="/supervisor" 
+            to="/sup-admin" 
             end
             className={({ isActive }) =>
               `flex items-center w-full ${isActive ? "text-blue-500" : "text-black hover:text-blue-500"}`
@@ -39,7 +39,7 @@ const Sup_Sidebar = () => {
         
         <li className="flex items-center p-2 cursor-pointer transition-colors duration-300 hover:text-blue-500 group">
           <NavLink 
-            to="/supervisor/view-student" 
+            to="/sup-admin/view-students" 
             className={({ isActive }) =>
               `flex items-center w-full ${isActive ? "text-blue-500" : "text-black hover:text-blue-500"}`
             }

@@ -65,6 +65,8 @@ import Dep_PresidentViewQuestions from "./pages/depPresident/Dep_PresidentViewQu
 import Dep_PresidentResult from "./pages/depPresident/Dep_PresidentResult";
 
 import Sup_Dashboard from "./pages/super-admin/Sup_Dashboard";
+import Sup_ViewStudent from "./pages/super-admin/Sup_ViewStudent";
+
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -519,6 +521,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedRoles={["Admin"]}>
             <Sup_Dashboard />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/sup-admin/view-students"
+        element={
+          <ProtectedRoute allowedRoles={["Admin"]}>
+            <Sup_ViewStudent />
           </ProtectedRoute>
         }
       />
