@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import Sup_Sidebar from "../../components/super-admin/Sup_Sidebar";
 import Sup_Navbar from "../../components/super-admin/Sup_Navbar";
 import AddStudentModal from "../../components/super-admin/Sup_AddStudent";
+import UploadModal from "../../upload/UploadModal";
+import Sup_EditStudent from "../../components/super-admin/Sup_EditStudent"; // Add this import
 
 const Sup_ViewStudent = () => {
   const sidebarRef = useRef(null);
@@ -10,71 +12,168 @@ const Sup_ViewStudent = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   
+  // Upload Modal States
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Edit Student Modal States
+  const [showEditStudent, setShowEditStudent] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  
   const [students, setStudents] = useState([
     {
       id: 1,
       name: 'Shree Shinde',
       email: 'shreeshinde-inft@atharvacoe.ac.in',
       mobile: '9501856750',
-      branch: 'INFT'
+      branch: 'INFT',
+      year: 'SE',
+      rollno: 101
     },
     {
       id: 2,
       name: 'Shravani P.',
       email: 'shravanipawar-inft@atharvacoe.ac.in',
       mobile: '7725068610',
-      branch: 'INFT'
+      branch: 'INFT',
+      year: 'TE',
+      rollno: 102
     },
     {
       id: 3,
       name: 'Wade Warren',
       email: 'WadeWarren-inft@atharvacoe.ac.in',
       mobile: '0367871221',
-      branch: 'CMPN'
+      branch: 'CMPN',
+      year: 'BE',
+      rollno: 201
     },
     {
       id: 4,
       name: 'Guy Hawkins',
       email: 'GuyHawkins-inft@atharvacoe.ac.in',
       mobile: '3954212189',
-      branch: 'EXTC'
+      branch: 'EXTC',
+      year: 'FE',
+      rollno: 301
     },
     {
       id: 5,
       name: 'Robert Fox',
       email: 'RobertFox-inft@atharvacoe.ac.in',
       mobile: '3910793817',
-      branch: 'INFT'
+      branch: 'INFT',
+      year: 'SE',
+      rollno: 103
     },
     {
       id: 6,
       name: 'Jacob Jones',
       email: 'JacobJones-inft@atharvacoe.ac.in',
       mobile: '5101345246',
-      branch: 'CMPN'
+      branch: 'CMPN',
+      year: 'TE',
+      rollno: 202
     },
     {
       id: 7,
       name: 'Albert Flores',
       email: 'AlbertFlores-inft@atharvacoe.ac.in',
       mobile: '6557000265',
-      branch: 'CMPN'
+      branch: 'CMPN',
+      year: 'BE',
+      rollno: 203
     },
     {
       id: 8,
       name: 'Cody Fisher',
       email: 'CodyFisher-inft@atharvacoe.ac.in',
       mobile: '6221376671',
-      branch: 'Elec'
+      branch: 'ELEC',
+      year: 'FE',
+      rollno: 401
     }
   ]);
 
   const handleAddStudent = (studentData) => {
     const newStudent = {
       id: students.length + 1,
-      ...studentData
+      name: studentData.name,
+      email: studentData.email,
+      mobile: studentData.phone,
+      branch: studentData.department,
+      year: studentData.year,
+      rollno: studentData.rollno
     };
     setStudents([...students, newStudent]);
+  };
+
+  // Edit Student Functions
+  const handleEditStudent = (student) => {
+    setSelectedStudent(student);
+    setShowEditStudent(true);
+  };
+
+  const handleStudentUpdated = (updatedStudent) => {
+    setStudents(students.map(student => 
+      student.id === updatedStudent.id ? updatedStudent : student
+    ));
+  };
+
+  const handleStudentDeleted = (studentId) => {
+    setStudents(students.filter(student => student.id !== studentId));
+  };
+
+  const closeEditModal = () => {
+    setShowEditStudent(false);
+    setSelectedStudent(null);
+  };
+
+  // Upload Modal Functions
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+  };
+
+  const handleFileUpload = async (event) => {
+    event.preventDefault();
+    
+    if (!selectedFile) {
+      alert('Please select a file first!');
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      alert('File uploaded successfully!');
+      setShowUploadModal(false);
+      setSelectedFile(null);
+      
+      const fileInput = document.getElementById('file-upload');
+      if (fileInput) {
+        fileInput.value = '';
+      }
+      
+    } catch (error) {
+      alert('Upload failed: ' + error.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const closeUploadModal = () => {
+    setShowUploadModal(false);
+    setSelectedFile(null);
+    setIsUploading(false);
+    
+    const fileInput = document.getElementById('file-upload');
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   const filteredStudents = students.filter(student =>
@@ -158,7 +257,10 @@ const Sup_ViewStudent = () => {
                 </div>
               </div>
               <div className="flex gap-3">
-                <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                <button 
+                  onClick={() => setShowUploadModal(true)}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                >
                   Import
                 </button>
                 <button
@@ -193,7 +295,7 @@ const Sup_ViewStudent = () => {
                   </div>
                   
                   {/* Filters Button */}
-                  {/* <div className="relative">
+                  <div className="relative">
                     <button
                       onClick={() => setShowFilters(!showFilters)}
                       className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -206,7 +308,7 @@ const Sup_ViewStudent = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
@@ -237,7 +339,10 @@ const Sup_ViewStudent = () => {
                         </span>
                       </td>
                       <td className="py-4 px-6 border-b border-gray-100">
-                        <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <button 
+                          onClick={() => handleEditStudent(student)}
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
@@ -276,6 +381,26 @@ const Sup_ViewStudent = () => {
         onClose={() => setShowAddStudent(false)}
         onSave={handleAddStudent}
       />
+
+      {/* Upload Modal */}
+      <UploadModal
+        isOpen={showUploadModal}
+        closeModal={closeUploadModal}
+        onFileChange={handleFileChange}
+        onSubmit={handleFileUpload}
+        isUploading={isUploading}
+        check="Import Students from Excel"
+      />
+
+      {/* Edit Student Modal */}
+      {showEditStudent && selectedStudent && (
+        <Sup_EditStudent
+          closeEditModal={closeEditModal}
+          student={selectedStudent}
+          onStudentUpdated={handleStudentUpdated}
+          onStudentDeleted={handleStudentDeleted}
+        />
+      )}
     </div>
   );
 };
