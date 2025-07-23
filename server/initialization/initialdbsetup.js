@@ -3,7 +3,7 @@ const pool = require('../config/db');
 // Initialize connection pool
 
 const query = ` 
-CREATE TYPE role_enum AS ENUM ('TPO','Student', 'Teacher', 'Department', 'President');
+CREATE TYPE role_enum AS ENUM ('TPO', 'Admin','Student', 'Teacher', 'Department', 'President');
 CREATE TYPE user_status AS ENUM ('NOTACTIVE', 'ACTIVE');
 CREATE TYPE branch_enum AS ENUM ('CMPN', 'INFT', 'ECS', 'EXTC', 'ELEC');
 CREATE TYPE year_enum AS ENUM ('FE', 'SE', 'TE', 'BE');
