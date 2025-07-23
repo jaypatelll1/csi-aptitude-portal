@@ -50,8 +50,6 @@ import Teacher_TestInstruction from "./pages/teacher/Teacher_TestInstruction";
 import Teacher_MCQExamPage from "./pages/teacher/Teacher_MCQExamPage";
 import Teacher_UpcomingTest from "./pages/teacher/Teacher_UpcomingTest";
 
-
-
 import Dep_PresidentDashboard from "./pages/depPresident/Dep_PresidentDashboard";
 import Dep_PresidentCreateTestForm from "./pages/depPresident/Dep_PresidentCreateTestForm";
 import Dep_PresidentDraftTest from "./pages/depPresident/Dep_PresidentDraftTest";
@@ -66,7 +64,7 @@ import Dep_PresidentResult from "./pages/depPresident/Dep_PresidentResult";
 
 import Sup_Dashboard from "./pages/super-admin/Sup_Dashboard";
 import Sup_ViewStudent from "./pages/super-admin/Sup_ViewStudent";
-
+import Sup_ViewTeacher from "./pages/super-admin/Sup_ViewTeacher";
 
 // Protected Route Component
 import ProtectedRoute from "./ProtectedRoute";
@@ -510,7 +508,7 @@ const AppRoutes = () => {
         path="/president/livetest-list"
         element={
           <ProtectedRoute allowedRoles={["President"]}>
-            <Dep_PresidentLiveTestList/>
+            <Dep_PresidentLiveTestList />
           </ProtectedRoute>
         }
       />
@@ -524,11 +522,19 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-       <Route
+      <Route
         path="/sup-admin/view-students"
         element={
           <ProtectedRoute allowedRoles={["Admin"]}>
             <Sup_ViewStudent />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sup-admin/view-teachers"
+        element={
+          <ProtectedRoute allowedRoles={["Admin"]}>
+            <Sup_ViewTeacher />
           </ProtectedRoute>
         }
       />

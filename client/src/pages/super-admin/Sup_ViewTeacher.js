@@ -1,35 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
 import Sup_Sidebar from "../../components/super-admin/Sup_Sidebar";
 import Sup_Navbar from "../../components/super-admin/Sup_Navbar";
-import AddStudentModal from "../../components/super-admin/Sup_AddStudent";
-import UploadModal from "../../upload/UploadModal";
-import Sup_EditStudent from "../../components/super-admin/Sup_EditStudent";
+import AddTeacherModal from "../../components/super-admin/Sup_AddTeacher";
+import Sup_EditTeacher from "../../components/super-admin/Sup_EditTeacher"; // Add this import
 
-const Sup_ViewStudent = () => {
+const Sup_ViewTeacher = () => {
   const sidebarRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showAddStudent, setShowAddStudent] = useState(false);
+  const [showAddTeacher, setShowAddTeacher] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Upload Modal States
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  // Edit Teacher Modal States
+  const [showEditTeacher, setShowEditTeacher] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
 
-  // Edit Student Modal States
-  const [showEditStudent, setShowEditStudent] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-
-  const [students, setStudents] = useState([
+  const [teachers, setTeachers] = useState([
     {
       id: 1,
       name: "Shree Shinde",
       email: "shreeshinde-inft@atharvacoe.ac.in",
       mobile: "9501856750",
       branch: "INFT",
-      year: "SE",
-      rollno: 101,
     },
     {
       id: 2,
@@ -37,8 +28,6 @@ const Sup_ViewStudent = () => {
       email: "shravanipawar-inft@atharvacoe.ac.in",
       mobile: "7725068610",
       branch: "INFT",
-      year: "TE",
-      rollno: 102,
     },
     {
       id: 3,
@@ -46,8 +35,6 @@ const Sup_ViewStudent = () => {
       email: "WadeWarren-inft@atharvacoe.ac.in",
       mobile: "0367871221",
       branch: "CMPN",
-      year: "BE",
-      rollno: 201,
     },
     {
       id: 4,
@@ -55,8 +42,6 @@ const Sup_ViewStudent = () => {
       email: "GuyHawkins-inft@atharvacoe.ac.in",
       mobile: "3954212189",
       branch: "EXTC",
-      year: "FE",
-      rollno: 301,
     },
     {
       id: 5,
@@ -64,8 +49,6 @@ const Sup_ViewStudent = () => {
       email: "RobertFox-inft@atharvacoe.ac.in",
       mobile: "3910793817",
       branch: "INFT",
-      year: "SE",
-      rollno: 103,
     },
     {
       id: 6,
@@ -73,8 +56,6 @@ const Sup_ViewStudent = () => {
       email: "JacobJones-inft@atharvacoe.ac.in",
       mobile: "5101345246",
       branch: "CMPN",
-      year: "TE",
-      rollno: 202,
     },
     {
       id: 7,
@@ -82,172 +63,55 @@ const Sup_ViewStudent = () => {
       email: "AlbertFlores-inft@atharvacoe.ac.in",
       mobile: "6557000265",
       branch: "CMPN",
-      year: "BE",
-      rollno: 203,
     },
     {
       id: 8,
       name: "Cody Fisher",
       email: "CodyFisher-inft@atharvacoe.ac.in",
       mobile: "6221376671",
-      branch: "ELEC",
-      year: "FE",
-      rollno: 401,
+      branch: "Elec",
     },
   ]);
 
-  const handleAddStudent = (studentData) => {
-    const newStudent = {
-      id: students.length + 1,
-      name: studentData.name,
-      email: studentData.email,
-      mobile: studentData.phone,
-      branch: studentData.department,
-      year: studentData.year,
-      rollno: studentData.rollno,
+  const handleAddTeacher = (teacherData) => {
+    const newTeacher = {
+      id: teachers.length + 1,
+      name: `${teacherData.firstName} ${teacherData.lastName}`,
+      email: teacherData.email,
+      mobile: teacherData.mobile,
+      branch: teacherData.branch,
     };
-    setStudents([...students, newStudent]);
+    setTeachers([...teachers, newTeacher]);
   };
 
-  // Edit Student Functions
-  const handleEditStudent = (student) => {
-    setSelectedStudent(student);
-    setShowEditStudent(true);
+  // Edit Teacher Functions
+  const handleEditTeacher = (teacher) => {
+    setSelectedTeacher(teacher);
+    setShowEditTeacher(true);
   };
 
-  const handleStudentUpdated = (updatedStudent) => {
-    setStudents(
-      students.map((student) =>
-        student.id === updatedStudent.id ? updatedStudent : student,
+  const handleTeacherUpdated = (updatedTeacher) => {
+    setTeachers(
+      teachers.map((teacher) =>
+        teacher.id === updatedTeacher.id ? updatedTeacher : teacher,
       ),
     );
   };
 
-  const handleStudentDeleted = (studentId) => {
-    setStudents(students.filter((student) => student.id !== studentId));
+  const handleTeacherDeleted = (teacherId) => {
+    setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
   };
 
   const closeEditModal = () => {
-    setShowEditStudent(false);
-    setSelectedStudent(null);
+    setShowEditTeacher(false);
+    setSelectedTeacher(null);
   };
 
-  // Upload Modal Functions - Updated with API integration
-  const handleFileChange = (event) => {
-    const file = event.target.files ? event.target.files[0] : null;
-
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    // File type validation - same as admin code
-    const allowedTypes = [
-      "application/vnd.ms-excel", // .xls
-      "text/csv", // .csv
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      alert("Invalid file type. Please upload a .csv, .xls, or .xlsx file.");
-      return;
-    }
-
-    setSelectedFile(file);
-  };
-
-  const handleFileUpload = async (event) => {
-    event.preventDefault();
-
-    if (!selectedFile) {
-      alert("Please select a file to upload.");
-      return;
-    }
-
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append("Files", selectedFile); // Using same field name as admin code
-
-    try {
-      const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-
-      const response = await axios.post(
-        `${API_BASE_URL}/api/users/upload?role=Student`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        },
-      );
-
-      if (response.data.status === "success") {
-        if (response.data.warnings && response.data.warnings.length > 0) {
-          alert(
-            `Upload successful with warnings:\n${response.data.warnings.join("\n")}`,
-          );
-        } else {
-          alert("File uploaded successfully! Students have been imported.");
-        }
-
-        // If the API returns the imported students, add them to the current list
-        if (response.data.users) {
-          const importedStudents = response.data.users.map((user, index) => ({
-            id: students.length + index + 1,
-            name: user.name,
-            email: user.email,
-            mobile: user.phone,
-            branch: user.department,
-            year: user.year,
-            rollno: user.rollno,
-          }));
-          setStudents((prev) => [...prev, ...importedStudents]);
-        }
-
-        closeUploadModal();
-      } else {
-        alert(`Error: ${response.data.message}`);
-      }
-    } catch (error) {
-      console.error(
-        "Error uploading file:",
-        error.response ? error.response.data : error.message,
-      );
-
-      // More detailed error handling
-      if (error.response) {
-        const errorMsg =
-          error.response.data?.error ||
-          error.response.data?.message ||
-          "An error occurred while uploading the file.";
-        alert(`Upload failed: ${errorMsg}`);
-      } else {
-        alert(
-          "Network error: Unable to upload file. Please check your connection and try again.",
-        );
-      }
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const closeUploadModal = () => {
-    setShowUploadModal(false);
-    setSelectedFile(null);
-    setIsUploading(false);
-
-    const fileInput = document.getElementById("file-upload");
-    if (fileInput) {
-      fileInput.value = "";
-    }
-  };
-
-  const filteredStudents = students.filter(
-    (student) =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.branch.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredTeachers = teachers.filter(
+    (teacher) =>
+      teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      teacher.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      teacher.branch.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   useEffect(() => {
@@ -310,7 +174,7 @@ const Sup_ViewStudent = () => {
 
         {/* Page Content */}
         <div className="p-6">
-          {/* Import Students Section */}
+          {/* Import Teachers Section */}
           <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -325,44 +189,37 @@ const Sup_ViewStudent = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
                     />
                   </svg>
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-1">
-                    Import students
+                    Import teachers
                   </h2>
                   <p className="text-gray-600 text-sm">
-                    Register students to gain access to aptitude tests
+                    Register Teachers to gain access to aptitude tests
                   </p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setShowUploadModal(true)}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                  disabled={isUploading}
+                  onClick={() => setShowAddTeacher(true)}
+                  className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  {isUploading ? "Importing..." : "Import"}
-                </button>
-                <button
-                  onClick={() => setShowAddStudent(true)}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                >
-                  Add Student
+                  Add Teacher
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Students List Section */}
+          {/* Teachers List Section */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             {/* Header */}
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Students List
+                  Teacher List
                 </h3>
                 <div className="flex items-center gap-3">
                   {/* Search Box */}
@@ -372,7 +229,7 @@ const Sup_ViewStudent = () => {
                       placeholder="Search"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     />
                     <svg
                       className="w-4 h-4 text-gray-400 absolute left-3 top-3"
@@ -418,32 +275,32 @@ const Sup_ViewStudent = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents.map((student, index) => (
+                  {filteredTeachers.map((teacher, index) => (
                     <tr
-                      key={student.id}
+                      key={teacher.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
                       <td className="py-4 px-6 text-sm text-gray-900 border-b border-gray-100">
                         {index + 1}
                       </td>
                       <td className="py-4 px-6 text-sm font-medium text-gray-900 border-b border-gray-100">
-                        {student.name}
+                        {teacher.name}
                       </td>
                       <td className="py-4 px-6 text-sm text-gray-600 border-b border-gray-100">
-                        {student.email}
+                        {teacher.email}
                       </td>
                       <td className="py-4 px-6 text-sm text-gray-900 border-b border-gray-100">
-                        {student.mobile}
+                        {teacher.mobile}
                       </td>
                       <td className="py-4 px-6 text-sm text-gray-900 border-b border-gray-100">
                         <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                          {student.branch}
+                          {teacher.branch}
                         </span>
                       </td>
                       <td className="py-4 px-6 border-b border-gray-100">
                         <button
-                          onClick={() => handleEditStudent(student)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          onClick={() => handleEditTeacher(teacher)}
+                          className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                         >
                           <svg
                             className="w-4 h-4"
@@ -470,14 +327,14 @@ const Sup_ViewStudent = () => {
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
               <div className="flex items-center justify-between text-sm text-gray-700">
                 <span>
-                  Showing {filteredStudents.length} of {students.length}{" "}
-                  students
+                  Showing {filteredTeachers.length} of {teachers.length}{" "}
+                  teachers
                 </span>
                 <div className="flex items-center gap-2">
                   <button className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100 transition-colors">
                     Previous
                   </button>
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                  <button className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
                     1
                   </button>
                   <button className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100 transition-colors">
@@ -490,34 +347,24 @@ const Sup_ViewStudent = () => {
         </div>
       </div>
 
-      {/* Add Student Modal */}
-      <AddStudentModal
-        isOpen={showAddStudent}
-        onClose={() => setShowAddStudent(false)}
-        onSave={handleAddStudent}
+      {/* Add Teacher Modal */}
+      <AddTeacherModal
+        isOpen={showAddTeacher}
+        onClose={() => setShowAddTeacher(false)}
+        onSave={handleAddTeacher}
       />
 
-      {/* Upload Modal */}
-      <UploadModal
-        isOpen={showUploadModal}
-        closeModal={closeUploadModal}
-        onFileChange={handleFileChange}
-        onSubmit={handleFileUpload}
-        isUploading={isUploading}
-        check="Import Students from Excel"
-      />
-
-      {/* Edit Student Modal */}
-      {showEditStudent && selectedStudent && (
-        <Sup_EditStudent
+      {/* Edit Teacher Modal */}
+      {showEditTeacher && selectedTeacher && (
+        <Sup_EditTeacher
           closeEditModal={closeEditModal}
-          student={selectedStudent}
-          onStudentUpdated={handleStudentUpdated}
-          onStudentDeleted={handleStudentDeleted}
+          teacher={selectedTeacher}
+          onTeacherUpdated={handleTeacherUpdated}
+          onTeacherDeleted={handleTeacherDeleted}
         />
       )}
     </div>
   );
 };
 
-export default Sup_ViewStudent;
+export default Sup_ViewTeacher;
