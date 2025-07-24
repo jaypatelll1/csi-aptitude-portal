@@ -169,40 +169,11 @@ const getAllScheduledExams = async () => {
   return result.rows;
 };
 
-const getExamsByStatus = async (status, role, branch, year = null) => {
+const getExamsByStatus = async (status, role, branch, year) => {
   const branchFilter = [branch]; // array format for @> operator
   const yearFilter = year ? [year] : null;
 
-  if (role === "President" || role === "Teacher") {
-    const query = `
-      SELECT DISTINCT 
-        e.exam_id, 
-        e.exam_name, 
-        e.duration,
-        e.start_time,
-        e.end_time,
-        e.created_at,
-        e.status,
-        e.target_branches,
-        e.target_years,
-        COUNT(q.question_id) AS question_count
-      FROM 
-        exams e
-      LEFT JOIN 
-        questions q ON e.exam_id = q.exam_id
-      WHERE 
-        e.status = $1 AND 
-        e.exam_for = $2 AND 
-        e.target_branches @> $3::branch_enum[]
-      GROUP BY 
-        e.exam_id, e.exam_name 
-      ORDER BY created_at DESC`;
-
-    const result = await pool.query(query, [status, "Teacher", branchFilter]);
-    return result.rows;
-  }
-
-  else if (role === "TPO") {
+  if (role === "TPO") {
     let query = `
       SELECT DISTINCT 
         e.exam_id, 
@@ -397,7 +368,7 @@ ORDER BY e.exam_id DESC;`;
 
 
 
-const getPaginatedExams = async (page, limit, status, role, branch) => {
+const getPaginatedExams = async (page, limit, status, role, branchFilter, year) => {
   let query = `
     SELECT DISTINCT
       e.exam_id, 
@@ -419,12 +390,12 @@ const getPaginatedExams = async (page, limit, status, role, branch) => {
       e.exam_for = $2
   `;
 
-  const params = [status, role === "President" || role === "Teacher" ? "Teacher" : "Student"];
+  const params = [status, "Student"];
 
   // Add branch filter for department role (not TPO)
   if (role !== "TPO" && branch) {
     query += ` AND e.target_branches @> $3::branch_enum[] `;
-    params.push([branch]);
+    params.push([branchFilter]);
   }
 
   query += `

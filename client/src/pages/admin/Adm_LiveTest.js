@@ -4,9 +4,11 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar compone
 import Adm_LiveTestCard from "../../components/admin/Adm_LiveTestCard"; // Drafted Test Card component
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_LiveTest = () => {
+  const userData = useSelector((state) => state.user);
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -50,7 +52,7 @@ const Adm_LiveTest = () => {
         setError(null); // Clear any existing errors
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const response = await axios.get(
-          `${API_BASE_URL}/api/exams/live?role=TPO`,
+          `${API_BASE_URL}/api/exams/live/${userData.user.year}?role=TPO`,
           {
             withCredentials: true,
           },
@@ -78,7 +80,7 @@ const Adm_LiveTest = () => {
     };
 
     fetchLiveTests();
-  }, []);
+  }, [userData, currentPage]);
 
   //  Reset pagination when no tests are available
   useEffect(() => {

@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { setExamId } from "../../redux/ExamSlice";
 import Adm_Sidebar from "../../components/admin/Adm_Sidebar";
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Loader from "../../components/Loader";
 
 const Adm_CreateTestPage = () => {
+  const userData = useSelector((state) => state.user);
   const [testName, setTestName] = useState("");
   const [duration, setDuration] = useState("");
   const [branch, setBranch] = useState([]);
-  const [year, setYear] = useState(["BE"]); 
+  const years = userData?.user?.year ? [userData.user.year] : [];
+  const [year, setYear] = useState(years);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
   
@@ -24,7 +26,6 @@ const Adm_CreateTestPage = () => {
   const dispatch = useDispatch();
 
   const branches = ["CMPN", "INFT", "EXTC", "ELEC", "ECS"];
-  const years = ["BE"];
 
   const handleCreateQuestions = async (e) => {
     e.preventDefault();
@@ -78,7 +79,7 @@ const Adm_CreateTestPage = () => {
     setTestName("");
     setDuration("");
     setBranch([]);
-    setYear(["BE"]); // Reset to BE
+    setYear(years);
   };
 
   const handleGoBack = () => {
@@ -225,9 +226,7 @@ const Adm_CreateTestPage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
                 <div className="border border-gray-300 rounded-lg p-2 bg-gray-50">
-            
-                    BE
-                  
+                    {userData?.user?.year || "N/A"}   
                 </div>
               </div>
             </div>

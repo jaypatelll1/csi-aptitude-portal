@@ -121,10 +121,10 @@ const Adm_Dashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         await Promise.all([
-          fetchTestsData(`${API_BASE_URL}/api/exams/drafts?role=TPO`, "drafted"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled?role=TPO`, "scheduled"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/past?role=TPO`, "past"),
-          fetchTestsData(`${API_BASE_URL}/api/exams/live?role=TPO`, "live"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/drafts/${userData.user.year}?role=TPO`, "drafted"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/scheduled/${userData.user.year}?role=TPO`, "scheduled"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/past/${userData.user.year}?role=TPO`, "past"),
+          fetchTestsData(`${API_BASE_URL}/api/exams/live/${userData.user.year}?role=TPO`, "live"),
         ]);
       } catch (err) {
         console.error("Error fetching test data:", err);

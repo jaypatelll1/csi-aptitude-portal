@@ -4,9 +4,11 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Import the Side
 import Adm_PastTestCard from "../../components/admin/Adm_PastTestCard"; // Import the PastTestCard
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_PastTest = () => {
+  const userData = useSelector((state) => state.user);
   const [pastTests, setPastTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,7 +43,7 @@ const Adm_PastTest = () => {
       try {
         setLoading(true);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/past?role=TPO`, {
+        const response = await axios.get(`${API_BASE_URL}/api/exams/past/${userData.user.year}?role=TPO`, {
           withCredentials: true, // Make sure the cookie is sent with the request
         });
         const formattedTests = response.data.exams.map((exam) => ({
@@ -66,7 +68,7 @@ const Adm_PastTest = () => {
     };
 
     fetchPastTests();
-  }, []);
+  }, [userData]);
 
   // Pagination logic
   const totalPages = Math.ceil(pastTests.length / itemsPerPage);

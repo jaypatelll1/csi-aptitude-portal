@@ -4,9 +4,12 @@ import Adm_Sidebar from "../../components/admin/Adm_Sidebar"; // Sidebar compone
 import Adm_DraftedTestCard from "../../components/admin/Adm_DraftedTestCard"; // Drafted Test Card component
 import Adm_Navbar from "../../components/admin/Adm_Navbar";
 import Loader from "../../components/Loader";
+import { useSelector } from "react-redux";
+// import { use } from "../../../../server/config/email";
 // const API_BASE_URL = process.env.BACKEND_BASE_URL;
 
 const Adm_DraftTest = () => {
+  const userData = useSelector((state) => state.user);
   const [tests, setTests] = useState([]); // State to store fetched drafted tests
   const [loading, setLoading] = useState(true); // State to track loading status
   const [error, setError] = useState(null); // State to track errors
@@ -44,7 +47,7 @@ const Adm_DraftTest = () => {
         setLoading(true);
         setError(null);
         let API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts?role=TPO`, {
+        const response = await axios.get(`${API_BASE_URL}/api/exams/drafts/${userData.user.year}?role=TPO`, {
           withCredentials: true,
         });
 
@@ -69,7 +72,7 @@ const Adm_DraftTest = () => {
     };
 
     fetchDraftedTests();
-  }, []);
+  }, [userData]);
 
   // Pagination logic
   const totalPages = Math.ceil(tests.length / itemsPerPage);
