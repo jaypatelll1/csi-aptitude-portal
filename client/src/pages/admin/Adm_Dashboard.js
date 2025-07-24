@@ -80,6 +80,7 @@ const Adm_Dashboard = () => {
       }));
     }
   };
+  console.log("userData", userData);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -89,7 +90,7 @@ const Adm_Dashboard = () => {
           axios.get(`${API_BASE_URL}/api/stats/all-students/${userData.user.year}?exam_for=Student`, {
             withCredentials: true,
           }),
-          axios.get(`${API_BASE_URL}/api/stats/all-tests?exam_for=Student`, {
+          axios.get(`${API_BASE_URL}/api/stats/all-tests/${userData.user.year}?exam_for=Student`, {
             withCredentials: true,
           }),
           // axios.get(`${API_BASE_URL}/api/stats/last-test?exam_for=Student`, {

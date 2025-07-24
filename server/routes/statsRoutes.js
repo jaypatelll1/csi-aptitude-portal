@@ -8,7 +8,7 @@ const router = express.Router();
 const {limiter} = require('../middlewares/rateLimitMiddleware');
 
 // router.get('/last-test', jwtAuthMiddleware, getLastExamStats);
-router.get('/all-tests', jwtAuthMiddleware, getAllTestsStats);
+router.get('/all-tests/:year', jwtAuthMiddleware, getAllTestsStats);
 router.get('/all-students/:year', jwtAuthMiddleware, getAllStudentsStats);
 router.get('/all-students/department', jwtAuthMiddleware, getAllStudentsStatsForDepartment);
 

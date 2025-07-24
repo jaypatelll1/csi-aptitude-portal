@@ -55,6 +55,7 @@ const getAllTestsStats = async (req, res) => {
   const exam_for = req.query.exam_for;
   const user_role = req.user.role;
   const user_branch = req.user.branch;
+  const { year } = req.params;
 
   try {
     let liveTestsQuery = 'SELECT COUNT(*) FROM exams WHERE status = $1 AND exam_for = $2';
@@ -64,25 +65,23 @@ const getAllTestsStats = async (req, res) => {
     const liveValues = ['live', exam_for];
     const scheduledValues = ['scheduled', exam_for];
     const pastValues = ['past', exam_for];
-
     if (user_role === 'TPO') {
-      liveTestsQuery += ' AND target_years @> $3::year_enum[]';
-      scheduledTestsQuery += ' AND target_years @> $3::year_enum[]';
-      pastTestsQuery += ' AND target_years @> $3::year_enum[]';
+      liveTestsQuery += ' AND target_years @>  ARRAY[$3]::year_enum[]';
+      scheduledTestsQuery += ' AND target_years @>  ARRAY[$3]::year_enum[]';
+      pastTestsQuery += ' AND target_years @>  ARRAY[$3]::year_enum[]';
 
-      liveValues.push(['BE']); // ✅ Note: pass as array
-      scheduledValues.push(['BE']);
-      pastValues.push(['BE']);
+      liveValues.push(year);
+      scheduledValues.push(year);
+      pastValues.push(year);
     } else if (user_role === 'department') {
-      liveTestsQuery += ' AND target_branches @> $3::branch_enum[]';
-      scheduledTestsQuery += ' AND target_branches @> $3::branch_enum[]';
-      pastTestsQuery += ' AND target_branches @> $3::branch_enum[]';
+      liveTestsQuery += ' AND target_branches @> ARRAY[$3]::branch_enum[]';
+      scheduledTestsQuery += ' AND target_branches @> ARRAY[$3]::branch_enum[]';
+      pastTestsQuery += ' AND target_branches @> ARRAY[$3]::branch_enum[]';
 
-      liveValues.push([user_branch]); // ✅ Pass as array
-      scheduledValues.push([user_branch]);
-      pastValues.push([user_branch]);
+      liveValues.push(user_branch);
+      scheduledValues.push(user_branch);
+      pastValues.push(user_branch);
     }
-
 
     const liveTestsResult = await pool.query(liveTestsQuery, liveValues);
     const scheduledTestsResult = await pool.query(scheduledTestsQuery, scheduledValues);
