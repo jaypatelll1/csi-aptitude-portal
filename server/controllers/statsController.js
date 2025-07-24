@@ -115,6 +115,7 @@ const getAllStudentsStats = async (req, res) => {
   const user_role = req.user.role;      // ✅ this line was missing
   const user_branch = req.user.department;
   const exam_for = req.query.exam_for;
+  const { year } = req.params; // ✅ Added to get year from URL params
 
   try {
     let totalStudentsQuery = 'SELECT COUNT(*) FROM users WHERE role = $1 AND status = $2';
@@ -122,9 +123,8 @@ const getAllStudentsStats = async (req, res) => {
 
     // ✅ Correct filtering logic
     if (user_role === 'TPO') {
-      // Admin sees only BE students from all branches
       totalStudentsQuery += ' AND year = $3';
-      values.push('BE');
+      values.push(year);
     } else {
       // TPO/Dept sees all students from their branch (all years)
       totalStudentsQuery += ' AND department = $3';

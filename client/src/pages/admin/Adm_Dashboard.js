@@ -14,7 +14,7 @@ import Loader from "../../components/Loader";
 
 const Adm_Dashboard = () => {
   const navigate = useNavigate();
-  const userData = useSelector((state) => state.user.user);
+  const userData = useSelector((state) => state.user);
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [tileData, setTileData] = useState([]);
@@ -86,7 +86,7 @@ const Adm_Dashboard = () => {
       try {
         const API_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL;
         const [studentsRes, testsRes, lastTestRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/stats/all-students?exam_for=Student`, {
+          axios.get(`${API_BASE_URL}/api/stats/all-students/${userData.user.year}?exam_for=Student`, {
             withCredentials: true,
           }),
           axios.get(`${API_BASE_URL}/api/stats/all-tests?exam_for=Student`, {
@@ -133,7 +133,7 @@ const Adm_Dashboard = () => {
 
     fetchDashboardData();
     fetchAllTestsData();
-  }, []);
+  }, [userData]);
 
   // Update overall loading state based on individual loading states
   useEffect(() => {
