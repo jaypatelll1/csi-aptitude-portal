@@ -15,7 +15,9 @@ const pool = new Pool({
   user: process.env.PGUSER, // fixed key
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-  ssl: false,
+ ssl: {
+    rejectUnauthorized: true
+  },
    max: 50,                  // limit clients in pool
       idleTimeoutMillis: 30000, // disconnect idle clients
 });
