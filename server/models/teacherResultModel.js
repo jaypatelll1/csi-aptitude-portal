@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
 // CREATE: Insert a new teacher result
@@ -28,7 +28,7 @@ async function updateResultForTeachers(
         teacher_id,
         question_id,
       ];
-      result = await query(updateQuery, updateValues);
+      result = await dbWrite.raw(updateQuery, updateValues);
 
     return result.rows[0];
   } catch (err) {
@@ -41,7 +41,7 @@ async function updateResultForTeachers(
 async function getAllTeacherResults() {
   try {
     const queryText = 'SELECT * FROM teacher_results;';
-    const res = await query(queryText);
+    const res = await dbWrite.raw(queryText);
     return res.rows;
   } catch (err) {
     console.error('Error fetching teacher results:', err);
@@ -63,7 +63,7 @@ async function getResultsByTeacher(teacher_id) {
     WHERE tr.teacher_id = $1
     GROUP BY tr.teacher_id, tr.exam_id
     ORDER BY last_evaluation_time DESC;`;
-    const res = await query(queryText, [teacher_id]);
+    const res = await dbWrite.raw(queryText, [teacher_id]);
     return res.rows;
   } catch (err) {
     console.error('Error fetching results by teacher:', err);
@@ -74,7 +74,7 @@ async function getResultsByTeacher(teacher_id) {
 async function getTeacherResultById(exam_id, teacher_id) {
   try {
     const queryText = 'SELECT * FROM teacher_results WHERE exam_id=$1 AND teacher_id=$2;';
-    const res = await query(queryText, [exam_id, teacher_id]);
+    const res = await dbWrite.raw(queryText, [exam_id, teacher_id]);
     return res.rows;
   } catch (err) {
     console.error('Error fetching teacher result:', err);
@@ -101,7 +101,7 @@ async function updateTeacherResult(
       exam_id,
       question_id,
     ];
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
     return res.rows[0];
   } catch (err) {
     console.error('Error updating teacher result:', err);
@@ -113,7 +113,7 @@ async function deleteTeacherResult(teacher_id, exam_id, question_id) {
   try {
     const queryText =
       'DELETE FROM teacher_results WHERE teacher_id=$1 AND exam_id=$2 AND question_id=$3 RETURNING *;';
-    const res = await query(queryText, [teacher_id, exam_id, question_id]);
+    const res = await dbWrite.raw(queryText, [teacher_id, exam_id, question_id]);
     return res.rows[0];
   } catch (err) {
     console.error('Error deleting teacher result:', err);
@@ -142,7 +142,7 @@ async function getPaginatedTeacherResultsByExam(exam_id, page, limit) {
       page,
       limit
     );
-    const result = await query(paginatedQuery, [exam_id]);
+    const result = await dbWrite.raw(paginatedQuery, [exam_id]);
     return result.rows;
   } catch (err) {
     console.error('Error fetching paginated teacher results:', err);
@@ -155,7 +155,7 @@ async function pastTeacherResult(exam_id) {
   try {
     const queryText =
       'SELECT * FROM teacher_results WHERE exam_id=$1 ORDER BY completed_at DESC;';
-    const res = await query(queryText, [exam_id]);
+    const res = await dbWrite.raw(queryText, [exam_id]);
     return res.rows;
   } catch (err) {
     console.error('Error fetching past teacher results:', err);
@@ -201,7 +201,7 @@ async function getCorrectIncorrectForTeacher(teacher_id, exam_id) {
       ON tr.question_id = q.question_id
       WHERE tr.teacher_id = $1
       AND tr.exam_id = $2;`;
-    const res = await query(queryText, [teacher_id, exam_id]);
+    const res = await dbWrite.raw(queryText, [teacher_id, exam_id]);
     return res.rows;
   } catch (err) {
     console.error('Error fetching correct/incorrect teacher results:', err);
@@ -212,7 +212,7 @@ async function initializeResultForTeachers(teacher_id, exam_id) {
   try {
     // Fetch all question IDs for the given exam
     const questionQuery = `SELECT question_id FROM questions WHERE exam_id = $1`;
-    const { rows: questions } = await query(questionQuery, [exam_id]);
+    const { rows: questions } = await dbWrite.raw(questionQuery, [exam_id]);
 
     if (questions.length === 0) {
       console.log('No questions found for this exam.');
@@ -225,7 +225,7 @@ async function initializeResultForTeachers(teacher_id, exam_id) {
             ON CONFLICT (exam_id, question_id, teacher_id) DO NOTHING`;
 
     for (const question of questions) {
-      await query(insertQuery, [exam_id, question.question_id, teacher_id]);
+      await dbWrite.raw(insertQuery, [exam_id, question.question_id, teacher_id]);
     }
     return;
   } catch (err) {

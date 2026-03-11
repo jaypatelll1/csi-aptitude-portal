@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 const { paginate } = require('../utils/pagination');
 const { calculateAndStoreTotalScore } = require('../utils/scoreUtils');
 
@@ -28,7 +28,7 @@ async function createResult() {
 
       try {
         // Insert into the database
-        let res = await query(queryText, values);
+        let res = await dbWrite.raw(queryText, values);
         // Log each inserted row
       } catch (err) {
         // Log errors for specific rows and continue
@@ -48,7 +48,7 @@ async function getAllResults(student_id) {
   const queryText = 'SELECT * FROM results WHERE student_id=$1;';
 
   try {
-    const res = await query(queryText, [student_id]);
+    const res = await dbWrite.raw(queryText, [student_id]);
     return res.rows;
   } catch (err) {
     console.error('Error fetching results:', err);
@@ -62,7 +62,7 @@ const getResultById= async (exam_id, student_id)=> {
   const values = [exam_id, student_id];
 
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
     if (res.rows.length === 0) {
       return 'No Result Found';
     }
@@ -85,7 +85,7 @@ async function updateResult(result) {
   const values = [total_score, max_score, completed_at, exam_id, student_id];
 
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
     console.log('Updated result:', res.rows[0]);
     return res.rows[0];
   } catch (err) {
@@ -99,7 +99,7 @@ async function deleteResult(exam_id) {
   const values = [exam_id];
 
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
     console.log('Deleted result:', res.rows[0]);
     return res.rows[0];
   } catch (err) {
@@ -112,7 +112,7 @@ async function deleteResult(exam_id) {
 const getPaginatedResultsByExam = async (exam_id, page, limit) => {
   const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
   const paginatedqueryText = paginate(queryText, page, limit);
-  const result = await query(paginatedqueryText);
+  const result = await dbWrite.raw(paginatedqueryText);
   return result.rows;
   // console.log('rresult is ',result.rows);
 };
@@ -146,7 +146,7 @@ const getResultsByUsers = async (user_id) => {
     ORDER BY e.end_time DESC;
   `;
 
-  const result = await query(queryText, [user_id]);
+  const result = await dbWrite.raw(queryText, [user_id]);
 
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
@@ -218,7 +218,7 @@ AND r.exam_id = $2;
 
   try {
     console.log(`Exam id: ${exam_id} Student id: ${student_id}`);
-    const res = await query(queryText, [student_id, exam_id]);
+    const res = await dbWrite.raw(queryText, [student_id, exam_id]);
     return res.rows;
   } catch (err) {
     console.error('Error fetching results:', err);

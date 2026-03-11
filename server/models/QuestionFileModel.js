@@ -1,7 +1,7 @@
 const fs = require("fs");
 const XLSX = require("xlsx");
 const csvParser = require("csv-parser");
-const { query } = require("../config/db");
+const { dbWrite } = require("../config/db");
 
 const validCategories = [
   "quantitative aptitude",
@@ -13,9 +13,7 @@ const validCategories = [
 
 const validQuestionTypes = ["single_choice", "multiple_choice", "text", "image"];
 
-/**
- * Parses and inserts Excel questions into the database.
- */
+
 const parseExcelQuestion = async (filePath, examId) => {
   try {
     const workbook = XLSX.readFile(filePath);
@@ -107,7 +105,7 @@ const parseExcelQuestion = async (filePath, examId) => {
         categoryType
       ];
 
-      await query(queryText, values);
+      await dbWrite.raw(queryText, values);
     }
 
     console.log("All Excel data inserted successfully.");
@@ -211,7 +209,7 @@ const parseCSVQuestion = async (filePath, examId) => {
         categoryType
       ];
 
-      await query(queryText, values);
+      await dbWrite.raw(queryText, values);
     }
 
     console.log("All CSV data inserted successfully.");

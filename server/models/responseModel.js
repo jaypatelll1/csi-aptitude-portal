@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const {dbWrite} = require('../config/db');
 const format = require('pg-format');
 const { paginate } = require('../utils/pagination');
 
@@ -13,7 +13,7 @@ const deleteExistingResponses = async (exam_id, user_id) => {
   const values = [exam_id, user_id];
 
   try {
-    const result = await pool.query(query, values);
+    const result = await dbWrite.raw(query, values);
     console.log(
       `Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, user_id: ${user_id}`
     );
@@ -83,7 +83,7 @@ const submitResponse = async (
     throw new Error(`No query defined for question_type: ${question_type}`);
   }
   
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   console.log(result.rows);
   return result.rows[0];
 };
@@ -118,7 +118,7 @@ const submitMultipleResponses = async (responses) => {
     RETURNING *;
   `);
 
-  const result = await pool.query(query, flattenedValues);
+  const result = await dbWrite.raw(query, flattenedValues);
   return result.rows;
 };
 
@@ -136,7 +136,7 @@ const submittedUnansweredQuestions = async (exam_id, student_id) => {
       AND student_id = $2
     )
   `;
-  const result = await pool.query(query, [exam_id, student_id]);
+  const result = await dbWrite.raw(query, [exam_id, student_id]);
   const unansweredQuestions = result.rows.map((row) => ({
     exam_id,
     question_id: row.question_id,
@@ -191,7 +191,7 @@ console.log(response);
         question_id,
       ];
 
-      await pool.query(query, values);
+      await dbWrite.raw(query, values);
     }
 
     
@@ -211,7 +211,7 @@ const getResponsesByStudent = async (exam_id, student_id) => {
       JOIN questions ON questions.question_id = responses.question_id
       WHERE responses.exam_id = $1 AND student_id = $2
     `;
-  const result = await pool.query(query, [exam_id, student_id]);
+  const result = await dbWrite.raw(query, [exam_id, student_id]);
   return result.rows;
 };
 
@@ -224,7 +224,7 @@ const getResponsesForExam = async (exam_id) => {
       JOIN users ON users.user_id = responses.student_id
       WHERE exam_id = $1
     `;
-  const result = await pool.query(query, [exam_id]);
+  const result = await dbWrite.raw(query, [exam_id]);
   return result.rows;
 };
 
@@ -238,13 +238,13 @@ const updateResponse = async (response_id, selected_option) => {
     `;
   const values = [selected_option, response_id];
 
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   return result.rows[0]; // Return the updated response if found
 };
 
 const getExamIdByResponse = async (status, user_id) => {
   try {
-    const result = await pool.query(
+    const result = await dbWrite.raw(
       `SELECT DISTINCT exam_id FROM responses 
          WHERE student_id = $1 AND status = $2`,
       [user_id, status]
@@ -267,7 +267,7 @@ const deleteResponse = async (response_id) => {
     `;
   const values = [response_id];
 
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   return result.rowCount > 0; // Return true if a row was deleted
 };
 
@@ -286,14 +286,14 @@ const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
     query = paginate(query, page, limit); // Use pagination function
   }
 
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   return result.rows;
 };
 
 // Function to clear a user's response for a specific question
 const clearResponse = async (studentId, examId, questionId) => {
   try {
-    const result = await pool.query(
+    const result = await dbWrite.raw(
       "UPDATE responses SET selected_option = NULL, selected_options=NULL, text_answer=NULL WHERE student_id = $1 AND exam_id = $2 AND question_id = $3 AND status='draft' RETURNING *",
       [studentId, examId, questionId]
     );

@@ -1,31 +1,21 @@
-const pool = require('../config/db');
+const { dbWrite } = require("../config/db");
+const { paginate } = require("../utils/pagination");
 
-const { paginate } = require('../utils/pagination');
-
-// Function to find a user by email
+// Find user by email
 const findUserByEmail = async (email) => {
-  try {
-    const query = 'SELECT * FROM users WHERE email = $1::text;';
-    const result = await pool.query(query, [email]);
-    return result.rows[0];
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  return await dbWrite("users")
+    .where({ email })
+    .first();
 };
 
+// Get user by ID
 const getUserById = async (id) => {
-  try {
-    const query = 'SELECT * FROM users WHERE user_id = $1;';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
-  } catch (err) {
-    console.error(err);
-    throw err;
- }
+  return await dbWrite("users")
+    .where({ user_id: id })
+    .first();
 };
 
-// Function to create a new user
+// Create user
 const createUser = async (
   name,
   email,
@@ -36,134 +26,171 @@ const createUser = async (
   rollno,
   phone
 ) => {
-  try {
-    const query =
-      'INSERT INTO users(name, email, password_hash, role, year, department, rollno, phone) VALUES($1, $2, $3, $4,$5,$6,$7,$8) RETURNING user_id, name, email, role, year, department, rollno, phone';
-    const newUser = await pool.query(query, [
+  const [user] = await dbWrite("users")
+    .insert({
       name,
-      email,  
-      passwordHash,
+      email,
+      password_hash: passwordHash,
       role,
       year,
       department,
       rollno,
       phone,
+    })
+    .returning([
+      "user_id",
+      "name",
+      "email",
+      "role",
+      "year",
+      "department",
+      "rollno",
+      "phone",
     ]);
 
-    
-    return newUser.rows[0];
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  return user;
 };
 
+// Get all students
 const getAllStudents = async (role, year = null) => {
-  let query = `
-    SELECT user_id, name, email, role, department, year, phone, rollno  
-    FROM users 
-    WHERE role = $1`;
-
-  const values = [role];
+  let query = dbWrite("users")
+    .select(
+      "user_id",
+      "name",
+      "email",
+      "role",
+      "department",
+      "year",
+      "phone",
+      "rollno"
+    )
+    .where({ role })
+    .orderBy("user_id", "asc");
 
   if (year) {
-    query += ` AND year = $2`;
-    values.push(year);
+    query.andWhere({ year });
   }
 
-  query += ` ORDER BY user_id ASC`;
-
-  const result = await pool.query(query, values);
-  return result.rows;
+  return await query;
 };
 
-
-// Function to update a user
+// Update user
 const updateUser = async (id, updatedFields) => {
-  const query = `UPDATE users SET ${Object.keys(updatedFields).map((key, index) => `${key} = $${index + 1}`).join(', ')} WHERE user_id = $${Object.keys(updatedFields).length + 1} RETURNING *`;
-  const values = [...Object.values(updatedFields), id];
+  const [user] = await dbWrite("users")
+    .where({ user_id: id })
+    .update(updatedFields)
+    .returning("*");
 
-  const result = await pool.query(query, values);
-  return result.rows[0]; // Return the updated user
+  return user;
 };
 
-
-// Function to delete a user
+// Delete user
 const deleteUser = async (id) => {
-  console.log ('Delete user id:', id);
-  try {
-    const query = `DELETE FROM users WHERE user_id=$1 RETURNING *`;
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
+  const [user] = await dbWrite("users")
+    .where({ user_id: id })
+    .del()
+    .returning("*");
+
+  return user;
 };
 
 // Pagination
-// Get all users with pagination
 const getAllPaginatedUsers = async (page, limit) => {
-  const query =
-    'SELECT user_id, name, email, role,year,department,rollno,phone FROM users ORDER BY user_id ASC';
-  const paginatedQuery = paginate(query, page, limit);
-  const result = await pool.query(paginatedQuery);
-  return result.rows;
+  const offset = (page - 1) * limit;
+
+  return await dbWrite("users")
+    .select(
+      "user_id",
+      "name",
+      "email",
+      "role",
+      "year",
+      "department",
+      "rollno",
+      "phone"
+    )
+    .orderBy("user_id", "asc")
+    .limit(limit)
+    .offset(offset);
 };
 
 const getAllPaginatedRoleUsers = async (page, limit, role) => {
-  const query =
-    'SELECT user_id, name, email, role,year,department,rollno, phone FROM users where role =$1 ORDER BY user_id ASC ';
-  const paginatedQuery = paginate(query, page, limit);
-  const result = await pool.query(paginatedQuery, [role]);
-  return result.rows;
+  const offset = (page - 1) * limit;
+
+  return await dbWrite("users")
+    .select(
+      "user_id",
+      "name",
+      "email",
+      "role",
+      "year",
+      "department",
+      "rollno",
+      "phone"
+    )
+    .where({ role })
+    .orderBy("user_id", "asc")
+    .limit(limit)
+    .offset(offset);
 };
 
-const getDepartmentUsers = async (role ,department) => {
-  const query =
-    `SELECT user_id, name, email, role,year,department,rollno, phone FROM users where role =$1 AND 
-    department = $2  ORDER BY user_id ASC  `;
+// Department users
+const getDepartmentUsers = async (role, department) => {
+  return await dbWrite("users")
+    .select(
+      "user_id",
+      "name",
+      "email",
+      "role",
+      "year",
+      "department",
+      "rollno",
+      "phone"
+    )
+    .where({ role, department })
+    .orderBy("user_id", "asc");
+};
 
-  const result = await pool.query(query, [role ,department]);
-  return result.rows;
-}
-
-
+// All users of a role
 const getAllRoleUsers = async (role) => {
-  const query =
-    'SELECT user_id, name, email, role,year,department,rollno,phone FROM users where role =$1 ORDER BY user_id ASC';
-  const result = await pool.query(query, [role]);
-  return result.rows;
+  return await dbWrite("users")
+    .select(
+      "user_id",
+      "name",
+      "email",
+      "role",
+      "year",
+      "department",
+      "rollno",
+      "phone"
+    )
+    .where({ role })
+    .orderBy("user_id", "asc");
 };
 
+// Count users
 const getUserCount = async () => {
-  const query =
-    'SELECT COUNT(*) FROM users WHERE role =$1 ';
-  const user_TPO = await pool.query(query, ['TPO']);
-  const user_Student = await pool.query(query, ['Student']);
-  const user_Teacher = await pool.query(query, ['Teacher']);
-  return {TPO : user_TPO.rows[0].count, Students: user_Student.rows[0].count, Teachers: user_Teacher.rows[0].count};
+  const [tpo] = await dbWrite("users").where({ role: "TPO" }).count();
+  const [students] = await dbWrite("users").where({ role: "Student" }).count();
+  const [teachers] = await dbWrite("users").where({ role: "Teacher" }).count();
+
+  return {
+    TPO: Number(tpo.count),
+    Students: Number(students.count),
+    Teachers: Number(teachers.count),
+  };
 };
 
-
-
+// Get basic users
 const getUsers = async () => {
-  try {
-    const result = await pool.query('SELECT user_id, name, email FROM users'); // Selecting relevant fields
-    return result.rows;
-  } catch (err) {
-    throw new Error('Error fetching users: ' + err.message);
-  }
+  return await dbWrite("users").select("user_id", "name", "email");
 };
 
-
+// Get user by email
 const getUserByEmail = async (email) => {
-  try {
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    return result.rows[0];  // Return the first user, or null if not found
-  } catch (err) {
-    throw new Error('Error fetching user by email: ' + err.message);
-  }
+  return await dbWrite("users")
+    .where({ email })
+    .first();
 };
 
 module.exports = {
@@ -179,5 +206,5 @@ module.exports = {
   getUserById,
   getUsers,
   getUserByEmail,
+  getAllRoleUsers
 };
-

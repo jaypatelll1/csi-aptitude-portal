@@ -236,7 +236,7 @@ CREATE TABLE department_analysis (
 // Function to initialize the database schema
 async function initializeDB() {
   try {
-    const result = await pool.query(query);
+    const result = await dbWrite.raw(query);
     console.log(`Successfully Completed`);
   } catch (error) {
     console.log(error);

@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const path = require('path');
 const { Worker: ThreadWorker } = require('worker_threads');
-const pool = require('../config/db');
+const {dbWrite} = require('../config/db');
 const { generateStudentRanks,generateDepartmentRanks } = require('../models/rankModel');
 
 console.log('⏰ Cron job scheduled to run every minute');
@@ -10,7 +10,7 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
   try {
     console.log('⏳ Checking for exams that ended...');
 
-    const result = await pool.query(
+    const result = await dbWrite.raw(
       `UPDATE exams SET status = 'past'
        WHERE status = 'live' AND end_time < CURRENT_TIMESTAMP
        RETURNING CURRENT_TIMESTAMP, end_time, exam_id, exam_for,exam_name;`
@@ -33,7 +33,7 @@ const autoUpdate = cron.schedule('*/5 * * * *', async () => {
         }
 
         // Get student IDs for the exam
-        const responseResult = await pool.query(
+        const responseResult = await dbWrite.raw(
           `SELECT DISTINCT student_id FROM responses WHERE exam_id = $1`,
           [examId]
         );

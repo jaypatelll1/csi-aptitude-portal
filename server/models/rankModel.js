@@ -1,10 +1,10 @@
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 
 // ✅ Generate Student Ranks
 async function generateStudentRanks() {
   try {
     // Step 1: Fetch all students with total_score > 0
-    const res = await query(`
+    const res = await dbWrite.raw(`
       SELECT student_id, student_name, department_name, year, total_score
       FROM user_analysis
       WHERE total_score IS NOT NULL AND total_score > 0
@@ -54,7 +54,7 @@ async function generateStudentRanks() {
 
     // Step 4: Insert or update into rank table
     for (const student of students) {
-      await query(
+      await dbWrite.raw(
         `
         INSERT INTO rank (
           student_id, student_name, department_name, year,
@@ -108,7 +108,7 @@ async function generateStudentRanks() {
 // ✅ Generate Department Rank (for department_analysis table)
 async function generateDepartmentRanks() {
   try {
-    await query(`
+    await dbWrite.raw(`
       WITH ranked AS (
         SELECT
           department_name,
@@ -154,7 +154,7 @@ async function getStudentRanksInOrder(data) {
 
     console.log(queryText, queryParams);
 
-    const result = await query(queryText, queryParams);
+    const result = await dbWrite.raw(queryText, queryParams);
     return result.rows;
 
   } catch (error) {
@@ -198,7 +198,7 @@ async function getStudentRanksInOrderTpo(data) {
     }
 
     console.log(queryText, queryParams);
-    const result = await query(queryText, queryParams);
+    const result = await dbWrite.raw(queryText, queryParams);
     return result.rows;
 
   } catch (error) {

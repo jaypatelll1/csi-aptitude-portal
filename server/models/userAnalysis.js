@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 const { getResultById ,getAllResults } = require('../models/resultModel');
 const { getUserById } = require('../models/userModel');
 const { getExamById } = require('../models/examModel');
@@ -14,10 +14,8 @@ async function user_analysis(exam_id, student_id,result) {
     }
     console.log("results",result)
 
-    const existingUser = await query(
-      `SELECT * FROM user_analysis WHERE student_id = $1`,
-      [student_id]
-    );
+  
+    const existingUser = await dbWrite("user_analysis").where({student_id}).first()
 
     console.log(existingUser)
 
@@ -63,7 +61,7 @@ totalMaxScore += parseInt(result.max_score) || 0;
 console.log(newCatScores)
     const accuracy_rate = totalMaxScore > 0 ? totalScore / totalMaxScore : 0;
 console.log(accuracy_rate)
-    const totalAssignedRes = await query(
+    const totalAssignedRes = await dbWrite.raw(
       `SELECT COUNT(*) FROM exams 
        WHERE exam_for = 'Student'
        AND $1 = ANY(target_branches)
@@ -94,7 +92,7 @@ console.log(completion_rate)
           $9, $10, NOW()
         )
       `;
-      await query(insertQuery, [
+      await dbWrite.raw(insertQuery, [
         student_id,
         student.name,
         student.department,

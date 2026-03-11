@@ -6,7 +6,18 @@ require('dotenv').config();
 // For HTTP requests
 const jwtAuthMiddleware = (req, res, next) => {
   // const token = req.header("Authorization")?.split(" ")[1]; // Bearer token
-  const token = req.cookies.jwttoken;
+  let token 
+  const authHeader = req.headers.authorization;
+
+  console.log("auth ",req.headers)
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
+  if (!token) {
+    token = req.cookies?.jwttoken;
+  }
+  
   if (!token) {
     return res
       .status(401)
@@ -52,10 +63,21 @@ const tokenMiddleware = async (req, res, next) => {
   }
   // console.log('data is ', data );
 
+  const authHeader = req.headers.authorization;
 
+  console.log("auth ",req.headers)
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
+
+  // Fallback to cookie
   if (!token) {
-    return res.status(401).json({ message: 'Access Denied: No Token Provided' });
-  } else {
+    token = req.cookies?.jwttoken;
+  }
+
+
+   else {
     try {
       const refreshToken = await generateToken(data); // Ensure `token` is compatible
       // console.log('refresh token is ',refreshToken );

@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const pool = require('../config/db');
+const {dbWrite} = require('../config/db');
 
 // Run this job every minute
 const autoUpdate = cron.schedule('* * * * *', async () => {
@@ -7,7 +7,7 @@ const autoUpdate = cron.schedule('* * * * *', async () => {
     // const now = new Date().toISOString();
     // console.log('now',now);
 
-    const result = await pool.query(
+    const result = await dbWrite.raw(
       `UPDATE exams SET status = 'live' WHERE status = 'scheduled' AND start_time < CURRENT_TIMESTAMP`
     );
     console.log(`${result.rowCount} exams updated to 'live'.`);

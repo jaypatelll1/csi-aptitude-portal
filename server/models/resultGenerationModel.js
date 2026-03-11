@@ -1,4 +1,4 @@
-const {query} = require("../config/db");
+const {dbWrite} = require("../config/db");
 
 async function calculateScoresByExamId (examId){
     const queryText = `
@@ -63,7 +63,7 @@ async function calculateScoresByExamId (examId){
 
     // Execution of the query 
     try{
-        let result = await query(queryText, values);
+        let result = await dbWrite.raw(queryText, values);
         console.log(result.rows[0]);
         return result;
     } catch(err){

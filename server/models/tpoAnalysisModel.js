@@ -1,8 +1,8 @@
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 
 const getDeptAvgScores = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
         WITH all_departments AS (
             SELECT unnest(enum_range(NULL::branch_enum)) AS department_name
         )
@@ -24,7 +24,7 @@ const getDeptAvgScores = async () => {
 
 const topScorers = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
         SELECT * FROM student_rank ORDER BY overall_rank ASC LIMIT 5;
     `);
     return result.rows;
@@ -36,7 +36,7 @@ const topScorers = async () => {
 const weakScorers = async () => {
   try {
     // Students scoring less than 40% of total marks
-    const result = await query(`
+    const result = await dbWrite.raw(`
         SELECT * FROM (
         SELECT * FROM student_rank 
         ORDER BY overall_rank DESC 
@@ -52,7 +52,7 @@ const weakScorers = async () => {
 
 const accuracyRatePerDept = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
         SELECT 
             sa.department_name,
             ROUND((((SUM(sa.total_score) * 100.0) / NULLIF(SUM(sa.max_score), 0))::NUMERIC), 2) AS accuracy_rate
@@ -68,7 +68,7 @@ const accuracyRatePerDept = async () => {
 
 const deptParticipationRate = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
         SELECT 
             department_name AS department,
             COUNT(DISTINCT student_id) AS students_attempted,
@@ -88,7 +88,7 @@ const deptParticipationRate = async () => {
 
 const totalParticipationRate = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
         SELECT 
             COUNT(DISTINCT student_id) AS students_attempted,
             (SELECT COUNT(*) FROM users u) AS total_students,
@@ -106,7 +106,7 @@ const totalParticipationRate = async () => {
 
 const categoryWiseAccuracy = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
         SELECT 
             sa.department_name,
             cat.key AS category,
@@ -126,7 +126,7 @@ const categoryWiseAccuracy = async () => {
 
 const deptRanks = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
         WITH department_averages AS (
             SELECT 
                 sa.department_name AS department,
@@ -152,7 +152,7 @@ const deptRanks = async () => {
 };
 
 const getPerformanceOverTime = async (department) => {
-  const result = await query(
+  const result = await dbWrite.raw(
     `
     WITH latest_exams AS (
     SELECT 

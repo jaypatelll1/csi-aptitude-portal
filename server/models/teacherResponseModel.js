@@ -13,7 +13,7 @@ const deleteExistingResponses = async (exam_id, teacher_id) => {
   const values = [exam_id, teacher_id];
 
   try {
-    const result = await pool.query(query, values);
+    const result = await dbWrite.raw(query, values);
     console.log(
       `Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, teacher_id: ${teacher_id}`
     );
@@ -54,7 +54,7 @@ const submitMultipleResponses = async (responses) => {
     RETURNING *;
   `);
 
-  const result = await pool.query(query, flattenedValues);
+  const result = await dbWrite.raw(query, flattenedValues);
   return result.rows;
 };
 
@@ -72,7 +72,7 @@ const submittedUnansweredQuestions = async (exam_id, teacher_id) => {
       AND teacher_id = $2
     )
   `;
-  const result = await pool.query(query, [exam_id, teacher_id]);
+  const result = await dbWrite.raw(query, [exam_id, teacher_id]);
   const unansweredQuestions = result.rows.map((row) => ({
     exam_id,
     question_id: row.question_id,
@@ -148,7 +148,7 @@ const submitTeacherResponse = async (
     throw new Error(`No query defined for question_type: ${question_type}`);
   }
 
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   console.log(result.rows);
   return result.rows[0];
 };
@@ -163,13 +163,13 @@ const submitFinalTeacherResponsesAndChangeStatus = async (
         WHERE exam_id = $2 AND teacher_id = $3
         RETURNING *;
     `;
-  const result = await pool.query(query, ['submitted', exam_id, teacher_id]);
+  const result = await dbWrite.raw(query, ['submitted', exam_id, teacher_id]);
   return result.rows;
 };
 
 const getExamIdByResponse = async (status, user_id) => {
   try {
-    const result = await pool.query(
+    const result = await dbWrite.raw(
       `SELECT DISTINCT exam_id FROM teacher_responses 
          WHERE teacher_id = $1 AND response_status = $2`,
       [user_id, status]
@@ -186,7 +186,7 @@ const  getAttemptedTest= async (exam_id) => {
   try {
     const querytext = `SELECT DISTINCT T.teacher_id , T.exam_id,T.response_status ,U.name , U.email FROM teacher_responses AS T  join users AS U on teacher_id = user_id  WHERE  T.exam_id=$1   ;
 `
-     const result = await pool.query(querytext,[ exam_id])
+     const result = await dbWrite.raw(querytext,[ exam_id])
     return result.rows;
   } catch (error) {
     console.error(error);
@@ -195,7 +195,7 @@ const  getAttemptedTest= async (exam_id) => {
 // Function to clear a user's response for a specific question
 const clearResponse = async (teacherId, examId, questionId) => {
   try {
-    const result = await pool.query(
+    const result = await dbWrite.raw(
       "UPDATE responses SET selected_option = NULL, selected_options=NULL, text_answer=NULL WHERE teacher_id = $1 AND exam_id = $2 AND question_id = $3 AND response_status='draft' RETURNING *",
       [teacherId, examId, questionId]
     );
@@ -219,7 +219,7 @@ const getPaginatedResponses = async (teacher_id, exam_id, page, limit) => {
     query = paginate(query, page, limit); // Use pagination function
   }
 
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   return result.rows;
 };
 
@@ -236,7 +236,7 @@ WHERE tr.exam_id=$1;`;
     query = paginate(query, page, limit); // Use pagination function
   }
 
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   return result.rows;
 };
 

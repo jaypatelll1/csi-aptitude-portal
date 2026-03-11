@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
 // Function to create the Questions table if it doesn't exist
@@ -41,7 +41,7 @@ const insertQuestion = async (
   ];
 
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
     return res.rows[0]; // Return the inserted question
   } catch (err) {
     console.error('Error inserting question:', err.stack);
@@ -54,7 +54,7 @@ const getQuestionsByExamId = async (exam_id) => {
   const queryText = 'SELECT * FROM questions WHERE exam_id = $1';
   const values = [exam_id];
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
 
     return res.rows; // Return the inserted question
   } catch (err) {
@@ -67,7 +67,7 @@ const getStudentQuestionsByExamId = async (exam_id) => {
     'SELECT question_id, exam_id, question_text, options, category, question_type, image_url FROM questions WHERE exam_id = $1';
   const values = [exam_id];
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
 
     return res.rows; // Return the inserted question
   } catch (err) {
@@ -102,7 +102,7 @@ const UpdateQuestions = async (
   ];
 
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
     return res.rows[0]; // Return the inserted question
   } catch (err) {
     console.error('Error inserting question', err.stack);
@@ -115,7 +115,7 @@ const DeleteQuestions = async (question_id) => {
   const values = [question_id];
 
   try {
-    const res = await query(queryText, values);
+    const res = await dbWrite.raw(queryText, values);
     return res.rows[0]; // Return the deleted question
   } catch (err) {
     console.error('Error deleting question', err.stack);
@@ -128,7 +128,7 @@ const DeleteQuestions = async (question_id) => {
 const getPaginatedQuestionsByExam = async (exam_id, page, limit) => {
   const queryText = `SELECT * FROM questions WHERE exam_id = ${exam_id}`;
   const paginatedQuery = paginate(queryText, page, limit);
-  const result = await query(paginatedQuery);
+  const result = await dbWrite.raw(paginatedQuery);
   return result.rows;
 };
 
@@ -143,7 +143,7 @@ const getPaginatedQuestionsByExam = async (exam_id, page, limit) => {
 // Function to get the question details before updating
 async function getQuestionById(question_id) {
   const queryText = `SELECT * FROM questions WHERE question_id = $1`;
-  const { rows } = await query(queryText, [question_id]);
+  const { rows } = await dbWrite.raw(queryText, [question_id]);
   return rows.length > 0 ? rows[0] : null;
 }
 
@@ -152,7 +152,7 @@ async function updateQuestionImage(question_id, image_url) {
   const queryText = `UPDATE questions SET image_url = $1 WHERE question_id = $2 RETURNING *`;
   const values = [image_url, question_id];
 
-  const { rows } = await query(queryText, values);
+  const { rows } = await dbWrite.raw(queryText, values);
   return rows[0];
 }
 

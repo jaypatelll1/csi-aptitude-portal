@@ -1,8 +1,8 @@
-const pool = require('../config/db');
+const {dbWrite} = require('../config/db');
 
 // 1. Department Average Score
 const getDepartmentAvgScore = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT department_name AS department, 
            ROUND(AVG(total_score)::NUMERIC, 2) AS average_score
@@ -17,7 +17,7 @@ const getDepartmentAvgScore = async (department) => {
 };
 
 const getStudentCountByDepartment = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT COUNT(*) AS student_count 
     FROM users 
@@ -29,7 +29,7 @@ const getStudentCountByDepartment = async (department) => {
 };
 
 const getDepartmentAvgScorePerExam = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT exam_id, exam_name, department_name AS department, 
            ROUND(AVG(total_score)::NUMERIC, 2) AS average_score
@@ -45,7 +45,7 @@ const getDepartmentAvgScorePerExam = async (department) => {
 };
 
 const getCategoryPerformance = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT 
         department_name AS department,
@@ -93,7 +93,7 @@ const getCategoryPerformance = async (department) => {
 
 // 3. Top Performer (Overall Best in Department)
 const getTopPerformer = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `SELECT * FROM public.student_rank WHERE department_name=$1 ORDER BY department_rank ASC LIMIT 5`,
     [department]
   );
@@ -103,7 +103,7 @@ const getTopPerformer = async (department) => {
 
 // 4. Bottom Performer (Overall Weakest in Department)
 const getBottomPerformer = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `SELECT * FROM (
         SELECT * FROM public.student_rank 
         WHERE department_name = $1
@@ -119,7 +119,7 @@ const getBottomPerformer = async (department) => {
 
 // 5. Participation Rate Per Exam
 const getParticipationRate = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT 
             department_name AS department,
@@ -147,7 +147,7 @@ const getParticipationRate = async (department) => {
   return result.rows[0];
 };
 const getParticipationRatePerExam = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT 
         sa.department_name,
@@ -170,7 +170,7 @@ const getParticipationRatePerExam = async (department) => {
 
 // 6. Accuracy Rate
 const getAccuracyRate = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT 
       sa.department_name,
@@ -187,7 +187,7 @@ const getAccuracyRate = async (department) => {
 
 // 8. Weak Areas
 const getWeakAreas = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     SELECT 
         department_name AS department, 
@@ -208,7 +208,7 @@ const getWeakAreas = async (department) => {
 };
 
 const getPerformanceOverTime = async (department) => {
-  const result = await pool.query(
+  const result = await dbWrite.raw(
     `
     WITH latest_exams AS (
     SELECT 
@@ -240,7 +240,7 @@ ORDER BY created_on ASC;
 
 const deptRanks = async (department) => {
   try {
-    const result = await pool.query(
+    const result = await dbWrite.raw(
       `
         WITH department_averages AS (
             SELECT 

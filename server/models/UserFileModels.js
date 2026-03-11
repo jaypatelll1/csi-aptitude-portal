@@ -1,7 +1,7 @@
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 const csvParser = require('csv-parser');
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 const { hashPassword } = require('../utils/hashUtil');
 const { sendBulkEmailToUsers } = require('../utils/emailSender');
 const { generateRandomPassword } = require('../utils/randomPassword');
@@ -18,15 +18,15 @@ const parseExcelUsers = async (filePath) => {
       const rowData = {
         user_id: row.getCell(1).value,
         name: row.getCell(2).value || '',
-        email: (typeof row.getCell(3).value === 'object' && row.getCell(3).value !== null) 
-                 ? row.getCell(3).value.text 
-                 : row.getCell(3).value || '',
+        email: (typeof row.getCell(3).value === 'object' && row.getCell(3).value !== null)
+          ? row.getCell(3).value.text
+          : row.getCell(3).value || '',
         department: row.getCell(4).value || '',
         year: row.getCell(5).value || '',
         rollno: row.getCell(6).value || '',
         phone: row.getCell(7).value || '',
       };
-      
+
       jsonData.push(rowData);
     });
 
@@ -46,7 +46,7 @@ const parseExcelUsers = async (filePath) => {
           phone = '',
         } = row;
         const password = generateRandomPassword(8, true);
-        
+
         if (!name || !email || !password || !department || !year || !rollno || !phone) {
           warnings.push(`Row ${index + 1}: Skipped due to invalid data - ${JSON.stringify(row)}`);
           index++;
@@ -56,19 +56,30 @@ const parseExcelUsers = async (filePath) => {
         const passwordHash = await hashPassword(password.toString());
         const createdAt = new Date().toISOString();
 
-        const queryText = `
-          INSERT INTO users (name, email, password_hash, role, created_at, status, department, year, rollno, phone)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-          ON CONFLICT (email) DO UPDATE 
-          SET name = EXCLUDED.name, department = EXCLUDED.department, year = EXCLUDED.year, 
-              rollno = EXCLUDED.rollno, phone = EXCLUDED.phone
-        `;
 
-        const values = [
-          name, email, passwordHash, 'Student', createdAt, 'NOTACTIVE', department, year, rollno, phone.toString()
-        ];
 
-        await query(queryText, values);
+        await dbWrite("users")
+          .insert({
+            name,
+            email,
+            password_hash: passwordHash,
+            role: "Student",
+            created_at: createdAt,
+            status: "NOTACTIVE",
+            department,
+            year,
+            rollno,
+            phone: phone.toString(),
+          })
+          .onConflict("email")
+          .merge({
+            name,
+            department,
+            year,
+            rollno,
+            phone: phone.toString(),
+          });
+
         emailList.push({ email, password });
 
       } catch (rowError) {
@@ -151,7 +162,27 @@ const parseCSVusers = async (filePath) => {
       ];
 
       try {
-        await query(queryText, values);
+        // await dbWrite.raw(queryText, values);
+        await dbWrite.insert({
+          name,
+          email,
+          password_hash: passwordHash,
+          role: "Student",
+          created_at: created_at,
+          status: "NOTACTIVE",
+          department,
+          year,
+          rollno,
+          phone: phone.toString(),
+        })
+          .onConflict("email")
+          .merge({
+            name,
+            department,
+            year,
+            rollno,
+            phone: phone.toString()
+          })
         emailList.push({ email, password });
       } catch (error) {
         console.log('Error inserting row:', error);

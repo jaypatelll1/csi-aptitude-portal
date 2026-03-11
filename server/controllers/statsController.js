@@ -46,7 +46,7 @@ const getStudentCountForExam = async (exam_id, exam_for) => {
     query = 'SELECT COUNT(*) FROM teacher_responses WHERE exam_id = $1';
   }
   const values = [exam_id];
-  const result = await pool.query(query, values);
+  const result = await dbWrite.raw(query, values);
   return parseInt(result.rows[0].count, 10);
 };
 
@@ -84,9 +84,9 @@ const getAllTestsStats = async (req, res) => {
     }
 
 
-    const liveTestsResult = await pool.query(liveTestsQuery, liveValues);
-    const scheduledTestsResult = await pool.query(scheduledTestsQuery, scheduledValues);
-    const pastTestsResult = await pool.query(pastTestsQuery, pastValues);
+    const liveTestsResult = await dbWrite.raw(liveTestsQuery, liveValues);
+    const scheduledTestsResult = await dbWrite.raw(scheduledTestsQuery, scheduledValues);
+    const pastTestsResult = await dbWrite.raw(pastTestsQuery, pastValues);
 
     const liveTestsCount = parseInt(liveTestsResult.rows[0].count, 10);
     const scheduledTestsCount = parseInt(scheduledTestsResult.rows[0].count, 10);
@@ -131,7 +131,7 @@ const getAllStudentsStats = async (req, res) => {
       values.push(user_branch);
     }
 
-    const totalStudentsResult = await pool.query(totalStudentsQuery, values);
+    const totalStudentsResult = await dbWrite.raw(totalStudentsQuery, values);
     const totalStudentsCount = parseInt(totalStudentsResult.rows[0].count, 10);
 
     await logActivity({
@@ -158,7 +158,7 @@ const getAllStudentsStatsForDepartment = async (req, res) => {
 
   try {
     const totalStudentsQuery = 'SELECT COUNT(*) FROM users WHERE department = $1 AND status = $2 AND role = $3';
-    const totalStudentsResult = await pool.query(totalStudentsQuery, [department, 'ACTIVE', role]);
+    const totalStudentsResult = await dbWrite.raw(totalStudentsQuery, [department, 'ACTIVE', role]);
 
     const totalStudentsCount = parseInt(totalStudentsResult.rows[0].count, 10);
 

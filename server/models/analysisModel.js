@@ -1,4 +1,4 @@
-const { query } = require('../config/db');
+const { dbWrite } = require('../config/db');
 
 
 const getDepartmentAnalysis = async (department_name, year) => {
@@ -22,13 +22,13 @@ const getDepartmentAnalysis = async (department_name, year) => {
 
   baseQuery += ` ORDER BY department_rank ASC`;
 
-  const result = await query(baseQuery, values);
+  const result = await dbWrite.raw(baseQuery, values);
   return result.rows;
 };
 
 const deptTopScorers = async (department) => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
       SELECT * 
       FROM rank 
       WHERE department_name = $1
@@ -44,7 +44,7 @@ const deptTopScorers = async (department) => {
 
 const deptWeakScorers = async (department) => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
       SELECT * FROM (
         SELECT * 
         FROM rank 
@@ -69,7 +69,7 @@ const getUserAnalysisById = async (student_id) => {
         WHERE student_id = $1
       `;
 
-  const result = await query(queryText, [student_id]);
+  const result = await dbWrite.raw(queryText, [student_id]);
   return result.rows[0]; // return single object
 };
 
@@ -79,7 +79,7 @@ const getUserAnalysisById = async (student_id) => {
 const getOverallResultsOfAStudent = async (student_id) => {
   try {
     const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 ORDER BY created_at DESC;`;
-    const result = await query(queryText, [student_id]);
+    const result = await dbWrite.raw(queryText, [student_id]);
 
     // Helper function to format date to readable format
     const formatToReadableDate = (isoString) => {
@@ -115,7 +115,7 @@ const getOverallResultsOfAStudent = async (student_id) => {
 const getResultOfAParticularExam = async (student_id, exam_id) => {
   try {
     const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 AND exam_id=$2;`;
-    const result = await query(queryText, [student_id, exam_id]);
+    const result = await dbWrite.raw(queryText, [student_id, exam_id]);
 
     // Helper function to format date to readable format
     const formatToReadableDate = (isoString) => {
@@ -150,11 +150,11 @@ const getResultOfAParticularExam = async (student_id, exam_id) => {
 
 const testCompletion = async (student_id) => {
   try {
-    const attemptedResult = await query(
+    const attemptedResult = await dbWrite.raw(
       `SELECT * FROM student_analysis WHERE student_id=$1 AND attempted=TRUE;`,
       [student_id]
     );
-    const totalResult = await query(
+    const totalResult = await dbWrite.raw(
       `SELECT * FROM exams 
        WHERE 
         (SELECT department FROM users WHERE user_id = $1) = ANY(target_branches) 
@@ -185,7 +185,7 @@ async function checkStudentAnalysis(exam_id, student_id) {
           WHERE exam_id = $1 AND student_id = $2;
       `;
 
-    const result = await query(sql, [exam_id, student_id]);
+    const result = await dbWrite.raw(sql, [exam_id, student_id]);
     return result.rows.length > 0; // Returns true if entry exists, false otherwise
   } catch (error) {
     console.error('Error checking student analysis:', error);
@@ -216,7 +216,7 @@ async function insertStudentAnalysis(data) {
       data.attempted,
     ];
 
-    const result = await query(sql, values);
+    const result = await dbWrite.raw(sql, values);
     return result.rows[0]; // Return the inserted row
   } catch (error) {
     console.error('Error inserting student analysis:', error);
@@ -227,7 +227,7 @@ async function insertStudentAnalysis(data) {
 const generateStudentAnalysis = async () => {
   try {
     const queryText = `SELECT exam_id, student_id FROM results`;
-    const result = await query(queryText);
+    const result = await dbWrite.raw(queryText);
     return result.rows;
   } catch (error) {
     console.log(error);
@@ -245,7 +245,7 @@ const avgResults = async (student_id) => {
       WHERE student_id = $1
       GROUP BY student_id;
     `;
-    const result = await query(queryText, [student_id]);
+    const result = await dbWrite.raw(queryText, [student_id]);
     return result.rows[0];
   } catch (error) {
     console.log(error);
@@ -254,7 +254,7 @@ const avgResults = async (student_id) => {
 
 async function getStudentRank(student_id) {
   try {
-    const result = await query(
+    const result = await dbWrite.raw(
       `SELECT * FROM rank WHERE student_id=$1;`,
       [student_id]
     );
@@ -291,7 +291,7 @@ async function user_analysis(year) {
       WHERE r.year = $1;
     `;
 
-    const result = await query(queryText, [year]);
+    const result = await dbWrite.raw(queryText, [year]);
     return result.rows;
   } catch (error) {
     console.error('❌ Error fetching user analysis:', error);
@@ -322,7 +322,7 @@ async function dept_user_analysis(department) {
       WHERE r.department_name = $1;
     `;
 
-    const result = await query(queryText, [department]);
+    const result = await dbWrite.raw(queryText, [department]);
     return result.rows;
   } catch (error) {
     console.error('❌ Error fetching user analysis:', error);
@@ -335,7 +335,7 @@ async function dept_user_analysis(department) {
 
 const topScorers = async (year) => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
       SELECT * 
       FROM rank 
       WHERE year = $1
@@ -351,7 +351,7 @@ const topScorers = async (year) => {
 
 const weakScorers = async (year) => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
       SELECT * FROM (
         SELECT * 
         FROM rank 
@@ -371,7 +371,7 @@ const weakScorers = async (year) => {
 
 const getDeptAvgScores = async (year) => {
   try {
-    const result = await query(
+    const result = await dbWrite.raw(
       `
       SELECT 
         department_name,
@@ -399,7 +399,7 @@ const getDeptAvgScores = async (year) => {
 
 const getAllDepartmentsPerformanceOverTime = async () => {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
       SELECT department_name, performance_over_time 
       FROM department_analysis
       ORDER BY department_rank ASC;
@@ -417,7 +417,7 @@ const overallAccuracyRate = async (year) => {
       FROM department_analysis
       WHERE year = $1;
     `;
-    const result = await query(sql, [year]);
+    const result = await dbWrite.raw(sql, [year]);
     return result.rows[0]?.overall_accuracy_rate || 0.0;
   } catch (error) {
     console.error('❌ Error fetching overall accuracy rate:', error.message);
@@ -450,7 +450,7 @@ async function getSingleUserAnalysis(student_id, department_name, year) {
       WHERE r.student_id = $1 AND r.department_name = $2 AND r.year = $3;
     `;
 
-    const result = await query(sql, [student_id, department_name, year]);
+    const result = await dbWrite.raw(sql, [student_id, department_name, year]);
 
     if (result.rows.length === 0) {
       return null; // or []
@@ -469,7 +469,7 @@ async function getSingleUserAnalysis(student_id, department_name, year) {
 
 async function getPerformanceOverTime(student_id) {
   try {
-    const result = await query(`
+    const result = await dbWrite.raw(`
       SELECT 
           sa.student_id,
           sa.exam_id, 
