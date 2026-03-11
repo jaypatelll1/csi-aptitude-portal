@@ -1,162 +1,150 @@
-const { dbWrite } = require('../config/db');
-const { paginate } = require('../utils/pagination');
-const { calculateAndStoreTotalScore } = require('../utils/scoreUtils');
+const { dbWrite } = require("../config/db");
+const { paginate } = require("../utils/pagination");
+const { calculateAndStoreTotalScore } = require("../utils/scoreUtils");
 
-// CREATE: Insert a new result
+// CREATE: Insert results
 async function createResult() {
   try {
-    // Get the calculated results
     const results = await calculateAndStoreTotalScore();
 
-    for (const resultRow of results) {
-      const { student_id, exam_id, correct_responses, max_score } = resultRow;
-      const completed_at = new Date().toISOString();
+    const rows = results.map((r) => ({
+      student_id: r.student_id,
+      exam_id: r.exam_id,
+      total_score: r.correct_responses,
+      max_score: r.max_score,
+      completed_at: new Date(),
+    }));
 
-      const values = [
-        student_id,
-        exam_id,
-        correct_responses,
-        max_score,
-        completed_at,
-      ];
+    if (rows.length === 0) return [];
 
-      const queryText = `
-        INSERT INTO results (student_id, exam_id, total_score, max_score, completed_at)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING *;
-      `;
+    const inserted = await dbWrite("results")
+      .insert(rows)
+      .returning("*");
 
-      try {
-        // Insert into the database
-        let res = await dbWrite.raw(queryText, values);
-        // Log each inserted row
-      } catch (err) {
-        // Log errors for specific rows and continue
-        console.error('Error inserting row:', err);
-      }
-    }
-
-    console.log('All rows processed.');
+    return inserted;
   } catch (err) {
-    console.error('Error creating result:', err);
+    console.error("Error creating result:", err);
   }
-  return 1;
 }
 
-// READ: Fetch all results
+// READ: Fetch all results for student
 async function getAllResults(student_id) {
-  const queryText = 'SELECT * FROM results WHERE student_id=$1;';
-
   try {
-    const res = await dbWrite.raw(queryText, [student_id]);
-    return res.rows;
+    return await dbWrite("results")
+      .where({ student_id });
   } catch (err) {
-    console.error('Error fetching results:', err);
+    console.error("Error fetching results:", err);
   }
 }
 
-// READ: Fetch a single result by ID
-const getResultById= async (exam_id, student_id)=> {
-  const queryText =
-    'SELECT * FROM results WHERE exam_id = $1 AND student_id=$2;';
-  const values = [exam_id, student_id];
-
+// READ: Fetch single result
+const getResultById = async (exam_id, student_id) => {
   try {
-    const res = await dbWrite.raw(queryText, values);
-    if (res.rows.length === 0) {
-      return 'No Result Found';
-    }
-    return res.rows[0];
+    const result = await dbWrite("results")
+      .where({ exam_id, student_id })
+      .first();
+
+    return result || "No Result Found";
   } catch (err) {
-    console.error('Error fetching result:', err);
+    console.error("Error fetching result:", err);
   }
-}
-// getResultById(274,3)
-
-// UPDATE: Update a result
-async function updateResult(result) {
-  const { total_score, max_score, completed_at, exam_id, student_id } = result;
-  const queryText = `
-    UPDATE results
-    SET total_score = $1, max_score = $2, completed_at = $3
-    WHERE exam_id = $4 AND student_id=$5
-    RETURNING *;
-  `;
-  const values = [total_score, max_score, completed_at, exam_id, student_id];
-
-  try {
-    const res = await dbWrite.raw(queryText, values);
-    console.log('Updated result:', res.rows[0]);
-    return res.rows[0];
-  } catch (err) {
-    console.error('Error updating result:', err);
-  }
-}
-
-// DELETE: Delete a result
-async function deleteResult(exam_id) {
-  const queryText = 'DELETE FROM results WHERE exam_id = $1 RETURNING *;';
-  const values = [exam_id];
-
-  try {
-    const res = await dbWrite.raw(queryText, values);
-    console.log('Deleted result:', res.rows[0]);
-    return res.rows[0];
-  } catch (err) {
-    console.error('Error deleting result:', err);
-  }
-}
-
-// Pagination
-// Get all results for a specific exam with pagination
-const getPaginatedResultsByExam = async (exam_id, page, limit) => {
-  const queryText = `SELECT * FROM results WHERE exam_id=${exam_id}`;
-  const paginatedqueryText = paginate(queryText, page, limit);
-  const result = await dbWrite.raw(paginatedqueryText);
-  return result.rows;
-  // console.log('rresult is ',result.rows);
 };
 
-const getResultsByUsers = async (user_id) => {
-  const queryText = `
-    SELECT 
-        e.exam_name,
-        e.exam_id,
-        e.duration,
-        e.end_time,
-        r.total_score,
-        r.max_score,
-        r.student_id,
-        e.status,
-        r.result_id,
-        COUNT(q.question_id) AS total_questions,
-        CASE
-          WHEN r.exam_id IS NOT NULL THEN true
-          ELSE false
-        END AS "isAttempted"
-    FROM exams e
-    LEFT JOIN results r 
-      ON r.exam_id = e.exam_id AND r.student_id = $1
-    LEFT JOIN questions q 
-      ON q.exam_id = e.exam_id
-    WHERE e.status = 'past'
-    GROUP BY 
-        e.exam_name, e.exam_id, e.duration, e.end_time,
-        r.total_score, r.max_score, r.student_id, e.status, r.result_id, r.exam_id
-    ORDER BY e.end_time DESC;
-  `;
+// UPDATE result
+async function updateResult(result) {
+  try {
+    const { total_score, max_score, completed_at, exam_id, student_id } = result;
 
-  const result = await dbWrite.raw(queryText, [user_id]);
+    const [updated] = await dbWrite("results")
+      .where({ exam_id, student_id })
+      .update({
+        total_score,
+        max_score,
+        completed_at,
+      })
+      .returning("*");
+
+    return updated;
+  } catch (err) {
+    console.error("Error updating result:", err);
+  }
+}
+
+// DELETE result
+async function deleteResult(exam_id) {
+  try {
+    const [deleted] = await dbWrite("results")
+      .where({ exam_id })
+      .del()
+      .returning("*");
+
+    return deleted;
+  } catch (err) {
+    console.error("Error deleting result:", err);
+  }
+}
+
+// PAGINATED results by exam
+const getPaginatedResultsByExam = async (exam_id, page, limit) => {
+  let query = dbWrite("results")
+    .where({ exam_id });
+
+  if (page && limit) {
+    query = paginate(query, page, limit);
+  }
+
+  return await query;
+};
+
+// Results dashboard for user
+const getResultsByUsers = async (user_id) => {
+  const rows = await dbWrite("exams as e")
+    .leftJoin("results as r", function () {
+      this.on("r.exam_id", "=", "e.exam_id")
+        .andOn("r.student_id", "=", dbWrite.raw("?", [user_id]));
+    })
+    .leftJoin("questions as q", "q.exam_id", "e.exam_id")
+    .where("e.status", "past")
+    .groupBy(
+      "e.exam_name",
+      "e.exam_id",
+      "e.duration",
+      "e.end_time",
+      "r.total_score",
+      "r.max_score",
+      "r.student_id",
+      "e.status",
+      "r.result_id",
+      "r.exam_id"
+    )
+    .select(
+      "e.exam_name",
+      "e.exam_id",
+      "e.duration",
+      "e.end_time",
+      "r.total_score",
+      "r.max_score",
+      "r.student_id",
+      "e.status",
+      "r.result_id"
+    )
+    .count("q.question_id as total_questions")
+    .orderBy("e.end_time", "desc");
 
   const formatToReadableDate = (isoString) => {
     const date = new Date(isoString);
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-IN', options);
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
-  const resultsWithStatus = result.rows.map((row) => {
-    const percentage = (row.total_score / row.max_score) * 100;
-    const status = percentage >= 35 ? 'Passed' : 'Failed';
+  return rows.map((row) => {
+    const percentage =
+      row.max_score > 0
+        ? (row.total_score / row.max_score) * 100
+        : 0;
 
     return {
       exam_name: row.exam_name,
@@ -165,67 +153,59 @@ const getResultsByUsers = async (user_id) => {
       duration: row.duration,
       Date: formatToReadableDate(row.end_time),
       percentage: Number(percentage),
-      status: status,
-      isAttempted: row.isAttempted,
+      status: percentage >= 35 ? "Passed" : "Failed",
+      isAttempted: row.result_id !== null,
       exam_id: row.exam_id,
-      total_questions: parseInt(row.total_questions, 10)
+      total_questions: parseInt(row.total_questions),
     };
   });
-
-  return resultsWithStatus;
 };
 
-
-// question_ext, options, question_id
+// Correct / incorrect answers
 async function getCorrectIncorrect(student_id, exam_id) {
-  const queryText = `
-    SELECT 
-      r.student_id,
-      q.question_id,
-      q.question_text,
-      q.options,
-      q.category,
-      q.question_type,
+  try {
+    const { rows } = await dbWrite.raw(
+      `
+      SELECT 
+        r.student_id,
+        q.question_id,
+        q.question_text,
+        q.options,
+        q.category,
+        q.question_type,
 
-      -- Store selected response in a consistent JSONB format
-      CASE 
+        CASE 
           WHEN q.question_type = 'multiple_choice' THEN r.selected_options
           WHEN q.question_type = 'text' THEN to_jsonb(r.text_answer)
           ELSE to_jsonb(r.selected_option)
-      END AS selected_response,
+        END AS selected_response,
 
-      -- Correct answer should be NULL for text questions
-      CASE 
+        CASE 
           WHEN q.question_type = 'text' THEN NULL
           WHEN q.question_type = 'multiple_choice' THEN q.correct_options
           ELSE to_jsonb(q.correct_option)
-      END AS correct_answer,
+        END AS correct_answer,
 
-      -- Result status: NULL for text questions, 'true' or 'false' otherwise
-      CASE 
+        CASE 
           WHEN q.question_type = 'text' THEN NULL
-          WHEN q.question_type = 'multiple_choice' 
-               THEN (r.selected_options @> q.correct_options AND q.correct_options @> r.selected_options)::text
+          WHEN q.question_type = 'multiple_choice'
+            THEN (r.selected_options @> q.correct_options AND q.correct_options @> r.selected_options)::text
           ELSE (r.selected_option = q.correct_option)::text
-      END AS result_status
+        END AS result_status
 
-FROM responses r
-JOIN questions q 
-ON r.question_id = q.question_id
-WHERE r.student_id = $1 
-AND r.exam_id = $2;
-  `;
+      FROM responses r
+      JOIN questions q ON r.question_id = q.question_id
+      WHERE r.student_id = ?
+      AND r.exam_id = ?
+      `,
+      [student_id, exam_id]
+    );
 
-  try {
-    console.log(`Exam id: ${exam_id} Student id: ${student_id}`);
-    const res = await dbWrite.raw(queryText, [student_id, exam_id]);
-    return res.rows;
+    return rows;
   } catch (err) {
-    console.error('Error fetching results:', err);
+    console.error("Error fetching results:", err);
   }
 }
-
-
 
 module.exports = {
   createResult,
@@ -237,5 +217,3 @@ module.exports = {
   getResultsByUsers,
   getCorrectIncorrect,
 };
-
-

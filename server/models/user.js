@@ -1,36 +1,46 @@
 // models/user.js
-const {dbWrite} = require('../config/db');
+const { dbWrite } = require('../config/db');
 
-// Function to fetch all users from the database
+// Fetch all users
 const getUsers = async () => {
   try {
-    const result = await dbWrite.raw('SELECT user_id, name, email FROM users'); // Selecting relevant fields
-    return result.rows;
+    const users = await dbWrite("users")
+      .select("user_id", "name", "email");
+
+    return users;
   } catch (err) {
-    throw new Error('Error fetching users: ' + err.message);
+    throw new Error("Error fetching users: " + err.message);
   }
 };
 
-// Function to create a new user
+// Create new user
 const createUser = async (name, email, password) => {
   try {
-    const result = await dbWrite.raw(
-      `INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [name, email, password, "Student"] // Here password should be hashed (use bcrypt)
-    );
-    return result.rows[0];  // Return created user
+    const [user] = await dbWrite("users")
+      .insert({
+        name: name,
+        email: email,
+        password_hash: password,
+        role: "Student"
+      })
+      .returning("*");
+
+    return user;
   } catch (err) {
-    throw new Error('Error creating user: ' + err.message);
+    throw new Error("Error creating user: " + err.message);
   }
 };
 
-// Function to get a user by email
+// Get user by email
 const getUserByEmail = async (email) => {
   try {
-    const result = await dbWrite.raw('SELECT * FROM users WHERE email = $1', [email]);
-    return result.rows[0];  // Return the first user, or null if not found
+    const user = await dbWrite("users")
+      .where({ email })
+      .first();
+
+    return user;
   } catch (err) {
-    throw new Error('Error fetching user by email: ' + err.message);
+    throw new Error("Error fetching user by email: " + err.message);
   }
 };
 

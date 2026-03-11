@@ -1,41 +1,38 @@
 const { dbWrite } = require('../config/db');
-const { getResultById ,getAllResults } = require('../models/resultModel');
+const { getResultById, getAllResults } = require('../models/resultModel');
 const { getUserById } = require('../models/userModel');
 const { getExamById } = require('../models/examModel');
 
-async function user_analysis(exam_id, student_id,result) {
+async function user_analysis(exam_id, student_id, result) {
   try {
     const student = await getUserById(student_id);
     if (!student) throw new Error(`Student not found`);
-// 
+
     if (!result) {
       console.log(`No result found for student ${student_id} and exam ${exam_id}`);
       return;
     }
-    console.log("results",result)
 
-  
-    const existingUser = await dbWrite("user_analysis").where({student_id}).first()
-
-    console.log(existingUser)
+    const existingUser = await dbWrite("user_analysis")
+      .where({ student_id })
+      .first();
 
     let performance_over_time = [];
     let categoryScoreMap = {};
     let totalScore = 0;
     let totalMaxScore = 0;
 
-    // If student exists, use their existing data
-    if (existingUser.rows.length > 0) {
-      const user = existingUser.rows[0];
-      performance_over_time = user.performance_over_time || [];
-      categoryScoreMap = user.category || {};
-      totalScore = user.total_score || 0;
-      totalMaxScore = user.max_score || 0;
+    // If student exists
+    if (existingUser) {
+      performance_over_time = existingUser.performance_over_time || [];
+      categoryScoreMap = existingUser.category || {};
+      totalScore = existingUser.total_score || 0;
+      totalMaxScore = existingUser.max_score || 0;
     }
 
-    // Add latest exam result
+    // Get exam
     const exam = await getExamById(exam_id);
-    console.log(exam)
+
     performance_over_time.push({
       exam_id: exam.exam_id,
       exam_name: exam?.exam_name || `Exam ${exam_id}`,
@@ -44,97 +41,76 @@ async function user_analysis(exam_id, student_id,result) {
     });
 
     totalScore += parseInt(result.total_score) || 0;
-totalMaxScore += parseInt(result.max_score) || 0;
+    totalMaxScore += parseInt(result.max_score) || 0;
 
     // Merge category scores
     const newCatScores = result.category_score;
-    
-    console.log(newCatScores)
+
     for (const category in newCatScores) {
       const cs = newCatScores[category];
+
       if (!categoryScoreMap[category]) {
         categoryScoreMap[category] = { score: 0, max_score: 0 };
       }
+
       categoryScoreMap[category].score += parseInt(cs.score);
       categoryScoreMap[category].max_score += parseInt(cs.max_score);
     }
-console.log(newCatScores)
-    const accuracy_rate = totalMaxScore > 0 ? totalScore / totalMaxScore : 0;
-console.log(accuracy_rate)
-    const totalAssignedRes = await dbWrite.raw(
-      `SELECT COUNT(*) FROM exams 
-       WHERE exam_for = 'Student'
-       AND $1 = ANY(target_branches)
-       AND $2 = ANY(target_years)`,
-      [student.department, student.year]
-    );
-    const totalAssigned = parseInt(totalAssignedRes.rows[0].count) || 0;
-console.log(totalAssigned)
 
+    const accuracy_rate = totalMaxScore > 0 ? totalScore / totalMaxScore : 0;
+
+    // Total assigned exams
+    const totalAssignedRes = await dbWrite("exams")
+      .where("exam_for", "Student")
+      .whereRaw("? = ANY(target_branches)", [student.department])
+      .whereRaw("? = ANY(target_years)", [student.year])
+      .count("* as count")
+      .first();
+
+    const totalAssigned = parseInt(totalAssignedRes.count) || 0;
+
+    // Attempted exams
     const attemptedResults = await getAllResults(student_id);
-    console.log(attemptedResults)
-    const attempted = attemptedResults?.length || 1;
-    console.log(attempted)
+    const attempted = attemptedResults?.length || 0;
+
     const completion_rate = totalAssigned > 0 ? attempted / totalAssigned : 0;
-console.log(completion_rate)
-    if (existingUser.rows.length === 0) {
-      // ✅ INSERT if student doesn't exist
-      const insertQuery = `
-        INSERT INTO user_analysis (
-          student_id, student_name, department_name, year,
-          accuracy_rate, completion_rate,
-          category, performance_over_time,
-          total_score, max_score, updated_at
-        ) VALUES (
-          $1, $2, $3, $4,
-          $5, $6,
-          $7, $8,
-          $9, $10, NOW()
-        )
-      `;
-      await dbWrite.raw(insertQuery, [
-        student_id,
-        student.name,
-        student.department,
-        student.year,
+
+    if (!existingUser) {
+      // INSERT
+      await dbWrite("user_analysis").insert({
+        student_id: student_id,
+        student_name: student.name,
+        department_name: student.department,
+        year: student.year,
         accuracy_rate,
         completion_rate,
-        JSON.stringify(categoryScoreMap),
-        JSON.stringify(performance_over_time),
-        totalScore,
-        totalMaxScore
-      ]);
+        category: JSON.stringify(categoryScoreMap),
+        performance_over_time: JSON.stringify(performance_over_time),
+        total_score: totalScore,
+        max_score: totalMaxScore,
+        updated_at: dbWrite.fn.now()
+      });
+
     } else {
-      // ✅ UPDATE if student exists
-      const updateQuery = `
-        UPDATE user_analysis SET
-          student_name = $2,
-          department_name = $3,
-          year = $4,
-          accuracy_rate = $5,
-          completion_rate = $6,
-          category = $7,
-          performance_over_time = $8,
-          total_score = $9,
-          max_score = $10,
-          updated_at = NOW()
-        WHERE student_id = $1
-      `;
-      await query(updateQuery, [
-        student_id,
-        student.name,
-        student.department,
-        student.year,
-        accuracy_rate,
-        completion_rate,
-        JSON.stringify(categoryScoreMap),
-        JSON.stringify(performance_over_time),
-        totalScore,
-        totalMaxScore
-      ]);
+      // UPDATE
+      await dbWrite("user_analysis")
+        .where({ student_id })
+        .update({
+          student_name: student.name,
+          department_name: student.department,
+          year: student.year,
+          accuracy_rate,
+          completion_rate,
+          category: JSON.stringify(categoryScoreMap),
+          performance_over_time: JSON.stringify(performance_over_time),
+          total_score: totalScore,
+          max_score: totalMaxScore,
+          updated_at: dbWrite.fn.now()
+        });
     }
 
-    console.log(`✅ Analysis ${existingUser.rows.length === 0 ? 'inserted' : 'updated'} for student_id: ${student_id}`);
+    console.log(`✅ Analysis ${existingUser ? 'updated' : 'inserted'} for student_id: ${student_id}`);
+
   } catch (err) {
     console.error(`❌ Error in user_analysis:`, err);
   }

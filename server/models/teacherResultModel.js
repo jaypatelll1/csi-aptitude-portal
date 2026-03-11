@@ -1,7 +1,7 @@
 const { dbWrite } = require('../config/db');
 const { paginate } = require('../utils/pagination');
 
-// CREATE: Insert a new teacher result
+// UPDATE teacher result
 async function updateResultForTeachers(
   teacher_id,
   exam_id,
@@ -11,77 +11,63 @@ async function updateResultForTeachers(
   comments
 ) {
   try {
-    const completed_at = new Date().toISOString();
-
-      const updateQuery = `
-        UPDATE teacher_results 
-        SET marks_allotted = $1, max_score = $2, comments = $3, completed_at = $4
-        WHERE exam_id = $5 AND teacher_id = $6 AND question_id = $7
-        RETURNING *;
-      `;
-      const updateValues = [
+    const [result] = await dbWrite("teacher_results")
+      .where({ exam_id, teacher_id, question_id })
+      .update({
         marks_allotted,
         max_score,
         comments,
-        completed_at,
-        exam_id,
-        teacher_id,
-        question_id,
-      ];
-      result = await dbWrite.raw(updateQuery, updateValues);
+        completed_at: new Date()
+      })
+      .returning("*");
 
-    return result.rows[0];
+    return result;
   } catch (err) {
-    console.error('Error inserting teacher result:', err);
+    console.error("Error updating teacher result:", err);
     throw err;
   }
 }
 
-// READ: Fetch all results for teachers
+// FETCH all teacher results
 async function getAllTeacherResults() {
   try {
-    const queryText = 'SELECT * FROM teacher_results;';
-    const res = await dbWrite.raw(queryText);
-    return res.rows;
+    return await dbWrite("teacher_results").select("*");
   } catch (err) {
-    console.error('Error fetching teacher results:', err);
+    console.error("Error fetching teacher results:", err);
   }
 }
 
-// READ: Fetch results by teacher ID
+// FETCH results by teacher
 async function getResultsByTeacher(teacher_id) {
   try {
-    const queryText = `
-    SELECT 
-        tr.teacher_id,
-        tr.exam_id,
-        SUM(tr.marks_allotted) AS total_marks_allotted,
-        SUM(tr.max_score) AS total_max_score,
-        COUNT(tr.question_id) AS total_questions_graded,
-        MAX(tr.completed_at) AS last_evaluation_time
-    FROM teacher_results tr
-    WHERE tr.teacher_id = $1
-    GROUP BY tr.teacher_id, tr.exam_id
-    ORDER BY last_evaluation_time DESC;`;
-    const res = await dbWrite.raw(queryText, [teacher_id]);
-    return res.rows;
+    return await dbWrite("teacher_results as tr")
+      .select(
+        "tr.teacher_id",
+        "tr.exam_id"
+      )
+      .sum("tr.marks_allotted as total_marks_allotted")
+      .sum("tr.max_score as total_max_score")
+      .count("tr.question_id as total_questions_graded")
+      .max("tr.completed_at as last_evaluation_time")
+      .where("tr.teacher_id", teacher_id)
+      .groupBy("tr.teacher_id", "tr.exam_id")
+      .orderBy("last_evaluation_time", "desc");
   } catch (err) {
-    console.error('Error fetching results by teacher:', err);
+    console.error("Error fetching results by teacher:", err);
   }
 }
 
-// READ: Fetch a single result by exam and question ID
+// FETCH teacher result by exam + teacher
 async function getTeacherResultById(exam_id, teacher_id) {
   try {
-    const queryText = 'SELECT * FROM teacher_results WHERE exam_id=$1 AND teacher_id=$2;';
-    const res = await dbWrite.raw(queryText, [exam_id, teacher_id]);
-    return res.rows;
+    return await dbWrite("teacher_results")
+      .where({ exam_id, teacher_id });
   } catch (err) {
-    console.error('Error fetching teacher result:', err);
+    console.error("Error fetching teacher result:", err);
   }
 }
 
-// UPDATE: Update a teacher's result
+// UPDATE teacher result
 async function updateTeacherResult(
   exam_id,
   question_id,
@@ -91,145 +77,139 @@ async function updateTeacherResult(
   comments
 ) {
   try {
-    const queryText = `UPDATE teacher_results SET marks_allotted = $1, max_score = $2, comments = $3
-                        WHERE teacher_id=$4 AND exam_id = $5 AND question_id = $6 RETURNING *;`;
-    const values = [
-      marks_allotted,
-      max_score,
-      comments,
-      teacher_id,
-      exam_id,
-      question_id,
-    ];
-    const res = await dbWrite.raw(queryText, values);
-    return res.rows[0];
+    const [result] = await dbWrite("teacher_results")
+      .where({ teacher_id, exam_id, question_id })
+      .update({
+        marks_allotted,
+        max_score,
+        comments
+      })
+      .returning("*");
+
+    return result;
   } catch (err) {
-    console.error('Error updating teacher result:', err);
+    console.error("Error updating teacher result:", err);
   }
 }
 
-// DELETE: Delete a teacher's result
+// DELETE teacher result
 async function deleteTeacherResult(teacher_id, exam_id, question_id) {
   try {
-    const queryText =
-      'DELETE FROM teacher_results WHERE teacher_id=$1 AND exam_id=$2 AND question_id=$3 RETURNING *;';
-    const res = await dbWrite.raw(queryText, [teacher_id, exam_id, question_id]);
-    return res.rows[0];
+    const [deleted] = await dbWrite("teacher_results")
+      .where({ teacher_id, exam_id, question_id })
+      .del()
+      .returning("*");
+
+    return deleted;
   } catch (err) {
-    console.error('Error deleting teacher result:', err);
+    console.error("Error deleting teacher result:", err);
   }
 }
 
+// PAGINATED results by exam
 async function getPaginatedTeacherResultsByExam(exam_id, page, limit) {
   try {
-    const baseQuery = `
-      SELECT 
-          tr.teacher_id,
-          tr.exam_id,
-          SUM(tr.marks_allotted) AS total_marks_allotted,
-          SUM(tr.max_score) AS total_max_score,
-          COUNT(tr.question_id) AS total_questions_graded,
-          MAX(tr.completed_at) AS last_evaluation_time
-      FROM teacher_results tr
-      WHERE tr.exam_id = $1
-      GROUP BY tr.teacher_id, tr.exam_id
-      ORDER BY last_evaluation_time DESC
-    `;
+    const query = dbWrite("teacher_results as tr")
+      .select("tr.teacher_id", "tr.exam_id")
+      .sum("tr.marks_allotted as total_marks_allotted")
+      .sum("tr.max_score as total_max_score")
+      .count("tr.question_id as total_questions_graded")
+      .max("tr.completed_at as last_evaluation_time")
+      .where("tr.exam_id", exam_id)
+      .groupBy("tr.teacher_id", "tr.exam_id")
+      .orderBy("last_evaluation_time", "desc");
 
-    // Wrap the query inside a subquery to apply pagination properly
-    const paginatedQuery = paginate(
-      `SELECT * FROM (${baseQuery}) AS grouped_results`,
-      page,
-      limit
-    );
-    const result = await dbWrite.raw(paginatedQuery, [exam_id]);
-    return result.rows;
+    const paginatedQuery = paginate(query, page, limit);
+
+    return await paginatedQuery;
   } catch (err) {
-    console.error('Error fetching paginated teacher results:', err);
+    console.error("Error fetching paginated teacher results:", err);
     return [];
   }
 }
 
-// Get past results for an exam
+// PAST results
 async function pastTeacherResult(exam_id) {
   try {
-    const queryText =
-      'SELECT * FROM teacher_results WHERE exam_id=$1 ORDER BY completed_at DESC;';
-    const res = await dbWrite.raw(queryText, [exam_id]);
-    return res.rows;
+    return await dbWrite("teacher_results")
+      .where({ exam_id })
+      .orderBy("completed_at", "desc");
   } catch (err) {
-    console.error('Error fetching past teacher results:', err);
+    console.error("Error fetching past teacher results:", err);
   }
 }
 
-// Get detailed correctness of answers
+// COMPLEX correctness query (kept raw)
 async function getCorrectIncorrectForTeacher(teacher_id, exam_id) {
   try {
-    const queryText = `
+    const { rows } = await dbWrite.raw(
+      `
       SELECT 
-            tr.teacher_id,
-            q.question_id,
-            q.question_text,
-            q.options,
-            q.category,
-            q.question_type,
+        tr.teacher_id,
+        q.question_id,
+        q.question_text,
+        q.options,
+        q.category,
+        q.question_type,
 
-            -- Store selected response in a consistent JSONB format
-            CASE 
-                WHEN q.question_type = 'multiple_choice' THEN tr.selected_options
-                WHEN q.question_type = 'text' THEN to_jsonb(tr.text_answer)
-                ELSE to_jsonb(tr.selected_option)
-            END AS selected_response,
+        CASE 
+          WHEN q.question_type = 'multiple_choice' THEN tr.selected_options
+          WHEN q.question_type = 'text' THEN to_jsonb(tr.text_answer)
+          ELSE to_jsonb(tr.selected_option)
+        END AS selected_response,
 
-            -- Correct answer should be NULL for text questions
-            CASE 
-                WHEN q.question_type = 'text' THEN NULL
-                WHEN q.question_type = 'multiple_choice' THEN q.correct_options
-                ELSE to_jsonb(q.correct_option)
-            END AS correct_answer,
+        CASE 
+          WHEN q.question_type = 'text' THEN NULL
+          WHEN q.question_type = 'multiple_choice' THEN q.correct_options
+          ELSE to_jsonb(q.correct_option)
+        END AS correct_answer,
 
-            -- Result status: NULL for text questions, 'true' or 'false' otherwise
-            CASE 
-                WHEN q.question_type = 'text' THEN NULL
-                WHEN q.question_type = 'multiple_choice' 
-                    THEN (tr.selected_options @> q.correct_options AND q.correct_options @> tr.selected_options)::text
-                ELSE (tr.selected_option = q.correct_option)::text
-            END AS result_status
+        CASE 
+          WHEN q.question_type = 'text' THEN NULL
+          WHEN q.question_type = 'multiple_choice'
+            THEN (tr.selected_options @> q.correct_options AND q.correct_options @> tr.selected_options)::text
+          ELSE (tr.selected_option = q.correct_option)::text
+        END AS result_status
 
       FROM teacher_responses tr
-      JOIN questions q 
-      ON tr.question_id = q.question_id
-      WHERE tr.teacher_id = $1
-      AND tr.exam_id = $2;`;
-    const res = await dbWrite.raw(queryText, [teacher_id, exam_id]);
-    return res.rows;
+      JOIN questions q ON tr.question_id = q.question_id
+      WHERE tr.teacher_id = ?
+      AND tr.exam_id = ?
+      `,
+      [teacher_id, exam_id]
+    );
+
+    return rows;
   } catch (err) {
-    console.error('Error fetching correct/incorrect teacher results:', err);
+    console.error("Error fetching correct/incorrect teacher results:", err);
   }
 }
 
+// INITIALIZE teacher result
 async function initializeResultForTeachers(teacher_id, exam_id) {
   try {
-    // Fetch all question IDs for the given exam
-    const questionQuery = `SELECT question_id FROM questions WHERE exam_id = $1`;
-    const { rows: questions } = await dbWrite.raw(questionQuery, [exam_id]);
+    const questions = await dbWrite("questions")
+      .select("question_id")
+      .where({ exam_id });
 
     if (questions.length === 0) {
-      console.log('No questions found for this exam.');
+      console.log("No questions found for this exam.");
       return;
     }
 
-    // Insert default entries for each question
-    const insertQuery = `INSERT INTO teacher_results (exam_id, question_id, teacher_id)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (exam_id, question_id, teacher_id) DO NOTHING`;
+    const rows = questions.map(q => ({
+      exam_id,
+      question_id: q.question_id,
+      teacher_id
+    }));
 
-    for (const question of questions) {
-      await dbWrite.raw(insertQuery, [exam_id, question.question_id, teacher_id]);
-    }
-    return;
+    await dbWrite("teacher_results")
+      .insert(rows)
+      .onConflict(["exam_id", "question_id", "teacher_id"])
+      .ignore();
+
   } catch (err) {
-    console.error('Error fetching correct/incorrect teacher results:', err);
+    console.error("Error initializing teacher results:", err);
   }
 }
 
@@ -243,5 +223,5 @@ module.exports = {
   getPaginatedTeacherResultsByExam,
   pastTeacherResult,
   getCorrectIncorrectForTeacher,
-  initializeResultForTeachers,
+  initializeResultForTeachers
 };

@@ -1,113 +1,81 @@
-const { dbWrite } = require('../config/db');
+const { dbWrite } = require("../config/db");
 
-// ✅ Generate Student Ranks
+/*
+GENERATE STUDENT RANKS
+*/
 async function generateStudentRanks() {
   try {
-    // Step 1: Fetch all students with total_score > 0
-    const res = await dbWrite.raw(`
-      SELECT student_id, student_name, department_name, year, total_score
+
+    const students = await dbWrite("user_analysis")
+      .select(
+        "student_id",
+        "student_name",
+        "department_name",
+        "year",
+        "total_score"
+      )
+      .whereNotNull("total_score")
+      .where("total_score", ">", 0);
+
+    if (!students.length) {
+      console.log("⚠️ No students found with scores.");
+      return;
+    }
+
+    const rankedStudents = await dbWrite.raw(`
+      SELECT 
+        student_id,
+        student_name,
+        department_name,
+        year,
+        total_score,
+
+        RANK() OVER (
+          ORDER BY total_score DESC
+        ) AS overall_rank,
+
+        RANK() OVER (
+          PARTITION BY department_name, year
+          ORDER BY total_score DESC
+        ) AS department_rank
+
       FROM user_analysis
       WHERE total_score IS NOT NULL AND total_score > 0
     `);
 
-    const students = res.rows;
+    const rows = rankedStudents.rows;
 
-    if (students.length === 0) {
-      console.log("⚠️ No students found with scores to rank.");
-      return;
+    for (const student of rows) {
+      await dbWrite("rank")
+        .insert({
+          student_id: student.student_id,
+          student_name: student.student_name,
+          department_name: student.department_name,
+          year: student.year,
+          total_score: student.total_score,
+          overall_rank: student.overall_rank,
+          department_rank: student.department_rank,
+          last_updated: dbWrite.fn.now(),
+        })
+        .onConflict("student_id")
+        .merge();
     }
 
-    // Step 2: Overall rank
-    students.sort((a, b) => b.total_score - a.total_score);
-    students.forEach((student, index) => {
-      student.overall_rank = index + 1;
-    });
+    console.log(`✅ Updated ranks for ${rows.length} students`);
 
-    // Step 3: Department rank (by department + year)
-    const deptGroups = {};
-    for (const student of students) {
-      const deptKey = `${student.department_name}_${student.year}`;
-      if (!deptGroups[deptKey]) deptGroups[deptKey] = [];
-      deptGroups[deptKey].push(student);
-    }
-
-    for (const deptKey in deptGroups) {
-      const group = deptGroups[deptKey];
-      group.sort((a, b) => b.total_score - a.total_score);
-
-      let currentRank = 1;
-      for (let i = 0; i < group.length; i++) {
-        if (i > 0 && group[i].total_score === group[i - 1].total_score) {
-          group[i].department_rank = group[i - 1].department_rank;
-        } else {
-          group[i].department_rank = currentRank;
-        }
-        currentRank++;
-      }
-
-      // ✅ Debug output for verification
-      console.log(`📊 Department-Year: ${deptKey}`);
-      group.forEach((s) =>
-        console.log(`  ${s.student_name} — Score: ${s.total_score}, Dept Rank: ${s.department_rank}`)
-      );
-    }
-
-    // Step 4: Insert or update into rank table
-    for (const student of students) {
-      await dbWrite.raw(
-        `
-        INSERT INTO rank (
-          student_id, student_name, department_name, year,
-          total_score, overall_rank, department_rank, last_updated
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-        ON CONFLICT (student_id)
-        DO UPDATE SET
-          student_name = EXCLUDED.student_name,
-          department_name = EXCLUDED.department_name,
-          year = EXCLUDED.year,
-          total_score = EXCLUDED.total_score,
-          overall_rank = EXCLUDED.overall_rank,
-          department_rank = EXCLUDED.department_rank,
-          last_updated = NOW()
-        `,
-        [
-          student.student_id,
-          student.student_name,
-          student.department_name,
-          student.year,
-          student.total_score,
-          student.overall_rank,
-          student.department_rank
-        ]
-      );
-    }
-
-    console.log(`✅ Successfully inserted/updated ranks for ${students.length} students.`);
-
-    // Optional: Update department_analysis table
     await generateDepartmentRanks();
 
   } catch (err) {
-    console.error(`❌ Error in generateStudentRanks:`, err);
+    console.error("❌ Error generating student ranks:", err);
   }
 }
-// // 🔁 Immediate execution block to clean and regenerate ranks
-// (async () => {
-//   try {
-//     console.log("🧹 Deleting old rank data...");
-//     await query(`DELETE FROM rank`);
-//     console.log("✅ Old rank data deleted.");
-    
-//     await generateStudentRanks();
-//   } catch (err) {
-//     console.error("❌ Error while generating ranks:", err);
-//   }
-// })();
 
-// ✅ Generate Department Rank (for department_analysis table)
+/*
+GENERATE DEPARTMENT RANKS
+*/
 async function generateDepartmentRanks() {
   try {
+
     await dbWrite.raw(`
       WITH ranked AS (
         SELECT
@@ -122,87 +90,87 @@ async function generateDepartmentRanks() {
       UPDATE department_analysis
       SET department_rank = ranked.rank
       FROM ranked
-      WHERE
-        department_analysis.department_name = ranked.department_name
-        AND department_analysis.year = ranked.year
+      WHERE department_analysis.department_name = ranked.department_name
+      AND department_analysis.year = ranked.year
     `);
 
-    console.log('✅ Department ranks generated successfully.');
+    console.log("✅ Department ranks generated");
+
   } catch (err) {
-    console.error('❌ Error generating department ranks:', err);
+    console.error("❌ Error generating department ranks:", err);
   }
 }
 
-// ✅ Get Student Ranks (Admin filter)
+/*
+GET STUDENT RANKS (ADMIN)
+*/
 async function getStudentRanksInOrder(data) {
   try {
-    let queryText = 'SELECT * FROM student_rank';
-    let queryParams = [];
+
+    let query = dbWrite("student_rank");
 
     if (data.department) {
-      queryText += ' WHERE department_name = $1';
-      queryParams.push(data.department);
+      query = query.where("department_name", data.department);
     }
 
-    if (data.filter === "top-performers") {
-      queryText += ' ORDER BY ' + (data.department ? 'department_rank ASC' : 'overall_rank ASC');
-    } else if (data.filter === "bottom-performers") {
-      queryText += ' ORDER BY ' + (data.department ? 'department_rank DESC' : 'overall_rank DESC');
+    if (data.filter === "bottom-performers") {
+      query = query.orderBy(
+        data.department ? "department_rank" : "overall_rank",
+        "desc"
+      );
     } else {
-      queryText += ' ORDER BY ' + (data.department ? 'department_rank ASC' : 'overall_rank ASC');
+      query = query.orderBy(
+        data.department ? "department_rank" : "overall_rank",
+        "asc"
+      );
     }
 
-    console.log(queryText, queryParams);
+    const result = await query;
 
-    const result = await dbWrite.raw(queryText, queryParams);
-    return result.rows;
+    return result;
 
   } catch (error) {
-    console.log('❌ Error fetching student rank data:', error);
+    console.log("❌ Error fetching student ranks:", error);
   }
 }
 
-// ✅ Get Student Analysis for TPO
+/*
+GET STUDENT ANALYSIS FOR TPO
+*/
 async function getStudentRanksInOrderTpo(data) {
   try {
-    let queryText = `
-      SELECT 
-        u.user_id AS "user_id",
-        u.name AS "name",
-        ua.department_name AS "department",
-        ua.total_score AS "total_score",
-        ua.max_score AS "max_score",
-        ua.accuracy_rate AS "accuracy_rate",
-        ua.completion_rate AS "completion_rate",
-        u.email AS "email",
-        u.phone AS "phone"
-      FROM user_analysis ua
-      JOIN users u ON ua.student_id = u.user_id
-      WHERE u.year = 'BE'`;
 
-    const queryParams = [];
-    let paramIndex = 1;
+    let query = dbWrite("user_analysis as ua")
+      .select(
+        "u.user_id as user_id",
+        "u.name as name",
+        "ua.department_name as department",
+        "ua.total_score as total_score",
+        "ua.max_score as max_score",
+        "ua.accuracy_rate as accuracy_rate",
+        "ua.completion_rate as completion_rate",
+        "u.email as email",
+        "u.phone as phone"
+      )
+      .join("users as u", "ua.student_id", "u.user_id")
+      .where("u.year", "BE");
 
     if (data.department) {
-      queryText += ` AND ua.department_name = $${paramIndex}`;
-      queryParams.push(data.department);
-      paramIndex++;
+      query = query.where("ua.department_name", data.department);
     }
 
-    if (data.filter === "top-performers") {
-      queryText += ` ORDER BY ua.total_score DESC`;
-    } else if (data.filter === "bottom-performers") {
-      queryText += ` ORDER BY ua.total_score ASC`;
+    if (data.filter === "bottom-performers") {
+      query = query.orderBy("ua.total_score", "asc");
     } else {
-      queryText += ` ORDER BY ua.total_score DESC`;
+      query = query.orderBy("ua.total_score", "desc");
     }
 
-    console.log(queryText, queryParams);
-    const result = await dbWrite.raw(queryText, queryParams);
-    return result.rows;
+    const result = await query;
+
+    return result;
 
   } catch (error) {
-    console.log('❌ Error fetching TPO data:', error);
+    console.log("❌ Error fetching TPO data:", error);
     return [];
   }
 }

@@ -1,516 +1,237 @@
-const {dbWrite} = require('../config/db');
-const { paginate } = require('../utils/pagination');
+const { dbWrite } = require("../config/db");
+const { paginate } = require("../utils/pagination");
 
+/*
+CREATE EXAM
+*/
 const createExam = async (exam) => {
-
   try {
-    const { name, duration, created_by, formattedTargetYears, formattedTargetBranches, exam_for } = exam;
-    const query = `INSERT INTO exams (exam_name, duration, created_by, status , target_years, target_branches, exam_for) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING  *`;
-    const values = [name, duration, created_by, 'draft', formattedTargetYears, formattedTargetBranches, exam_for];
-    const result = await dbWrite.raw(query, values);
-    return result.rows[0];
+
+    const {
+      name,
+      duration,
+      created_by,
+      formattedTargetYears,
+      formattedTargetBranches,
+      exam_for
+    } = exam;
+
+    const [result] = await dbWrite("exams")
+      .insert({
+        exam_name: name,
+        duration,
+        created_by,
+        status: "draft",
+        target_years: formattedTargetYears,
+        target_branches: formattedTargetBranches,
+        exam_for
+      })
+      .returning("*");
+
+    return result;
+
   } catch (err) {
-    console.error(err.name); // Output: RangeError
-    console.error(err.message); // Output: Value must be a non-negative number.
+    console.error(err);
+    throw err;
   }
-
 };
 
+/*
+GET ALL EXAMS
+*/
 const getExams = async () => {
-  const query = `SELECT * FROM exams`;
-  const result = await dbWrite.raw(query);
-  return result.rows;
+  return await dbWrite("exams").select("*");
 };
 
+/*
+GET EXAM BY ID
+*/
 const getExamById = async (exam_id) => {
-  const query = 'SELECT * FROM exams WHERE exam_id = $1';
-  const values = [exam_id];
-  const result = await dbWrite.raw(query, values);
-  return result.rows[0];
+  return await dbWrite("exams")
+    .where({ exam_id })
+    .first();
 };
 
+/*
+UPDATE EXAM
+*/
 const updateExam = async (exam) => {
-  const { exam_id, name, duration, start_time, end_time, created_by, status } = exam;
-  const query = `UPDATE exams SET exam_name=$1, duration=$2, start_time=$3, end_time=$4, created_by=$5, status=$6 WHERE exam_id=$7 RETURNING *`;
-  const values = [
+
+  const {
+    exam_id,
     name,
     duration,
     start_time,
     end_time,
     created_by,
-    status,
-    exam_id
-  ];
-  const result = await dbWrite.raw(query, values);
-  return result.rows[0];
-};
+    status
+  } = exam;
 
-const scheduleExam = async (exam_id, start_time, end_time) => {
-  const query = `UPDATE exams SET start_time=$1, end_time=$2, status=$3 WHERE exam_id=$4 RETURNING *`;
-  const values = [start_time, end_time, 'scheduled', exam_id];
-  const result = await dbWrite.raw(query, values);
-  return result.rows[0];
-};
+  const [result] = await dbWrite("exams")
+    .where({ exam_id })
+    .update({
+      exam_name: name,
+      duration,
+      start_time,
+      end_time,
+      created_by,
+      status
+    })
+    .returning("*");
 
-const markPastExam = async (exam_id) => {
-  const query = `UPDATE exams SET status='past' WHERE exam_id=$1 RETURNING *`;
-  const values = [exam_id];
-  const result = await dbWrite.raw(query, values);
-  return result.rows[0];
-};
-const markLiveExam = async (exam_id) => {
-  const query = `UPDATE exams SET status='live' WHERE exam_id=$1 RETURNING *`;
-  const values = [exam_id];
-  const result = await dbWrite.raw(query, values);
-  return result.rows[0];
-};
-
-const deleteExam = async (exam_id) => {
-
-
-  // Step 1: Delete all related questions
-  const deleteQuestionsQuery = `DELETE FROM questions WHERE exam_id=$1`;
-  await dbWrite.raw(deleteQuestionsQuery, [exam_id]);
-
-  // Step 2: Now delete the exam
-  const query = `DELETE FROM exams WHERE exam_id=$1 RETURNING *`;
-  const result = await dbWrite.raw(query, [exam_id]);
-
-  // Return the deleted exam data
-  return result.rows[0];
-};
-
-// Pagination
-// Get all exams with pagination
-const getAllPaginatedExams = async (page, limit) => {
-  const query = 'SELECT * FROM exams ORDER BY exam_id ASC';
-  const paginatedQuery = paginate(query, page, limit);
-  const result = await dbWrite.raw(paginatedQuery);
   return result;
 };
-// count of differnt type of exams
 
-const ExamCount = async (status, role) => {
-  if (role === "President" || role === "Teacher") {
-    const queryTEXT = 'SELECT * FROM exams WHERE status=$1 AND exam_for = $2';
-    let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
+/*
+SCHEDULE EXAM
+*/
+const scheduleExam = async (exam_id, start_time, end_time) => {
 
-    try {
-      // Query for each status
-      if (status === 'draft') {
-        const result = await dbWrite.raw(queryTEXT, [status, "Teacher"]);
-        draft_count = result.rowCount || 0;
-      }
-      if (status === 'scheduled') {
-        const result = await dbWrite.raw(queryTEXT, [status, "Teacher"]);
-        scheduled_count = result.rowCount || 0;
-      }
-      if (status === 'past') {
-        const result = await dbWrite.raw(queryTEXT, [status, "Teacher"]);
-        past_count = result.rowCount || 0;
-      }
-      if (status === 'live') {
-        const result = await dbWrite.raw(queryTEXT, [status, "Teacher"]);
-        live_count = result.rowCount || 0;
-      }
+  const [result] = await dbWrite("exams")
+    .where({ exam_id })
+    .update({
+      start_time,
+      end_time,
+      status: "scheduled"
+    })
+    .returning("*");
 
-      // Return the counts for each status
-      return {
-        draft: draft_count,
-        scheduled: scheduled_count,
-        past: past_count,
-        live: live_count
-      };
-    } catch (error) {
-      console.error("Error retrieving exam counts:", error);
-      throw new Error("Failed to retrieve exam counts");
-    }
-  } else {
-
-    const queryTEXT = 'SELECT * FROM exams WHERE status=$1 AND exam_for = $2';
-    let draft_count = null, scheduled_count = null, past_count = null, live_count = null;
-
-    try {
-      // Query for each status
-      if (status === 'draft') {
-        const result = await dbWrite.raw(queryTEXT, [status, 'Student']);
-        draft_count = result.rowCount || 0;
-      }
-      if (status === 'scheduled') {
-        const result = await dbWrite.raw(queryTEXT, [status, 'Student']);
-        scheduled_count = result.rowCount || 0;
-      }
-      if (status === 'past') {
-        const result = await dbWrite.raw(queryTEXT, [status, 'Student']);
-        past_count = result.rowCount || 0;
-      }
-      if (status === 'live') {
-        const result = await dbWrite.raw(queryTEXT, [status, 'Student']);
-        live_count = result.rowCount || 0;
-      }
-
-      // Return the counts for each status
-      return {
-        draft: draft_count,
-        scheduled: scheduled_count,
-        past: past_count,
-        live: live_count
-      };
-    } catch (error) {
-      console.error("Error retrieving exam counts:", error);
-      throw new Error("Failed to retrieve exam counts");
-    }
-  }
+  return result;
 };
 
+/*
+UPDATE STATUS
+*/
+const markPastExam = async (exam_id) => {
+
+  const [result] = await dbWrite("exams")
+    .where({ exam_id })
+    .update({ status: "past" })
+    .returning("*");
+
+  return result;
+};
+
+const markLiveExam = async (exam_id) => {
+
+  const [result] = await dbWrite("exams")
+    .where({ exam_id })
+    .update({ status: "live" })
+    .returning("*");
+
+  return result;
+};
+
+/*
+DELETE EXAM
+*/
+const deleteExam = async (exam_id) => {
+
+  // questions will delete automatically if FK has CASCADE
+  const [result] = await dbWrite("exams")
+    .where({ exam_id })
+    .del()
+    .returning("*");
+
+  return result;
+};
+
+/*
+GET PAGINATED EXAMS
+*/
+const getAllPaginatedExams = async (page, limit) => {
+
+  let query = dbWrite("exams").orderBy("exam_id", "asc");
+
+  if (page && limit) {
+    const offset = (page - 1) * limit;
+    query = query.limit(limit).offset(offset);
+  }
+
+  return await query;
+};
+
+/*
+EXAM COUNT
+*/
+const ExamCount = async (role) => {
+
+  const exam_for = role === "President" || role === "Teacher"
+    ? "Teacher"
+    : "Student";
+
+  const result = await dbWrite("exams")
+    .select("status")
+    .count("* as count")
+    .where({ exam_for })
+    .groupBy("status");
+
+  const counts = {
+    draft: 0,
+    scheduled: 0,
+    live: 0,
+    past: 0
+  };
+
+  result.forEach(row => {
+    counts[row.status] = Number(row.count);
+  });
+
+  return counts;
+};
+
+/*
+GET SCHEDULED EXAMS
+*/
 const getAllScheduledExams = async () => {
-  const query = 'SELECT * FROM exams WHERE status = $1';
-  const result = await dbWrite.raw(query, ['scheduled']);
-  return result.rows;
+  return await dbWrite("exams")
+    .where({ status: "scheduled" });
 };
 
-const getExamsByStatus = async (status, role, branch, year = null) => {
-  const branchFilter = [branch]; // array format for @> operator
-  const yearFilter = year ? [year] : null;
-
-  if (role === "President" || role === "Teacher") {
-    const query = `
-      SELECT DISTINCT 
-        e.exam_id, 
-        e.exam_name, 
-        e.duration,
-        e.start_time,
-        e.end_time,
-        e.created_at,
-        e.status,
-        e.target_branches,
-        e.target_years,
-        COUNT(q.question_id) AS question_count
-      FROM 
-        exams e
-      LEFT JOIN 
-        questions q ON e.exam_id = q.exam_id
-      WHERE 
-        e.status = $1 AND 
-        e.exam_for = $2 AND 
-        e.target_branches @> $3::branch_enum[]
-      GROUP BY 
-        e.exam_id, e.exam_name 
-      ORDER BY created_at DESC`;
-
-    const result = await dbWrite.raw(query, [status, "Teacher", branchFilter]);
-    return result.rows;
-  }
-
-  else if (role === "TPO") {
-    let query = `
-      SELECT DISTINCT 
-        e.exam_id, 
-        e.exam_name, 
-        e.duration,
-        e.start_time,
-        e.end_time,
-        e.created_at,
-        e.status,
-        e.target_branches,
-        e.target_years,
-        COUNT(q.question_id) AS question_count
-      FROM 
-        exams e
-      LEFT JOIN 
-        questions q ON e.exam_id = q.exam_id
-      WHERE 
-        e.status = $1 AND 
-        e.exam_for = $2`;
-
-    const values = [status, "Student"];
-
-    if (yearFilter) {
-      query += ` AND e.target_years @> $3::year_enum[]`;
-      values.push(yearFilter);
-    }
-
-    query += `
-      GROUP BY 
-        e.exam_id, e.exam_name 
-      ORDER BY created_at DESC`;
-
-    const result = await dbWrite.raw(query, values);
-    return result.rows;
-  }
-
-  else {
-    const query = `
-      SELECT DISTINCT 
-        e.exam_id, 
-        e.exam_name, 
-        e.duration,
-        e.start_time,
-        e.end_time,
-        e.created_at,
-        e.status,
-        e.target_branches,
-        e.target_years,
-        COUNT(q.question_id) AS question_count
-      FROM 
-        exams e
-      LEFT JOIN 
-        questions q ON e.exam_id = q.exam_id
-      WHERE 
-        e.status = $1 AND 
-        e.exam_for = $2 AND 
-        e.target_branches @> $3::branch_enum[]
-      GROUP BY 
-        e.exam_id, e.exam_name 
-      ORDER BY created_at DESC`;
-
-    const result = await dbWrite.raw(query, [status, 'Student', branchFilter]);
-    return result.rows;
-  }
-};
-
-
-
-const getExamsForUser = async (status, target_branches, target_years, student_id) => {
-  try {
-    const queryTEXT = `
-      SELECT DISTINCT
-        e.exam_id,
-        e.exam_name,
-        e.status,
-        e.target_branches,
-        e.target_years,
-        e.duration,
-        e.created_at,
-        e.start_time,
-        e.end_time,
-        COUNT(q.exam_id) AS total_questions,
-        CASE 
-          WHEN submitted_resp.student_id IS NULL THEN true
-          ELSE false
-        END AS isEligibleToAttempt
-      FROM exams AS e
-      JOIN questions AS q ON q.exam_id = e.exam_id
-      LEFT JOIN (
-        SELECT DISTINCT exam_id, student_id
-        FROM responses
-        WHERE student_id = $4 AND status = 'submitted'
-      ) AS submitted_resp
-        ON submitted_resp.exam_id = e.exam_id
-      WHERE 
-        e.status = $1 
-        AND e.exam_for = 'Student'                     
-        AND e.target_branches @> $2::branch_enum[]  
-        AND e.target_years @> $3::year_enum[]      
-      GROUP BY 
-        e.exam_id, 
-        e.status, 
-        e.target_branches, 
-        e.target_years, 
-        submitted_resp.student_id
-      ORDER BY e.exam_id DESC;
-    `;
-
-    const result = await dbWrite.raw(queryTEXT, [
-      status,
-      target_branches,
-      target_years,
-      student_id,
-    ]);
-
-    return result;
-  } catch (error) {
-    console.error('Error fetching exams:', error.message);
-    throw error;
-  }
-};
-
-
-
-
-const getExamsForTeachers = async (status) => {
-  console.log(status)
-  try {
-    if (status === "all") {
-
-      const queryTEXT = `
- SELECT DISTINCT
-  e.exam_id,
-  e.exam_name,
-  e.status,
-  e.target_branches,
-  e.target_years,
-  e.duration,
-  e.created_at,
-  e.start_time,
-  e.end_time,
-  COUNT(q.exam_id) AS total_questions  
-FROM exams AS e
-LEFT JOIN questions AS q ON q.exam_id = e.exam_id
-WHERE 
-      e.status IN ('live','past','scheduled')
-      AND 
-  e.exam_for = 'Teacher'                              
-GROUP BY e.exam_id, e.exam_name, e.status, e.target_branches, e.target_years, 
-         e.duration, e.created_at, e.start_time, e.end_time  
-ORDER BY e.exam_id DESC;`;
-
-
-      const result = await dbWrite.raw(queryTEXT);
-
-      console.log(result)
-      return result;
-    } else {
-      const queryTEXT = `
- SELECT DISTINCT
-  e.exam_id,
-  e.exam_name,
-  e.status,
-  e.target_branches,
-  e.target_years,
-  e.duration,
-  e.created_at,
-  e.start_time,
-  e.end_time,
-  COUNT(q.exam_id) AS total_questions  
-FROM exams AS e
-LEFT JOIN questions AS q ON q.exam_id = e.exam_id
-WHERE 
-  e.status = $1
-  AND e.exam_for = 'Teacher'                              
-GROUP BY e.exam_id, e.exam_name, e.status, e.target_branches, e.target_years, 
-         e.duration, e.created_at, e.start_time, e.end_time  
-ORDER BY e.exam_id DESC;`;
-
-
-      const result = await dbWrite.raw(queryTEXT, [status]);
-
-
-      return result;
-    }
-  } catch (error) {
-    console.error('Error fetching exams:', error.message);
-    throw error; // Re-throw the error for higher-level handling
-  }
-};
-
-
-
-
-const getPaginatedExams = async (page, limit, status, role, branch) => {
-  let query = `
-    SELECT DISTINCT
-      e.exam_id, 
-      e.exam_name, 
-      e.duration,
-      e.start_time,
-      e.end_time,
-      e.created_at,
-      e.status,
-      e.target_branches,
-      e.target_years,
-      COUNT(q.question_id) AS question_count
-    FROM 
-      exams e
-    LEFT JOIN 
-      questions q ON e.exam_id = q.exam_id
-    WHERE 
-      e.status = $1 AND 
-      e.exam_for = $2
-  `;
-
-  const params = [status, role === "President" || role === "Teacher" ? "Teacher" : "Student"];
-
-  // Add branch filter for department role (not TPO)
-  if (role !== "TPO" && branch) {
-    query += ` AND e.target_branches @> $3::branch_enum[] `;
-    params.push([branch]);
-  }
-
-  query += `
-    GROUP BY 
-      e.exam_id, e.exam_name 
-    ORDER BY created_at DESC
-  `;
-
-  const paginatedQuery = paginate(query, page, limit);
-  const result = await dbWrite.raw(paginatedQuery, params);
-  return result.rows;
-};
-
-
-
-
-// const getPaginatedLiveExams = async (page, limit) => {
-//   const query = `SELECT 
-//     e.exam_id, 
-//     e.exam_name, 
-// e.duration,
-// e.start_time,
-// e.end_time,
-// e.created_at,
-//     COUNT(q.question_id) AS question_count
-// FROM 
-//     exams e
-// LEFT JOIN 
-//     questions q
-// ON 
-//     e.exam_id = q.exam_id
-// WHERE 
-//     e.status = $1
-// GROUP BY 
-//     e.exam_id, e.exam_name`;
-//   const paginatedQuery = paginate(query, page, limit);
-//   const result = await dbWrite.raw(paginatedQuery, ['live']);
-//   return result.rows;
-// }
-
+/*
+GET LAST PAST EXAM
+*/
 const getLastExam = async (exam_for) => {
-  const query = `SELECT * FROM exams WHERE exam_for=$1 AND status='past' ORDER BY created_at DESC LIMIT 1`;
-  const result = await dbWrite.raw(query, [exam_for]);
-  return result.rows[0];
+
+  return await dbWrite("exams")
+    .where({
+      exam_for,
+      status: "past"
+    })
+    .orderBy("created_at", "desc")
+    .first();
 };
 
-// Get Exam Status by ID
+/*
+GET EXAM STATUS
+*/
 const getExamStatusById = async (exam_id) => {
-  try {
-    // Fetch exam start and end time
-    const result = await dbWrite.raw(
-      "SELECT exam_id, start_time, end_time, status FROM exams WHERE exam_id = $1",
-      [exam_id]
-    );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Exam not found" });
-    }
-
-    return result.rows[0];
-
-  } catch (error) {
-    console.error("Database Error in getExamStatusById:", error);
-    throw error;
-  }
+  return await dbWrite("exams")
+    .select("exam_id", "start_time", "end_time", "status")
+    .where({ exam_id })
+    .first();
 };
 
+/*
+GET EXAMS ATTEMPTED BY TEACHER
+*/
 const getExamsByTeacherId = async (teacher_id) => {
-  // Query text for databse
-  const query_text = `
-    SELECT 
-      e.exam_id,
-      e.exam_name,
-      e.duration,
-      COUNT(DISTINCT r.question_id) AS total_attempted_questions
-    FROM exams e
-    JOIN responses r 
-    ON e.exam_id = r.exam_id
-    WHERE r.student_id = $1
-    GROUP BY e.exam_id, e.exam_name, e.duration
-    ORDER BY e.exam_name DESC;
-  `;
-  console.log(teacher_id);
-  const result = await dbWrite.raw(query_text, [teacher_id]);
-  return result.rows;
-}
+
+  const result = await dbWrite("exams as e")
+    .join("responses as r", "e.exam_id", "r.exam_id")
+    .select(
+      "e.exam_id",
+      "e.exam_name",
+      "e.duration"
+    )
+    .countDistinct("r.question_id as total_attempted_questions")
+    .where("r.student_id", teacher_id)
+    .groupBy("e.exam_id", "e.exam_name", "e.duration")
+    .orderBy("e.exam_name", "desc");
+
+  return result;
+};
 
 module.exports = {
   createExam,
@@ -519,17 +240,12 @@ module.exports = {
   updateExam,
   deleteExam,
   getAllPaginatedExams,
-  getPaginatedExams,
-  getExamsForUser,
-  getAllScheduledExams,
   scheduleExam,
   markLiveExam,
   markPastExam,
   getLastExam,
-  getExamsByStatus,
   ExamCount,
   getExamStatusById,
-  // createExamForTeachersModel,
-  getExamsForTeachers,
+  getAllScheduledExams,
   getExamsByTeacherId
-};  
+};

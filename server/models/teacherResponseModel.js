@@ -1,95 +1,59 @@
-const pool = require('../config/db');
-const format = require('pg-format');
-const { paginate } = require('../utils/pagination');
+const { dbWrite } = require("../config/db");
+const { paginate } = require("../utils/pagination");
 
+// DELETE existing responses
 const deleteExistingResponses = async (exam_id, teacher_id) => {
   if (!exam_id || !teacher_id) {
-    throw new Error(
-      'Both exam_id and teacher_id are required to delete responses.'
-    );
+    throw new Error("Both exam_id and teacher_id are required.");
   }
 
-  const query = `DELETE FROM teacher_responses WHERE exam_id = $1 AND teacher_id = $2;`;
-  const values = [exam_id, teacher_id];
+  const deleted = await dbWrite("teacher_responses")
+    .where({ exam_id, teacher_id })
+    .del();
 
-  try {
-    const result = await dbWrite.raw(query, values);
-    console.log(
-      `Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, teacher_id: ${teacher_id}`
-    );
-    return { success: true, deletedRows: result.rowCount };
-  } catch (error) {
-    console.error('Error deleting teacher responses:', error);
-    throw new Error('Failed to delete teacher responses. Please try again.');
-  }
+  return { success: true, deletedRows: deleted };
 };
 
-// Submit multiple responses
+// BULK INSERT responses
 const submitMultipleResponses = async (responses) => {
-  // Prepare values for bulk insert
-  const values = responses.map((response) => [
-    response.exam_id,
-    response.question_id,
-    response.teacher_id,
-    response.selected_option,
-    response.selected_options,
-    response.text_answer,
-    response.question_type,
-  ]);
+  const result = await dbWrite("teacher_responses")
+    .insert(responses)
+    .returning("*");
 
-  // Generate placeholders for parameterized query
-  const placeholders = values
-    .map(
-      (_, i) =>
-        `($${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${i * 7 + 4}, $${i * 7 + 5}, $${i * 7 + 6}, $${i * 7 + 7})`
-    )
-    .join(', ');
-
-  // Flatten the values array for parameterized query
-  const flattenedValues = values.flat();
-
-  const query = format(`
-    INSERT INTO teacher_responses (exam_id, question_id, teacher_id, selected_option, selected_options, text_answer, question_type)
-    VALUES ${placeholders}
-    RETURNING *;
-  `);
-
-  const result = await dbWrite.raw(query, flattenedValues);
-  return result.rows;
+  return result;
 };
 
-// Insert 'NULL' in unanswered questions
-// Initialize all responses for an exam when a user starts an exam
+// INSERT unanswered questions
 const submittedUnansweredQuestions = async (exam_id, teacher_id) => {
-  const query = `
-    SELECT question_id, question_type
-    FROM questions
-    WHERE exam_id = $1
-    AND question_id NOT IN (
-      SELECT question_id
-      FROM teacher_responses
-      WHERE exam_id = $1
-      AND teacher_id = $2
-    )
-  `;
-  const result = await dbWrite.raw(query, [exam_id, teacher_id]);
-  const unansweredQuestions = result.rows.map((row) => ({
+  const questions = await dbWrite("questions as q")
+    .select("q.question_id", "q.question_type")
+    .where("q.exam_id", exam_id)
+    .whereNotExists(function () {
+      this.select("*")
+        .from("teacher_responses as tr")
+        .whereRaw("tr.question_id = q.question_id")
+        .where("tr.exam_id", exam_id)
+        .where("tr.teacher_id", teacher_id);
+    });
+
+  const unanswered = questions.map((q) => ({
     exam_id,
-    question_id: row.question_id,
+    question_id: q.question_id,
     teacher_id,
     selected_option: null,
     selected_options: null,
     text_answer: null,
-    question_type: row.question_type,
+    question_type: q.question_type,
   }));
 
-  if (unansweredQuestions.length > 0) {
-    return submitMultipleResponses(unansweredQuestions);
+  if (unanswered.length > 0) {
+    return submitMultipleResponses(unanswered);
   }
-  return result.rows;
+
+  return [];
 };
 
-// Submit a response
+// UPDATE teacher response
 const submitTeacherResponse = async (
   teacher_id,
   exam_id,
@@ -100,144 +64,137 @@ const submitTeacherResponse = async (
   question_type,
   response_status
 ) => {
-  let query, values;
+  let updateData = { response_status };
 
-  if (question_type === 'single_choice') {
-    query = `
-      UPDATE teacher_responses SET selected_option=$1, selected_options=null, text_answer=null, response_status=$2 WHERE exam_id=$3 AND question_id=$4 AND teacher_id=$5 AND question_type=$6 RETURNING *;
-    `;
-    values = [
-      selected_option,
-      response_status,
-      exam_id,
-      question_id,
-      teacher_id,
-      question_type,
-    ];
-  } else if (question_type === 'multiple_choice') {
-    query = `
-      UPDATE teacher_responses SET selected_option=null, selected_options=$1::jsonb , text_answer=null, response_status=$2 WHERE exam_id=$3 AND question_id=$4 AND teacher_id=$5 AND question_type=$6 RETURNING *;
-    `;
-    values = [
-      JSON.stringify(selected_options),
-      response_status,
-      exam_id,
-      question_id,
-      teacher_id,
-      question_type,
-    ];
-  } else if (question_type === 'text') {
-    query = `
-      UPDATE teacher_responses SET selected_option=null, selected_options=null, text_answer=$1, response_status=$2 WHERE exam_id=$3 AND question_id=$4 AND teacher_id=$5 AND question_type=$6 RETURNING *;
-    `;
-    values = [
-      text_answer,
-      response_status,
-      exam_id,
-      question_id,
-      teacher_id,
-      question_type,
-    ];
-  } else {
-    // Handle unsupported question type
-    throw new Error(`Unsupported question_type: ${question_type}`);
+  if (question_type === "single_choice") {
+    updateData.selected_option = selected_option;
+    updateData.selected_options = null;
+    updateData.text_answer = null;
   }
 
-  // Check if query is defined before executing
-  if (!query) {
-    throw new Error(`No query defined for question_type: ${question_type}`);
+  if (question_type === "multiple_choice") {
+    updateData.selected_option = null;
+    updateData.selected_options = JSON.stringify(selected_options);
+    updateData.text_answer = null;
   }
 
-  const result = await dbWrite.raw(query, values);
-  console.log(result.rows);
-  return result.rows[0];
+  if (question_type === "text") {
+    updateData.selected_option = null;
+    updateData.selected_options = null;
+    updateData.text_answer = text_answer;
+  }
+
+  const [result] = await dbWrite("teacher_responses")
+    .where({
+      exam_id,
+      question_id,
+      teacher_id,
+      question_type,
+    })
+    .update(updateData)
+    .returning("*");
+
+  return result;
 };
 
+// FINAL SUBMIT
 const submitFinalTeacherResponsesAndChangeStatus = async (
   teacher_id,
   exam_id
 ) => {
-  const query = `
-        UPDATE teacher_responses
-        SET response_status = $1, answered_at = NOW()
-        WHERE exam_id = $2 AND teacher_id = $3
-        RETURNING *;
-    `;
-  const result = await dbWrite.raw(query, ['submitted', exam_id, teacher_id]);
-  return result.rows;
+  return await dbWrite("teacher_responses")
+    .where({ exam_id, teacher_id })
+    .update({
+      response_status: "submitted",
+      answered_at: dbWrite.fn.now(),
+    })
+    .returning("*");
 };
 
+// GET exam IDs by response status
 const getExamIdByResponse = async (status, user_id) => {
-  try {
-    const result = await dbWrite.raw(
-      `SELECT DISTINCT exam_id FROM teacher_responses 
-         WHERE teacher_id = $1 AND response_status = $2`,
-      [user_id, status]
-    );
+  const rows = await dbWrite("teacher_responses")
+    .distinct("exam_id")
+    .where({
+      teacher_id: user_id,
+      response_status: status,
+    });
 
-    // Return only the exam_id array
-    return result.rows.map((row) => row.exam_id);
-  } catch (error) {
-    console.error(error);
-    return error;
-  }
+  return rows.map((r) => r.exam_id);
 };
-const  getAttemptedTest= async (exam_id) => {
-  try {
-    const querytext = `SELECT DISTINCT T.teacher_id , T.exam_id,T.response_status ,U.name , U.email FROM teacher_responses AS T  join users AS U on teacher_id = user_id  WHERE  T.exam_id=$1   ;
-`
-     const result = await dbWrite.raw(querytext,[ exam_id])
-    return result.rows;
-  } catch (error) {
-    console.error(error);
-  }
-}
-// Function to clear a user's response for a specific question
+
+// GET attempted teachers
+const getAttemptedTest = async (exam_id) => {
+  return await dbWrite("teacher_responses as t")
+    .join("users as u", "t.teacher_id", "u.user_id")
+    .distinct(
+      "t.teacher_id",
+      "t.exam_id",
+      "t.response_status",
+      "u.name",
+      "u.email"
+    )
+    .where("t.exam_id", exam_id);
+};
+
+// CLEAR response
 const clearResponse = async (teacherId, examId, questionId) => {
-  try {
-    const result = await dbWrite.raw(
-      "UPDATE responses SET selected_option = NULL, selected_options=NULL, text_answer=NULL WHERE teacher_id = $1 AND exam_id = $2 AND question_id = $3 AND response_status='draft' RETURNING *",
-      [teacherId, examId, questionId]
-    );
-    return result.rows;
-  } catch (error) {
-    console.error(error);
-  }
+  return await dbWrite("teacher_responses")
+    .where({
+      teacher_id: teacherId,
+      exam_id: examId,
+      question_id: questionId,
+      response_status: "draft",
+    })
+    .update({
+      selected_option: null,
+      selected_options: null,
+      text_answer: null,
+    })
+    .returning("*");
 };
 
+// PAGINATED responses
 const getPaginatedResponses = async (teacher_id, exam_id, page, limit) => {
-  let query = 
-   `SELECT response_id, selected_option, selected_options, text_answer, q.question_type, answered_at, teacher_responses.question_id, q.question_text,q.options,q.image_url 
-    FROM teacher_responses
-    INNER JOIN questions AS q ON teacher_responses.question_id = q.question_id
-    WHERE q.exam_id = $1 AND teacher_responses.teacher_id = $2
-    order by response_id`;
-
-  const values = [exam_id, teacher_id];
+  let query = dbWrite("teacher_responses as tr")
+    .join("questions as q", "tr.question_id", "q.question_id")
+    .select(
+      "tr.response_id",
+      "tr.selected_option",
+      "tr.selected_options",
+      "tr.text_answer",
+      "q.question_type",
+      "tr.answered_at",
+      "tr.question_id",
+      "q.question_text",
+      "q.options",
+      "q.image_url"
+    )
+    .where({
+      "q.exam_id": exam_id,
+      "tr.teacher_id": teacher_id,
+    })
+    .orderBy("tr.response_id");
 
   if (page && limit) {
-    query = paginate(query, page, limit); // Use pagination function
+    query = paginate(query, page, limit);
   }
 
-  const result = await dbWrite.raw(query, values);
-  return result.rows;
+  return await query;
 };
 
+// PAGINATED teachers who attempted exam
 const getAttemptedTeachersForExam = async (exam_id, page, limit) => {
-  let query = 
-   `SELECT DISTINCT u.user_id AS teacher_id, u.name, u.email, u.phone
-FROM teacher_responses tr
-JOIN users u ON tr.teacher_id = u.user_id
-WHERE tr.exam_id=$1;`;
-
-  const values = [exam_id];
+  let query = dbWrite("teacher_responses as tr")
+    .join("users as u", "tr.teacher_id", "u.user_id")
+    .distinct("u.user_id as teacher_id", "u.name", "u.email", "u.phone")
+    .where("tr.exam_id", exam_id);
 
   if (page && limit) {
-    query = paginate(query, page, limit); // Use pagination function
+    query = paginate(query, page, limit);
   }
 
-  const result = await dbWrite.raw(query, values);
-  return result.rows;
+  return await query;
 };
 
 module.exports = {
@@ -249,5 +206,5 @@ module.exports = {
   clearResponse,
   getPaginatedResponses,
   getAttemptedTeachersForExam,
-  getAttemptedTest
+  getAttemptedTest,
 };

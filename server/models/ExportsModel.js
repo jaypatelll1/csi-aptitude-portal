@@ -1,37 +1,42 @@
 // models/ExportModel.js
-const { query } = require("../config/db"); // Assuming you have a separate DB module
 
+const { dbWrite } = require("../config/db");
 
-// Users
+/*
+COMMON FUNCTION
+*/
+const fetchTable = async (tableName) => {
+  try {
+    const rows = await dbWrite(tableName).select("*");
+    return rows;
+  } catch (err) {
+    throw new Error(`Error fetching data from ${tableName}: ${err.message}`);
+  }
+};
+
+/*
+USERS TABLE
+*/
 const getUserTable = async () => {
-    try {
-        const result = await query("SELECT * from users"); // Replace with your table
-        return result.rows;
-    } catch (err) {
-        throw new Error("Error fetching data from database: " + err.message);
-    }
+  return fetchTable("users");
 };
 
+/*
+QUESTIONS TABLE
+*/
 const getQuestionTable = async () => {
-    try {
-        const result = await query("SELECT * FROM questions"); // Replace with your table
-        return result.rows;
-    } catch (err) {
-        throw new Error("Error fetching data from database: " + err.message);
-    }
+  return fetchTable("questions");
 };
 
+/*
+RESULTS TABLE
+*/
 const getResultTable = async () => {
-    try {
-        const result = await query("SELECT * FROM results"); // Replace with your table
-        return result.rows;
-    } catch (err) {
-        throw new Error("Error fetching data from database: " + err.message);
-    }
+  return fetchTable("results");
 };
 
 module.exports = {
-    getUserTable,
-    getQuestionTable,
-    getResultTable
+  getUserTable,
+  getQuestionTable,
+  getResultTable
 };

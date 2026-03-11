@@ -1,25 +1,30 @@
-const cron = require('node-cron');
-const {dbWrite} = require('../config/db');
+const cron = require("node-cron");
+const { dbWrite } = require("../config/db");
 
-// Run this job every minute
-const autoUpdate = cron.schedule('* * * * *', async () => {
+const autoUpdate = cron.schedule("* * * * *", async () => {
   try {
-    // const now = new Date().toISOString();
-    // console.log('now',now);
 
-    const result = await dbWrite.raw(
-      `UPDATE exams SET status = 'live' WHERE status = 'scheduled' AND start_time < CURRENT_TIMESTAMP`
-    );
-    console.log(`${result.rowCount} exams updated to 'live'.`);
+    // scheduled → live
+    const liveUpdate = await dbWrite("exams")
+      .where("status", "scheduled")
+      .andWhere("start_time", "<=", dbWrite.fn.now())
+      .update({ status: "live" });
+
+    // live → past
+    const pastUpdate = await dbWrite("exams")
+      .where("status", "live")
+      .andWhere("end_time", "<=", dbWrite.fn.now())
+      .update({ status: "past" });
+
+    if (liveUpdate || pastUpdate) {
+      console.log(
+        `Cron Update: ${liveUpdate} exams → live, ${pastUpdate} exams → past`
+      );
+    }
+
   } catch (error) {
-    console.error('Error updating exam statuses:', error);
+    console.error("Cron job error:", error);
   }
 });
 
-// Handle SIGINT for graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('Stopping cron jobs...');
-  autoUpdate.stop(); // Stop cron job
-  console.log('Exiting process.');
-  process.exit();
-});
+module.exports = autoUpdate;

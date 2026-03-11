@@ -1,30 +1,29 @@
-const {dbWrite} = require('../config/db');
-const format = require('pg-format');
-const { paginate } = require('../utils/pagination');
+const { dbWrite } = require("../config/db");
+const { paginate } = require("../utils/pagination");
 
+/*
+DELETE EXISTING RESPONSES
+*/
 const deleteExistingResponses = async (exam_id, user_id) => {
   if (!exam_id || !user_id) {
-    throw new Error(
-      'Both exam_id and user_id are required to delete responses.'
-    );
+    throw new Error("Both exam_id and user_id are required.");
   }
 
-  const query = `DELETE FROM responses WHERE exam_id = $1 AND student_id = $2;`;
-  const values = [exam_id, user_id];
-
   try {
-    const result = await dbWrite.raw(query, values);
-    console.log(
-      `Deleted ${result.rowCount} response(s) for exam_id: ${exam_id}, user_id: ${user_id}`
-    );
-    return { success: true, deletedRows: result.rowCount };
+    const deletedRows = await dbWrite("responses")
+      .where({ exam_id, student_id: user_id })
+      .del();
+
+    return { success: true, deletedRows };
   } catch (error) {
-    console.error('Error deleting responses:', error);
-    throw new Error('Failed to delete responses. Please try again.');
+    console.error("Error deleting responses:", error);
+    throw error;
   }
 };
 
-// Submit a response
+/*
+SUBMIT SINGLE RESPONSE
+*/
 const submitResponse = async (
   student_id,
   exam_id,
@@ -35,131 +34,98 @@ const submitResponse = async (
   question_type,
   response_status
 ) => {
-  let query, values;
-  
-  if (question_type === 'single_choice') {
-    query = `
-      UPDATE responses SET selected_option=$1, selected_options=null, text_answer=null, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 AND question_type=$6 RETURNING *;
-    `;
-    values = [
-      selected_option,
-      response_status,
-      exam_id,
-      question_id,
-      student_id,
-      question_type
-    ];
-  } else if(question_type === 'multiple_choice'){
-    query = `
-      UPDATE responses SET selected_option=null, selected_options=$1::jsonb , text_answer=null, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 AND question_type=$6 RETURNING *;
-    `;
-    values = [
-      JSON.stringify(selected_options),
-      response_status,
-      exam_id,
-      question_id,
-      student_id,
-      question_type
-    ];
-  } else if(question_type === 'text') {
-    query = `
-      UPDATE responses SET selected_option=null, selected_options=null, text_answer=$1, status=$2 WHERE exam_id=$3 AND question_id=$4 AND student_id=$5 AND question_type=$6 RETURNING *;
-    `;
-    values = [
-      text_answer,
-      response_status,
-      exam_id,
-      question_id,
-      student_id,
-      question_type
-    ];
-  } else {
-    // Handle unsupported question type
-    throw new Error(`Unsupported question_type: ${question_type}`);
+  try {
+    let updateData = {
+      status: response_status,
+    };
+
+    if (question_type === "single_choice") {
+      updateData.selected_option = selected_option;
+      updateData.selected_options = null;
+      updateData.text_answer = null;
+    }
+
+    if (question_type === "multiple_choice") {
+      updateData.selected_option = null;
+      updateData.selected_options = JSON.stringify(selected_options);
+      updateData.text_answer = null;
+    }
+
+    if (question_type === "text") {
+      updateData.selected_option = null;
+      updateData.selected_options = null;
+      updateData.text_answer = text_answer;
+    }
+
+    const [result] = await dbWrite("responses")
+      .where({
+        exam_id,
+        question_id,
+        student_id,
+        question_type,
+      })
+      .update(updateData)
+      .returning("*");
+
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
-  
-  // Check if query is defined before executing
-  if (!query) {
-    throw new Error(`No query defined for question_type: ${question_type}`);
-  }
-  
-  const result = await dbWrite.raw(query, values);
-  console.log(result.rows);
-  return result.rows[0];
 };
 
-// Submit multiple responses
+/*
+BULK INSERT RESPONSES
+*/
 const submitMultipleResponses = async (responses) => {
-  // Prepare values for bulk insert
-  const values = responses.map((response) => [
-    response.exam_id,
-    response.question_id,
-    response.student_id,
-    response.selected_option,
-    response.selected_options,
-    response.text_answer,
-    response.question_type,
-  ]);
-
-  // Generate placeholders for parameterized query
-  const placeholders = values
-    .map(
-      (_, i) =>
-        `($${i * 7 + 1}, $${i * 7 + 2}, $${i * 7 + 3}, $${i * 7 + 4}, $${i * 7 + 5}, $${i * 7 + 6}, $${i * 7 + 7})`
-    )
-    .join(', ');
-
-  // Flatten the values array for parameterized query
-  const flattenedValues = values.flat();
-
-  const query = format(`
-    INSERT INTO responses (exam_id, question_id, student_id, selected_option, selected_options, text_answer, question_type)
-    VALUES ${placeholders}
-    RETURNING *;
-  `);
-
-  const result = await dbWrite.raw(query, flattenedValues);
-  return result.rows;
+  try {
+    const result = await dbWrite("responses").insert(responses).returning("*");
+    return result;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };
 
-// Insert 'NULL' in unanswered questions
-// Initialize all responses for an exam when a user starts an exam
+/*
+INSERT NULL RESPONSES WHEN EXAM STARTS
+*/
 const submittedUnansweredQuestions = async (exam_id, student_id) => {
-  const query = `
-    SELECT question_id, question_type
-    FROM questions
-    WHERE exam_id = $1
-    AND question_id NOT IN (
-      SELECT question_id
-      FROM responses
-      WHERE exam_id = $1
-      AND student_id = $2
-    )
-  `;
-  const result = await dbWrite.raw(query, [exam_id, student_id]);
-  const unansweredQuestions = result.rows.map((row) => ({
+  const questions = await dbWrite("questions")
+    .select("question_id", "question_type")
+    .where("exam_id", exam_id)
+    .whereNotIn("question_id", function () {
+      this.select("question_id")
+        .from("responses")
+        .where({ exam_id, student_id });
+    });
+
+  const unanswered = questions.map((q) => ({
     exam_id,
-    question_id: row.question_id,
+    question_id: q.question_id,
     student_id,
     selected_option: null,
     selected_options: null,
     text_answer: null,
-    question_type: row.question_type,
+    question_type: q.question_type,
   }));
 
-  if (unansweredQuestions.length > 0) {
-    return submitMultipleResponses(unansweredQuestions);
+  if (unanswered.length > 0) {
+    return submitMultipleResponses(unanswered);
   }
-  return result.rows;
+
+  return [];
 };
 
-
-
-const submitFinalResponsesAndChangeStatus = async (student_id, exam_id, responses) => {
-
+/*
+FINAL SUBMIT
+*/
+const submitFinalResponsesAndChangeStatus = async (
+  student_id,
+  exam_id,
+  responses
+) => {
   try {
-
-
     for (const response of responses) {
       const {
         question_id,
@@ -168,139 +134,152 @@ const submitFinalResponsesAndChangeStatus = async (student_id, exam_id, response
         text_answer,
         question_type,
       } = response;
-console.log(response);
-      const query = `
-        UPDATE responses
-        SET
-          selected_option = $1,
-          answered_at = NOW(),
-          status = 'submitted',
-          selected_options = $2,
-          text_answer = $3,
-          question_type = $4
-        WHERE exam_id = $5 AND student_id = $6 AND question_id = $7;
-      `;
 
-      const values = [
-        selected_option,
-        selected_options,
-        text_answer,
-        question_type,
-        exam_id,
-        student_id,
-        question_id,
-      ];
-
-      await dbWrite.raw(query, values);
+      await dbWrite("responses")
+        .where({ exam_id, student_id, question_id })
+        .update({
+          selected_option,
+          selected_options,
+          text_answer,
+          question_type,
+          status: "submitted",
+          answered_at: dbWrite.fn.now(),
+        });
     }
 
-    
-    return { success: true, message: 'Responses updated successfully' };
+    return { success: true, message: "Responses updated successfully" };
   } catch (err) {
-    
-    console.error('Error updating responses:', err);
+    console.error(err);
     throw err;
-  } 
-};
-
-// Get responses by student for an exam
-const getResponsesByStudent = async (exam_id, student_id) => {
-  const query = `
-      SELECT response_id, selected_option, answered_at, responses.question_id
-      FROM responses
-      JOIN questions ON questions.question_id = responses.question_id
-      WHERE responses.exam_id = $1 AND student_id = $2
-    `;
-  const result = await dbWrite.raw(query, [exam_id, student_id]);
-  return result.rows;
-};
-
-// Get all responses for an exam
-const getResponsesForExam = async (exam_id) => {
-  const query = `
-      SELECT response_id, selected_option, answered_at, student_id, question_id
-      FROM responses
-      JOIN questions ON questions.question_id = responses.question.id
-      JOIN users ON users.user_id = responses.student_id
-      WHERE exam_id = $1
-    `;
-  const result = await dbWrite.raw(query, [exam_id]);
-  return result.rows;
-};
-
-// Update a response
-const updateResponse = async (response_id, selected_option) => {
-  const query = `
-      UPDATE responses
-      SET selected_option = $1, answered_at = NOW()
-      WHERE response_id = $2
-      RETURNING response_id, selected_option, answered_at;
-    `;
-  const values = [selected_option, response_id];
-
-  const result = await dbWrite.raw(query, values);
-  return result.rows[0]; // Return the updated response if found
-};
-
-const getExamIdByResponse = async (status, user_id) => {
-  try {
-    const result = await dbWrite.raw(
-      `SELECT DISTINCT exam_id FROM responses 
-         WHERE student_id = $1 AND status = $2`,
-      [user_id, status]
-    );
-
-    // Return only the exam_id array
-    return result.rows.map((row) => row.exam_id);
-  } catch (error) {
-    console.error(error);
-    return error;
   }
 };
 
-// Delete a response
-const deleteResponse = async (response_id) => {
-  const query = `
-      DELETE FROM responses
-      WHERE response_id = $1
-      RETURNING response_id;
-    `;
-  const values = [response_id];
-
-  const result = await dbWrite.raw(query, values);
-  return result.rowCount > 0; // Return true if a row was deleted
+/*
+GET RESPONSES BY STUDENT
+*/
+const getResponsesByStudent = async (exam_id, student_id) => {
+  return await dbWrite("responses")
+    .select(
+      "response_id",
+      "selected_option",
+      "answered_at",
+      "responses.question_id"
+    )
+    .join("questions", "questions.question_id", "responses.question_id")
+    .where({
+      "responses.exam_id": exam_id,
+      student_id,
+    });
 };
 
-const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
-  let query = `
-    SELECT response_id, selected_option, selected_options, text_answer, q.question_type, answered_at, responses.question_id, q.question_text,q.options,q.image_url  
-    FROM responses
-    INNER JOIN questions AS q ON responses.question_id = q.question_id
-    WHERE q.exam_id = $1 AND responses.student_id = $2
-    order by response_id
-  `;
+/*
+GET ALL RESPONSES FOR EXAM
+*/
+const getResponsesForExam = async (exam_id) => {
+  return await dbWrite("responses")
+    .select(
+      "response_id",
+      "selected_option",
+      "answered_at",
+      "student_id",
+      "responses.question_id"
+    )
+    .join("questions", "questions.question_id", "responses.question_id")
+    .join("users", "users.user_id", "responses.student_id")
+    .where("responses.exam_id", exam_id);
+};
 
-  const values = [exam_id, student_id];
+/*
+UPDATE RESPONSE
+*/
+const updateResponse = async (response_id, selected_option) => {
+  const [result] = await dbWrite("responses")
+    .where({ response_id })
+    .update({
+      selected_option,
+      answered_at: dbWrite.fn.now(),
+    })
+    .returning(["response_id", "selected_option", "answered_at"]);
+
+  return result;
+};
+
+/*
+GET EXAM IDS BY STATUS
+*/
+const getExamIdByResponse = async (status, user_id) => {
+  const rows = await dbWrite("responses")
+    .distinct("exam_id")
+    .where({
+      student_id: user_id,
+      status,
+    });
+
+  return rows.map((r) => r.exam_id);
+};
+
+/*
+DELETE RESPONSE
+*/
+const deleteResponse = async (response_id) => {
+  const deleted = await dbWrite("responses")
+    .where({ response_id })
+    .del();
+
+  return deleted > 0;
+};
+
+/*
+PAGINATED RESPONSES
+*/
+const getPaginatedResponses = async (exam_id, student_id, page, limit) => {
+  let query = dbWrite("responses as r")
+    .select(
+      "response_id",
+      "selected_option",
+      "selected_options",
+      "text_answer",
+      "q.question_type",
+      "answered_at",
+      "r.question_id",
+      "q.question_text",
+      "q.options",
+      "q.image_url"
+    )
+    .join("questions as q", "r.question_id", "q.question_id")
+    .where({
+      "q.exam_id": exam_id,
+      "r.student_id": student_id,
+    })
+    .orderBy("response_id");
 
   if (page && limit) {
-    query = paginate(query, page, limit); // Use pagination function
+    const offset = (page - 1) * limit;
+    query = query.limit(limit).offset(offset);
   }
 
-  const result = await dbWrite.raw(query, values);
-  return result.rows;
+  return await query;
 };
 
-// Function to clear a user's response for a specific question
+/*
+CLEAR RESPONSE
+*/
 const clearResponse = async (studentId, examId, questionId) => {
-  try {
-    const result = await dbWrite.raw(
-      "UPDATE responses SET selected_option = NULL, selected_options=NULL, text_answer=NULL WHERE student_id = $1 AND exam_id = $2 AND question_id = $3 AND status='draft' RETURNING *",
-      [studentId, examId, questionId]
-    );
-    return result.rows;
-  } catch (error) {
-    console.error(error);
-  }
+  const result = await dbWrite("responses")
+    .where({
+      student_id: studentId,
+      exam_id: examId,
+      question_id: questionId,
+      status: "draft",
+    })
+    .update({
+      selected_option: null,
+      selected_options: null,
+      text_answer: null,
+    })
+    .returning("*");
+
+  return result;
 };
 
 module.exports = {

@@ -13,214 +13,218 @@ const validCategories = [
 
 const validQuestionTypes = ["single_choice", "multiple_choice", "text", "image"];
 
+/*
+COMMON PROCESS FUNCTION
+*/
+function processQuestionRow(row, index, examId, warnings) {
 
-const parseExcelQuestion = async (filePath, examId) => {
-  try {
-    const workbook = XLSX.readFile(filePath);
-    const sheetNames = workbook.SheetNames;
-    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-    const warnings = [];
+  let {
+    question_text,
+    question_type,
+    options_a,
+    options_b,
+    options_c,
+    options_d,
+    correct_option,
+    correct_options,
+    image_url,
+    category
+  } = row;
 
-    for (let index = 0; index < jsonData.length; index++) {
-      const row = jsonData[index];
-      // console.log(jsonData)
-      let {
-        question_text,
-        question_type,
-        options_a,
-        options_b,
-        options_c,
-        options_d,
-        correct_option,
-        correct_options,
-        image_url,
-        category,
-      } = row;
+  if (!question_text || !question_type || !category) {
+    warnings.push(`Row ${index + 1}: Missing required fields`);
+    return null;
+  }
 
-      if (!question_text || !question_type || !category) {
-        warnings.push(`Row ${index + 1}: Skipped due to missing fields.`);
-        continue;
-      }
-      if(image_url === "NULL") image_url=null;
-      const categoryType = category.toLowerCase();
-      if (!validCategories.includes(categoryType)) {
-        warnings.push(`Row ${index + 1}: Invalid category - ${category}`);
-        continue;
-      }
+  const categoryType = category.toLowerCase();
 
-      if (!validQuestionTypes.includes(question_type)) {
-        warnings.push(`Row ${index + 1}: Invalid question type - ${question_type}`);
-        continue;
-      }
+  if (!validCategories.includes(categoryType)) {
+    warnings.push(`Row ${index + 1}: Invalid category - ${category}`);
+    return null;
+  }
 
-      let optionsObject = null;
-      let correctAnswer = null;
-      let correctAnswers = null;
+  if (!validQuestionTypes.includes(question_type)) {
+    warnings.push(`Row ${index + 1}: Invalid question type - ${question_type}`);
+    return null;
+  }
 
-      if (question_type === "single_choice") {
-        optionsObject = {
-          a: options_a || "",
-          b: options_b || "",
-          c: options_c || "",
-          d: options_d || "",
-        };
-        if (!correct_option) {
-          warnings.push(`Row ${index + 1}: Missing correct_option for single_choice.`);
-          continue;
-        }
-        correctAnswer = correct_option;
-      } else if (question_type === "multiple_choice") {
-        optionsObject = {
-          a: options_a || "",
-          b: options_b || "",
-          c: options_c || "",
-          d: options_d || "",
-        };
-        if (!correct_options) {
-          warnings.push(`Row ${index + 1}: Missing correct_options for multiple_choice.`);
-          continue;
-        }
-        correctAnswers = JSON.parse(correct_options);
-      } else if (question_type === "text") {
-        optionsObject = null; // No options for text-based questions
-      } else if (question_type === "image") {
-        if (!image_url) {
-          warnings.push(`Row ${index + 1}: Missing image_url for image question.`);
-          continue;
-        }
-      }
+  let optionsObject = null;
+  let correctAnswer = null;
+  let correctAnswers = null;
 
-      const queryText = `
-        INSERT INTO questions (exam_id, question_text, question_type, options, correct_option, correct_options, image_url, category)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-      `;
-      const values = [
-        examId,
-        question_text,
-        question_type,
-        optionsObject ? JSON.stringify(optionsObject) : null,
-        correctAnswer,
-        correctAnswers ? JSON.stringify(correctAnswers) : null,
-        image_url || null,
-        categoryType
-      ];
+  if (question_type === "single_choice") {
 
-      await dbWrite.raw(queryText, values);
+    optionsObject = {
+      a: options_a || "",
+      b: options_b || "",
+      c: options_c || "",
+      d: options_d || "",
+    };
+
+    if (!correct_option) {
+      warnings.push(`Row ${index + 1}: Missing correct_option`);
+      return null;
     }
 
-    console.log("All Excel data inserted successfully.");
-    console.log("warnings: ", warnings);
-    return jsonData;
-  } catch (err) {
-    console.error("Error inserting Excel data:", err);
-    throw new Error(err.detail || "Error inserting data into the database");
+    correctAnswer = correct_option;
   }
+
+  else if (question_type === "multiple_choice") {
+
+    optionsObject = {
+      a: options_a || "",
+      b: options_b || "",
+      c: options_c || "",
+      d: options_d || "",
+    };
+
+    if (!correct_options) {
+      warnings.push(`Row ${index + 1}: Missing correct_options`);
+      return null;
+    }
+
+    try {
+      correctAnswers = JSON.parse(correct_options);
+    } catch {
+      warnings.push(`Row ${index + 1}: Invalid correct_options JSON`);
+      return null;
+    }
+  }
+
+  else if (question_type === "text") {
+    optionsObject = null;
+  }
+
+  else if (question_type === "image") {
+
+    if (!image_url) {
+      warnings.push(`Row ${index + 1}: Missing image_url`);
+      return null;
+    }
+
+  }
+
+  if (image_url === "NULL") image_url = null;
+
+  return {
+    exam_id: examId,
+    question_text,
+    question_type,
+    options: optionsObject,
+    correct_option: correctAnswer,
+    correct_options: correctAnswers,
+    image_url: image_url || null,
+    category: categoryType
+  };
+}
+
+
+/*
+PARSE EXCEL FILE
+*/
+const parseExcelQuestion = async (filePath, examId) => {
+
+  try {
+
+    const workbook = XLSX.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    const warnings = [];
+    const questions = [];
+
+    rows.forEach((row, index) => {
+
+      const processed = processQuestionRow(row, index, examId, warnings);
+
+      if (processed) {
+        questions.push(processed);
+      }
+
+    });
+
+    if (questions.length > 0) {
+
+      // Insert in batches of 100
+      await dbWrite.batchInsert("questions", questions, 100);
+
+    }
+
+    console.log(`Inserted ${questions.length} questions from Excel`);
+    console.log("Warnings:", warnings);
+
+    return {
+      inserted: questions.length,
+      warnings
+    };
+
+  } catch (err) {
+
+    console.error("Excel upload error:", err);
+    throw new Error(err.detail || "Error inserting Excel data");
+
+  }
+
 };
 
-/**
- * Parses and inserts CSV questions into the database.
- */
+
+/*
+PARSE CSV FILE
+*/
 const parseCSVQuestion = async (filePath, examId) => {
+
   try {
-    const jsonData = await new Promise((resolve, reject) => {
+
+    const rows = await new Promise((resolve, reject) => {
+
       const data = [];
+
       fs.createReadStream(filePath)
         .pipe(csvParser())
         .on("data", (row) => data.push(row))
         .on("end", () => resolve(data))
-        .on("error", (err) => reject(err));
+        .on("error", reject);
+
     });
 
     const warnings = [];
+    const questions = [];
 
-    for (let index = 0; index < jsonData.length; index++) {
-      const row = jsonData[index];
-      const {
-        question_text,
-        question_type,
-        options,
-        correct_option,
-        correct_options,
-        image_url,
-        category,
-      } = row;
+    rows.forEach((row, index) => {
 
-      if (!question_text || !question_type || !category) {
-        warnings.push(`Row ${index + 1}: Skipped due to missing fields.`);
-        continue;
+      const processed = processQuestionRow(row, index, examId, warnings);
+
+      if (processed) {
+        questions.push(processed);
       }
 
-      const categoryType = category.toLowerCase();
-      if (!validCategories.includes(categoryType)) {
-        warnings.push(`Row ${index + 1}: Invalid category - ${category}`);
-        continue;
-      }
+    });
 
-      if (!validQuestionTypes.includes(question_type)) {
-        warnings.push(`Row ${index + 1}: Invalid question type - ${question_type}`);
-        continue;
-      }
+    if (questions.length > 0) {
 
-      let optionsObject = null;
-      let correctAnswer = null;
-      let correctAnswers = null;
+      // Insert in batches of 100
+      await dbWrite.batchInsert("questions", questions, 100);
 
-      if (question_type === "single_choice") {
-        try {
-          optionsObject = JSON.parse(options);
-        } catch (err) {
-          warnings.push(`Row ${index + 1}: Invalid options format.`);
-          continue;
-        }
-        if (!correct_option) {
-          warnings.push(`Row ${index + 1}: Missing correct_option for single_choice.`);
-          continue;
-        }
-        correctAnswer = correct_option;
-      } else if (question_type === "multiple_choice") {
-        try {
-          optionsObject = JSON.parse(options);
-          correctAnswers = JSON.parse(correct_options);
-        } catch (err) {
-          warnings.push(`Row ${index + 1}: Invalid JSON format in options or correct_options.`);
-          continue;
-        }
-      } else if (question_type === "text") {
-        optionsObject = null;
-      } else if (question_type === "image") {
-        if (!image_url) {
-          warnings.push(`Row ${index + 1}: Missing image_url for image question.`);
-          continue;
-        }
-      }
-
-      const queryText = `
-        INSERT INTO questions (exam_id, question_text, question_type, options, correct_option, correct_options, image_url, category)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
-      `;
-      const values = [
-        examId,
-        question_text,
-        question_type,
-        optionsObject ? JSON.stringify(optionsObject) : null,
-        correctAnswer,
-        correctAnswers ? JSON.stringify(correctAnswers) : null,
-        image_url || null,
-        categoryType
-      ];
-
-      await dbWrite.raw(queryText, values);
     }
 
-    console.log("All CSV data inserted successfully.");
-    return warnings;
+    console.log(`Inserted ${questions.length} questions from CSV`);
+
+    return {
+      inserted: questions.length,
+      warnings
+    };
+
   } catch (err) {
-    console.error("Error inserting CSV data:", err);
-    throw new Error(err.detail || "Error inserting data into the database");
+
+    console.error("CSV upload error:", err);
+    throw new Error(err.detail || "Error inserting CSV data");
+
   }
+
 };
+
 
 module.exports = {
   parseExcelQuestion,
-  parseCSVQuestion,
+  parseCSVQuestion
 };

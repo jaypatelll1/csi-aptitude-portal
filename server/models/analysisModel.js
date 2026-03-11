@@ -1,277 +1,244 @@
-const { dbWrite } = require('../config/db');
+const { dbWrite } = require("../config/db");
 
+/*
+FORMAT DATE HELPER
+*/
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
+/*
+DEPARTMENT ANALYSIS
+*/
 const getDepartmentAnalysis = async (department_name, year) => {
-  let baseQuery = `SELECT * FROM department_analysis`;
-  const values = [];
-  const conditions = [];
+
+  let query = dbWrite("department_analysis")
+    .select("*")
+    .orderBy("department_rank", "asc");
 
   if (department_name) {
-    conditions.push(`department_name = $${values.length + 1}`);
-    values.push(department_name);
+    query = query.where("department_name", department_name);
   }
 
   if (year) {
-    conditions.push(`year = $${values.length + 1}`);
-    values.push(year);
+    query = query.where("year", year);
   }
 
-  if (conditions.length > 0) {
-    baseQuery += ` WHERE ` + conditions.join(' AND ');
-  }
-
-  baseQuery += ` ORDER BY department_rank ASC`;
-
-  const result = await dbWrite.raw(baseQuery, values);
-  return result.rows;
+  return await query;
 };
 
-const deptTopScorers = async (department) => {
-  try {
-    const result = await dbWrite.raw(`
-      SELECT * 
-      FROM rank 
-      WHERE department_name = $1
-      ORDER BY overall_rank ASC 
-      LIMIT 5;
-    `, [department]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in topScorers:', error);
-    throw error;
-  }
+/*
+RANKING HELPERS
+*/
+const getRankList = async ({ department, year, order = "asc", limit = 5 }) => {
+
+  let query = dbWrite("rank").select("*");
+
+  if (department) query = query.where("department_name", department);
+  if (year) query = query.where("year", year);
+
+  query = query.orderBy("overall_rank", order).limit(limit);
+
+  const result = await query;
+
+  return order === "desc" ? result.reverse() : result;
 };
 
-const deptWeakScorers = async (department) => {
-  try {
-    const result = await dbWrite.raw(`
-      SELECT * FROM (
-        SELECT * 
-        FROM rank 
-        WHERE department_name = $1
-        ORDER BY department_rank DESC 
-        LIMIT 5
-        ) AS subquery
-        ORDER BY department_rank ASC;
-        `, [department]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in weakScorers:', error);
-    throw error;
-  }
-};
+const deptTopScorers = (department) =>
+  getRankList({ department, order: "asc" });
 
+const deptWeakScorers = (department) =>
+  getRankList({ department, order: "desc" });
 
+const topScorers = (year) =>
+  getRankList({ year, order: "asc" });
 
+const weakScorers = (year) =>
+  getRankList({ year, order: "desc" });
+
+/*
+USER ANALYSIS
+*/
 const getUserAnalysisById = async (student_id) => {
-  const queryText = `
-        SELECT * FROM user_analysis
-        WHERE student_id = $1
-      `;
 
-  const result = await dbWrite.raw(queryText, [student_id]);
-  return result.rows[0]; // return single object
+  return await dbWrite("user_analysis")
+    .where({ student_id })
+    .first();
 };
 
-
-
-
+/*
+OVERALL RESULTS OF STUDENT
+*/
 const getOverallResultsOfAStudent = async (student_id) => {
-  try {
-    const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 ORDER BY created_at DESC;`;
-    const result = await dbWrite.raw(queryText, [student_id]);
 
-    // Helper function to format date to readable format
-    const formatToReadableDate = (isoString) => {
-      const date = new Date(isoString);
-      const options = { day: '2-digit', month: 'short', year: 'numeric' };
-      return date.toLocaleDateString('en-IN', options);
+  const rows = await dbWrite("student_analysis")
+    .select("*")
+    .where({
+      student_id,
+      attempted: true
+    })
+    .orderBy("created_at", "desc");
+
+  return rows.map((row) => {
+
+    const percentage = Math.round((row.total_score / row.max_score) * 100);
+
+    return {
+      analysis_id: row.analysis_id,
+      department: row.department_name,
+      student_name: row.student_name,
+      category: row.category,
+      exam_name: row.exam_name,
+      total_score: row.total_score,
+      max_score: row.max_score,
+      attempted: row.attempted,
+      date: formatDate(row.created_at),
+      percentage
     };
-
-    // Calculate status for each result
-    const resultsWithPercentage = result.rows.map((row) => {
-      const percentage = Math.round((row.total_score / row.max_score) * 100); // Up to 3 decimal places
-      return {
-        analysis_id: row.analysis_id,
-        department: row.department_name,
-        student_name: row.student_name,
-        category: row.category,
-        exam_name: row.exam_name,
-        total_score: row.total_score,
-        max_score: row.max_score,
-        attempted: row.attempted,
-        exam_name: row.exam_name,
-        Date: formatToReadableDate(row.created_at), // Format date
-        percentage: Number(percentage), // Include calculated percentage
-      };
-    });
-
-    return resultsWithPercentage;
-  } catch (error) {
-    console.log(error);
-  }
+  });
 };
 
+/*
+RESULT OF PARTICULAR EXAM
+*/
 const getResultOfAParticularExam = async (student_id, exam_id) => {
-  try {
-    const queryText = `SELECT * FROM student_analysis WHERE attempted=true AND student_id=$1 AND exam_id=$2;`;
-    const result = await dbWrite.raw(queryText, [student_id, exam_id]);
 
-    // Helper function to format date to readable format
-    const formatToReadableDate = (isoString) => {
-      const date = new Date(isoString);
-      const options = { day: '2-digit', month: 'short', year: 'numeric' };
-      return date.toLocaleDateString('en-IN', options);
-    };
-
-    // Calculate status for each result
-    const resultsWithPercentage = result.rows.map((row) => {
-      const percentage = ((row.total_score / row.max_score) * 100).toFixed(2); // Up to 3 decimal places
-      return {
-        analysis_id: row.analysis_id,
-        department: row.department_name,
-        student_name: row.student_name,
-        category: row.category,
-        exam_name: row.exam_name,
-        total_score: row.total_score,
-        max_score: row.max_score,
-        attempted: row.attempted,
-        exam_name: row.exam_name,
-        Date: formatToReadableDate(row.created_at), // Format date
-        percentage: Number(percentage), // Include calculated percentage
-      };
+  const rows = await dbWrite("student_analysis")
+    .select("*")
+    .where({
+      student_id,
+      exam_id,
+      attempted: true
     });
 
-    return resultsWithPercentage;
-  } catch (error) {
-    console.log(error);
-  }
-};
+  return rows.map((row) => {
 
-const testCompletion = async (student_id) => {
-  try {
-    const attemptedResult = await dbWrite.raw(
-      `SELECT * FROM student_analysis WHERE student_id=$1 AND attempted=TRUE;`,
-      [student_id]
-    );
-    const totalResult = await dbWrite.raw(
-      `SELECT * FROM exams 
-       WHERE 
-        (SELECT department FROM users WHERE user_id = $1) = ANY(target_branches) 
-       AND 
-        (SELECT year FROM users WHERE user_id = $2) = ANY(target_years)
-       AND
-       status=$3;
-      `,
-      [student_id, student_id, 'past']
+    const percentage = Number(
+      ((row.total_score / row.max_score) * 100).toFixed(2)
     );
 
-    const result = {
-      attempted: attemptedResult.rowCount,
-      total: totalResult.rowCount,
+    return {
+      analysis_id: row.analysis_id,
+      department: row.department_name,
+      student_name: row.student_name,
+      category: row.category,
+      exam_name: row.exam_name,
+      total_score: row.total_score,
+      max_score: row.max_score,
+      attempted: row.attempted,
+      date: formatDate(row.created_at),
+      percentage
     };
-
-    return result;
-  } catch (error) {
-    console.log(error);
-  }
+  });
 };
 
-// Check if student analysis already exists
-async function checkStudentAnalysis(exam_id, student_id) {
-  try {
-    const sql = `
-          SELECT * FROM student_analysis 
-          WHERE exam_id = $1 AND student_id = $2;
-      `;
+/*
+TEST COMPLETION
+*/
+const testCompletion = async (student_id) => {
 
-    const result = await dbWrite.raw(sql, [exam_id, student_id]);
-    return result.rows.length > 0; // Returns true if entry exists, false otherwise
-  } catch (error) {
-    console.error('Error checking student analysis:', error);
-    throw error;
-  }
-}
+  const result = await dbWrite.raw(`
+    SELECT 
+        COUNT(DISTINCT sa.exam_id) AS attempted,
+        COUNT(DISTINCT e.exam_id) AS total
+    FROM users u
+    LEFT JOIN exams e 
+        ON u.department = ANY(e.target_branches)
+        AND u.year = ANY(e.target_years)
+        AND e.status = 'past'
+    LEFT JOIN student_analysis sa
+        ON sa.exam_id = e.exam_id
+        AND sa.student_id = u.user_id
+        AND sa.attempted = TRUE
+    WHERE u.user_id = ?
+    GROUP BY u.user_id
+  `, [student_id]);
 
+  return result.rows[0];
+};
 
-async function insertStudentAnalysis(data) {
-  try {
-    const sql = `
-            INSERT INTO student_analysis (
-                exam_id, department_name, student_id, student_name, exam_name, 
-                category, total_score, max_score, attempted
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING *;
-        `;
+/*
+CHECK STUDENT ANALYSIS
+*/
+const checkStudentAnalysis = async (exam_id, student_id) => {
 
-    const values = [
-      data.exam_id,
-      data.department_name,
-      data.student_id,
-      data.student_name,
-      data.exam_name,
-      data.category,
-      data.total_score,
-      data.max_score,
-      data.attempted,
-    ];
+  const result = await dbWrite("student_analysis")
+    .where({ exam_id, student_id });
 
-    const result = await dbWrite.raw(sql, values);
-    return result.rows[0]; // Return the inserted row
-  } catch (error) {
-    console.error('Error inserting student analysis:', error);
-    throw error;
-  }
-}
+  return result.length > 0;
+};
 
+/*
+INSERT STUDENT ANALYSIS
+*/
+const insertStudentAnalysis = async (data) => {
+
+  const [result] = await dbWrite("student_analysis")
+    .insert({
+      exam_id: data.exam_id,
+      department_name: data.department_name,
+      student_id: data.student_id,
+      student_name: data.student_name,
+      exam_name: data.exam_name,
+      category: data.category,
+      total_score: data.total_score,
+      max_score: data.max_score,
+      attempted: data.attempted
+    })
+    .returning("*");
+
+  return result;
+};
+
+/*
+GENERATE STUDENT ANALYSIS
+*/
 const generateStudentAnalysis = async () => {
-  try {
-    const queryText = `SELECT exam_id, student_id FROM results`;
-    const result = await dbWrite.raw(queryText);
-    return result.rows;
-  } catch (error) {
-    console.log(error);
-  }
+
+  return await dbWrite("results")
+    .select("exam_id", "student_id");
 };
 
+/*
+AVERAGE RESULT OF STUDENT
+*/
 const avgResults = async (student_id) => {
-  try {
-    const queryText = `
+
+  const result = await dbWrite.raw(`
       SELECT 
-          student_id, 
-          ROUND(AVG(total_score), 2) AS average_score,
+          student_id,
+          ROUND(AVG(total_score),2) AS average_score,
           MAX(max_score) AS max_possible_score
       FROM results
-      WHERE student_id = $1
-      GROUP BY student_id;
-    `;
-    const result = await dbWrite.raw(queryText, [student_id]);
-    return result.rows[0];
-  } catch (error) {
-    console.log(error);
-  }
+      WHERE student_id = ?
+      GROUP BY student_id
+  `, [student_id]);
+
+  return result.rows[0];
 };
 
-async function getStudentRank(student_id) {
-  try {
-    const result = await dbWrite.raw(
-      `SELECT * FROM rank WHERE student_id=$1;`,
-      [student_id]
-    );
-    if (!result.rows === 0) {
-      return;
-    }
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error returning student rank:', error);
-    throw error;
-  }
-}
+/*
+GET STUDENT RANK
+*/
+const getStudentRank = async (student_id) => {
 
+  const result = await dbWrite("rank")
+    .where({ student_id })
+    .first();
 
-async function user_analysis(year) {
-  try {
-    const queryText = `
+  return result || null;
+};
+
+/*
+USER ANALYSIS BY YEAR
+*/
+const user_analysis = async (year) => {
+
+  const result = await dbWrite.raw(`
       SELECT 
         r.student_id,
         r.student_name,
@@ -286,23 +253,21 @@ async function user_analysis(year) {
         ua.category,
         ua.performance_over_time,
         ua.updated_at
-      FROM rank AS r
-      JOIN user_analysis AS ua ON r.student_id = ua.student_id
-      WHERE r.year = $1;
-    `;
+      FROM rank r
+      JOIN user_analysis ua
+      ON r.student_id = ua.student_id
+      WHERE r.year = ?
+  `,[year]);
 
-    const result = await dbWrite.raw(queryText, [year]);
-    return result.rows;
-  } catch (error) {
-    console.error('❌ Error fetching user analysis:', error);
-    throw error;
-  }
-}
+  return result.rows;
+};
 
+/*
+DEPARTMENT USER ANALYSIS
+*/
+const dept_user_analysis = async (department) => {
 
-async function dept_user_analysis(department) {
-  try {
-    const queryText = `
+  const result = await dbWrite.raw(`
       SELECT 
         r.student_id,
         ua.student_name,
@@ -317,118 +282,71 @@ async function dept_user_analysis(department) {
         ua.category,
         ua.performance_over_time,
         ua.updated_at
-      FROM rank AS r
-      JOIN user_analysis AS ua ON r.student_id = ua.student_id
-      WHERE r.department_name = $1;
-    `;
+      FROM rank r
+      JOIN user_analysis ua
+      ON r.student_id = ua.student_id
+      WHERE r.department_name = ?
+  `,[department]);
 
-    const result = await dbWrite.raw(queryText, [department]);
-    return result.rows;
-  } catch (error) {
-    console.error('❌ Error fetching user analysis:', error);
-    throw error;
-  }
-}
-
-
-
-
-const topScorers = async (year) => {
-  try {
-    const result = await dbWrite.raw(`
-      SELECT * 
-      FROM rank 
-      WHERE year = $1
-      ORDER BY overall_rank ASC 
-      LIMIT 5;
-    `, [year]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in topScorers:', error);
-    throw error;
-  }
+  return result.rows;
 };
 
-const weakScorers = async (year) => {
-  try {
-    const result = await dbWrite.raw(`
-      SELECT * FROM (
-        SELECT * 
-        FROM rank 
-        WHERE year = $1
-        ORDER BY overall_rank DESC 
-        LIMIT 5
-      ) AS subquery
-      ORDER BY overall_rank ASC;
-    `, [year]);
-    return result.rows;
-  } catch (error) {
-    console.log('Error in weakScorers:', error);
-    throw error;
-  }
-};
-
-
+/*
+DEPARTMENT AVG SCORES
+*/
 const getDeptAvgScores = async (year) => {
-  try {
-    const result = await dbWrite.raw(
-      `
+
+  const result = await dbWrite.raw(`
       SELECT 
         department_name,
         ROUND(
           CASE 
             WHEN student_count = 0 THEN 0
             ELSE (total_score / student_count)::numeric
-          END, 2
+          END,2
         ) AS avg_score
-      FROM 
-        department_analysis
-      WHERE 
-        year = $1
-      ORDER BY 
-        avg_score DESC;
-      `,
-      [year] // <-- parameterized input
-    );
-    return result.rows;
-  } catch (error) {
-    console.log('Error fetching department average scores:', error);
-    throw error;
-  }
+      FROM department_analysis
+      WHERE year = ?
+      ORDER BY avg_score DESC
+  `,[year]);
+
+  return result.rows;
 };
 
+/*
+PERFORMANCE OVER TIME (DEPARTMENTS)
+*/
 const getAllDepartmentsPerformanceOverTime = async () => {
-  try {
-    const result = await dbWrite.raw(`
-      SELECT department_name, performance_over_time 
-      FROM department_analysis
-      ORDER BY department_rank ASC;
-    `);
-    return result.rows; // Array of { department_name, performance_over_time }
-  } catch (error) {
-    console.error('Error fetching performance over time:', error);
-    throw error;
-  }
+
+  const result = await dbWrite("department_analysis")
+    .select("department_name","performance_over_time")
+    .orderBy("department_rank","asc");
+
+  return result;
 };
+
+/*
+OVERALL ACCURACY RATE
+*/
 const overallAccuracyRate = async (year) => {
-  try {
-    const sql = `
-      SELECT ROUND(AVG(accuracy_rate)::numeric, 4) AS overall_accuracy_rate
+
+  const result = await dbWrite.raw(`
+      SELECT 
+        ROUND(AVG(accuracy_rate)::numeric,4)
+        AS overall_accuracy_rate
       FROM department_analysis
-      WHERE year = $1;
-    `;
-    const result = await dbWrite.raw(sql, [year]);
-    return result.rows[0]?.overall_accuracy_rate || 0.0;
-  } catch (error) {
-    console.error('❌ Error fetching overall accuracy rate:', error.message);
-    throw error;
-  }
+      WHERE year = ?
+  `,[year]);
+
+  return result.rows[0]?.overall_accuracy_rate || 0;
 };
 
+/*
+SINGLE USER ANALYSIS
+*/
+const getSingleUserAnalysis = async (student_id, department_name, year) => {
 
-async function getSingleUserAnalysis(student_id, department_name, year) {
-  try {
-    const sql = `
+  const result = await dbWrite.raw(`
       SELECT 
         r.student_id,
         r.department_name,
@@ -442,77 +360,65 @@ async function getSingleUserAnalysis(student_id, department_name, year) {
         ua.category,
         ua.performance_over_time,
         ua.updated_at
-      FROM rank AS r
-      JOIN user_analysis AS ua 
-        ON r.student_id = ua.student_id 
-        AND r.department_name = ua.department_name 
+      FROM rank r
+      JOIN user_analysis ua
+        ON r.student_id = ua.student_id
+        AND r.department_name = ua.department_name
         AND r.year = ua.year
-      WHERE r.student_id = $1 AND r.department_name = $2 AND r.year = $3;
-    `;
+      WHERE r.student_id = ?
+      AND r.department_name = ?
+      AND r.year = ?
+  `,[student_id,department_name,year]);
 
-    const result = await dbWrite.raw(sql, [student_id, department_name, year]);
+  return result.rows[0] || null;
+};
 
-    if (result.rows.length === 0) {
-      return null; // or []
-    }
+/*
+PERFORMANCE OVER TIME (STUDENT)
+*/
+const getPerformanceOverTime = async (student_id) => {
 
-    return result.rows[0];
-  } catch (error) {
-    console.error('❌ Error in getStudentCombinedAnalysis:', error.message);
-    throw error;
-  }
-}
-
-
-
-
-
-async function getPerformanceOverTime(student_id) {
-  try {
-    const result = await dbWrite.raw(`
+  const result = await dbWrite.raw(`
       SELECT 
           sa.student_id,
-          sa.exam_id, 
-          sa.exam_name, 
-          sa.department_name AS department, 
-          ROUND(AVG(sa.total_score)::NUMERIC, 0) AS average_score,
-          TO_CHAR(e.created_at, 'DD Mon-YYYY') AS created_on
+          sa.exam_id,
+          sa.exam_name,
+          sa.department_name AS department,
+          ROUND(AVG(sa.total_score)::NUMERIC,0) AS average_score,
+          TO_CHAR(e.created_at,'DD Mon-YYYY') AS created_on
       FROM student_analysis sa
-      JOIN exams e ON sa.exam_id = e.exam_id
-      WHERE sa.student_id = $1
-      GROUP BY sa.student_id, sa.exam_id, sa.exam_name, sa.department_name, e.created_at
-      ORDER BY e.created_at DESC  -- Get the latest exams first
-      LIMIT 5;
-`,
-      [student_id]
-    );
-    return result.rows;
-  } catch (error) {
-    console.error('Error returning student rank:', error);
-    throw error;
-  }
-}
+      JOIN exams e
+      ON sa.exam_id = e.exam_id
+      WHERE sa.student_id = ?
+      GROUP BY sa.student_id, sa.exam_id, sa.exam_name,
+               sa.department_name, e.created_at
+      ORDER BY e.created_at DESC
+      LIMIT 5
+  `,[student_id]);
+
+  return result.rows;
+};
 
 module.exports = {
+  getDepartmentAnalysis,
+  deptTopScorers,
+  deptWeakScorers,
+  topScorers,
+  weakScorers,
+  getUserAnalysisById,
   getOverallResultsOfAStudent,
   getResultOfAParticularExam,
   testCompletion,
-  insertStudentAnalysis,
   checkStudentAnalysis,
+  insertStudentAnalysis,
   generateStudentAnalysis,
   avgResults,
   getStudentRank,
-  getPerformanceOverTime,
-  getDepartmentAnalysis, //---------------
-  deptTopScorers,
-  deptWeakScorers,
-  getUserAnalysisById, //---------------
   user_analysis,
   dept_user_analysis,
-  getSingleUserAnalysis,
-  topScorers,
-  weakScorers,
   getDeptAvgScores,
   getAllDepartmentsPerformanceOverTime,
   overallAccuracyRate,
+  getSingleUserAnalysis,
+  getPerformanceOverTime
 };
