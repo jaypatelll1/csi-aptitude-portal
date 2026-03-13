@@ -16,7 +16,7 @@ const decryptPassword = require('../utils/decryptPassword');
 dotenv.config();
 // Function to create a new user/register
 const registerUser = async (req, res) => {
-  const { name, email, role, year, department, rollno, phone } =
+  const { name, email, role, year, department, rollno, phone,password } =
     req.body;
   if (role === "Teacher") {
     if (
@@ -48,7 +48,7 @@ const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
-    const password = generateRandomPassword(8, true)
+    
     // Ensure password is a string
     const passwordHash = await hashPassword(password.toString());
 
@@ -83,11 +83,15 @@ const registerUser = async (req, res) => {
 // Function for logging in
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+
+  console.log(email, password)
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
   try {
     const result = await userModel.findUserByEmail(email);
+    console.log(result.password_hash)
+  
     if (!result) {
       await logActivity({
         activity: 'Login attempt',
@@ -97,10 +101,13 @@ const loginUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     const decryptedPassword = await decryptPassword(password)
+    console.log(decryptedPassword)
+
     const isPasswordMatch = await verifyPassword(
       decryptedPassword,
       result.password_hash
     );
+    
     if (!isPasswordMatch) {
       await logActivity({
         user_id: result.user_id,

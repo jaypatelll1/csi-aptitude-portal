@@ -134,3 +134,23 @@ Stack Trace: TypeError: this.client.send is not a function
 [2025-07-15 20:07:25] error: User ID: 54, Activity: Login attempt, Status: failure, Details: Invalid password
 [2025-07-15 20:07:36] error: User ID: 56, Activity: Login attempt, Status: failure, Details: Invalid password
 [2025-07-15 20:08:37] error: User ID: 56, Activity: View Results, Status: failure, Details: No attempted results found
+[2026-03-12 23:56:10] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-12 23:56:13] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-12 23:57:31] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-12 23:58:54] error: User ID: undefined, Activity: Login attempt, Status: failure, Details: User not found
+[2026-03-12 23:59:40] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:01:15] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:01:36] error: User ID: 2, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:01:54] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:01:56] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:02:11] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:02:41] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:03:08] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:07:02] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:07:36] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:09:00] error: User ID: 3, Activity: Login attempt, Status: failure, Details: Invalid password
+[2026-03-13 00:11:54] error: User ID: 4, Activity: View Results, Status: failure, Details: No attempted results found
+[2026-03-13 00:12:00] error: User ID: 4, Activity: View overall Results, Status: failure, Details: Results not found
+[2026-03-13 00:12:11] error: User ID: 4, Activity: View overall Results, Status: failure, Details: Results not found
+[2026-03-13 00:12:12] error: User ID: 4, Activity: View Results, Status: failure, Details: No attempted results found
+[2026-03-13 00:12:42] error: User ID: 4, Activity: View Results, Status: failure, Details: No attempted results found

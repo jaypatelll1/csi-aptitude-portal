@@ -13,13 +13,16 @@ const hashPassword = async (plainTextPassword)=>{
     }
 };
 
-const verifyPassword = async (plainTextPassword, hashedPassword)=>{
-    try{
-        return await bcrypt.compare(plainTextPassword, hashedPassword);
-    } catch(err){
-        console.error("Error verifying password!", err);
-        throw err;
-    }
+const verifyPassword = async (plainTextPassword, hashedPassword) => {
+  try {
+    // bcrypt.compare internally hashes the plainTextPassword with the salt stored in hashedPassword
+    const isMatch = await bcrypt.compare(plainTextPassword, hashedPassword);
+    return isMatch;
+  } catch (err) {
+    console.error("Error verifying password!", err);
+    throw err;
+  }
 };
+
 
 module.exports = {hashPassword ,verifyPassword};
